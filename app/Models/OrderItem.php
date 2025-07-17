@@ -9,8 +9,9 @@ use App\Models\Order;
 class OrderItem extends Model
 {
     protected $table = 'order_items';
+    
     protected $fillable = [
-        'orderId',
+        'order_id',
         'product_id',
         'quantity',
         'price',
@@ -19,7 +20,7 @@ class OrderItem extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class ,'order_id');
     }
     public function product()
     {

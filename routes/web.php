@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\MainController;
 use App\Http\Controllers\Web\BagController;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\OrderController;
+use App\Http\Controllers\Web\MyOrdersController;
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
 Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
@@ -22,9 +23,8 @@ Route::middleware(['auth'])->group(function(){
     });
     Route::get('/order', [OrderController::class, 'order'])->name('order');
     Route::post('/ordergo', [OrderController::class, 'ordergo'])->name('ordergo');
-    Route::get('/myorders', [OrderController::class, 'myorders'])->name('myorders');
+    Route::get('/myorders', [MyOrdersController::class, 'myorders'])->name('myorders');
     Route::get('/createOrderJob',[OrderController::class, 'CreateOrderJob'])->name('createOrderJob');
-    Route::get('/listmyorders',[OrderController::class, 'listmyorders'])->name('listmyorders');
     
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 });    
