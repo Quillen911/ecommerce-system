@@ -23,8 +23,4 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
-    public function bag(){
-        return $this->hasOne(Bag::class ,'Bag_User_id');
-    }    
 }
