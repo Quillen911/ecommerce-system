@@ -1,0 +1,94 @@
+
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: order-api-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www #Docker + Windows/macOS’ta volume mount edilen klasörler (özellikle Laravel gibi çok dosyalı projelerde) aşırı yavaş çalışır.(Yaygın bir sorun)
+    depends_on:
+      - postgres
+    networks:
+      - order-api-network
+
+  postgres:
+    image: postgres:17
+    container_name: order-api-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ismail400
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    command: postgres -c max_connections=200 -c shared_buffers=512MB -c work_mem=16MB -c maintenance_work_mem=128MB -c effective_cache_size=2GB -c synchronous_commit=off -c wal_buffers=16MB -c checkpoint_completion_target=0.9
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - order-api-network
+
+  redis:
+    image: redis:alpine
+    container_name: order-api-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - order-api-network
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: order-api-queue
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    depends_on:
+      - postgres
+      - redis
+    command: php artisan queue:work --tries=3 --sleep=3 --timeout=60
+    networks:
+      - order-api-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: order-api-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - order-api-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - order-api-network
+
+volumes:
+  pgdata:
+  redis_data:
+
+networks:
+  order-api-network:
+    driver: bridge
