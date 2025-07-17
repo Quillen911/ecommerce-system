@@ -15,7 +15,7 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
     <button onclick="window.location.href='/bag'">Sepetim</button><br><br>
-    <button onclick="window.location.href='/listmyorders'">Siparişlerim</button><br><br>
+    <button onclick="window.location.href='/myorders'">Siparişlerim</button><br><br>
         <table border="5" cellpadding="8" cellspacing="0" >
             <thead>
                 <tr>
