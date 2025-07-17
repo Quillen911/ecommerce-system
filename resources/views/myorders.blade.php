@@ -7,19 +7,19 @@
 </head>
 <body>
     <h1>Siparişlerim</h1>
+    
     @if(isset($success))
         <p>{{$success}}</p>
     @endif
     @if(isset($error))
         <p>{{$error}}</p>
     @endif
-    
+    @if($orders->isEmpty())
+        <strong>Siparişiniz yok</strong> <br> <br>
+    @else
     @foreach($orders as $order)
-        <div style="margin-bottom: 30px; border: 1px solid #333; padding: 10px;">
-            <label>Sipariş No: </label>{{ $order->id }}<br>
-            <label>Sipariş Tarihi: </label>{{ $order->created_at }}<br>
-            <label>Durum: </label>{{ $order->status }}<br>
-            <label>Toplam Fiyat: </label>{{ $order->price }}<br>
+        <div style="margin-bottom: 30px; border: 1px solid #000; padding: 10px; border-radius: 10px;">
+            <br>
             <table border="5" cellpadding="8" cellspacing="0">
                 <thead>
                     <tr>
@@ -44,8 +44,17 @@
                     @endforeach
                 </tbody>
             </table>
+            <br>
+            <label>Sipariş No: </label>{{ $order->id }}<br>
+            <label>Sipariş Tarihi: </label>{{ $order->created_at }}<br>
+            <label>Durum: </label>{{ $order->status }}<br>
+            <label>Kargo Fiyatı: </label>{{ $order->cargo_price == 0 ? "Kargo Ücretsiz" : $order->cargo_price }}<br>
+            <strong>Toplam Fiyat: </strong>{{ $order->price }}<br>
+            <label>İndirim Fiyatı: </label>{{ $order->campaing_price }}<br>
+            <br>
         </div>
     @endforeach
+    @endif
     <button onclick="window.location.href='/main'">Ana Sayfaya Dön</button>
 </body>
 </html>

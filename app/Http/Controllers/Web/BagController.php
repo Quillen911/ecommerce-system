@@ -16,7 +16,7 @@ class BagController extends Controller
     public function bag(Request $request)
     {
         $user = auth()->user();
-        $bag = $user->bag;
+        $bag = Bag::where('Bag_User_id', $user->id)->first();
         $products = $bag ? $bag->bagItems()->with('product.category')->get() : collect();
         return view('bag', compact('products'));
     }
