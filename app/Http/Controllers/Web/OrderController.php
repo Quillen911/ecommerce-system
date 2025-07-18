@@ -11,15 +11,34 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\CreateOrderJob;
 use App\Models\OrderItem;
+use App\Services\Campaigns\CampaignManager;
+use App\Services\Campaigns\SabahattinAliCampaign;
+use App\Services\Campaigns\LocalAuthorCampaign;
 
 class OrderController extends Controller
 {
     public function order()
     {
+        //sepet ve ürünleri getirir.
         $user = auth()->user();
         $bag = Bag::where('Bag_User_id', $user->id)->first();
-        $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect(); 
-        return view('order', compact('products'));
+        $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
+        
+        $campaignManager = new CampaignManager();
+
+        $bestCampaign = $campaignManager->getBestCampaigns($products->all());
+        
+        $total = $products->sum(function($item){
+            return $item->quantity * $item->product->list_price;
+        });
+
+        $cargoPrice = $total >= 50 ? 0 : 10;
+        
+        $discount = $bestCampaign['discount'] ?? 0;
+
+        $Totally = $total +$cargoPrice -$discount;
+
+        return view('order', compact('products', 'bestCampaign', 'total', 'cargoPrice', 'discount', 'Totally'));
     }
 
     public function ordergo()
