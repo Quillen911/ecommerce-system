@@ -49,25 +49,26 @@ class OrderController extends Controller
         if(!$bag){
             return redirect('bag')->with('error', 'Sepetiniz boş!');
         }
-        $totalPrice = 0;
-        foreach($products as $p){
-            $totalPrice += $p->quantity * $p->product->list_price ;
-        }
-        $cargoPrice = 10;
-        $campaingPrice =0;
-        if($totalPrice >= 50){   
-            $cargoPrice = 0;
-        }
-        if($totalPrice >= 200 ){
-            $campaingPrice = $totalPrice * 95 /100;
-        }
+        
+        $campaignManager = new CampaignManager();
+        $bestCampaign = $campaignManager->getBestCampaigns($products->all());
+        $total = $products->filter(function($items) {
+            return $items->quantity * $items->product->list_price; 
+        });
 
-           
+        $cargoPrice = $total >= 50.00 ? 0.00 : 10.00;
+
+        $discount = $bestCampaign['discount'] ?? 0;
+
+        $Totally = $total + $cargoPrice - $discount;
+        $campaignInfo = $bestCampaign['description'] ?? '';    
+        
         $order = Order::create([
             'Bag_User_id' => $user->id,
             'price' => $totalPrice + $cargoPrice ,
-            'cargo_price' => $cargoPrice == 0 ? 0 : 10,
-            'campaing_price' => $campaingPrice,
+            'cargo_price' => $cargoPrice,
+            'campaign_info' => $campaignInfo,
+            'campaing_price' => $Totally,
             'status' => 'bekliyor',
         ]);
 
