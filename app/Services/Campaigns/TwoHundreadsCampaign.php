@@ -6,21 +6,21 @@ class TwoHundreadsCampaign implements CampaignInterface
 {
     public function isApplicable(array $products): bool
     {
-        $products= collect($products);
-        $eligible = $products->filter(function($items){
-            return $items->product->list_price * $items->quantity;
+        $products = collect($products);
+        $total = $products->sum(function($item) {
+            return $item->product->list_price * $item->quantity;
         });
-        $eligiblePrice =  $eligible->sum('quantity') * $eligible->sum('product.list_price') ;
-        return $eligiblePrice >= 200; 
+        return $total >= 200.00;
     }
 
     public function calculateDiscount(array $products): array
     {
         $products= collect($products);
         $eligible = $products->filter(function($items){
-            return $items->product->list_price * $items->quantity;
+            $Total=$items->product->list_price * $items->quantity;
+            return $Total;
         });
-        $eligiblePrice =  $eligible->sum('quantity')* $eligible->sum('product.list_price') ;
+        $eligiblePrice =  $eligible->sum('Total') ;
 
 
         $total = $eligible->sum(function($items) {

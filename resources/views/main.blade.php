@@ -14,8 +14,8 @@
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
-    <button onclick="window.location.href='/bag'">Sepetim</button><br><br>
-    <button onclick="window.location.href='/myorders'">Siparişlerim</button><br><br>
+    <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" onclick="window.location.href='/bag'">Sepetim</button><br><br>
+    <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" onclick="window.location.href='/myorders'">Siparişlerim</button><br><br>
         <table border="5" cellpadding="8" cellspacing="0" >
             <thead>
                 <tr>
@@ -43,7 +43,7 @@
                             <form action="{{ route('add') }}" method="POST" style="display:inline;">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $p->id }}">
-                                <button type="submit">Sepete Ekle</button>
+                                <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Sepete Ekle</button>
                             </form>
                         </td>
                     </tr>
@@ -53,7 +53,7 @@
         </table><br>
     <form action="{{ route('logout') }}" method="POST">
         @csrf
-      <button type="submit">Çıkış Yap</button>
+      <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Çıkış Yap</button>
     </form>
 
 
