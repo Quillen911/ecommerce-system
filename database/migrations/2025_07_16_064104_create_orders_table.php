@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('Bag_User_id');
             $table->decimal('price', 8, 2);
             $table->decimal('cargo_price', 8, 2);
-            $table->string('campaign_info');
             $table->decimal('campaing_price', 8, 2);
+            $table->string('campaign_info');
             $table->string('status');
             $table->timestamps();
 

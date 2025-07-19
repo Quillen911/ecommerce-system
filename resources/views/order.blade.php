@@ -63,9 +63,9 @@
 
         <form action="{{route('ordergo')}}" method="POST">
             @csrf
-            <button type="submit">Siparişi Tamamla</button>
+            <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Siparişi Tamamla</button>
         </form>
     @endif
-    <a href="{{route('bag')}}">Sepetine geri dön</a>
+    <a style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" href="{{route('bag')}}">Sepetine geri dön</a>
 </body>
 </html>

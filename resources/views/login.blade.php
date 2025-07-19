@@ -15,9 +15,9 @@
     @endif
     <form action="{{ route('postlogin') }}" method="POST">
         @csrf
-        <input type="email" name="email" placeholder="Email" required><br>
-        <input type="password" name="password" placeholder="Şifre" required><br>
-        <button type="submit">Giriş Yap</button>
+        <input style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="email" name="email" placeholder="Email" required><br>
+        <input style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="password" name="password" placeholder="Şifre" required><br>
+        <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Giriş Yap</button>
     </form>
 
 </body>

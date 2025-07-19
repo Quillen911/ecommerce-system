@@ -52,11 +52,11 @@ class OrderController extends Controller
         
         $campaignManager = new CampaignManager();
         $bestCampaign = $campaignManager->getBestCampaigns($products->all());
-        $total = $products->filter(function($items) {
+        $total = $products->sum(function($items) {
             return $items->quantity * $items->product->list_price; 
         });
 
-        $cargoPrice = $total >= 50.00 ? 0.00 : 10.00;
+        $cargoPrice = $total >= 50 ? 0 : 10;
 
         $discount = $bestCampaign['discount'] ?? 0;
 
@@ -65,7 +65,7 @@ class OrderController extends Controller
         
         $order = Order::create([
             'Bag_User_id' => $user->id,
-            'price' => $totalPrice + $cargoPrice ,
+            'price' => $total,
             'cargo_price' => $cargoPrice,
             'campaign_info' => $campaignInfo,
             'campaing_price' => $Totally,

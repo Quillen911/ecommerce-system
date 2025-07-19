@@ -56,6 +56,6 @@
         </div>
     @endforeach
     @endif
-    <button onclick="window.location.href='/main'">Ana Sayfaya Dön</button>
+    <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" onclick="window.location.href='/main'">Ana Sayfaya Dön</button>
 </body>
 </html>

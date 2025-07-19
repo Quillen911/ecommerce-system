@@ -48,7 +48,7 @@
                             <form action="{{route('delete', $p->id)}}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit">Sil</button>
+                                    <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Sil</button>
                                 </form>
                             </td>
                         </tr>
@@ -56,8 +56,8 @@
                 </tbody>
         </table> <br>
     
-        <a href="{{route('order')}}">Sipariş Oluştur</a>
+        <a style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" href="{{route('order')}}">Sipariş Oluştur</a>
     @endif
-    <button type='button' onclick="window.location.href='{{route('main')}}'" class="btn-secondary"> Geri Dön</button>
+    <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type='button' onclick="window.location.href='{{route('main')}}'" class="btn-secondary"> Geri Dön</button>
 </body>
 </html> 
