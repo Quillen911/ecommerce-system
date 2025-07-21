@@ -93,26 +93,4 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
-    public function destroy(Request $request,$id)
-    {
-        $user = auth()->user();
-        $order = Order::where('Bag_User_id', $user->id)
-                    ->where('id', $id)
-                    ->first();
-        if(!$order){
-            return response()->json(['message' => 'Sipariş bulunamadı.'], 404);
-        }
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
-        $products = $bag->bagItems()->with('product.category')->get();
-        foreach($products as $p){
-            $productTable = Product::find($p->product_id);
-            if($productTable){
-                $productTable->stock_quantity += 1;
-                $productTable->save();
-            }
-        }
-        $bag->bagItems()->delete();
-        $order->delete();
-        return response()->json(['message' => 'Sipariş silindi.']);
-    }
 }
