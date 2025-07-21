@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -17,37 +17,20 @@ use App\Services\Campaigns\LocalAuthorCampaign;
 
 class OrderController extends Controller
 {
-    public function order()
+    public function index(Request $request)
     {
-        //sepet ve ürünleri getirir.
         $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
-        $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
-        
-        $campaignManager = new CampaignManager();
-
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all());
-        
-        $total = $products->sum(function($item){
-            return $item->quantity * $item->product->list_price;
-        });
-
-        $cargoPrice = $total >= 50 ? 0 : 10;
-        
-        $discount = $bestCampaign['discount'] ?? 0;
-
-        $Totally = $total +$cargoPrice -$discount;
-
-        return view('order', compact('products', 'bestCampaign', 'total', 'cargoPrice', 'discount', 'Totally'));
+        $orders = Order::where('Bag_User_id', $user->id)->get();
+        return response()->json($orders);
     }
 
-    public function ordergo(Request $request)
+    public function store(Request $request)
     {
         $user = auth()->user();
         $bag = Bag::where('Bag_User_id', $user->id)->first();
         $products = $bag->bagItems()->with('product.category')->get();
         if(!$bag){
-            return redirect('bag')->with('error', 'Sepetiniz boş!');
+            return response()->json(['message' => 'Sepetiniz boş!'], 400);
         }
         
         $campaignManager = new CampaignManager();
@@ -89,19 +72,47 @@ class OrderController extends Controller
                 $productTable->save();
             }
             else{
-                return redirect('order')->with('error', 'Ürün stokta yok!');
+                return response()->json(['message' => 'Ürün stokta yok!'], 400);
             }
         }
 
         $bag->bagItems()->delete();
         Cache::flush();
-        return redirect('main')->with('success', 'Siparişiniz işleme alındı!');
+        return response()->json(['message' => 'Siparişiniz işleme alındı!']);
     }
 
-    public function CreateOrderJob()
+    public function show(Request $request, $id)
     {
-        CreateOrderJob::dispatch();
-        return 'Job Kuyruğa eklendi';
+        $user = auth()->user();
+        $order = Order::where('Bag_User_id', $user->id)
+                    ->where('id',$id)
+                    ->first();
+        if(!$order){
+            return response()->json(['message' => 'Sipariş bulunamadı.'], 404);
+        }
+        return response()->json($order);
     }
 
+    public function destroy(Request $request,$id)
+    {
+        $user = auth()->user();
+        $order = Order::where('Bag_User_id', $user->id)
+                    ->where('id', $id)
+                    ->first();
+        if(!$order){
+            return response()->json(['message' => 'Sipariş bulunamadı.'], 404);
+        }
+        $bag = Bag::where('Bag_User_id', $user->id)->first();
+        $products = $bag->bagItems()->with('product.category')->get();
+        foreach($products as $p){
+            $productTable = Product::find($p->product_id);
+            if($productTable){
+                $productTable->stock_quantity += 1;
+                $productTable->save();
+            }
+        }
+        $bag->bagItems()->delete();
+        $order->delete();
+        return response()->json(['message' => 'Sipariş silindi.']);
+    }
 }
