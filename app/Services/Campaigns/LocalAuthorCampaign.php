@@ -19,7 +19,7 @@ class LocalAuthorCampaign implements CampaignInterface
             ]);
         });
         $totalEligible = $eligible->sum('quantity');
-        return $totalEligible > 1;
+        return $totalEligible > 0;
     } 
     
     public function calculateDiscount(array $products): array

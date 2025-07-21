@@ -34,15 +34,13 @@ class BagController extends Controller
         } else if ($productItem) {
             $productItem->quantity += 1;
             $productItem->save();
-            $product->stock_quantity -= 1;
-            $product->save();
+            
         } else {
             $bag->bagItems()->create([
                 'product_id' => $request->product_id,
                 'quantity' => 1
             ]);
-            $product->stock_quantity -= 1;
-            $product->save();
+            
         }
         Cache::flush(); 
         return redirect()->route('main')->with('success', 'Ürün sepete eklendi!');
@@ -53,10 +51,6 @@ class BagController extends Controller
 
         if ($bagItem) {
             $product = Product::find($bagItem->product_id);
-            if ($product) {
-                $product->stock_quantity += 1;
-                $product->save();
-            }
 
             if ($bagItem->quantity > 1) {
                 $bagItem->quantity -= 1;
