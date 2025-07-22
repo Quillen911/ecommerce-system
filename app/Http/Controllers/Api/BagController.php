@@ -9,28 +9,37 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\BagItem;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\BaseApiRequest;
+use App\Traits\UserBagTrait;
+use App\Helpers\ResponseHelper;
 
 class BagController extends Controller
 {
+    use UserBagTrait;
     public function index(Request $request)
     {
-        $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+
         if(!$bag){
-            return response()->json(['error' => 'Sepet bulunamadı!'], 404);
+            return ResponseHelper::notFound('Sepetiniz bulunamadı!');
         }
         $products = $bag->bagItems()->with('product.category')->get();
-        return response()->json($products);
+        if(!$products->isEmpty()){
+            return ResponseHelper::notFound('Sepetiniz boş!');
+        }
+        return ResponseHelper::success('Sepetiniz', $products);
     }
-    public function store(Request $request)
+    public function store(BaseApiRequest $request)
     {
-        $user = auth()->user(); 
-        $bag = Bag::firstOrCreate(['Bag_User_id' => $user->id]);
+        $user = $this->getUser(); 
+        $bag = $this->getUserBag();
+        
         $productItem = $bag->bagItems()->where('product_id', $request->product_id)->first();
         $product = Product::find($request->product_id);
         
         if ($product->stock_quantity == 0) {
-            return response()->json(['error' => 'Ürün stokta yok!'], 400);
+            return ResponseHelper::notFound('Ürün stokta yok!');
 
         } else if ($productItem) {
             $productItem->quantity += 1;
@@ -44,37 +53,38 @@ class BagController extends Controller
             
         }
         Cache::flush();
-        return response()->json(['message' => 'Ürün sepete eklendi.']);
+        return ResponseHelper::success('Ürün sepete eklendi.', $product);
     }
 
     public function show(Request $request)
     {
-        $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+
         if(!$bag){
-            return response()->json(['error' => 'Sepet bulunamadı!'], 404);
+            return ResponseHelper::notFound('Sepet bulunamadı!');
         }
         $bagItem = $bag->bagItems()->where('product_id', $request->product_id)
                         ->where('bag_id', $bag->id)
                         ->first();
         if(!$bagItem){
-            return response()->json(['error' => 'Ürün bulunamadı!'], 404);
+            return ResponseHelper::notFound('Ürün bulunamadı!');
         }
-        return response()->json($bagItem);
+        return ResponseHelper::success('Ürün', $bagItem);
     }
     public function destroy(Request $request)
     {
-        $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
         if(!$bag){
-            return response()->json(['error' => 'Sepet bulunamadı!'], 404);
+            return ResponseHelper::notFound('Sepet bulunamadı!');
         }
         $bagItem = $bag->bagItems()->where('product_id', $request->product_id)
                         ->where('bag_id', $bag->id)
                         ->first();
 
         if(!$bagItem){
-            return response()->json(['error' => 'Ürün bulunamadı!'], 404);
+            return ResponseHelper::notFound('Ürün bulunamadı!');
         }
         if ($bagItem) {
             $product = Product::find($bagItem->product_id);
@@ -89,6 +99,6 @@ class BagController extends Controller
             }
         }
         Cache::flush();  
-        return response()->json(['message' => $message]);
+        return ResponseHelper::success($message, $product);
     }
 }

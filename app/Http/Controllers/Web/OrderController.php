@@ -41,7 +41,7 @@ class OrderController extends Controller
         return view('order', compact('products', 'bestCampaign', 'total', 'cargoPrice', 'discount', 'Totally'));
     }
 
-    public function ordergo(Request $request)
+    public function done(Request $request)
     {
         $user = auth()->user();
         $bag = Bag::where('Bag_User_id', $user->id)->first();

@@ -61,7 +61,7 @@
 
         <br>
 
-        <form action="{{route('ordergo')}}" method="POST">
+        <form action="{{route('done')}}" method="POST">
             @csrf
             <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Siparişi Tamamla</button>
         </form>

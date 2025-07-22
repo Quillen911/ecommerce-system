@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\BagController;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\MyOrdersController;
+
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
 Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
@@ -21,9 +22,17 @@ Route::middleware(['auth'])->group(function(){
         Route::delete('/{id}', [BagController::class, 'delete'])->name('delete');
         
     });
-    Route::get('/order', [OrderController::class, 'order'])->name('order');
-    Route::post('/ordergo', [OrderController::class, 'ordergo'])->name('ordergo');
-    Route::get('/myorders', [MyOrdersController::class, 'myorders'])->name('myorders');
+
+    Route::prefix('order')->group(function(){
+        Route::get('/', [OrderController::class, 'order'])->name('order');
+        Route::post('/done', [OrderController::class, 'done'])->name('done');
+    });
+
+    Route::prefix('myorders')->group(function(){
+        Route::get('/', [MyOrdersController::class, 'myorders'])->name('myorders');
+        Route::delete('/{id}', [MyOrdersController::class, 'delete'])->name('delete');
+    });
+
     Route::get('/createOrderJob',[OrderController::class, 'CreateOrderJob'])->name('createOrderJob');
     
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');

@@ -11,10 +11,10 @@ Route::post('/login',[AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function(){
 
-    Route::apiResource('bags', BagController::class);
-    Route::apiResource('orders', OrderController::class);
-    Route::apiResource('main', MainController::class);
-    Route::apiResource('myorders', MyOrdersController::class);
+    Route::apiResource('bags', BagController::class)->only(['index','store','show','destroy']);
+    Route::apiResource('orders', OrderController::class)->only(['index','store','show']);
+    Route::apiResource('main', MainController::class)->only(['index','show']);
+    Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
 
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
