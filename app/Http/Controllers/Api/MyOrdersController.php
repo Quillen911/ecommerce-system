@@ -5,43 +5,47 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Support\Facades\Cache;
+use App\Traits\UserBagTrait;
+use App\Helpers\ResponseHelper;
 
 class MyOrdersController extends Controller
 {
+    use UserBagTrait;
     public function index(Request $request)
     {
-        $user = auth()->user();
+        $user = $this->getUser();
         $orders = Order::with(['orderItems.product.category'])
             ->where('Bag_User_id', $user->id)
             ->orderByDesc('id')
             ->get();
-        if(!$orders){
-            return response()->json(['message' => 'Sipariş bulunamadı.'], 404);
+        if($orders->isEmpty()){
+            return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
 
-        return response()->json($orders);
+        return ResponseHelper::success('Siparişler', $orders);
     }
+    
     public function show(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = $this->getUser();
         $order = Order::with(['orderItems.product.category'])
             ->where('Bag_User_id', $user->id)
             ->where('id', $id)
             ->first();
         if(!$order){
-            return response()->json(['message' => 'Sipariş bulunamadı.'], 404);
+            return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
-        return response()->json($order);
+        return ResponseHelper::success('Sipariş', $order);
     }
 
     public function destroy(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = $this->getUser();
         $order = Order::where('Bag_User_id', $user->id)
                     ->where('id', $id)
                     ->first();
         if(!$order){
-            return response()->json(['message' => 'Sipariş bulunamadı.'], 404);
+            return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
         foreach($order->orderItems as $item){
             $product = $item->product;
@@ -53,6 +57,6 @@ class MyOrdersController extends Controller
 
         $order->delete();
         Cache::flush();
-        return response()->json(['message' => 'Sipariş silindi ve ürün stokları güncellendi.']);
+        return ResponseHelper::success('Sipariş silindi ve ürün stokları güncellendi.', $order);
     }
 }

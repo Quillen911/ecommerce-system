@@ -14,83 +14,63 @@ use App\Models\OrderItem;
 use App\Services\Campaigns\CampaignManager;
 use App\Services\Campaigns\SabahattinAliCampaign;
 use App\Services\Campaigns\LocalAuthorCampaign;
+use App\Http\Requests\OrderRequest;
+use App\Traits\UserBagTrait;
+use App\Services\OrderService;
+use App\Helpers\ResponseHelper;
+
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    use UserBagTrait;
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
     {
-        $user = auth()->user();
-        $orders = Order::where('Bag_User_id', $user->id)->get();
-        return response()->json($orders);
+        $this->orderService = $orderService;
     }
 
-    public function store(Request $request)
+    public function index(Request $request)
     {
-        $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
-        $products = $bag->bagItems()->with('product.category')->get();
+        $user = $this->getUser();
+        $orders = Order::where('Bag_User_id', $user->id)->get();
+        if($orders->isEmpty()){
+            return ResponseHelper::notFound('Sipariş bulunamadı.');
+        }
+        return ResponseHelper::success('Siparişler', $orders);
+    }
+
+    public function store(OrderRequest $request, OrderService $orderService)
+    {
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+
         if(!$bag){
-            return response()->json(['message' => 'Sepetiniz boş!'], 400);
+            return ResponseHelper::error('Sepetiniz bulunamadı!');
         }
+
+        $products = $bag->bagItems()->with('product.category')->get();
+
+        if($products->isEmpty()){
+            return ResponseHelper::error('Sepetiniz boş!');
+        }
+
+        $result = $orderService->createOrder($user, $products, new CampaignManager());
         
-        $campaignManager = new CampaignManager();
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all());
-        $total = $products->sum(function($items) {
-            return $items->quantity * $items->product->list_price; 
-        });
-
-        $cargoPrice = $total >= 50 ? 0 : 10;
-
-        $discount = $bestCampaign['discount'] ?? 0;
-
-        $Totally = $total + $cargoPrice - $discount;
-        $campaignInfo = $bestCampaign['description'] ?? '';    
-        
-        $order = Order::create([
-            'Bag_User_id' => $user->id,
-            'price' => $total + $cargoPrice,
-            'cargo_price' => $cargoPrice,
-            'campaign_info' => $campaignInfo,
-            'campaing_price' => $Totally,
-            'status' => 'bekliyor',
-        ]);
-
-        foreach($products as $p){
-            $orderItem = OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $p->product->id,
-                'quantity' => $p->quantity,
-                'price' => $p->product->list_price,
-            ]);
-            CreateOrderJob::dispatch($orderItem);
-        }
-
-        foreach($products as $p){
-            $productTable = Product::find($p->product_id);
-            if($productTable && $productTable->stock_quantity >= $p->quantity){
-                $productTable->stock_quantity -= $p->quantity;
-                $productTable->save();
-            }
-            else{
-                return response()->json(['message' => 'Ürün stokta yok!'], 400);
-            }
-        }
-
         $bag->bagItems()->delete();
-        Cache::flush();
-        return response()->json(['message' => 'Siparişiniz işleme alındı!']);
+        return ResponseHelper::success('Sipariş oluşturuldu.', $result);
     }
 
     public function show(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = $this->getUser();
         $order = Order::where('Bag_User_id', $user->id)
                     ->where('id',$id)
                     ->first();
         if(!$order){
-            return response()->json(['message' => 'Sipariş bulunamadı.'], 404);
+            return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
-        return response()->json($order);
+        return ResponseHelper::success('Sipariş', $order);
     }
 
 }

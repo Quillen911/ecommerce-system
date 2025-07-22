@@ -11,7 +11,7 @@ class BagItem extends Model
         'quantity'
     ];
     
-    public function bags() {
+    public function bag() {
         return $this->belongsTo(Bag::class ,'bag_id');
     }
     
