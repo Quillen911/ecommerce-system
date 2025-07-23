@@ -58,7 +58,7 @@ class OrderController extends Controller
         $result = $orderService->createOrder($user, $products, new CampaignManager());
         
         $bag->bagItems()->delete();
-        return ResponseHelper::success('Sipariş oluşturuldu.', $result);
+        return ResponseHelper::success('Sipariş oluşturuldu.', $products);
     }
 
     public function show(Request $request, $id)
