@@ -9,58 +9,62 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\BagItem;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\BaseApiRequest;
+use App\Traits\UserBagTrait;
+use App\Helpers\ResponseHelper;
+use App\Services\BagService;
 
 
 class BagController extends Controller
-{
+{   
+    use UserBagTrait;
+    protected $bagService;
+
+    public function __construct(BagService $bagService){
+
+        $this->bagService = $bagService;
+    }
+
     public function bag(Request $request)
-    {
-        $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
-        $products = $bag ? $bag->bagItems()->with('product.category')->get() : collect();
+    {   
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+
+        if(!$bag){
+            return redirect()->route('main')->with('error', 'Sepetiniz bulunamadı!');
+        }
+        $products = $bag->bagItems()->with('product.category')->get();
+        if(!$products){
+            return redirect()->route('bag')->with('error', 'Sepetiniz boş!');
+        }
         return view('bag', compact('products'));
     }
+    
     public function add(Request $request)
     {
         
-        $user = auth()->user(); 
-        $bag = Bag::firstOrCreate(['Bag_User_id' => $user->id]);
-        $productItem = $bag->bagItems()->where('product_id', $request->product_id)->first();
-        $product = Product::find($request->product_id);
-        
-        if ($product->stock_quantity == 0) {
-            return redirect('main')->with('error', 'Ürün stokta yok!');
-
-        } else if ($productItem) {
-            $productItem->quantity += 1;
-            $productItem->save();
-            
-        } else {
-            $bag->bagItems()->create([
-                'product_id' => $request->product_id,
-                'quantity' => 1
-            ]);
-            
+        $user = $this->getUser(); 
+        $result = $this->bagService->getAddBag($user->id, $request->product_id);
+        if(!$result['success']){
+            return redirect()->route('main')->with('error', $result['message']);
         }
-        Cache::flush(); 
-        return redirect()->route('main')->with('success', 'Ürün sepete eklendi!');
+        return redirect()->route('main')->with('success', $result['message']);
     }
-    public function delete($id)
+    public function delete(Request $request)
     {   
-        $bagItem = BagItem::find($id);
-
-        if ($bagItem) {
-            $product = Product::find($bagItem->product_id);
-
-            if ($bagItem->quantity > 1) {
-                $bagItem->quantity -= 1;
-                $bagItem->save();
-            } else {
-                $bagItem->delete();
-            }
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+    
+        if(!$bag){
+            return redirect()->route('bag')->with('error', 'Sepet Bulunamadı');
         }
 
-        Cache::flush(); 
-        return redirect()->route('bag')->with('success', 'Ürün sepetten 1 adet silindi!');
+        $result = $this->bagService->destroyBagItem($request->product_id, $user->id, $bag->id);
+        
+        if(!$result['success']){
+            return redirect()->route('bag')->with('error', $result['message']);
+        }
+        
+        return redirect()->route('bag')->with('success', $result['message']);
     }
 }

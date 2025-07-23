@@ -1,41 +1,38 @@
 <?php
 
 namespace App\Http\Controllers\Web;
-use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use Illuminate\Support\Facades\Cache;
+use App\Services\MyOrderService;
+use App\Traits\UserBagTrait;
 
 class MyOrdersController extends Controller{
+
+    use UserBagTrait;
+    protected $myOrderService;
+
+    public function __construct(MyOrderService $myOrderService)
+    {
+        $this->myOrderService = $myOrderService;
+    }
+
     public function myorders()
     {
-        $user = auth()->user();
-        $orders = Order::with(['orderItems.product.category'])
-            ->where('Bag_User_id', $user->id)
-            ->orderByDesc('id')
-            ->get();
+        $user = $this->getUser();
+        $orders = $this->myOrderService->getOrdersforUser($user->id);
+        if(!$orders){
+            return redirect()->with('error', 'Sipariş Bulunamadı.');
+        }
         return view('myorders', compact('orders'));
     }
 
     public function delete($id)
     {
-        $user = auth()->user();
-        $order = Order::where('Bag_User_id', $user->id)
-                    ->where('id', $id)
-                    ->first();
+        $user = $this->getUser();
+        $order = $this->myOrderService->cancelOrder($user->id, $id);
         if(!$order){
             return redirect()->back()->with('error', 'Sipariş bulunamadı.');
         }
-        foreach($order->orderItems as $item){
-            $product = $item->product;
-            if($product){
-                $product->stock_quantity += $item->quantity;
-                $product->save();
-            }
-        }
-
-        $order->delete();
-        Cache::flush();
-        return redirect()->back()->with('success', 'Sipariş başarıyla iptal edildi.');
+        return redirect()->route('myorders')->with('success', 'Sipariş başarıyla iptal edildi.');
     }
 }

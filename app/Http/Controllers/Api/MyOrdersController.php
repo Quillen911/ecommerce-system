@@ -1,37 +1,37 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use Illuminate\Support\Facades\Cache;
+use App\Services\MyOrderService;
 use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
+use Illuminate\Http\Request;
 
 class MyOrdersController extends Controller
 {
     use UserBagTrait;
+    protected $myOrderService;
+
+    public function __construct(MyOrderService $myOrderService)
+    {
+        $this->myOrderService = $myOrderService;
+    }
+
     public function index(Request $request)
     {
         $user = $this->getUser();
-        $orders = Order::with(['orderItems.product.category'])
-            ->where('Bag_User_id', $user->id)
-            ->orderByDesc('id')
-            ->get();
+        $orders = $this->myOrderService->getOrdersforUser($user->id);
         if($orders->isEmpty()){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
-
         return ResponseHelper::success('Siparişler', $orders);
     }
     
     public function show(Request $request, $id)
     {
         $user = $this->getUser();
-        $order = Order::with(['orderItems.product.category'])
-            ->where('Bag_User_id', $user->id)
-            ->where('id', $id)
-            ->first();
+        $order = $this->myOrderService->getOneOrderforUser($user->id, $id);
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
@@ -41,22 +41,10 @@ class MyOrdersController extends Controller
     public function destroy(Request $request, $id)
     {
         $user = $this->getUser();
-        $order = Order::where('Bag_User_id', $user->id)
-                    ->where('id', $id)
-                    ->first();
+        $order = $this->myOrderService->cancelOrder($user->id, $id);
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
-        foreach($order->orderItems as $item){
-            $product = $item->product;
-            if($product){
-                $product->stock_quantity += $item->quantity;
-                $product->save();
-            }
-        }
-
-        $order->delete();
-        Cache::flush();
         return ResponseHelper::success('Sipariş silindi ve ürün stokları güncellendi.', $order);
     }
 }
