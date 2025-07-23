@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthValidation\LoginRequest;
 use Illuminate\Support\Facades\Hash; 
 use App\Models\User;
+use App\Helpers\ResponseHelper;
 
 class AuthController extends Controller
 {
@@ -14,29 +15,29 @@ class AuthController extends Controller
         
         $user = User::where('email', $request->email)->first();
         if(!$user || !Hash::check($request->input('password'), $user->password)){
-            return response()->json(['message' => 'Email veya Şifre Hatalı'],401);
+            return ResponseHelper::error('Email veya Şifre Hatalı',401);
         }
         $token = $user->createToken('apitoken')->plainTextToken;
 
-        return response()->json(['message' => 'Giriş Başarılı', 'token' => $token, 'user' =>$user], 200);
+        return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'user' =>$user]);
     }
     
     public function me(Request $request){
         $user = auth()->user();
         if(!$user){
-            return response()->json(['message' => 'Kullanıcı bulunamadı.'], 404);
+            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }
-        return response()->json(['message' => 'Kullanıcı Bilgileri', 'user' => $request->user()], 200);
+        return ResponseHelper::success('Kullanıcı Bilgileri', $user);
     }
 
     public function logout(Request $request){
         $user = auth()->user();
         if(!$user){
-            return response()->json(['message' => 'Kullanıcı bulunamadı.'], 404);
+            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Çıkış Yapıldı.'], 200);
+        return ResponseHelper::success('Çıkış Yapıldı.');
     }
 
 }

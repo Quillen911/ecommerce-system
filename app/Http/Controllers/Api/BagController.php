@@ -23,15 +23,17 @@ class BagController extends Controller
     {
         $this->bagService = $bagService;
     }
-    public function index(Request $request)
+    public function index()
     {
         $user = $this->getUser();
         $bag = $this->getUserBag();
 
-        if(!$bag){
+        if (!$bag) {
             return ResponseHelper::notFound('Sepetiniz bulunamadı!');
         }
-        $products = $bag->bagItems()->with('product.category')->get();
+
+        $products = $this->bagService->getIndexBag($bag);
+
         if($products->isEmpty()){
             $products = "Ürün Yok!";
             return ResponseHelper::success('Sepetiniz boş!',$products);
@@ -46,26 +48,14 @@ class BagController extends Controller
         if(!$bag){
             return ResponseHelper::notFound('Sepetiniz bulunamadı!');
         }
-        
-        $productItem = $bag->bagItems()->where('product_id', $request->product_id)->first();
-        $product = Product::find($request->product_id);
-        
-        if ($product->stock_quantity == 0) {
-            return ResponseHelper::notFound('Ürün stokta yok!');
 
-        } else if ($productItem) {
-            $productItem->quantity += 1;
-            $productItem->save();
-            
-        } else {
-            $bag->bagItems()->create([
-                'product_id' => $request->product_id,
-                'quantity' => 1
-            ]);
-            
+        $productItem = $this->bagService->getAddBag($bag, $request->product_id);
+        
+        if(!$productItem){
+            return ResponseHelper::notFound('Ürün bulunamadı!');
         }
         Cache::flush();
-        return ResponseHelper::success('Ürün sepete eklendi.', $product);
+        return ResponseHelper::success('Ürün sepete eklendi.', $productItem);
     }
 
     public function show(Request $request)
@@ -76,10 +66,11 @@ class BagController extends Controller
         if(!$bag){
             return ResponseHelper::notFound('Sepet bulunamadı!');
         }
-        $products = $bag->bagItems()->with('product.category')->get();
-        $bagItem = $bag->bagItems()->where('product_id', $request->product_id)
-                            ->where('bag_id', $bag->id)
-                            ->first();
+
+        $bagItem = $this->bagService->showBagItem($bag, $request->product_id);
+        if(!$bagItem){
+            return ResponseHelper::notFound('Ürün bulunamadı!');
+        }
         
         return ResponseHelper::success('Ürün', $bagItem);
     }
@@ -92,12 +83,8 @@ class BagController extends Controller
             return ResponseHelper::notFound('Sepet bulunamadı!');
         }
 
-        $result = $this->bagService->destroyBagItem($user->id, $request->product_id, $bag->id);
+        $result = $this->bagService->destroyBagItem($bag, $request->product_id);
 
-        if(!$result['success']){
-            return ResponseHelper::notFound($result['message']);
-        }
-
-        return ResponseHelper::success($result['message'], $result['product']);
+        return $result;
     }
 }

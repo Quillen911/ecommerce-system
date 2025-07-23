@@ -30,7 +30,7 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $user = $this->getUser();
         $orders = Order::where('Bag_User_id', $user->id)->get();
@@ -61,7 +61,7 @@ class OrderController extends Controller
         return ResponseHelper::success('Sipariş oluşturuldu.', $products);
     }
 
-    public function show(Request $request, $id)
+    public function show($id)
     {
         $user = $this->getUser();
         $order = Order::where('Bag_User_id', $user->id)

@@ -18,7 +18,7 @@ class MyOrdersController extends Controller
         $this->myOrderService = $myOrderService;
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $user = $this->getUser();
         $orders = $this->myOrderService->getOrdersforUser($user->id);
@@ -28,7 +28,7 @@ class MyOrdersController extends Controller
         return ResponseHelper::success('Siparişler', $orders);
     }
     
-    public function show(Request $request, $id)
+    public function show($id)
     {
         $user = $this->getUser();
         $order = $this->myOrderService->getOneOrderforUser($user->id, $id);
@@ -38,7 +38,7 @@ class MyOrdersController extends Controller
         return ResponseHelper::success('Sipariş', $order);
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy($id)
     {
         $user = $this->getUser();
         $order = $this->myOrderService->cancelOrder($user->id, $id);
