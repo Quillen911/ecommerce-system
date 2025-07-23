@@ -6,50 +6,55 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Bag;
 use App\Models\BagItem;
 use App\Models\Product;
+use App\Traits\UserBagTrait;
+use App\Helpers\ResponseHelper;
 
 class BagService{
 
+    use UserBagTrait;
+    public function getIndexBag($bag)
+    {
+        return $products = $bag->bagItems()->with('product.category')->get();
+    }
 
-    public function getAddBag($userId, $productId){
-
-        $bag = Bag::firstOrCreate(['Bag_User_id' => $userId]);
-        $productItem = $bag->bagItems()
-                        ->where('product_id', $productId)
-                        ->where('bag_id', $bag->id)
-                        ->first();
+    public function getAddBag($bag, $productId)
+    {
         $product = Product::find($productId);
-
         if (!$product) {
-            return ['success' => false, 'message' => 'Ürün bulunamadı!'];
+            return ResponseHelper::notFound('Ürün bulunamadı!');
         }
-        if ($product->stock_quantity == 0) {
-            return ['success' => false, 'message' => 'Ürün stokta yok!'];
+        $productItem = $bag->bagItems()->where('product_id', $productId)->first();
 
-        } else if ($productItem) {
+        // Sepette varsa, toplam miktar stoktan fazla olmasın
+        $currentQuantity = $productItem ? $productItem->quantity : 0;
+        if ($product->stock_quantity <= $currentQuantity) {
+            return ResponseHelper::notFound('Stokta yeterli ürün yok!');
+        }
+
+        if ($productItem) {
             $productItem->quantity += 1;
             $productItem->save();
-            
+            return $productItem;
         } else {
-            $bag->bagItems()->create([
+            return $bag->bagItems()->create([
                 'product_id' => $productId,
                 'quantity' => 1
             ]);
-            
         }
-        Cache::flush(); 
-        return ['success' => true, 'message' => 'Ürün sepete eklendi!'];
     }
     
-
-    public function destroyBagItem($userId, $productId, $bagId)
+    public function showBagItem($bag, $productId)
     {
-        $bag = Bag::where('Bag_User_id', $userId)->first();
-        if(!$bag){
-            return ['success' => false, 'message' => 'Sepet bulunamadı!'];
-        }
-        $bagItem = $bag->bagItems()->where('product_id', $productId)
-            ->where('bag_id', $bagId)
-            ->first();
+        return $bag->bagItems()
+        ->where('product_id', $productId)
+        ->first();   
+    }
+
+    public function destroyBagItem($bag, $productId)
+    {
+        $bagItem = $bag->bagItems()
+                ->where('product_id', $productId)
+                ->first();
 
         if ($bagItem) {
             $product = Product::find($bagItem->product_id);
@@ -63,9 +68,9 @@ class BagService{
                 $message = 'Ürün sepetten tamamen silindi.';
             }
             Cache::flush();
-            return ['success' => true, 'message' => $message, 'product' => $product];
+            return ResponseHelper::success($message, $product);
         } else {
-            return ['success' => false, 'message' => 'Ürün bulunamadı!', 'product' => null];
+            return ResponseHelper::notFound('Ürün bulunamadı!');
         }
     }
 }
