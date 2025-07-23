@@ -12,10 +12,17 @@ use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\BaseApiRequest;
 use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
+use App\Services\BagService;
 
 class BagController extends Controller
 {
     use UserBagTrait;
+    protected $bagService;
+
+    public function __construct(BagService $bagService)
+    {
+        $this->bagService = $bagService;
+    }
     public function index(Request $request)
     {
         $user = $this->getUser();
@@ -26,7 +33,8 @@ class BagController extends Controller
         }
         $products = $bag->bagItems()->with('product.category')->get();
         if($products->isEmpty()){
-            return ResponseHelper::notFound('Sepetiniz boş!');
+            $products = "Ürün Yok!";
+            return ResponseHelper::success('Sepetiniz boş!',$products);
         }
         return ResponseHelper::success('Sepetiniz', $products);
     }
@@ -70,40 +78,26 @@ class BagController extends Controller
         }
         $products = $bag->bagItems()->with('product.category')->get();
         $bagItem = $bag->bagItems()->where('product_id', $request->product_id)
-                        ->where('bag_id', $bag->id)
-                        ->first();
-        if(!$bagItem){
-            return ResponseHelper::notFound('Ürün bulunamadı!');
-        }
-        return ResponseHelper::success('Ürün', $products);
+                            ->where('bag_id', $bag->id)
+                            ->first();
+        
+        return ResponseHelper::success('Ürün', $bagItem);
     }
     public function destroy(Request $request)
     {
         $user = $this->getUser();
         $bag = $this->getUserBag();
+
         if(!$bag){
             return ResponseHelper::notFound('Sepet bulunamadı!');
         }
-        $bagItem = $bag->bagItems()->where('product_id', $request->product_id)
-                        ->where('bag_id', $bag->id)
-                        ->first();
 
-        if(!$bagItem){
-            return ResponseHelper::notFound('Ürün bulunamadı!');
-        }
-        if ($bagItem) {
-            $product = Product::find($bagItem->product_id);
+        $result = $this->bagService->destroyBagItem($user->id, $request->product_id, $bag->id);
 
-            if ($bagItem->quantity > 1) {
-                $bagItem->quantity -= 1;
-                $bagItem->save();
-                $message = 'Ürün sepetten 1 adet silindi.';
-            } else {
-                $bagItem->delete();
-                $message = 'Ürün sepetten tamamen silindi.';
-            }
+        if(!$result['success']){
+            return ResponseHelper::notFound($result['message']);
         }
-        Cache::flush();  
-        return ResponseHelper::success($message, $product);
+
+        return ResponseHelper::success($result['message'], $result['product']);
     }
 }

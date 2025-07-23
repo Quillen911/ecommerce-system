@@ -14,7 +14,7 @@
     @if(isset($error))
         <p>{{$error}}</p>
     @endif
-    @if($orders->isEmpty())
+    @if(empty($orders))
         <strong>Siparişiniz yok</strong> <br> <br>
     @else
         @foreach($orders as $order)
