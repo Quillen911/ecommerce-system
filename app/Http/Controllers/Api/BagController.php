@@ -25,7 +25,7 @@ class BagController extends Controller
             return ResponseHelper::notFound('Sepetiniz bulunamadı!');
         }
         $products = $bag->bagItems()->with('product.category')->get();
-        if(!$products->isEmpty()){
+        if($products->isEmpty()){
             return ResponseHelper::notFound('Sepetiniz boş!');
         }
         return ResponseHelper::success('Sepetiniz', $products);
@@ -33,7 +33,11 @@ class BagController extends Controller
     public function store(BaseApiRequest $request)
     {
         $user = $this->getUser(); 
-        $bag = $this->getUserBag();
+        $bag = Bag::firstOrCreate(['Bag_User_id' => $user->id]);
+
+        if(!$bag){
+            return ResponseHelper::notFound('Sepetiniz bulunamadı!');
+        }
         
         $productItem = $bag->bagItems()->where('product_id', $request->product_id)->first();
         $product = Product::find($request->product_id);
@@ -64,13 +68,14 @@ class BagController extends Controller
         if(!$bag){
             return ResponseHelper::notFound('Sepet bulunamadı!');
         }
+        $products = $bag->bagItems()->with('product.category')->get();
         $bagItem = $bag->bagItems()->where('product_id', $request->product_id)
                         ->where('bag_id', $bag->id)
                         ->first();
         if(!$bagItem){
             return ResponseHelper::notFound('Ürün bulunamadı!');
         }
-        return ResponseHelper::success('Ürün', $bagItem);
+        return ResponseHelper::success('Ürün', $products);
     }
     public function destroy(Request $request)
     {
