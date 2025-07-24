@@ -53,7 +53,7 @@
                 <strong>Toplam Fiyat: </strong>{{ $order->price }}<br>
                 <strong>İndirim Fiyatı: </strong>{{ $order->campaing_price }}<br>
                 <br>
-                <form action="{{route('delete', $order->id)}}" method="POST">
+                <form action="{{route('myorders.delete', $order->id)}}" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;">Siparişi İptal Et</button>

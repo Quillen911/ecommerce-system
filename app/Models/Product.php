@@ -23,13 +23,4 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function decreaseStock($quantity) {
-        if($this->stock_quantity < $quantity) {
-            return false;
-        }
-        $this->stock_quantity -= $quantity;
-        $this->save();
-        return true;
-    }
-
 }

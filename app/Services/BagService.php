@@ -6,15 +6,13 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Bag;
 use App\Models\BagItem;
 use App\Models\Product;
-use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
 
 class BagService{
 
-    use UserBagTrait;
     public function getIndexBag($bag)
     {
-        return $products = $bag->bagItems()->with('product.category')->get();
+        return $bag->bagItems()->with('product.category')->get();
     }
 
     public function getAddBag($bag, $productId)
@@ -25,9 +23,8 @@ class BagService{
         }
         $productItem = $bag->bagItems()->where('product_id', $productId)->first();
 
-        // Sepette varsa, toplam miktar stoktan fazla olmasın
         $currentQuantity = $productItem ? $productItem->quantity : 0;
-        if ($product->stock_quantity <= $currentQuantity) {
+        if ($currentQuantity >= $product->stock_quantity) {
             return ResponseHelper::notFound('Stokta yeterli ürün yok!');
         }
 
@@ -50,14 +47,12 @@ class BagService{
         ->first();   
     }
 
-    public function destroyBagItem($bag, $productId)
+    public function destroyBagItem($bag, $bagItemId)
     {
-        $bagItem = $bag->bagItems()
-                ->where('product_id', $productId)
-                ->first();
+        $bagItem = $bag->bagItems()->where('id', $bagItemId)->first();
 
         if ($bagItem) {
-            $product = Product::find($bagItem->product_id);
+            $product = $bagItem->product;
 
             if ($bagItem->quantity > 1) {
                 $bagItem->quantity -= 1;
@@ -68,9 +63,9 @@ class BagService{
                 $message = 'Ürün sepetten tamamen silindi.';
             }
             Cache::flush();
-            return ResponseHelper::success($message, $product);
+            return ['success' => true, 'message' => $message];
         } else {
-            return ResponseHelper::notFound('Ürün bulunamadı!');
+            return ['success' => false, 'message' => 'Ürün bulunamadı!'];
         }
     }
 }

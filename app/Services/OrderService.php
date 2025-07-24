@@ -47,12 +47,13 @@ class OrderService
 
         foreach($products as $p){
             $productTable = Product::find($p->product_id);
-            if($productTable->decreaseStock($p->quantity)){
+            if($productTable->stock_quantity < $p->quantity) {
                 return ResponseHelper::notFound('Ürün Stokta Yok!');
             }
+            $productTable->stock_quantity -= $p->quantity;
+            $productTable->save();
         }
 
-        Cache::flush();
         
     }
     
