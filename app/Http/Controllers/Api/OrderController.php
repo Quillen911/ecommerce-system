@@ -40,7 +40,7 @@ class OrderController extends Controller
         return ResponseHelper::success('Siparişler', $orders);
     }
 
-    public function store(OrderRequest $request, OrderService $orderService)
+    public function store(OrderRequest $request)
     {
         $user = $this->getUser();
         $bag = $this->getUserBag();
@@ -55,7 +55,7 @@ class OrderController extends Controller
             return ResponseHelper::notFound('Sepetiniz boş!');
         }
 
-        $result = $orderService->createOrder($user, $products, new CampaignManager());
+        $result = $this->orderService->createOrder($user, $products, new CampaignManager());
         
         $bag->bagItems()->delete();
         return ResponseHelper::success('Sipariş oluşturuldu.', $products);
@@ -64,9 +64,7 @@ class OrderController extends Controller
     public function show($id)
     {
         $user = $this->getUser();
-        $order = Order::where('Bag_User_id', $user->id)
-                    ->where('id',$id)
-                    ->first();
+        $order = $this->orderService->showOrder($user->id, $id);
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }

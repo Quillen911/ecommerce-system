@@ -22,7 +22,6 @@ class CreateOrderJob implements ShouldQueue
     }
     public function handle()
     {
-        Log::info('CreateOrderJob çalıştı', ['orderData' => $this->orderData]);
         Order::create([
             'product_id' => $this->orderData['product_id'],
             'Bag_User_id' => $this->orderData['Bag_User_id'],
