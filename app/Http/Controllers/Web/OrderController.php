@@ -14,9 +14,21 @@ use App\Models\OrderItem;
 use App\Services\Campaigns\CampaignManager;
 use App\Services\Campaigns\SabahattinAliCampaign;
 use App\Services\Campaigns\LocalAuthorCampaign;
+use App\Http\Requests\OrderRequest;
+use App\Traits\UserBagTrait;
+use App\Services\OrderService;
 
 class OrderController extends Controller
 {
+
+    use UserBagTrait;
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
     public function order()
     {
         //sepet ve ürünleri getirir.
@@ -43,56 +55,21 @@ class OrderController extends Controller
 
     public function done(Request $request)
     {
-        $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
-        $products = $bag->bagItems()->with('product.category')->get();
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+
         if(!$bag){
-            return redirect('bag')->with('error', 'Sepetiniz boş!');
+            return redirect('main')->with('error', 'Sepetiniz bulunamadı!');
         }
+
+        $products = $bag->bagItems()->with('product.category')->get();
+
+        if($products->isEmpty()){
+            return redirect('main')->with('error', 'Sepetiniz boş!');
+        }
+
+        $result = $this->orderService->createOrder($user, $products, new CampaignManager());
         
-        $campaignManager = new CampaignManager();
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all());
-        $total = $products->sum(function($items) {
-            return $items->quantity * $items->product->list_price; 
-        });
-
-        $cargoPrice = $total >= 50 ? 0 : 10;
-
-        $discount = $bestCampaign['discount'] ?? 0;
-
-        $Totally = $total + $cargoPrice - $discount;
-        $campaignInfo = $bestCampaign['description'] ?? '';    
-        
-        $order = Order::create([
-            'Bag_User_id' => $user->id,
-            'price' => $total + $cargoPrice,
-            'cargo_price' => $cargoPrice,
-            'campaign_info' => $campaignInfo,
-            'campaing_price' => $Totally,
-            'status' => 'bekliyor',
-        ]);
-
-        foreach($products as $p){
-            $orderItem = OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $p->product->id,
-                'quantity' => $p->quantity,
-                'price' => $p->product->list_price,
-            ]);
-            CreateOrderJob::dispatch($orderItem);
-        }
-
-        foreach($products as $p){
-            $productTable = Product::find($p->product_id);
-            if($productTable && $productTable->stock_quantity >= $p->quantity){
-                $productTable->stock_quantity -= $p->quantity;
-                $productTable->save();
-            }
-            else{
-                return redirect('order')->with('error', 'Ürün stokta yok!');
-            }
-        }
-
         $bag->bagItems()->delete();
         Cache::flush();
         return redirect('main')->with('success', 'Siparişiniz işleme alındı!');

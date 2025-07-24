@@ -19,7 +19,7 @@ Route::middleware(['auth'])->group(function(){
     Route::prefix('bag')->group(function(){
         Route::get('/', [BagController::class, 'bag'])->name('bag');
         Route::post('/add', [BagController::class, 'add'])->name('add');
-        Route::delete('/{id}', [BagController::class, 'delete'])->name('delete');
+        Route::delete('/{id}', [BagController::class, 'delete'])->name('bag.delete');
         
     });
 
@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function(){
 
     Route::prefix('myorders')->group(function(){
         Route::get('/', [MyOrdersController::class, 'myorders'])->name('myorders');
-        Route::delete('/{id}', [MyOrdersController::class, 'delete'])->name('delete');
+        Route::delete('/{id}', [MyOrdersController::class, 'delete'])->name('myorders.delete');
     });
 
     Route::get('/createOrderJob',[OrderController::class, 'CreateOrderJob'])->name('createOrderJob');

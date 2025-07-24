@@ -45,7 +45,7 @@
                             <td>{{$p->quantity}}</td>
                             <td>{{($p->quantity)*($p->product->list_price)}}</td>
                             <td>
-                            <form action="{{route('delete', $p->id)}}" method="POST">
+                            <form action="{{route('bag.delete', $p->id)}}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Sil</button>

@@ -52,7 +52,7 @@ class OrderController extends Controller
         $products = $bag->bagItems()->with('product.category')->get();
 
         if($products->isEmpty()){
-            return ResponseHelper::error('Sepetiniz boş!');
+            return ResponseHelper::notFound('Sepetiniz boş!');
         }
 
         $result = $orderService->createOrder($user, $products, new CampaignManager());
