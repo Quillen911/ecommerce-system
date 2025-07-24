@@ -56,6 +56,12 @@ class OrderService
 
         
     }
+    public function showOrder($user, $id)
+    {
+        return Order::where('Bag_User_id', $user)
+                    ->where('id',$id)
+                    ->first();
+    }
     
 
 }

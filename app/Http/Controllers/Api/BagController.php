@@ -84,6 +84,7 @@ class BagController extends Controller
         }
 
         $result = $this->bagService->destroyBagItem($bag, $request->product_id);
+        
 
         return $result;
     }

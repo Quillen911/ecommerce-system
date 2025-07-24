@@ -35,6 +35,8 @@ class BagService{
         } else {
             return $bag->bagItems()->create([
                 'product_id' => $productId,
+                'product_title' => $product->title,
+                'author' => $product->author,
                 'quantity' => 1
             ]);
         }
@@ -47,9 +49,9 @@ class BagService{
         ->first();   
     }
 
-    public function destroyBagItem($bag, $bagItemId)
+    public function destroyBagItem($bag, $productId)
     {
-        $bagItem = $bag->bagItems()->where('id', $bagItemId)->first();
+        $bagItem = $bag->bagItems()->where('product_id', $productId)->first();
 
         if ($bagItem) {
             $product = $bagItem->product;
