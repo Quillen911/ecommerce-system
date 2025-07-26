@@ -4,6 +4,7 @@ namespace Database\Seeders\Campaigns;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Campaign;
 
 class CampaignSeeder extends Seeder
 {
