@@ -2,38 +2,43 @@
 
 namespace App\Services\Campaigns;
 
+use App\Models\Campaign;
+use App\Traits\Campaigns\SabahattinTrait;
+
 class SabahattinAliCampaign implements CampaignInterface
 {
+    use SabahattinTrait;
+    protected $campaign;
+
+    public function __construct(Campaign $campaign)
+    {
+        $this->campaign = $campaign;
+    }
+
     public function isApplicable(array $products): bool 
     {
-        //Ürün Kontrolü
-        $products = collect($products);
-        $eligible = $products->filter(function($item) {
-            return $item->product->author == 'Sabahattin Ali' && $item->product->category?->category_title == 'Roman';
-        });
-        $totalQuantity = $eligible->sum('quantity');
-        return $totalQuantity > 1;
+        return $this->isSabahattinAli($products);
     }
 
     public function calculateDiscount(array $products): array
     {
-        $products = collect($products);
-        $eligible = $products->filter(function ($item) {
-            return $item->product->author == 'Sabahattin Ali' && $item->product->category?->category_title == 'Roman';
-        });
+        $eligible = $this->isSabahattinAli($products);
 
         //En ucuz ürün için
-        $totalQuantity = $eligible->sum('quantity');
-        if($totalQuantity < 2) 
-        {
+        $totalQuantity = $eligible->sum('quantity'); 
+        if($totalQuantity < 2) {
             return ['discount' => 0, 'description' =>''];
         }
+
+        $discountRule = $this->campaign->discounts->where('applies_to', 'product')->first();
+        $x = $discountRule ? json_decode($discountRule->discount_value)->x : 2;
+        $y = $discountRule ? json_decode($discountRule->discount_value)->y : 1;
 
         $cheapest = $eligible->sortBy('product.list_price')->first();
         $discount = $cheapest ? $cheapest->product->list_price : 0;
 
         return [
-            'description' => 'Sabahattin Ali Romanlarında 2 al 1 öde kampanyası', 
+            'description' => $this->campaign->description, 
             'discount' => $discount
         ];
     }

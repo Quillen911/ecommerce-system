@@ -19,42 +19,33 @@ class OrderService
             return $items->quantity * $items->product->list_price; 
         });
 
-        $cargoPrice = $total >= 50 ? 0 : 10;
+        $cargo_price = $total >= 50 ? 0 : 10;
 
         $discount = $bestCampaign['discount'] ?? 0;
 
-        $Totally = $total + $cargoPrice - $discount;
-        $campaignInfo = $bestCampaign['description'] ?? '';    
+        $totally = $total + $cargo_price - $discount;
+        $campaign_info = $bestCampaign['description'] ?? '';    
         
-        $order = Order::create([
-            'Bag_User_id' => $user->id,
-            'price' => $total + $cargoPrice,
-            'cargo_price' => $cargoPrice,
-            'campaign_info' => $campaignInfo,
-            'campaing_price' => $Totally,
-            'status' => 'bekliyor',
-        ]);
+        $orderData = [
+            'user_id' => $user->id,
+            'products' => $products->map(function($item){
+                return [
+                    'product_id' => $item->product->id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->list_price,
+                ];
+               
+            })->toArray(),
+            'campaign_info' => $campaign_info,
+            'total' => $total,
+            'cargo_price' => $cargo_price,
+            'discount' => $discount,
+            'status' => 'bekliyor',   
+            
+        ];
 
-        foreach($products as $p){
-            $orderItem = OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $p->product->id,
-                'quantity' => $p->quantity,
-                'price' => $p->product->list_price,
-            ]);
-            CreateOrderJob::dispatch($orderItem);
-        }
+        CreateOrderJob::dispatch($orderData);
 
-        foreach($products as $p){
-            $productTable = Product::find($p->product_id);
-            if($productTable->stock_quantity < $p->quantity) {
-                return ResponseHelper::notFound('Ürün Stokta Yok!');
-            }
-            $productTable->stock_quantity -= $p->quantity;
-            $productTable->save();
-        }
-
-        
     }
     public function showOrder($user, $id)
     {

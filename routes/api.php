@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('main', MainController::class)->only(['index','show']);
     Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
 
+
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
