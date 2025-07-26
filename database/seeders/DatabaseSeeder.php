@@ -17,9 +17,12 @@ class DatabaseSeeder extends Seeder
 
         
         $this->call([
-            UserSeeder::class,
-            CategorySeeder::class,
-            ProductSeeder::class,
+            \Database\Seeders\Main\UserSeeder::class,
+            \Database\Seeders\Main\CategorySeeder::class,
+            \Database\Seeders\Main\ProductSeeder::class,
+            \Database\Seeders\Campaigns\CampaignSeeder::class,
+            \Database\Seeders\Campaigns\CampaignConditionSeeder::class,
+            \Database\Seeders\Campaigns\CampaignDiscountSeeder::class,
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Seeders\Campaigns;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\CampaignDiscount;
 
 class CampaignDiscountSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class CampaignDiscountSeeder extends Seeder
         CampaignDiscount::create([
             'campaign_id' => 1,
             'discount_type' => 'x_buy_y_pay',
-            'discount_value' => 1,
+            'discount_value' => json_encode(['x' => 2, 'y' => 1]),
             'applies_to' => 'product',
         ]);
     }

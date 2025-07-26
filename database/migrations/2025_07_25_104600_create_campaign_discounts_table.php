@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('campaign_id');
             $table->enum('discount_type', ['percentage', 'fixed','x_buy_y_pay']); 
-            $table->decimal('discount_value', 10, 2);
+            $table->json('discount_value')->nullable();
             $table->string('applies_to');
             $table->timestamps();
 
