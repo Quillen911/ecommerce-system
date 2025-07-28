@@ -46,16 +46,48 @@
         @if(isset($bestCampaign['discount']) && $bestCampaign['discount'] )
             <div style="color: green;" >
                 <strong>Kampanya: </strong>{{ $bestCampaign['description'] }} <br>
-                <strong>İndirim:  </strong>{{ number_format($bestCampaign['discount'],2) }} TL<br>
+                <strong>İndirim:  </strong>{{ number_format($bestCampaign['discount'],2) }} TL<br><br>
                 @if(isset($bestCampaignModel) && $bestCampaignModel)
-                    <strong>Kampanya Başlangıç: </strong>{{ $bestCampaignModel->starts_at ? \Carbon\Carbon::parse($bestCampaignModel->starts_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }} <br>
-                    <strong>Kampanya Bitiş: </strong>{{ $bestCampaignModel->ends_at ? \Carbon\Carbon::parse($bestCampaignModel->ends_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }} <br>
+                    <strong>Kampanya Başlangıç: </strong>
+                    {{ $bestCampaignModel->starts_at ? \Carbon\Carbon::parse($bestCampaignModel->starts_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }} <br>
+                    
+                    <strong>Kampanya Bitiş: </strong>
+                    {{ $bestCampaignModel->ends_at ? \Carbon\Carbon::parse($bestCampaignModel->ends_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }} <br>
                     @php
                         $now = \Carbon\Carbon::now();
                         $endsAt = \Carbon\Carbon::parse($bestCampaignModel->ends_at);
-                        $remainingTime = $now->diffForHumans($endsAt, ['parts' => 2]);
+                        $endsAtTimestamp = $endsAt->timestamp;
                     @endphp
-                    <strong>Kalan Süre: </strong><span style="color: {{ $now->gt($endsAt) ? 'red' : 'orange' }};">{{ $remainingTime }}</span><br>
+                    <strong>Kalan Süre: </strong><span id="countdown" style="color: orange;"></span><br>
+                    <script>
+                        function updateCountdown() {
+                            const now = Math.floor(Date.now() / 1000);
+                            const endTime = {{ $endsAtTimestamp }};
+                            const timeLeft = endTime - now;
+                            
+                            if (timeLeft <= 0) {
+                                document.getElementById('countdown').innerHTML = 'Kampanya sona erdi';
+                                document.getElementById('countdown').style.color = 'red';
+                                return;
+                            }
+                            
+                            const days = Math.floor(timeLeft / 86400);
+                            const hours = Math.floor((timeLeft % 86400) / 3600);
+                            const minutes = Math.floor((timeLeft % 3600) / 60);
+                            const seconds = timeLeft % 60;
+                            
+                            let timeString = '';
+                            if (days > 0) timeString += days + ' gün ';
+                            if (hours > 0) timeString += hours + ' saat ';
+                            if (minutes > 0) timeString += minutes + ' dakika ';
+                            timeString += seconds + ' saniye';
+                            
+                            document.getElementById('countdown').innerHTML = timeString;
+                        }
+                        
+                        updateCountdown();
+                        setInterval(updateCountdown, 1000);
+                    </script>
                 @endif
             </div>
         @endif

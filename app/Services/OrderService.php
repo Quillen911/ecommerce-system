@@ -17,9 +17,10 @@ class OrderService
     public function createOrder($user, $products, $campaignManager)
     {
         $campaigns = Campaign::where('is_active', 1)
-        ->where('starts_at', '<=', now())
-        ->where('ends_at', '>=', now())
-        ->get();
+                            ->where('starts_at', '<=', now())
+                            ->where('ends_at', '>=', now())
+                            ->get();
+                            
         $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
         $total = $products->sum(function($items) {
             return $items->quantity * $items->product->list_price; 
@@ -50,10 +51,6 @@ class OrderService
             
         ];
         
-        // Debug log ekle
-        \Log::info('OrderService - BestCampaign:', $bestCampaign);
-        \Log::info('OrderService - Discount:', [$discount]);
-        \Log::info('OrderService - OrderData:', $orderData);
         foreach($orderData['products'] as $product) {
             $product = Product::find($product['product_id']);
             if($product->stock_quantity < $product['quantity']){

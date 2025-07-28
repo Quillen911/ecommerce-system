@@ -17,7 +17,7 @@ class CampaignSeeder extends Seeder
             'is_active' => true,
             'per_user_limit' => 1,
             'starts_at' => now(),
-            'ends_at' => now()->addMinutes(2),
+            'ends_at' => now()->addMinutes(20),
         ]);
 
         Campaign::create([

@@ -40,7 +40,6 @@ class OrderController extends Controller
         $campaignManager = new CampaignManager();
         $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
         
-        // En iyi kampanyayı bul
         $bestCampaignModel = null;
         if (!empty($bestCampaign['description'])) {
             $bestCampaignModel = Campaign::where('description', $bestCampaign['description'])->first();
