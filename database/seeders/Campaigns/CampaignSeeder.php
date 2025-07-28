@@ -17,6 +17,25 @@ class CampaignSeeder extends Seeder
             'is_active' => true,
             'per_user_limit' => 1,
             'starts_at' => now(),
+            'ends_at' => now()->addMinutes(2),
+        ]);
+
+        Campaign::create([
+            'name' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
+            'type' => 'percentage',
+            'description' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
+            'is_active' => true,
+            'per_user_limit' => 1,
+            'starts_at' => now(),
+            'ends_at' => now()->addMonth(),
+        ]);
+        Campaign::create([
+            'name' => 'Yerli Yazarlarda %5 indirim',
+            'type' => 'percentage',
+            'description' => 'Yerli Yazarlarda %5 indirim',
+            'is_active' => true,
+            'per_user_limit' => 1,
+            'starts_at' => now(),
             'ends_at' => now()->addMonth(),
         ]);
     }

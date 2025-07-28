@@ -3,6 +3,7 @@
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
+use App\Models\CampaignDiscount;
 use App\Traits\Campaigns\SabahattinTrait;
 
 class SabahattinAliCampaign implements CampaignInterface
@@ -30,7 +31,7 @@ class SabahattinAliCampaign implements CampaignInterface
         if($totalQuantity < 2) {
             return ['discount' => 0, 'description' =>''];
         }
-        $discountRule = $this->campaign->discounts->where('applies_to', 'product')->first();
+        $discountRule = CampaignDiscount::where('campaign_id', $this->campaign->id)->first();
         $x = $discountRule ? json_decode($discountRule->discount_value)->x : 2;
         $y = $discountRule ? json_decode($discountRule->discount_value)->y : 1;
 

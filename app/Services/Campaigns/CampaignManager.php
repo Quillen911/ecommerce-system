@@ -6,25 +6,35 @@ use App\Models\Campaign;
 
 class CampaignManager 
 {
-
-    public function getBestCampaigns(array $products, Campaign $campaign)
-    {
-
-        $campaignServices = [
-            new SabahattinAliCampaign($campaign),
-            new TwoHundreadsCampaign($campaign),
-        ];
-
-        $best = ['discount' =>0, 'description' =>''];
-        foreach($campaignServices as $c){
-            if($c->isApplicable($products)){
-                $result = $c->calculateDiscount($products);
-                if($result['discount'] > $best['discount']){
+    public function getBestCampaigns(array $products, $campaigns)
+    {  
+        $best = ['discount' => 0, 'description' => ''];
+        
+        foreach ($campaigns as $campaign) {
+            $service = $this->createServiceByType($campaign);
+            
+            if ($service && $service->isApplicable($products)) {
+                $result = $service->calculateDiscount($products);
+                if ($result['discount'] > $best['discount']) {
                     $best = $result;
                 }
             }
         }
+        
         return $best;
     }
 
+    private function createServiceByType(Campaign $campaign)
+    {
+        switch ($campaign->id) {
+            case 1:
+                return new SabahattinAliCampaign($campaign);
+            case 2:
+                return new TwoHundreadsCampaign($campaign);
+            case 3:
+                return new LocalAuthorCampaign($campaign);
+            default:
+                return null;
+        }
+    }
 }

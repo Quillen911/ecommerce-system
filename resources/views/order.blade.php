@@ -47,6 +47,16 @@
             <div style="color: green;" >
                 <strong>Kampanya: </strong>{{ $bestCampaign['description'] }} <br>
                 <strong>İndirim:  </strong>{{ number_format($bestCampaign['discount'],2) }} TL<br>
+                @if(isset($bestCampaignModel) && $bestCampaignModel)
+                    <strong>Kampanya Başlangıç: </strong>{{ $bestCampaignModel->starts_at ? \Carbon\Carbon::parse($bestCampaignModel->starts_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }} <br>
+                    <strong>Kampanya Bitiş: </strong>{{ $bestCampaignModel->ends_at ? \Carbon\Carbon::parse($bestCampaignModel->ends_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }} <br>
+                    @php
+                        $now = \Carbon\Carbon::now();
+                        $endsAt = \Carbon\Carbon::parse($bestCampaignModel->ends_at);
+                        $remainingTime = $now->diffForHumans($endsAt, ['parts' => 2]);
+                    @endphp
+                    <strong>Kalan Süre: </strong><span style="color: {{ $now->gt($endsAt) ? 'red' : 'orange' }};">{{ $remainingTime }}</span><br>
+                @endif
             </div>
         @endif
 
