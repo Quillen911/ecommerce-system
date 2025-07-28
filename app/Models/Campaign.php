@@ -22,7 +22,7 @@ class Campaign extends Model
 
     public function conditions()
     {
-        return $this->hasMany(CampaignConditions::class, 'campaign_id');
+        return $this->hasMany(CampaignCondition::class, 'campaign_id');
     }
 
     public function discounts()

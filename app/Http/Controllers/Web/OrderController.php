@@ -8,6 +8,7 @@ use App\Models\Bag;
 use App\Models\BagItem;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Campaign;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\CreateOrderJob;
 use App\Models\OrderItem;
@@ -37,8 +38,8 @@ class OrderController extends Controller
         $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
         
         $campaignManager = new CampaignManager();
-
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all());
+        $campaign = Campaign::first();
+        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaign);
         
         $total = $products->sum(function($item){
             return $item->quantity * $item->product->list_price;

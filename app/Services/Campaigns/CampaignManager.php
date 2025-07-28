@@ -2,25 +2,23 @@
 
 namespace App\Services\Campaigns;
 
+use App\Models\Campaign;
+
 class CampaignManager 
 {
-    protected $campaigns;
 
-    public function __construct()
+    public function getBestCampaigns(array $products, Campaign $campaign)
     {
-        $this->campaigns =[
-            new SabahattinAliCampaign(),
-            new LocalAuthorCampaign(),
-            new TwoHundreadsCampaign(),
+
+        $campaignServices = [
+            new SabahattinAliCampaign($campaign),
+            new TwoHundreadsCampaign($campaign),
         ];
-    }
 
-    public function getBestCampaigns(array $products)
-    {
         $best = ['discount' =>0, 'description' =>''];
-        foreach($this->campaigns as $campaign){
-            if($campaign->isApplicable($products)){
-                $result = $campaign->calculateDiscount($products);
+        foreach($campaignServices as $c){
+            if($c->isApplicable($products)){
+                $result = $c->calculateDiscount($products);
                 if($result['discount'] > $best['discount']){
                     $best = $result;
                 }

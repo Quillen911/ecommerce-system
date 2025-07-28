@@ -58,7 +58,7 @@ class BagController extends Controller
         return ResponseHelper::success('Ürün sepete eklendi.', $productItem);
     }
 
-    public function show(Request $request)
+    public function show($id)
     {
         $user = $this->getUser();
         $bag = $this->getUserBag();
@@ -67,14 +67,14 @@ class BagController extends Controller
             return ResponseHelper::notFound('Sepet bulunamadı!');
         }
 
-        $bagItem = $this->bagService->showBagItem($bag, $request->product_id);
+        $bagItem = $this->bagService->showBagItem($bag, $id);
         if(!$bagItem){
             return ResponseHelper::notFound('Ürün bulunamadı!');
         }
         
         return ResponseHelper::success('Ürün', $bagItem);
     }
-    public function destroy(Request $request)
+    public function destroy($id)
     {
         $user = $this->getUser();
         $bag = $this->getUserBag();
@@ -83,9 +83,12 @@ class BagController extends Controller
             return ResponseHelper::notFound('Sepet bulunamadı!');
         }
 
-        $result = $this->bagService->destroyBagItem($bag, $request->product_id);
+        $result = $this->bagService->destroyBagItem($bag, $id);
         
+        if(isset($result['success']) && !$result['success']){
+            return ResponseHelper::notFound($result['message']);
+        }
 
-        return $result;
+        return ResponseHelper::success($result['message'] ?? 'Ürün sepetten silindi.');
     }
 }

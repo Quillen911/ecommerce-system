@@ -8,6 +8,7 @@ use App\Traits\Campaigns\SabahattinTrait;
 class SabahattinAliCampaign implements CampaignInterface
 {
     use SabahattinTrait;
+
     protected $campaign;
 
     public function __construct(Campaign $campaign)
@@ -22,14 +23,13 @@ class SabahattinAliCampaign implements CampaignInterface
 
     public function calculateDiscount(array $products): array
     {
-        $eligible = $this->isSabahattinAli($products);
+        $eligible = $this->getEligibleProducts($products);
 
         //En ucuz ürün için
         $totalQuantity = $eligible->sum('quantity'); 
         if($totalQuantity < 2) {
             return ['discount' => 0, 'description' =>''];
         }
-
         $discountRule = $this->campaign->discounts->where('applies_to', 'product')->first();
         $x = $discountRule ? json_decode($discountRule->discount_value)->x : 2;
         $y = $discountRule ? json_decode($discountRule->discount_value)->y : 1;

@@ -5,16 +5,19 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Campaign;
 use App\Jobs\CreateOrderJob;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\ResponseHelper;
+
 
 
 class OrderService
 {
     public function createOrder($user, $products, $campaignManager)
     {
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all());
+        $campaign = Campaign::first();
+        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaign);
         $total = $products->sum(function($items) {
             return $items->quantity * $items->product->list_price; 
         });

@@ -54,7 +54,6 @@ class OrderController extends Controller
         if($products->isEmpty()){
             return ResponseHelper::notFound('Sepetiniz boş!');
         }
-
         $result = $this->orderService->createOrder($user, $products, new CampaignManager());
 
         $bag->bagItems()->delete();
