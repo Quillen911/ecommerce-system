@@ -50,7 +50,9 @@ class BagController extends Controller
         }
 
         $productItem = $this->bagService->getAddBag($bag, $request->product_id);
-        
+        if (is_array($productItem) && isset($productItem['error'])) {
+            return ResponseHelper::error($productItem['error']);
+        }
         if(!$productItem){
             return ResponseHelper::notFound('Ürün bulunamadı!');
         }

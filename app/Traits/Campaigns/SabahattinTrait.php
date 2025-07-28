@@ -4,11 +4,17 @@ namespace App\Traits\Campaigns;
 
 use App\Models\Campaign;
 use App\Models\CampaignCondition;
+use App\Models\Order;
+
 trait SabahattinTrait
 {
     public function isSabahattinAli(array $products): bool
     {   
-
+        if($this->campaign->starts_at > now() || $this->campaign->ends_at < now()){
+            $this->campaign->is_active = 0;
+            $this->campaign->save();
+            return false;
+        }
         $condition = CampaignCondition::where('campaign_id', $this->campaign->id)->get();
         $condition_array = [];
         foreach($condition as $c){
@@ -24,6 +30,7 @@ trait SabahattinTrait
         
         $totalQuantity = $eligible->sum('quantity');
         return $totalQuantity > 1;
+        
     }
     
     public function getEligibleProducts(array $products)

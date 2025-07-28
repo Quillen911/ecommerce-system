@@ -18,7 +18,11 @@ class TwoHundreadsCampaign implements CampaignInterface
 
     public function isApplicable(array $products): bool
     {
-
+        if($this->campaign->starts_at > now() || $this->campaign->ends_at < now()){
+            $this->campaign->is_active = 0;
+            $this->campaign->save();
+            return false;
+        }
         $min_total = CampaignCondition::where('campaign_id', $this->campaign->id)->where('condition_type', 'min_total')->first()?->condition_value;
         $min_total = json_decode($min_total, true);
 

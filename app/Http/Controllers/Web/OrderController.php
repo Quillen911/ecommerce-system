@@ -54,7 +54,7 @@ class OrderController extends Controller
         $discount = $bestCampaign['discount'] ?? 0;
 
         $Totally = $total +$cargoPrice -$discount;
-
+        Cache::flush();
         return view('order', compact('products', 'bestCampaign', 'total', 'cargoPrice', 'discount', 'Totally', 'bestCampaignModel'));
     }
 

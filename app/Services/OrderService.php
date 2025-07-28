@@ -20,7 +20,7 @@ class OrderService
                             ->where('starts_at', '<=', now())
                             ->where('ends_at', '>=', now())
                             ->get();
-                            
+
         $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
         $total = $products->sum(function($items) {
             return $items->quantity * $items->product->list_price; 
@@ -51,14 +51,19 @@ class OrderService
             
         ];
         
-        foreach($orderData['products'] as $product) {
-            $product = Product::find($product['product_id']);
-            if($product->stock_quantity < $product['quantity']){
-                    throw new \Exception('Ürün stokta yok');
-                }
-                $product->stock_quantity -= $product['quantity'];
-                $product->save();
+        foreach($orderData['products'] as $productData) {
+            $product = Product::find($productData['product_id']);
+            
+            if (!$product) {
+                return ResponseHelper::error('Ürün bulunamadı', 404);
             }
+            
+            if ($product->stock_quantity < $productData['quantity']) {
+                return ResponseHelper::error('Ürün stokta yok', 404);
+            }
+            
+            $this->updateStock($productData['product_id'], $productData['quantity']);
+        }
         
         CreateOrderJob::dispatch($orderData);
 
@@ -73,9 +78,15 @@ class OrderService
     private function updateStock($productId, $quantity)
     {
         $product = Product::find($productId);
-        if($product->stock_quantity < $quantity){
-            throw new \Exception('Ürün stokta yok');
+        
+        if (!$product) {
+            return ResponseHelper::error('Ürün bulunamadı', 404);
         }
+        
+        if ($product->stock_quantity < $quantity) {
+            return ResponseHelper::error('Ürün stokta yok', 404);
+        }
+        
         $product->stock_quantity -= $quantity;
         $product->save();
     }
