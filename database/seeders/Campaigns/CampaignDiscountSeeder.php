@@ -19,5 +19,19 @@ class CampaignDiscountSeeder extends Seeder
             'discount_value' => json_encode(['x' => 2, 'y' => 1]),
             'applies_to' => 'product',
         ]);
+
+        CampaignDiscount::create([
+            'campaign_id' => 2,
+            'discount_type' => 'percentage',
+            'discount_value' => json_encode(['discount' => 0.05]),
+            'applies_to' => 'bag_total',
+        ]);
+
+        CampaignDiscount::create([
+            'campaign_id' => 3,
+            'discount_type' => 'percentage',
+            'discount_value' => json_encode(['discount' => 0.05]),
+            'applies_to' => 'product->author',
+        ]);
     }
 }

@@ -16,8 +16,11 @@ class OrderService
 {
     public function createOrder($user, $products, $campaignManager)
     {
-        $campaign = Campaign::first();
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaign);
+        $campaigns = Campaign::where('is_active', 1)
+        ->where('starts_at', '<=', now())
+        ->where('ends_at', '>=', now())
+        ->get();
+        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
         $total = $products->sum(function($items) {
             return $items->quantity * $items->product->list_price; 
         });
@@ -46,7 +49,20 @@ class OrderService
             'status' => 'bekliyor',   
             
         ];
-
+        
+        // Debug log ekle
+        \Log::info('OrderService - BestCampaign:', $bestCampaign);
+        \Log::info('OrderService - Discount:', [$discount]);
+        \Log::info('OrderService - OrderData:', $orderData);
+        foreach($orderData['products'] as $product) {
+            $product = Product::find($product['product_id']);
+            if($product->stock_quantity < $product['quantity']){
+                    throw new \Exception('Ürün stokta yok');
+                }
+                $product->stock_quantity -= $product['quantity'];
+                $product->save();
+            }
+        
         CreateOrderJob::dispatch($orderData);
 
     }
@@ -55,6 +71,16 @@ class OrderService
         return Order::where('Bag_User_id', $user)
                     ->where('id',$id)
                     ->first();
+    }
+    
+    private function updateStock($productId, $quantity)
+    {
+        $product = Product::find($productId);
+        if($product->stock_quantity < $quantity){
+            throw new \Exception('Ürün stokta yok');
+        }
+        $product->stock_quantity -= $quantity;
+        $product->save();
     }
     
 

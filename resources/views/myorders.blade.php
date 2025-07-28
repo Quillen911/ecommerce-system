@@ -50,8 +50,9 @@
                 <label>Durum: </label>{{ $order->status }}<br>
                 <label>Kargo Fiyatı: </label>{{ $order->cargo_price == 0 ? "Kargo Ücretsiz" : $order->cargo_price }}<br>
                 <label>Kampanya: </label> {{$order->campaign_info ?? "Kampanya Yok"}} <br>
+                <label>İndirim Tutarı: </label>{{ $order->discount }}<br>
                 <strong>Toplam Fiyat: </strong>{{ $order->price }}<br>
-                <strong>İndirim Fiyatı: </strong>{{ $order->campaing_price }}<br>
+                <strong>İndirimli Fiyatı: </strong>{{ $order->campaing_price }}<br>
                 <br>
                 <form action="{{route('myorders.delete', $order->id)}}" method="POST">
                     @csrf

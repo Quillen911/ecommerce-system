@@ -12,6 +12,7 @@ class Order extends Model
         'Bag_User_id',
         'price', 
         'cargo_price',
+        'discount',
         'campaing_price',
         'campaign_info',
         'status'

@@ -2,35 +2,48 @@
 
 namespace App\Services\Campaigns;
 
+use App\Models\Campaign;
+use App\Models\CampaignDiscount;
+use App\Models\CampaignCondition;
+use Illuminate\Support\Facades\Log;
+
 class TwoHundreadsCampaign implements CampaignInterface
 {
+
+    protected $campaign;
+    public function __construct(Campaign $campaign)
+    {
+        $this->campaign = $campaign;
+    }
+
     public function isApplicable(array $products): bool
     {
+
+        $min_total = CampaignCondition::where('campaign_id', $this->campaign->id)->where('condition_type', 'min_total')->first()?->condition_value;
+        $min_total = json_decode($min_total, true);
+
         $products = collect($products);
         $total = $products->sum(function($item) {
             return $item->product->list_price * $item->quantity;
         });
-        return $total >= 200.00;
+
+        return $total >= $min_total;
+        
     }
 
     public function calculateDiscount(array $products): array
     {
-        $products= collect($products);
-        $eligible = $products->filter(function($items){
-            $Total=$items->product->list_price * $items->quantity;
-            return $Total;
-        });
-        $eligiblePrice =  $eligible->sum('Total') ;
-
-
-        $total = $eligible->sum(function($items) {
+        $products = collect($products);
+        $total = $products->sum(function($items) {
             return $items->quantity * $items->product->list_price;
         });
 
-        $discount = $total * 0.05;
+        $discountRule = CampaignDiscount::where('campaign_id', $this->campaign->id)->first();
+        $discountRate = $discountRule ? (json_decode($discountRule->discount_value)->discount) * $total : 0;
+        
         return [
-            'description' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
-            'discount' => $discount
+            'description' => $this->campaign->description,
+            'discount' => $discountRate
         ];
 
     }

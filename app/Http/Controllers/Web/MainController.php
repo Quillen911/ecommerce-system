@@ -16,8 +16,7 @@ class MainController extends Controller
         $products = Cache::remember("products.page.$page", 60, function () {
             return Product::with('category')->orderBy('id')->paginate(20);
         });
-        
-
+        Cache::flush();
         return view('main', compact('products'));
     }
 }

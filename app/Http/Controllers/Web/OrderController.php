@@ -36,10 +36,15 @@ class OrderController extends Controller
         $user = auth()->user();
         $bag = Bag::where('Bag_User_id', $user->id)->first();
         $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
-        
+        $campaigns = Campaign::where('is_active', 1)->get();
         $campaignManager = new CampaignManager();
-        $campaign = Campaign::first();
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaign);
+        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
+        
+        // En iyi kampanyayı bul
+        $bestCampaignModel = null;
+        if (!empty($bestCampaign['description'])) {
+            $bestCampaignModel = Campaign::where('description', $bestCampaign['description'])->first();
+        }
         
         $total = $products->sum(function($item){
             return $item->quantity * $item->product->list_price;
@@ -51,7 +56,7 @@ class OrderController extends Controller
 
         $Totally = $total +$cargoPrice -$discount;
 
-        return view('order', compact('products', 'bestCampaign', 'total', 'cargoPrice', 'discount', 'Totally'));
+        return view('order', compact('products', 'bestCampaign', 'total', 'cargoPrice', 'discount', 'Totally', 'bestCampaignModel'));
     }
 
     public function done(Request $request)
