@@ -42,16 +42,16 @@ class BagService{
         }
     }
     
-    public function showBagItem($bag, $productId)
+    public function showBagItem($bag, $bagItemId)
     {
         return $bag->bagItems()
-        ->where('product_id', $productId)
+        ->where('id', $bagItemId)
         ->first();   
     }
 
-    public function destroyBagItem($bag, $productId)
+    public function destroyBagItem($bag, $bagItemId)
     {
-        $bagItem = $bag->bagItems()->where('product_id', $productId)->first();
+        $bagItem = $bag->bagItems()->where('id', $bagItemId)->first();
 
         if ($bagItem) {
             $product = $bagItem->product;
