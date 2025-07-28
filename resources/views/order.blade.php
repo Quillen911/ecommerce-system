@@ -66,7 +66,7 @@
                             const timeLeft = endTime - now;
                             
                             if (timeLeft <= 0) {
-                                document.getElementById('countdown').innerHTML = 'Kampanya sona erdi';
+                                document.getElementById('countdown').innerHTML = 'Kampanya sona erdi. Lütfen yeni bir sipariş oluşturunuz veya sayfayı yenileyiniz.';
                                 document.getElementById('countdown').style.color = 'red';
                                 return;
                             }

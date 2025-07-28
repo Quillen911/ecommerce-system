@@ -15,9 +15,10 @@ class CampaignSeeder extends Seeder
             'type' => 'x_buy_y_pay',
             'description' => 'Sabahattin Ali Romanlarında 2 Al 1 Öde',
             'is_active' => true,
-            'per_user_limit' => 1,
+            'per_user_limit' => 3,
+            'usage_limit' => 10,
             'starts_at' => now(),
-            'ends_at' => now()->addMinutes(20),
+            'ends_at' => now()->addHours(9),
         ]);
 
         Campaign::create([
@@ -26,17 +27,19 @@ class CampaignSeeder extends Seeder
             'description' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
             'is_active' => true,
             'per_user_limit' => 1,
+            'usage_limit' => 50,
             'starts_at' => now(),
-            'ends_at' => now()->addMonth(),
+            'ends_at' => now()->addHours(10),
         ]);
         Campaign::create([
             'name' => 'Yerli Yazarlarda %5 indirim',
             'type' => 'percentage',
             'description' => 'Yerli Yazarlarda %5 indirim',
             'is_active' => true,
-            'per_user_limit' => 1,
+            'per_user_limit' => 5,
+            'usage_limit' => 100,
             'starts_at' => now(),
-            'ends_at' => now()->addMonth(),
+            'ends_at' => now()->addHours(11),
         ]);
     }
 }

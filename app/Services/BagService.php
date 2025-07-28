@@ -25,7 +25,7 @@ class BagService{
 
         $currentQuantity = $productItem ? $productItem->quantity : 0;
         if ($currentQuantity >= $product->stock_quantity) {
-            return ResponseHelper::notFound('Stokta yeterli ürün yok!');
+            return ['error' => 'Stokta yeterli ürün yok!'];
         }
 
         if ($productItem) {

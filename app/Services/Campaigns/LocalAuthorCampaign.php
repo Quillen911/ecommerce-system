@@ -15,6 +15,11 @@ class LocalAuthorCampaign implements CampaignInterface
 
     public function isApplicable(array $products): bool
     {
+        if($this->campaign->starts_at > now() || $this->campaign->ends_at < now()){
+            $this->campaign->is_active = 0;
+            $this->campaign->save();
+            return false;
+        }
         $localAuthor = CampaignCondition::where('campaign_id', $this->campaign->id)->where('condition_type', 'author')->first()?->condition_value;
         $localAuthor = json_decode($localAuthor, true);
 

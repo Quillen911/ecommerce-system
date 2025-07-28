@@ -26,6 +26,9 @@ class CampaignManager
 
     private function createServiceByType(Campaign $campaign)
     {
+        if($campaign->is_active == 0){
+            return response()->json(['error' => 'Kampanya aktif değil'], 400);
+        }
         switch ($campaign->id) {
             case 1:
                 return new SabahattinAliCampaign($campaign);

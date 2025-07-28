@@ -51,9 +51,14 @@ class BagController extends Controller
 
         $productItem = $this->bagService->getAddBag($bag, $request->product_id);
 
+        if (is_array($productItem) && isset($productItem['error'])) {
+            return redirect()->route('main')->with('error', $productItem['error']);
+        }
+        
         if(!$productItem){
             return redirect()->route('main')->with('error', 'Ürün bulunamadı!');
         }
+        
         Cache::flush();
         return redirect()->route('main')->with('success', 'Ürün sepete eklendi.');
     }
