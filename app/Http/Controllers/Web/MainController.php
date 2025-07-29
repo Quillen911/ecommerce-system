@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Web;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Category;
 
 class MainController extends Controller
 {

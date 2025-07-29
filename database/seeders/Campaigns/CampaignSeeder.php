@@ -18,7 +18,7 @@ class CampaignSeeder extends Seeder
             'per_user_limit' => 3,
             'usage_limit' => 10,
             'starts_at' => now(),
-            'ends_at' => now()->addHours(9),
+            'ends_at' => now()->addHours(24),
         ]);
 
         Campaign::create([
@@ -29,7 +29,7 @@ class CampaignSeeder extends Seeder
             'per_user_limit' => 1,
             'usage_limit' => 50,
             'starts_at' => now(),
-            'ends_at' => now()->addHours(10),
+            'ends_at' => now()->addHours(24),
         ]);
         Campaign::create([
             'name' => 'Yerli Yazarlarda %5 indirim',
@@ -39,7 +39,7 @@ class CampaignSeeder extends Seeder
             'per_user_limit' => 5,
             'usage_limit' => 100,
             'starts_at' => now(),
-            'ends_at' => now()->addHours(11),
+            'ends_at' => now()->addHours(24),
         ]);
     }
 }

@@ -20,11 +20,11 @@ class CreateOrderJob implements ShouldQueue
 
     public function __construct($orderData)
     {
+        $this->queue = 'order_create';
         $this->orderData = $orderData;
     }
     public function handle()
     {
-  
         $order = Order::create([
             'Bag_User_id' => $this->orderData['user_id'],
             'price' => $this->orderData['total'] + $this->orderData['cargo_price'],
