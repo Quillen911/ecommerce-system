@@ -43,5 +43,4 @@ class SabahattinAliCampaign implements CampaignInterface
             'discount' => $discount
         ];
     }
-
 }   
