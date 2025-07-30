@@ -14,8 +14,22 @@
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
+
     <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" onclick="window.location.href='/bag'">Sepetim</button><br><br>
     <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" onclick="window.location.href='/myorders'">Siparişlerim</button><br><br>
+        
+    <form action="{{ route('search') }}" method="GET"> 
+        @csrf
+        <input type="text" name="q" placeholder="Ürün Ara" value="{{ $query ?? '' }}">
+        <button type="submit">Ara</button>
+        <input type="hidden" name="page" value="1">
+        <input type="hidden" name="size" value="12">
+    </form>
+    <br>
+    @if(isset($query) && !empty($query))
+        <strong>Arama Sonuçları: </strong> <br>
+    @endif
+    <br>
         <table border="5" cellpadding="8" cellspacing="0" >
             <thead>
                 <tr>
@@ -51,11 +65,12 @@
             </tbody>
             
         </table><br>
+        <a href="{{ route('main') }}">Tüm ürünleri göster</a> <br> <br> 
     <form action="{{ route('logout') }}" method="POST">
         @csrf
       <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Çıkış Yap</button>
     </form>
-
+    
 
 </body>
 </html>
