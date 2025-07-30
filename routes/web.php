@@ -15,7 +15,9 @@ Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin'
 
 Route::middleware(['auth'])->group(function(){
     Route::get('/main', [MainController::class, 'main'])->name('main');
-    
+    Route::get('/search/products', [MainController::class, 'search'])->name('search');  
+    Route::get('/search/autocomplete', [MainController::class, 'autocomplete'])->name('search/autocomplete');
+
     Route::prefix('bag')->group(function(){
         Route::get('/', [BagController::class, 'bag'])->name('bag');
         Route::post('/add', [BagController::class, 'add'])->name('add');

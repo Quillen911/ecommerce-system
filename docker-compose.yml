@@ -98,12 +98,25 @@ services:
       - postgres
     networks:
       - order-api-network
-    
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+    - "9200:9200"
+    
+    volumes:
+    - elasticsearch_data:/usr/share/elasticsearch/data 
+
+    networks:
+    - order-api-network
+    
 volumes:
   pgdata:
   redis_data:
-
+  elasticsearch_data: 
 networks:
   order-api-network:
     driver: bridge
