@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Campaigns;
+namespace App\Services\Campaigns\CampaignManager;
 
 interface CampaignInterface
 {
