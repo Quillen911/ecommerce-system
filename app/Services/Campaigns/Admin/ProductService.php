@@ -15,7 +15,6 @@ class ProductService
         $products = Product::orderBy('id')->get();
         return $products;
     }
-
     public function createProduct(ProductStoreRequest $request)
     {
         $products = Product::create($request->validated());

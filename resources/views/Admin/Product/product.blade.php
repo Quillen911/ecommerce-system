@@ -17,6 +17,7 @@
             <th>Yazar</th>
             <th>Liste Fiyatı</th>
             <th>Stok Miktarı</th>
+            <th>Sil</th>
         </tr>
         @foreach($products as $product)
             <tr>
@@ -26,6 +27,13 @@
                 <td>{{ $product->author }}</td>
                 <td>{{ $product->list_price }}</td>
                 <td>{{ $product->stock_quantity }}</td>
+                <td> 
+                    <form action="{{ route('admin.deleteProduct', $product->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit">Sil</button>
+                    </form>
+                </td>
             </tr>
         @endforeach
     </table>

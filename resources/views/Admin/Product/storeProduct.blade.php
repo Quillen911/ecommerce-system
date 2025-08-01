@@ -21,40 +21,18 @@
     
     <form action="{{ route('admin.createProduct') }}" method="post">
         @csrf
-        <div>
-            <input type="text" name="title" placeholder="Ürün Adı" value="{{ old('title') }}">
-            @error('title')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
-        </div>
         
-        <div>
-            <input type="text" name="category_id" placeholder="Kategori" value="{{ old('category_id') }}">
-            @error('category_id')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
-        </div>
+            <input type="text" name="title" placeholder="Ürün Adı" value="{{ old('title') }}" required> <br>
+       
+            <input type="text" name="category_id" placeholder="Kategori" value="{{ old('category_id') }}"> <br>
+            
+            <input type="text" name="author" placeholder="Yazar" value="{{ old('author') }}" required> <br>
+            
+            <input type="floatval" name="list_price" placeholder="Liste Fiyatı" value="{{ old('list_price') }}" required> <br>
         
-        <div>
-            <input type="text" name="author" placeholder="Yazar" value="{{ old('author') }}">
-            @error('author')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
-        </div>
+            <input type="number" name="stock_quantity" placeholder="Stok Miktarı" value="{{ old('stock_quantity') }}" required> <br> <br>
         
-        <div>
-            <input type="number" step="0.01" name="list_price" placeholder="Liste Fiyatı" value="{{ old('list_price') }}">
-            @error('list_price')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
-        </div>
         
-        <div>
-            <input type="number" name="stock_quantity" placeholder="Stok Miktarı" value="{{ old('stock_quantity') }}">
-            @error('stock_quantity')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
-        </div>
         
         <button type="submit">Ürün Ekle</button>
     </form>
