@@ -16,13 +16,8 @@ class Campaign extends Model
         'priority',
         'usage_limit',
         'usage_limit_for_user',
-        'user_activity',
-        'user_usage',
         'starts_at',
         'ends_at',
-    ];
-    protected $casts = [
-        'user_usage' => 'array',
     ];
 
     public function conditions()
@@ -33,5 +28,9 @@ class Campaign extends Model
     public function discounts()
     {
         return $this->hasMany(CampaignDiscount::class, 'campaign_id');
+    }
+    public function campaign_user_usages()
+    {
+        return $this->hasMany(CampaignUserUsage::class, 'campaign_id');
     }
 }
