@@ -37,7 +37,7 @@ class ProductController extends Controller
 
     public function editProduct($id)
     {
-        $products = Product::findOrFail($id);
+        $products = $this->productService->showProduct($id);
         return view('Admin.Product.editProduct', compact('products'));
     }
 

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Campaign;
 use App\Services\Campaigns\Admin\CampaignService;
+use App\Http\Requests\Admin\Campaign\CampaignStoreRequest;
+use App\Http\Requests\Admin\Campaign\CampaignUpdateRequest;
 
 class CampaignController extends Controller
 {
@@ -24,26 +26,36 @@ class CampaignController extends Controller
 
     public function storeCampaign()
     {
-       // $campaigns = $this->campaignService->createCampaign();
         return view('Admin.Campaign.storeCampaign');
+    }
+
+    public function createCampaign(CampaignStoreRequest $request)
+    {
+        $campaigns = $this->campaignService->createCampaign($request);
+        return view('Admin.Campaign.storeCampaign')->with('success', 'Kampanya başarıyla eklendi');
     }
 
     public function editCampaign($id)
     {
-        // $campaigns = $this->campaignService->editCampaign($id);
-        return view('Admin.Campaign.editCampaign');
+        $campaigns = $this->campaignService->showCampaign($id);
+        if(!$campaigns){
+            return redirect()->route('admin.campaign')->with('error', 'Kampanya bulunamadı');
+        }
+        return view('Admin.Campaign.editCampaign' ,compact('campaigns'));
     }
 
-    public function updateCampaign(Request $request, $id)
+    public function updateCampaign(CampaignUpdateRequest $request, $id)
     {
-        // $campaigns = $this->campaignService->updateCampaign($request, $id);
-        return view('Admin.Campaign.updateCampaign');
+        $campaigns = $this->campaignService->updateCampaign($request, $id);
+        \Log::info('updateCampaign called', ['id' => $id, 'data' => $request->all()]);
+
+        return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla güncellendi');
     }
 
     public function deleteCampaign($id)
     {
-        // $campaigns = $this->campaignService->deleteCampaign($id);
-        return view('Admin.Campaign.deleteCampaign');
+        $campaigns = $this->campaignService->deleteCampaign($id);
+        return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla silindi');
     }
     
 
