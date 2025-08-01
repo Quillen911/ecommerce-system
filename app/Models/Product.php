@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers\ResponseHelper;
 use App\Services\ElasticsearchService; 
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Product extends Model
 {
-    
+    use SoftDeletes;
+
     protected $table = 'products';
 
     protected $fillable = [
