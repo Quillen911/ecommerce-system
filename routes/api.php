@@ -17,8 +17,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('orders', OrderController::class)->only(['index','store','show']);
     Route::apiResource('main', MainController::class)->only(['index','show']);
     Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
-    Route::apiResource('admin/campaigns', CampaignController::class)->only(['index','store','show','destroy']);
-    Route::apiResource('admin/products', ProductController::class)->only(['index','store','show','update','destroy']);
+    Route::apiResource('admin/campaign', CampaignController::class)->only(['index','store','show','update','destroy']);
+    Route::apiResource('admin/product', ProductController::class)->only(['index','store','show','update','destroy']);
     
     Route::get('/search', [MainController::class, 'search']);
     Route::get('/filter', [MainController::class, 'filter']);
