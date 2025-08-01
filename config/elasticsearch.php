@@ -18,10 +18,11 @@ return [
                 'author' => ['type' => 'text', 'analyzer' => 'standard'],
                 'list_price' => ['type' => 'float'],
                 'category_id' => ['type' => 'integer'],
+                'category_title' => ['type' => 'text', 'analyzer' => 'standard'],
                 'stock_quantity' => ['type' => 'integer'],
                 'created_at' => ['type' => 'date'],
                 'updated_at' => ['type' => 'date'],
             ]
-        ]
+        ],
     ]
 ];

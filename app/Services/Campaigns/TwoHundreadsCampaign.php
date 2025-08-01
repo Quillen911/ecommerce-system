@@ -23,6 +23,18 @@ class TwoHundreadsCampaign implements CampaignInterface
             $this->campaign->save();
             return false;
         }
+        $user = auth()->user();
+        if($user){
+
+            $userUsage = $this->campaign->user_usage ?? [];
+            $userUsageCount = $userUsage[$user->id] ?? 0;
+
+            if($userUsageCount >= $this->campaign->usage_limit_for_user){
+                $this->campaign->user_activity = 0;
+                $this->campaign->save();
+                return false;
+            }
+        }
         $min_total = CampaignCondition::where('campaign_id', $this->campaign->id)->where('condition_type', 'min_total')->first()?->condition_value;
         $min_total = json_decode($min_total, true);
 

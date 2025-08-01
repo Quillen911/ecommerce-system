@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Helpers\ResponseHelper;
 use App\Services\ElasticsearchService;
-
+use App\Http\Requests\FilterRequest;
 
 
 class MainController extends Controller
@@ -20,14 +20,20 @@ class MainController extends Controller
     {
         $this->elasticSearch = $elasticSearch;
     }
+
     public function index(Request $request)
     {
         $page = request('page', 1);
         $products = Cache::remember("products.page.$page", 60, function () {
             return Product::with('category')->orderBy('id')->paginate(20);
         });
-        return ResponseHelper::success('Ürünler', $products);
+        $categories = Category::all();
+        return ResponseHelper::success('Ürünler', [
+            'products' => $products,
+            'categories' => $categories
+        ]);
     }
+
     public function show(Request $request, $id)
     {
         $product = Product::find($id);
@@ -36,25 +42,70 @@ class MainController extends Controller
         }
         return ResponseHelper::success('Ürün', $product);
     }
+
+    //elasticsearch
     public function search(Request $request)
     {
         $query = $request->input('q', '');
-        $filters = [
-            'category_id' => $request->input('category_id'),
-            'min_price' => $request->input('min_price'),
-            'max_price' => $request->input('max_price'),
-        ];
+        $filters = [];
+        if($request->filled('category_title')){
+            $filters['category_title'] = $request->input('category_title');
+        }
+        if($request->filled('min_price')){
+            $filters['min_price'] = $request->input('min_price');
+        }
+        if($request->filled('max_price')){
+            $filters['max_price'] = $request->input('max_price');
+        }
         $page = $request->input('page', 1);
         $size = $request->input('size', 12);
+
         $results = $this->elasticSearch->searchProducts($query, $filters, $page, $size);
-   
-        // Elasticsearch sonuçlarından Product ID'lerini al
-        $productIds = collect($results['hits'])->pluck('_id')->toArray();
+        
+        $products = collect($results['hits'])->pluck('_source')->toArray();
+        if(!empty($products)){
+            return ResponseHelper::success('Ürünler Bulundu', [
+            'total' => $results['total'],
+            'page' => $page,
+            'size' => $size,
+            'query' => $query ? $query : "null",
+            'products' => $products,
+        ]);
+        }
+        return ResponseHelper::success('Ürün bulunamadı.', [
+            'total' => 0,
+            'page' => $page,
+            'size' => $size,
+            'query' => $query ? $query : "null",
+            'products' => []
+        ]);
+    }
 
-        // Bu ID'lerle Product modellerini veritabanından çek
-        $products = Product::with('category')->whereIn('id', $productIds)->get();
+    public function filter(FilterRequest $request)
+    {
+        $filters = [];
+        if($request->filled('category_title')){
+            $filters['category_title'] = $request->input('category_title') ?? '';
+        }
+        if($request->filled('min_price')){
+            $filters['min_price'] = $request->input('min_price') ?? '';
+        }
+        if($request->filled('max_price')){
+            $filters['max_price'] = $request->input('max_price') ?? '';
+        }
+        $page = $request->input('page', 1);
+        $size = $request->input('size', 12);
 
-        return ResponseHelper::success('Ürünler', $products);
+        $results = $this->elasticSearch->filterProducts($filters, $page, $size);
+        
+        $products = collect($results['hits'])->pluck('_source')->toArray();
+        return ResponseHelper::success('Ürünler Bulundu', [
+            'total' => $results['total'],
+            'page' => $page,
+            'size' => $size,
+            'filters' => $filters,
+            'products' => $products,
+        ]);
     }
 
     public function autocomplete(Request $request)

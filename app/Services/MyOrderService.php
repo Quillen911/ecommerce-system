@@ -44,13 +44,12 @@ class MyOrderService
         $campaign = Campaign::where('is_active', 1)->where('description', $order->campaign_info)->first();
         if($campaign){
             $campaign->usage_limit = $campaign->usage_limit + 1;
-            $campaign->per_user_limit = $campaign->per_user_limit + 1;
+            $userUsage = $campaign->user_usage ?? [];
+            $userUsage[$userId] = ($userUsage[$userId] ?? 0) - 1;
+            $campaign->user_usage = $userUsage;
             $campaign->save();
-            if($campaign->per_user_limit <= 0){
-                $campaign->is_active = 0;
-                $campaign->save();
-            }elseif($campaign->usage_limit <= 0){
-                $campaign->is_active = 0;
+            if($userUsage <= $campaign->usage_limit_for_user){
+                $campaign->user_activity = 1;
                 $campaign->save();
             }
         }

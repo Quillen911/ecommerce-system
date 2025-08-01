@@ -17,7 +17,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('main', MainController::class)->only(['index','show']);
     Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
     
-    Route::get('/search/products', [MainController::class, 'search']);
+    Route::get('/search', [MainController::class, 'search']);
+    Route::get('/filter', [MainController::class, 'filter']);
     Route::get('/search/autocomplete', [MainController::class, 'autocomplete']);
 
     Route::get('/me', [AuthController::class, 'me']);
