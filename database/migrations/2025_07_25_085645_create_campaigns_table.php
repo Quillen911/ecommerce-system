@@ -14,9 +14,11 @@ return new class extends Migration
             $table->enum('type', ['percentage', 'fixed','x_buy_y_pay']);     
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('user_activity')->default(true);
             $table->json('priority')->nullable();
             $table->json('usage_limit')->nullable();
-            $table->unsignedInteger('per_user_limit');
+            $table->unsignedInteger('usage_limit_for_user')->nullable();
+            $table->json('user_usage')->nullable();
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
             $table->timestamps();

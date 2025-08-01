@@ -15,9 +15,14 @@ class Campaign extends Model
         'is_active',
         'priority',
         'usage_limit',
-        'per_user_limit',
+        'usage_limit_for_user',
+        'user_activity',
+        'user_usage',
         'starts_at',
         'ends_at',
+    ];
+    protected $casts = [
+        'user_usage' => 'array',
     ];
 
     public function conditions()

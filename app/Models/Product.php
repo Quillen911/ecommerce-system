@@ -13,10 +13,14 @@ class Product extends Model
 
     protected $fillable = [
         'title',
-        'category_id',
+        'category_id',  
         'author',
         'list_price',
         'stock_quantity'
+    ];
+    protected $casts = [
+        'list_price' => 'float',
+        'stock_quantity' => 'integer',
     ];
 
 
@@ -28,14 +32,17 @@ class Product extends Model
     {
         parent::boot();
         static::saved(function ($product){
-            app(ElasticsearchService::class)->indexDocument('products', $product->id, $product->toArray());
-
+            $data = $product->toArray();
+            $data['list_price'] = (float) $data['list_price'];
+            $data['category_title'] = $product->category?->category_title ?? '';
+            
+            
+            app(ElasticsearchService::class)->indexDocument('products', $product->id, $data);
         });
 
         static::deleted(function ($product) {
             app(ElasticsearchService::class)->deleteDocument('products', $product->id);
         });
-
     }
 
 }

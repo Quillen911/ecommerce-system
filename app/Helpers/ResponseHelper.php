@@ -8,6 +8,10 @@ class ResponseHelper
     {
         return response()->json(['error' => $message], $code);
     }
+    public static function errorForArray($message, $data = [], $code = 400)
+    {
+        return response()->json(['error' => $message, 'data' => $data], $code);
+    }
 
     public static function success($message, $data = [], $code =200)
     {

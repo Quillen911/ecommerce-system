@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Web;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Services\ElasticsearchService;
 
 class MainController extends Controller
 {
     protected $elasticSearch;
-    
+        
     public function __construct(ElasticsearchService $elasticSearch)
     {
         $this->elasticSearch = $elasticSearch;
@@ -23,43 +24,65 @@ class MainController extends Controller
         $products = Cache::remember("products.page.$page", 60, function () {
             return Product::with('category')->orderBy('id')->paginate(20);
         });
-        Cache::flush();
-        return view('main', compact('products'));
+        
+        $categories = Category::all();
+        
+        return view('main', compact('products', 'categories'));
     }
 
     public function search(Request $request)
     {
-        $query = $request->input('q', '');
-        
-        $filters = [
-            'category_id' => $request->input('category_id'),
-            'min_price' => $request->input('min_price'),
-            'max_price' => $request->input('max_price'),
-        ];
+        $query = $request->input('q', '') ?? '';
+        $filters = [];
+        if($request->filled('category_title')){
+            $filters['category_title'] = $request->input('category_title');
+        }
+        if($request->filled('min_price')){
+            $filters['min_price'] = $request->input('min_price');
+        }
+        if($request->filled('max_price')){
+            $filters['max_price'] = $request->input('max_price');
+        }
         $page = $request->input('page', 1);
         $size = $request->input('size', 12);
 
-        if (empty($query)) {
-            return $this->main();
-        }
-
         $results = $this->elasticSearch->searchProducts($query, $filters, $page, $size);
-        
-        $productIds = collect($results['hits'])->pluck('_id')->toArray();
-
-        $products = Product::with('category')->whereIn('id', $productIds)->get();
-
-        return view('main', compact('query', 'results', 'products'));
+        $products = collect($results['hits'])->pluck('_source')->toArray();
+        $categories = Category::all();
+                
+        return view('main', compact('query', 'results', 'products', 'categories'));
     }
+
+    public function filter(Request $request)
+    {
+        $filters = [];
+        if($request->filled('category_title')){
+            $filters['category_title'] = $request->input('category_title') ?? '';
+        }
+        if($request->filled('min_price')){
+            $filters['min_price'] = $request->input('min_price') ?? '';
+        }
+        if($request->filled('max_price')){
+            $filters['max_price'] = $request->input('max_price') ?? '';
+        }
+        $page = $request->input('page', 1);
+        $size = $request->input('size', 12);
+
+        $results = $this->elasticSearch->filterProducts($filters, $page, $size);
+        $products = collect($results['hits'])->pluck('_source')->toArray();
+        $categories = Category::all();
+
+        return view('main', compact('results', 'products', 'categories'));
+    }
+
     public function autocomplete(Request $request)
     {
-        $query = $request->input('q', '');
+        $query = $request->input('q', '') ?? '';
         $results = $this->elasticSearch->autocomplete($query);
 
-        $productIds = collect($results['hits'])->pluck('_id')->toArray();
-
-        $products = Product::with('category')->whereIn('id', $productIds)->get();
-
-        return view('main', compact('query', 'results', 'products'));
+        $products = collect($results)->pluck('_source')->toArray();
+        $categories = Category::all();
+            
+        return view('main', compact('query', 'results', 'products', 'categories'));
     }
 }

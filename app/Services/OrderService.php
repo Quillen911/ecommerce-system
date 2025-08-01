@@ -67,13 +67,16 @@ class OrderService
         if($campaign_info != ''){
             $campaign = Campaign::where('is_active', 1)->where('description', $campaign_info)->first();
             $campaign->usage_limit = $campaign->usage_limit - 1;
-            $campaign->per_user_limit = $campaign->per_user_limit - 1;
+            $userUsage = $campaign->user_usage ?? [];
+            $userUsage[$user->id] = ($userUsage[$user->id] ?? 0) + 1;
+            $campaign->user_usage = $userUsage;
             $campaign->save();
-            if($campaign->per_user_limit <= 0 || $campaign->usage_limit <= 0){
+            
+            
+            if($campaign->usage_limit <= 0){
                 $campaign->is_active = 0;
                 $campaign->save();
             }
-            
         }
         
         CreateOrderJob::dispatch($orderData)->onQueue('order_create');

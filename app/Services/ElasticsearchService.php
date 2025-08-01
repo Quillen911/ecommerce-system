@@ -82,32 +82,44 @@ class ElasticsearchService
         try{
             $from = ($page-1) * $size;
             $searchQuery = [];
-
+            //search query
             if(!empty($query)){
                 $searchQuery['bool']['must'][] = [
                     'multi_match' => [
                         'query' => $query,
-                        'fields' => ['title^2', 'author', 'description'],
+                        'fields' => ['title^2', 'author'],
                         'fuzziness' => 'AUTO'
                     ]
                 ];
+            } else {
+                $searchQuery['match_all'] = new \stdClass();
             }
+
             if(!empty($filters)){
-                if(isset($filters['category_id'])){
-                    $searchQuery['bool']['filter'][] = [
-                        'term' => ['category_id' => $filters['category_id']]
-                    ];
-                }
+            
+                if(isset($filters['category_title'])){
+                        $searchQuery['bool']['filter'][] = [
+                            'match' => [
+                                'category_title' => [
+                                    'query' => $filters['category_title'],
+                                    'operator' => 'or',
+                                    'fuzziness' => 'AUTO'
+                                ]
+                            ]
+                        ];
+                    }
                 if(isset($filters['min_price']) || isset($filters['max_price'])) {
                     $range = [];
                     if (isset($filters['min_price'])) $range['gte'] = $filters['min_price'];
                     if (isset($filters['max_price'])) $range['lte'] = $filters['max_price'];
+                    
                     $searchQuery['bool']['filter'][] = [
                         'range' => ['list_price' => $range]
                     ];
                 }
             }
-
+            
+            //search query
             $params = [
                 'index' => 'products',
                 'body' => [
@@ -138,6 +150,69 @@ class ElasticsearchService
         }
     }
 
+    public function filterProducts(array $filters = [], int $page = 1, int $size = 7 ): array
+    {
+        try {
+            $from = ($page-1) * $size;
+            $searchQuery = [];
+            
+            //filter search
+            if(!empty($filters)){
+                $searchQuery['bool']['filter'] = [];
+                
+                if(isset($filters['category_title'])){
+                    $searchQuery['bool']['filter'][] = [
+                        'match' => [
+                            'category_title' => [
+                                'query' => $filters['category_title'],
+                                'operator' => 'or',
+                                'fuzziness' => 'AUTO'
+                            ]
+                        ]
+                    ];
+                }
+                if(isset($filters['min_price']) || isset($filters['max_price'])) {
+                    $range = [];
+                    if (isset($filters['min_price'])) $range['gte'] = (float)$filters['min_price'];
+                    if (isset($filters['max_price'])) $range['lte'] = (float)$filters['max_price'];
+                    
+                    $searchQuery['bool']['filter'][] = [
+                        'range' => ['list_price' => $range]
+                    ];
+                }
+            } else {
+                // Eğer filtre yoksa tüm ürünleri getir
+                $searchQuery['match_all'] = new \stdClass();
+            }
+            
+            $params = [
+                'index' => 'products',
+                'body' => [
+                    'query' => $searchQuery,
+                    'size' => $size,
+                    'from' => $from,
+                    'sort' => [
+                        '_score' => ['order' => 'desc']
+                    ]
+                ]
+            ];
+            $response = $this->client->search($params);
+            return [
+                'hits' => $response['hits']['hits'],
+                'total' => $response['hits']['total']['value'],
+                'page' => $page,
+                'size' => $size
+            ];
+        } catch(\Exception $e){
+            Log::error("Ürün filtreleme başarısız", ['error' => $e->getMessage()]);
+            return [
+                'hits' => [],
+                'total' => 0,
+                'page' => $page,
+                'size' => $size
+            ];
+        }
+    }
     public function autocomplete(string $query): array
     {
         try{
