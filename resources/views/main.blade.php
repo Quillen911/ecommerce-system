@@ -60,7 +60,7 @@
     </script>
 
     <br>
-
+    @if(empty($query))
     <form action="{{ route('filter') }}" method="GET">
         @csrf
         <input type="hidden" name="page" value="1">
@@ -78,7 +78,7 @@
         <button type="submit">Filtrele</button>
         <button type="button" onclick="resetFilter()">Filtreleri Sıfırla</button>
     </form>
-
+    @endif
     @if(isset($query) && !empty($query))
         <strong>Arama Sonuçları: </strong> <br>
     @endif
