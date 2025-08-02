@@ -17,14 +17,21 @@ class CampaignStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
             'is_active' => 'required|boolean',
             'priority' => 'nullable|string|max:255',
             'usage_limit' => 'required|integer',
             'usage_limit_for_user' => 'required|integer',
             'starts_at' => 'required|date',
             'ends_at' => 'required|date',
-    
+            'conditions' => 'required|array',
+            'discounts' => 'required|array',
+            'conditions.*.condition_type' => 'required|string|max:255',
+            'conditions.*.condition_value' => 'required',
+            'conditions.*.operator' => 'required|string|max:255',
+            'discounts.*.discount_type' => 'required|string|max:255',
+            'discounts.*.discount_value' => 'required',
+            'discounts.*.applies_to' => 'required|string|max:255',
         ];
     }
     public function messages(): array
