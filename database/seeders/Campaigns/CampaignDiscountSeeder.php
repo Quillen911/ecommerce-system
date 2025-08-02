@@ -31,7 +31,7 @@ class CampaignDiscountSeeder extends Seeder
             'campaign_id' => 3,
             'discount_type' => 'percentage',
             'discount_value' => json_encode(['discount' => 0.05]),
-            'applies_to' => 'product->author',
+            'applies_to' => 'product_author',
         ]);
     }
 }

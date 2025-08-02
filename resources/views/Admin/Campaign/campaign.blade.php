@@ -40,6 +40,13 @@
                 <td>
                     <a href="{{ route('admin.editCampaign', $campaign->id) }}">Düzenle</a>
                 </td>
+                <td>
+                    <form action="{{ route('admin.deleteCampaign', $campaign->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit">Sil</button>
+                    </form>
+                </td>
             </tr>
         @endforeach
     </tbody>

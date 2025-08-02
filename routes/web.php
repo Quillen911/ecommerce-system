@@ -56,10 +56,9 @@ Route::prefix('admin')->group(function(){
         Route::get('/editCampaign/{id}',[CampaignController::class, 'editCampaign'])->name('admin.editCampaign');
         Route::post('/updateCampaign/{id}',[CampaignController::class, 'updateCampaign'])->name('admin.updateCampaign'); 
         Route::delete('/deleteCampaign/{id}',[CampaignController::class, 'deleteCampaign'])->name('admin.deleteCampaign');
-
     });
+
     //Product
-    
     Route::prefix('product')->group(function(){
         Route::get('/',[ProductController::class, 'product'])->name('admin.product'); 
         Route::get('/storeProduct',[ProductController::class, 'storeProduct'])->name('admin.storeProduct'); 

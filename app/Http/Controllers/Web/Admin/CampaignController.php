@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Campaign;
+use App\Models\CampaignCondition;
+use App\Models\CampaignDiscount;
 use App\Services\Campaigns\Admin\CampaignService;
 use App\Http\Requests\Admin\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Admin\Campaign\CampaignUpdateRequest;
@@ -32,7 +34,7 @@ class CampaignController extends Controller
     public function createCampaign(CampaignStoreRequest $request)
     {
         $campaigns = $this->campaignService->createCampaign($request);
-        return view('Admin.Campaign.storeCampaign')->with('success', 'Kampanya başarıyla eklendi');
+        return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla eklendi');
     }
 
     public function editCampaign($id)
