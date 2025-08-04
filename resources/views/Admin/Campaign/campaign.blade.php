@@ -44,7 +44,7 @@
                     <form action="{{ route('admin.deleteCampaign', $campaign->id) }}" method="POST">
                         @csrf
                         @method('DELETE')
-                        <button type="submit">Sil</button>
+                        <button type="submit" onclick="return confirm('Silmek istediğinize emin misiniz?')">Sil</button>
                     </form>
                 </td>
             </tr>

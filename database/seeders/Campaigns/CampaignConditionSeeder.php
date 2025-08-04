@@ -28,7 +28,7 @@ class CampaignConditionSeeder extends Seeder
         //200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim
         CampaignCondition::create([
             'campaign_id' => 2,
-            'condition_type' => 'min_total',
+            'condition_type' => 'min_bag',
             'condition_value' => json_encode(200.00),
             'operator' => '>=',
         ]);

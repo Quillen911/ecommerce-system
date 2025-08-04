@@ -3,6 +3,7 @@
 namespace App\Services\Campaigns\CampaignManager;
 
 use App\Models\Campaign;
+use App\Models\CampaignDiscount;
 
 class CampaignManager 
 {
@@ -29,15 +30,16 @@ class CampaignManager
         if($campaign->is_active == 0 ){
             return null;
         }
-        switch ($campaign->id) {
-            case 1:
-                return new SabahattinAliCampaign($campaign);
-            case 2:
-                return new TwoHundreadsCampaign($campaign);
-            case 3:
-                return new LocalAuthorCampaign($campaign);
+        switch ($campaign->type) {
+            case 'percentage':
+                return new PercentageCampaign($campaign);
+            case 'fixed':
+                return new FixedCampaign($campaign);
+            case 'x_buy_y_pay':
+                return new XBuyYPayCampaign($campaign);
             default:
                 return null;
         }
     }
+    
 }

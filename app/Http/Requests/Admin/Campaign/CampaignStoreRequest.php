@@ -31,34 +31,25 @@ class CampaignStoreRequest extends FormRequest
             'conditions.*.operator' => 'required|string|max:255',
             'discounts.*.discount_type' => 'required|string|max:255',
             'discounts.*.discount_value' => 'required',
-            'discounts.*.applies_to' => 'required|string|max:255',
         ];
     }
     public function messages(): array
     {
         return [
             'name.required' => 'Ad alanı zorunludur.',
-            'name.string' => 'Ad alanı metin olmalıdır.',
-            'name.max' => 'Ad alanı en fazla 255 karakter olmalıdır.',
             'type.required' => 'Tip alanı zorunludur.',
-            'type.string' => 'Tip alanı metin olmalıdır.',
-            'type.max' => 'Tip alanı en fazla 255 karakter olmalıdır.',
-            'description.required' => 'Açıklama alanı zorunludur.',
-            'description.string' => 'Açıklama alanı metin olmalıdır.',
-            'description.max' => 'Açıklama alanı en fazla 255 karakter olmalıdır.',
             'is_active.required' => 'Aktiflik alanı zorunludur.',
-            'is_active.boolean' => 'Aktiflik alanı boolean olmalıdır.',
-            'priority.string' => 'Öncelik alanı metin olmalıdır.',
-            'priority.max' => 'Öncelik alanı en fazla 255 karakter olmalıdır.',
             'usage_limit.required' => 'Kullanım limiti alanı zorunludur.',
-            'usage_limit.integer' => 'Kullanım limiti alanı sayı olmalıdır.',
             'usage_limit_for_user.required' => 'Kullanıcı kullanım limiti alanı zorunludur.',
-            'usage_limit_for_user.integer' => 'Kullanıcı kullanım limiti alanı sayı olmalıdır.',
             'starts_at.required' => 'Başlangıç tarihi alanı zorunludur.',
-            'starts_at.date' => 'Başlangıç tarihi alanı tarih olmalıdır.',
             'ends_at.required' => 'Bitiş tarihi alanı zorunludur.',
-            'ends_at.date' => 'Bitiş tarihi alanı tarih olmalıdır.',
-
+            'conditions.required' => 'Koşullar alanı zorunludur.',
+            'discounts.required' => 'İndirimler alanı zorunludur.',
+            'conditions.*.condition_type.required' => 'Koşul tipi alanı zorunludur.',
+            'conditions.*.condition_value.required' => 'Koşul değeri alanı zorunludur.',
+            'conditions.*.operator.required' => 'Operatör alanı zorunludur.',
+            'discounts.*.discount_type.required' => 'İndirim tipi alanı zorunludur.',
+            'discounts.*.discount_value.required' => 'İndirim değeri alanı zorunludur.',
         ];
     }
 }

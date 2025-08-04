@@ -4,12 +4,10 @@ namespace App\Services\Campaigns\CampaignManager;
 
 use App\Models\Campaign;
 use App\Models\CampaignDiscount;
-use App\Traits\Campaigns\SabahattinTrait;
+use App\Models\CampaignCondition;
 
 class SabahattinAliCampaign implements CampaignInterface
 {
-    use SabahattinTrait;
-
     protected $campaign;
 
     public function __construct(Campaign $campaign)
@@ -19,12 +17,43 @@ class SabahattinAliCampaign implements CampaignInterface
 
     public function isApplicable(array $products): bool 
     {
-        return $this->isSabahattinAli($products);
+        if($this->campaign->starts_at > now() || $this->campaign->ends_at < now()){
+            $this->campaign->is_active = 0;
+            $this->campaign->save();
+            return false;
+        }
+    
+        $condition = CampaignCondition::where('campaign_id', $this->campaign->id)->get();
+        $condition_array = [];
+        foreach($condition as $c){
+            $condition_array[$c->condition_type] = json_decode($c->condition_value, true);
+        }
+        $author = $condition_array['author'] ?? null;
+        $category = $condition_array['category'] ?? null;
+
+        $products = collect($products);
+        $eligible = $products->filter(function($item) use ($author, $category) {
+            return $item->product->author == $author && $item->product->category?->category_title == $category;
+        });
+        
+        $totalQuantity = $eligible->sum('quantity');
+        return $totalQuantity > 1;
     }
 
     public function calculateDiscount(array $products): array
     {
-        $eligible = $this->getEligibleProducts($products);
+        $condition = CampaignCondition::where('campaign_id', $this->campaign->id)->get();
+        $condition_array = [];
+        foreach($condition as $c){
+            $condition_array[$c->condition_type] = json_decode($c->condition_value, true);
+        }
+        $author = $condition_array['author'] ?? null;
+        $category = $condition_array['category'] ?? null;
+
+        $products = collect($products);
+        return $products->filter(function($item) use ($author, $category) {
+            return $item->product->author == $author && $item->product->category?->category_title == $category;
+        });
 
         //En ucuz ürün için
         $totalQuantity = $eligible->sum('quantity'); 

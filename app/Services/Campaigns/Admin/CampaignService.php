@@ -35,7 +35,6 @@ class CampaignService
                 $campaign->discounts()->create([
                     'discount_type' => $discount['discount_type'],
                     'discount_value' => $this->formatDiscountValue($discount['discount_value']),
-                    'applies_to' => $discount['applies_to']
                 ]);
             }
         }
@@ -71,6 +70,7 @@ class CampaignService
                         ]);
                     }
                 }
+                
             }
             
             if ($request->has('existing_discounts')) {
@@ -80,7 +80,6 @@ class CampaignService
                         $discount->update([
                             'discount_type' => $discountData['discount_type'],
                             'discount_value' => $this->formatDiscountValue($discountData['discount_value']),
-                            'applies_to' => $discountData['applies_to']
                         ]);
                     }
                 }
