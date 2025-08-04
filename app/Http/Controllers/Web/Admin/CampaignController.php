@@ -33,8 +33,16 @@ class CampaignController extends Controller
 
     public function createCampaign(CampaignStoreRequest $request)
     {
-        $campaigns = $this->campaignService->createCampaign($request);
-        return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla eklendi');
+        try {
+            $campaigns = $this->campaignService->createCampaign($request);
+            return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla eklendi');
+        } catch (\Exception $e) {
+            \Log::error('CampaignController - Error creating campaign:', [
+                'error' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
+            return redirect()->route('admin.campaign')->with('error', 'Kampanya oluşturulurken bir hata oluştu: ' . $e->getMessage());
+        }
     }
 
     public function editCampaign($id)

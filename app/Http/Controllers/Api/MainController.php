@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Helpers\ResponseHelper;
-use App\Services\ElasticsearchService;
+use App\Services\Search\ElasticsearchService;
 use App\Http\Requests\FilterRequest;
 
 
@@ -25,7 +25,7 @@ class MainController extends Controller
     {
         $page = request('page', 1);
         $products = Cache::remember("products.page.$page", 60, function () {
-            return Product::with('category')->orderBy('id')->paginate(20);
+            return Product::with('category')->orderBy('id')->paginate(100);
         });
         $categories = Category::all();
         return ResponseHelper::success('Ürünler', [

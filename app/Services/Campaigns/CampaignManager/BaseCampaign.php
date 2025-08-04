@@ -16,6 +16,7 @@ abstract class BaseCampaign implements CampaignInterface
         $this->campaign = $campaign;
         $this->loadConditions();
     }
+    
     protected function loadConditions()
     {
         $this->conditions = $this->campaign->conditions->keyBy('condition_type');

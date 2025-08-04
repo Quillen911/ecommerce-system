@@ -11,6 +11,7 @@ class Campaign extends Model
     protected $fillable = [
         'name',
         'description',
+        'condition_logic',
         'type',
         'is_active',
         'priority',

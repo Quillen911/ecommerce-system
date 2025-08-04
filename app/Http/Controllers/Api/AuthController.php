@@ -18,6 +18,7 @@ class AuthController extends Controller
             return ResponseHelper::error('Email veya Şifre Hatalı',401);
         }
         $token = $user->createToken('apitoken')->plainTextToken;
+        
 
         return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'user' =>$user]);
     }

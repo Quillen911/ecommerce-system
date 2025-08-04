@@ -17,6 +17,7 @@ class CampaignStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:255',
+            'condition_logic' => 'required|string|in:AND,OR',
             'description' => 'nullable|string|max:255',
             'is_active' => 'required|boolean',
             'priority' => 'nullable|string|max:255',
@@ -38,6 +39,8 @@ class CampaignStoreRequest extends FormRequest
         return [
             'name.required' => 'Ad alanı zorunludur.',
             'type.required' => 'Tip alanı zorunludur.',
+            'condition_logic.required' => 'Koşul mantığı alanı zorunludur.',
+            'condition_logic.in' => 'Koşul mantığı alanı AND veya OR olmalıdır.',
             'is_active.required' => 'Aktiflik alanı zorunludur.',
             'usage_limit.required' => 'Kullanım limiti alanı zorunludur.',
             'usage_limit_for_user.required' => 'Kullanıcı kullanım limiti alanı zorunludur.',
@@ -51,5 +54,20 @@ class CampaignStoreRequest extends FormRequest
             'discounts.*.discount_type.required' => 'İndirim tipi alanı zorunludur.',
             'discounts.*.discount_value.required' => 'İndirim değeri alanı zorunludur.',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if ($this->has('starts_at')) {
+            $this->merge([
+                'starts_at' => $this->starts_at . ' 00:00:00'
+            ]);
+        }
+        
+        if ($this->has('ends_at')) {
+            $this->merge([
+                'ends_at' => $this->ends_at . ' 23:59:59'
+            ]);
+        }
     }
 }

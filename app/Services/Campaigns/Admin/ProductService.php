@@ -40,4 +40,15 @@ class ProductService
         $products->delete();
         return $products;
     }
+    public function bulkStoreProduct(Request $request)
+    {
+        $products = $request->all();
+        $created = [];
+        
+        foreach ($products as $productData) {
+            $product = Product::create($productData);
+            $created[] = $product;
+        }
+        return $created;
+    }
 }

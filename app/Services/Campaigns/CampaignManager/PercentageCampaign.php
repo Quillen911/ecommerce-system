@@ -10,12 +10,16 @@ class PercentageCampaign extends BaseCampaign
             return false;
         }
 
+        $condition_logic = strtoupper($this->campaign->condition_logic ?? 'AND');
+        $conditions_met = true;
+
+
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
             $total = collect($products)->sum(function($item) use ($min_bag){
                 return $item->product->list_price * $item->quantity;
             });
-            return $total >= $min_bag;
+            $conditions_met = $condition_logic == 'AND' ? $conditions_met && $total >= $min_bag : $conditions_met || $total >= $min_bag;
         }
 
         $author = $this->getConditionValue('author');
@@ -23,7 +27,7 @@ class PercentageCampaign extends BaseCampaign
             $eligible = collect($products)->filter(function($item) use ($author) {
                 return in_array($item->product->author, (array)$author);
             });
-            return $eligible->sum('quantity') > 0;
+            $conditions_met = $condition_logic == 'AND' ? $conditions_met && $eligible->sum('quantity') > 0 : $conditions_met || $eligible->sum('quantity') > 0;
             
         }
 
@@ -32,10 +36,10 @@ class PercentageCampaign extends BaseCampaign
             $eligible = collect($products)->filter(function($item) use ($category) {
                 return $item->product->category?->category_title;
             }); 
-            return $eligible = $category;
+            $conditions_met = $condition_logic == 'AND' ? $conditions_met && $eligible = $category : $conditions_met || $eligible = $category;
         }
 
-        return true;
+        return $conditions_met;
     }
 
     public function calculateDiscount(array $products): array 
@@ -46,17 +50,34 @@ class PercentageCampaign extends BaseCampaign
         }
 
         $discount_value = json_decode($discount_rule->discount_value, true);
-        $discount_rate = $discount_value['discount'] ?? 0;
+        $discount_rate = $discount_value['percentage'] / 100 ?? 0;
 
-        $total = collect($products)->sum(function($item) {
+        $eligible_products = collect($products);
+        
+        $author = $this->getConditionValue('author');
+        if($author){
+            $eligible_products = $eligible_products->filter(function($item) use ($author) {
+                return in_array($item->product->author, (array)$author);
+            });
+        }
+
+        $category = $this->getConditionValue('category');
+        if($category){
+            $eligible_products = $eligible_products->filter(function($item) use ($category) {
+                return $item->product->category?->category_title == $category;
+            });
+        }
+        
+
+
+        $eligible_total = $eligible_products->sum(function($item) {
             return $item->product->list_price * $item->quantity;
-        }); 
+        });
 
         return [
             'description' => $this->campaign->description,
-            'discount' => $discount_rate * $total
+            'discount' => $eligible_total * $discount_rate
         ];
-
     }
     
 }

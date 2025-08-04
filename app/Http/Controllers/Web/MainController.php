@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use App\Services\ElasticsearchService;
+use App\Services\Search\ElasticsearchService;
 
 class MainController extends Controller
 {
@@ -22,7 +22,7 @@ class MainController extends Controller
     {
         $page = request('page', 1);
         $products = Cache::remember("products.page.$page", 60, function () {
-            return Product::with('category')->orderBy('id')->paginate(20);
+            return Product::with('category')->orderBy('id')->paginate(100);
         });
         
         $categories = Category::all();

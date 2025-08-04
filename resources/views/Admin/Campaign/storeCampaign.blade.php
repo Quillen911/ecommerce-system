@@ -7,7 +7,16 @@
 </head>
 <body>
     <h1>Kampanya Ekle</h1>
-    
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
     <form action="{{ route('admin.createCampaign') }}" method="POST">
         @csrf
         
@@ -19,6 +28,11 @@
             <option value="percentage">Yüzde İndirim</option>
             <option value="fixed">Sabit İndirim</option>
             <option value="x_buy_y_pay">X Al Y Öde</option>
+        </select> <br>
+        <select name="condition_logic" required>
+            <option value="">Koşul Mantığı Seçin</option>
+            <option value="AND">AND (Tüm koşullar sağlanmalı)</option>
+            <option value="OR">OR (Herhangi bir koşul sağlanmalı)</option>
         </select> <br>
         <input type="text" name="description" placeholder="Açıklama"> <br>
         <select name="is_active">
@@ -38,8 +52,7 @@
                 <select name="conditions[0][condition_type]">
                     <option value="author">Yazar</option>
                     <option value="category">Kategori</option>
-                    <option value="min_total">Minimum Fiyat</option>
-                    <option value="product">Ürün</option>
+                    <option value="min_bag">Minimum Sepet Fiyatı</option>
                 </select>
 
                 <input style="width: 30%;" type="text" name="conditions[0][condition_value]" 
@@ -52,6 +65,8 @@
                     <option value="<">&lt;</option>
                     <option value=">=">&gt;=</option>
                     <option value="<=">&lt;=</option>
+                    <option value="in">in</option>
+                    <option value="not_in">not_in</option>
                 </select>
                 <button type="button" onclick="removeCondition(this)">Kaldır</button>
             </div>
@@ -59,6 +74,7 @@
         <button type="button" onclick="addCondition()">Koşul Ekle</button>
         
         <h2>İndirimler</h2>
+        <p>Değer (örn: {'percentage':15} veya {'amount':100} veya {'x':2, 'y':1})</p>
         <div id="discounts">
             <div class="discount-item">
                 <select name="discounts[0][discount_type]">
@@ -66,13 +82,8 @@
                     <option value="fixed">Sabit Tutar</option>
                     <option value="x_buy_y_pay">X Al Y Öde</option>
                 </select>
-                <input style="width: 30%;" type="text" name="discounts[0][discount_value]" 
-                placeholder="Değer (örn: %15 için {'discount':0.15})" required>
-                <select name="discounts[0][applies_to]">
-                    <option value="product">Ürün</option>
-                    <option value="bag_total">Sepet Toplamı</option>
-                    <option value="product_author">Ürün Yazarı</option>
-                </select>
+                <input type="text" name="discounts[0][discount_value]" 
+                placeholder="Değer" required>
                 <button type="button" onclick="removeDiscount(this)">Kaldır</button>
             </div>
         </div>
@@ -93,8 +104,7 @@
                     <select name="conditions[${conditionIndex}][condition_type]">
                         <option value="author">Yazar</option>
                         <option value="category">Kategori</option>
-                        <option value="min_total">Minimum Fiyat</option>
-                        <option value="product">Ürün</option>
+                        <option value="min_bag">Minimum Sepet Fiyatı</option>
                     </select>
                     <input type="text" name="conditions[${conditionIndex}][condition_value]" placeholder="Değer" required>
                     <select name="conditions[${conditionIndex}][operator]">
@@ -104,6 +114,8 @@
                         <option value="<">&lt;</option>
                         <option value=">=">&gt;=</option>
                         <option value="<=">&lt;=</option>
+                        <option value="in">in</option>
+                        <option value="not_in">not_in</option>
                     </select>
                     <button type="button" onclick="removeCondition(this)">Kaldır</button>
                 </div>
@@ -119,13 +131,10 @@
                     <select name="discounts[${discountIndex}][discount_type]">
                         <option value="percentage">Yüzde</option>
                         <option value="fixed">Sabit Tutar</option>
+                        <option value="x_buy_y_pay">X Al Y Öde</option>
                     </select>
-                    <input type="number" name="discounts[${discountIndex}][discount_value]" placeholder="Değer" required>
-                    <select name="discounts[${discountIndex}][applies_to]">
-                        <option value="order">Sipariş</option>
-                        <option value="product">Ürün</option>
-                        <option value="category">Kategori</option>
-                    </select>
+                    <input type="text" name="discounts[${discountIndex}][discount_value]" 
+                    placeholder="Değer (örn: {'percentage':15} veya {'amount':100} veya {'x':2, 'y':1})" required>
                     <button type="button" onclick="removeDiscount(this)">Kaldır</button>
                 </div>
             `;
