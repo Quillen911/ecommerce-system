@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('campaign_conditions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('campaign_id');
-            $table->enum('condition_type', ['author', 'category', 'min_total', 'product', 'percentage']);
+            $table->enum('condition_type', ['author', 'category', 'min_bag']);
             $table->json('condition_value');
             $table->enum('operator', ['=', '!=', '>', '>=', '<', '<=', 'in', 'not_in']);
             $table->timestamps();

@@ -19,7 +19,7 @@
         <strong>Siparişiniz yok</strong> <br> <br>
     @else
         @foreach($orders as $order)
-            <div style="margin-bottom: 30px; border: 1px solid #000; padding: 10px; border-radius: 10px;">
+            <div style="margin-bottom: 30px; color:rgb(128, 50, 50); border: 1px solid #000; padding: 10px; border-radius: 10px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <br>
                 <table border="5" cellpadding="8" cellspacing="0">
                     <thead>
@@ -58,7 +58,7 @@
                 <form action="{{route('myorders.delete', $order->id)}}" method="POST">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;">Siparişi İptal Et</button>
+                    <button type="submit" style="background-color: #f3f3f3; color: #000; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;">Siparişi İptal Et</button>
                 </form>
             </div>
         @endforeach

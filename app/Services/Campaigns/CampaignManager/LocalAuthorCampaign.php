@@ -20,28 +20,23 @@ class LocalAuthorCampaign implements CampaignInterface
             $this->campaign->save();
             return false;
         }
-        $user = auth()->user();
-        if($user){
 
-            $userUsage = $this->campaign->user_usage ?? [];
-            $userUsageCount = $userUsage[$user->id] ?? 0;
-
-            if($userUsageCount >= $this->campaign->usage_limit_for_user){
-                $this->campaign->user_activity = 0;
-                $this->campaign->save();
-                return false;
-            }
-        }
         
-        $localAuthor = CampaignCondition::where('campaign_id', $this->campaign->id)->where('condition_type', 'author')->first()?->condition_value;
-        $localAuthor = json_decode($localAuthor, true);
+        $condition = CampaignCondition::where('campaign_id', $this->campaign->id)
+            ->where('condition_type', 'author')
+            ->first();
+
+        if (!$condition) {
+            return false; 
+        }
+
+        $localAuthor = json_decode($condition->condition_value, true) ?? [];
 
         $products = collect($products);
         $eligible = $products->filter(function($item) use($localAuthor){
             return in_array($item->product->author, $localAuthor);
         });
-        $totalEligible = $eligible->sum('quantity');
-        return $totalEligible > 0;
+        return $eligible->count() > 0;
     } 
     
     public function calculateDiscount(array $products): array

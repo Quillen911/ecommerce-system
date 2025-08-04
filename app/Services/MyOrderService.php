@@ -41,16 +41,12 @@ class MyOrderService
                 $product->save();
             }
         }
-        $campaign = Campaign::where('is_active', 1)->where('description', $order->campaign_info)->first();
+        $campaign = Campaign::where('description', $order->campaign_info)->first();
         if($campaign){
             $campaign->usage_limit = $campaign->usage_limit + 1;
-            $userUsage = $campaign->user_usage ?? [];
-            $userUsage[$userId] = ($userUsage[$userId] ?? 0) - 1;
-            $campaign->user_usage = $userUsage;
             $campaign->save();
-            if($userUsage <= $campaign->usage_limit_for_user){
-                $campaign->user_activity = 1;
-                $campaign->save();
+            if($campaign->usage_limit <= 0){
+                $campaign->is_active = 0;
             }
         }
 

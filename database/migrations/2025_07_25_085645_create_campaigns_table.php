@@ -15,7 +15,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->json('priority')->nullable();
-            $table->json('usage_limit')->nullable();
+            $table->unsignedInteger('usage_limit')->nullable();
             $table->unsignedInteger('usage_limit_for_user')->default(0);
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();

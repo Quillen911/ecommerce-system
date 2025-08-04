@@ -15,18 +15,7 @@ trait SabahattinTrait
             $this->campaign->save();
             return false;
         }
-        $user = auth()->user();
-        if($user){
-
-            $userUsage = $this->campaign->user_usage ?? [];
-            $userUsageCount = $userUsage[$user->id] ?? 0;
-
-            if($userUsageCount >= $this->campaign->usage_limit_for_user){
-                $this->campaign->user_activity = 0;
-                $this->campaign->save();
-                return false;
-            }
-        }
+    
         $condition = CampaignCondition::where('campaign_id', $this->campaign->id)->get();
         $condition_array = [];
         foreach($condition as $c){
