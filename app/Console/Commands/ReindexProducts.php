@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Product;
-use App\Services\ElasticsearchService;           
+use App\Services\Search\ElasticsearchService;           
 
 class ReindexProducts extends Command
 {

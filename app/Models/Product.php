@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers\ResponseHelper;
-use App\Services\ElasticsearchService; 
+use App\Services\Search\ElasticsearchService; 
 use Illuminate\Database\Eloquent\SoftDeletes;
 class Product extends Model
 {

@@ -59,4 +59,12 @@ class ProductController extends Controller
         }
         return ResponseHelper::success('Ürün başarıyla silindi', $products);
     }
+    public function bulkStore(Request $request)
+    {
+        $products = $this->productService->bulkStoreProduct($request);
+        if(!$products){
+            return ResponseHelper::error('Ürünler oluşturulamadı');
+        }
+        return ResponseHelper::success('Ürünler başarıyla oluşturuldu', $products);
+    }
 }
