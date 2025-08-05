@@ -68,7 +68,7 @@ class OrderService
             $appliedCampaign = Campaign::find($bestCampaign['campaign_id']);
             if($appliedCampaign){
                 $campaignManager->userEligible($appliedCampaign);
-                $campaignManager->campaignUsageLimit($appliedCampaign);
+                $campaignManager->decreaseUsageLimit($appliedCampaign);
             }
         }
            

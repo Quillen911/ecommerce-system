@@ -7,6 +7,7 @@ use App\Services\MyOrderService;
 use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
 use Illuminate\Http\Request;
+use App\Services\Campaigns\CampaignManager\CampaignManager;
 
 class MyOrdersController extends Controller
 {
@@ -41,7 +42,7 @@ class MyOrdersController extends Controller
     public function destroy($id)
     {
         $user = $this->getUser();
-        $order = $this->myOrderService->cancelOrder($user->id, $id);
+        $order = $this->myOrderService->cancelOrder($user->id, $id, new CampaignManager());
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }

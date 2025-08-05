@@ -66,7 +66,13 @@ class CampaignManager
         }
         return true;
     }
-    public function campaignUsageLimit(Campaign $campaign)
+    public function decreaseUserUsageCount(Campaign $campaign)
+    {
+        $usage_count = $campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->first();
+        $usage_count->usage_count = $usage_count->usage_count - 1;
+        $usage_count->save();
+    }
+    public function decreaseUsageLimit(Campaign $campaign)
     {
         $campaign->usage_limit = $campaign->usage_limit - 1;
         if($campaign->usage_limit <= 0){
@@ -74,5 +80,12 @@ class CampaignManager
         }
         $campaign->save();
     }
-    
+    public function increaseUsageLimit(Campaign $campaign)
+    {
+        $campaign->usage_limit = $campaign->usage_limit + 1;
+        if($campaign->usage_limit > 0 && $campaign->is_active == 0){
+            $campaign->is_active = 1;
+        }
+        $campaign->save();
+    }
 }

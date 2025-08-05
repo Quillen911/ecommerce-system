@@ -48,6 +48,14 @@ class MainController extends Controller
     {
         $query = $request->input('q', '');
         $filters = [];
+        $sorting = '';
+        if($request->filled('sorting')){
+            if($request->input('sorting') == 'stock_quantity_asc' || $request->input('sorting') == 'stock_quantity_desc' || $request->input('sorting') == 'price_asc' || $request->input('sorting') == 'price_desc'){
+                $sorting = $request->input('sorting');
+            }else{
+                $sorting = 'price_asc';
+            }
+        }
         if($request->filled('category_title')){
             $filters['category_title'] = $request->input('category_title');
         }
@@ -60,7 +68,7 @@ class MainController extends Controller
         $page = $request->input('page', 1);
         $size = $request->input('size', 12);
 
-        $results = $this->elasticSearch->searchProducts($query, $filters, $page, $size);
+        $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
         
         $products = collect($results['hits'])->pluck('_source')->toArray();
         if(!empty($products)){
@@ -113,7 +121,7 @@ class MainController extends Controller
         try{
         $sorting = '';
         if($request->filled('sorting')){
-            if($request->input('sorting') == 'title_asc' || $request->input('sorting') == 'title_desc' || $request->input('sorting') == 'price_asc' || $request->input('sorting') == 'price_desc'){
+            if($request->input('sorting') == 'stock_quantity_asc' || $request->input('sorting') == 'stock_quantity_desc' || $request->input('sorting') == 'price_asc' || $request->input('sorting') == 'price_desc'){
                 $sorting = $request->input('sorting');
             }else{
                 $sorting = 'price_asc';

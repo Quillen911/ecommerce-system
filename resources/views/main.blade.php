@@ -40,19 +40,30 @@
 
         <button type="submit">Filtrele</button>
         <button type="button" onclick="resetFilters()">Filtreleri Sıfırla</button>
-        @endif
-    </form>
-    <form action="{{ route('sorting') }}" method="GET">
-        @csrf
         <select name="sorting" id="sorting">
             <option value="">Sıralama Seç</option>
             <option value="price_asc">Fiyata Göre Artan</option>
             <option value="price_desc">Fiyata Göre Azalan</option>
-            <option value="title_asc">Başlığa Göre Artan</option>
-            <option value="title_desc">Başlığa Göre Azalan</option>
+            <option value="stock_quantity_asc">Stok Miktarına Göre Artan</option>
+            <option value="stock_quantity_desc">Stok Miktarına Göre Azalan</option>
         </select>
         <button type="submit">Sırala</button>
+        @endif
     </form>
+    @if(empty($query))
+        <form action="{{ route('sorting') }}" method="GET">
+            @csrf
+            <select name="sorting" id="sorting">
+                <option value="">Sıralama Seç</option>
+                <option value="price_asc">Fiyata Göre Artan</option>
+                <option value="price_desc">Fiyata Göre Azalan</option>
+                <option value="stock_quantity_asc">Stok Miktarına Göre Artan</option>
+                <option value="stock_quantity_desc">Stok Miktarına Göre Azalan</option>
+
+            </select>
+            <button type="submit">Sırala</button>
+        </form>
+    @endif
     </div>
     <script>
         function resetFilters() {
@@ -91,9 +102,13 @@
         <button type="button" onclick="resetFilter()">Filtreleri Sıfırla</button>
     </form>
     @endif
+    <p style="display: none;">Gösterilen Ürün Sayısı: {{count($products)}}</p>
+
     @if(isset($query) && !empty($query))
         <strong>Arama Sonuçları: </strong> <br>
     @endif
+
+    @if(count($products) > 0)
     <br>
         <table border="5" cellpadding="8" cellspacing="0" >
             <thead>
@@ -137,7 +152,9 @@
                  
         </table><br>
         <a href="{{ route('main') }}">Tüm ürünleri göster</a> <br> <br>
-
+    @else
+    <p>Ürün bulunamadı</p>
+    @endif
     <form action="{{ route('logout') }}" method="POST">
         @csrf
       <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Çıkış Yap</button>

@@ -15,10 +15,10 @@ return [
             'properties' => [
                 'id' => ['type' => 'integer'],
                 'title' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
-                'author' => ['type' => 'text', 'analyzer' => 'standard'],
+                'author' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
                 'list_price' => ['type' => 'float'],
                 'category_id' => ['type' => 'integer'],
-                'category_title' => ['type' => 'text', 'analyzer' => 'standard'],
+                'category_title' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
                 'stock_quantity' => ['type' => 'integer'],
                 'created_at' => ['type' => 'date'],
                 'updated_at' => ['type' => 'date'],

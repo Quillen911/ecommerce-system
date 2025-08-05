@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Services\MyOrderService;
 use App\Traits\UserBagTrait;
+use App\Services\Campaigns\CampaignManager\CampaignManager;
 
 class MyOrdersController extends Controller{
 
@@ -29,7 +30,7 @@ class MyOrdersController extends Controller{
     public function delete($id)
     {
         $user = $this->getUser();
-        $order = $this->myOrderService->cancelOrder($user->id, $id);
+        $order = $this->myOrderService->cancelOrder($user->id, $id, new CampaignManager());
         if(!$order){
             return redirect()->back()->with('error', 'Sipariş bulunamadı.');
         }

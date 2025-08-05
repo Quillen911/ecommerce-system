@@ -17,7 +17,6 @@ class CampaignStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:255',
-            'condition_logic' => 'required|string|in:AND,OR',
             'description' => 'nullable|string|max:255',
             'is_active' => 'required|boolean',
             'priority' => 'nullable|string|max:255',
@@ -39,8 +38,6 @@ class CampaignStoreRequest extends FormRequest
         return [
             'name.required' => 'Ad alanı zorunludur.',
             'type.required' => 'Tip alanı zorunludur.',
-            'condition_logic.required' => 'Koşul mantığı alanı zorunludur.',
-            'condition_logic.in' => 'Koşul mantığı alanı AND veya OR olmalıdır.',
             'is_active.required' => 'Aktiflik alanı zorunludur.',
             'usage_limit.required' => 'Kullanım limiti alanı zorunludur.',
             'usage_limit_for_user.required' => 'Kullanıcı kullanım limiti alanı zorunludur.',

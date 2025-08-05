@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Ürünler</h1>
-
+    <p>Gösterilen Ürün Sayısı: {{count($products)}}</p>
     <table border="1" width="100%" style="text-align: center; margin-bottom: 20px;">
         <tr>
             
