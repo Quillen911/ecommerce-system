@@ -10,8 +10,9 @@ class FixedCampaign extends BaseCampaign
             return false;
         }
 
+
         $condition_logic = strtoupper($this->campaign->condition_logic ?? 'AND');
-        $conditions_met = true;
+        $conditions_met = ($condition_logic === 'OR') ? false : true;
 
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
@@ -74,13 +75,15 @@ class FixedCampaign extends BaseCampaign
         if($eligible_products->sum('quantity') > 0) {
             return [
                 'description' => $this->campaign->description,
-                'discount' => $discount_amount
+                'discount' => $discount_amount,
+                'campaign_id' => $this->campaign->id
             ];
         }
 
         return [
             'description' => $this->campaign->description,
-            'discount' => 0
+            'discount' => 0,
+            'campaign_id' => $this->campaign->id
         ];
     }
 }

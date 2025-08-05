@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function(){
     
     Route::get('/search', [MainController::class, 'search']);
     Route::get('/filter', [MainController::class, 'filter']);
+    Route::get('/sorting', [MainController::class, 'sorting']);
     Route::get('/search/autocomplete', [MainController::class, 'autocomplete']);
 
     Route::get('/me', [AuthController::class, 'me']);

@@ -17,7 +17,8 @@
 
     <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" onclick="window.location.href='/bag'">Sepetim</button><br><br>
     <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" onclick="window.location.href='/myorders'">Siparişlerim</button><br><br>
-             
+    
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
     <form action="{{ route('search') }}" method="GET">
         @csrf
         <input type="text" name="q" placeholder="Ürün Ara" value="{{ $query ?? request('q') }}">
@@ -41,7 +42,18 @@
         <button type="button" onclick="resetFilters()">Filtreleri Sıfırla</button>
         @endif
     </form>
-
+    <form action="{{ route('sorting') }}" method="GET">
+        @csrf
+        <select name="sorting" id="sorting">
+            <option value="">Sıralama Seç</option>
+            <option value="price_asc">Fiyata Göre Artan</option>
+            <option value="price_desc">Fiyata Göre Azalan</option>
+            <option value="title_asc">Başlığa Göre Artan</option>
+            <option value="title_desc">Başlığa Göre Azalan</option>
+        </select>
+        <button type="submit">Sırala</button>
+    </form>
+    </div>
     <script>
         function resetFilters() {
             const searchQuery = document.querySelector('input[name="q"]').value;

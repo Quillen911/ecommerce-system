@@ -75,6 +75,26 @@ class MainController extends Controller
         return view('main', compact('results', 'products', 'categories'));
     }
 
+    public function sorting(Request $request)
+    {
+        $sorting = '';
+        if($request->filled('sorting')){
+            if($request->input('sorting') == 'title_asc' || $request->input('sorting') == 'title_desc' || $request->input('sorting') == 'price_asc' || $request->input('sorting') == 'price_desc'){
+                $sorting = $request->input('sorting');
+            }else{
+                $sorting = 'price_asc';
+            }
+        }
+        $page = $request->input('page', 1);
+        $size = $request->input('size', 12);
+        $results = $this->elasticSearch->sortProducts($sorting, $page, $size);
+        
+        $products = collect($results['hits'])->pluck('_source')->toArray();
+        $categories = Category::all();
+
+        return view('main', compact('results', 'products', 'categories', 'sorting'));
+    }
+
     public function autocomplete(Request $request)
     {
         $query = $request->input('q', '') ?? '';

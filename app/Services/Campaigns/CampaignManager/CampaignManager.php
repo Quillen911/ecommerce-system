@@ -9,15 +9,15 @@ class CampaignManager
 {
     public function getBestCampaigns(array $products, $campaigns)
     {  
-        $best = ['discount' => 0, 'description' => ''];
-        
+        $best = ['discount' => 0, 'description' => '', 'campaign_id' => null];
         foreach ($campaigns as $campaign) {
             $service = $this->createServiceByType($campaign);
-            
+
             if ($service && $service->isApplicable($products)) {
                 $result = $service->calculateDiscount($products);
                 if ($result['discount'] > $best['discount']) {
                     $best = $result;
+                    $best['campaign_id'] = $campaign->id;
                 }
             }
         }
@@ -40,6 +40,39 @@ class CampaignManager
             default:
                 return null;
         }
+    }
+
+    public function userEligible(Campaign $campaign)
+    {
+        $usage_count = $campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->first();
+        if($usage_count){
+            if($campaign->usage_limit_for_user <= $usage_count->usage_count){
+                return false;
+            }
+
+            $usage_count->usage_count += 1;
+            $usage_count->used_at = now();
+            $usage_count->save();
+        }
+        else{
+            $campaign->campaign_user_usages()->create([
+                'user_id' => auth()->user()->id,
+                'campaign_id' => $campaign->id,
+                'campaign_name' => $campaign->name,
+                'usage_count' => 1,
+                'used_at' => now(),
+            ]);
+            
+        }
+        return true;
+    }
+    public function campaignUsageLimit(Campaign $campaign)
+    {
+        $campaign->usage_limit = $campaign->usage_limit - 1;
+        if($campaign->usage_limit <= 0){
+            $campaign->is_active = 0;
+        }
+        $campaign->save();
     }
     
 }

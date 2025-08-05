@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Cache;
 use App\Helpers\ResponseHelper;
 
 
-
 class OrderService
 {
     public function createOrder($user, $products, $campaignManager)
@@ -64,15 +63,16 @@ class OrderService
             
             $this->updateStock($productData['product_id'], $productData['quantity']);
         }
-        if($campaign_info != ''){
-            $campaign = Campaign::where('is_active', 1)->where('description', $campaign_info)->first();
-            $campaign->usage_limit = $campaign->usage_limit - 1;
-            if($campaign->usage_limit <= 0){
-                $campaign->is_active = 0;
+
+        if($bestCampaign['campaign_id'] && $bestCampaign['discount'] > 0){
+            $appliedCampaign = Campaign::find($bestCampaign['campaign_id']);
+            if($appliedCampaign){
+                $campaignManager->userEligible($appliedCampaign);
+                $campaignManager->campaignUsageLimit($appliedCampaign);
             }
-            $campaign->save();
         }
-        
+           
+
         CreateOrderJob::dispatch($orderData)->onQueue('order_create');
 
     }

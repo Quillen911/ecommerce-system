@@ -14,7 +14,7 @@ return [
         'products' => [
             'properties' => [
                 'id' => ['type' => 'integer'],
-                'title' => ['type' => 'text', 'analyzer' => 'standard'],
+                'title' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
                 'author' => ['type' => 'text', 'analyzer' => 'standard'],
                 'list_price' => ['type' => 'float'],
                 'category_id' => ['type' => 'integer'],

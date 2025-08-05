@@ -12,7 +12,16 @@
         <label for="name">Kampanya Adı: </label>
         <input type="text" name="name" value="{{ old('name', $campaigns->name) }}" required> <br>
         <label for="type">Kampanya Tipi:  </label>
-        <input type="text" name="type" value="{{ old('type', $campaigns->type) }}" required> <br>
+        <select name="type" id="type">
+            <option value="percentage" {{ old('type', $campaigns->type) == 'percentage' ? 'selected' : '' }}>Yüzde</option>
+            <option value="fixed" {{ old('type', $campaigns->type) == 'fixed' ? 'selected' : '' }}>Sabit Tutar</option>
+            <option value="x_buy_y_pay" {{ old('type', $campaigns->type) == 'x_buy_y_pay' ? 'selected' : '' }}>X Al Y Öde</option>
+        </select> <br>
+        <label for="condition_logic">Koşul Mantığı:  </label>
+        <select name="condition_logic" id="condition_logic">
+            <option value="AND" {{ old('condition_logic', $campaigns->condition_logic) == 'AND' ? 'selected' : '' }}>AND</option>
+            <option value="OR" {{ old('condition_logic', $campaigns->condition_logic) == 'OR' ? 'selected' : '' }}>OR</option>
+        </select> <br>
         <label for="description">Kampanya Açıklaması:</label>
         <input type="text" name="description" value="{{ old('description', $campaigns->description) }}"> <br>
         <label for="priority">Kampanya Önceliği:  </label>
@@ -40,9 +49,7 @@
                     <select name="existing_conditions[{{ $condition->id }}][condition_type]">
                         <option value="author" {{ $condition->condition_type == 'author' ? 'selected' : '' }}>Yazar</option>
                         <option value="category" {{ $condition->condition_type == 'category' ? 'selected' : '' }}>Kategori</option>
-                        <option value="min_total" {{ $condition->condition_type == 'min_total' ? 'selected' : '' }}>Minimum Fiyat</option>
-                        <option value="product" {{ $condition->condition_type == 'product' ? 'selected' : '' }}>Ürün</option>
-                    </select>
+                        <option value="min_total" {{ $condition->condition_type == 'min_total' ? 'selected' : '' }}>Minimum Fiyat</option>                    </select>
                     <input type="text" name="existing_conditions[{{ $condition->id }}][condition_value]" 
                            value="{{ $condition->condition_value }}" placeholder="Değer">
                     <select name="existing_conditions[{{ $condition->id }}][operator]">

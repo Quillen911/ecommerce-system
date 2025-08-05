@@ -29,11 +29,16 @@ class ProductController extends Controller
     }
     public function store(ProductStoreRequest $request)
     {
+        try{
         $products = $this->productService->createProduct($request);
         if(!$products){
             return ResponseHelper::error('Ürün oluşturulamadı');
         }
         return ResponseHelper::success('Product created successfully', $products);
+        }
+        catch(\Exception $e){
+            return ResponseHelper::error('Ürün oluşturulamadı');
+        }
     }
     public function show($id)
     {
@@ -45,11 +50,16 @@ class ProductController extends Controller
     }
     public function update(ProductUpdateRequest $request, $id)
     {
+        try{
         $products = $this->productService->updateProduct($request, $id);
         if(!$products){
             return ResponseHelper::notFound('Ürün bulunamadı');
         }
         return ResponseHelper::success('Product updated successfully', $products);
+        }
+        catch(\Exception $e){
+            return ResponseHelper::error('Ürün güncellenemedi');
+        }
     }
     public function destroy($id)
     {

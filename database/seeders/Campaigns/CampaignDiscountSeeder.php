@@ -22,13 +22,13 @@ class CampaignDiscountSeeder extends Seeder
         CampaignDiscount::create([
             'campaign_id' => 2,
             'discount_type' => 'percentage',
-            'discount_value' => json_encode(['discount' => 0.05]),
+            'discount_value' => json_encode(['percentage' => 5]),
         ]);
 
         CampaignDiscount::create([
             'campaign_id' => 3,
             'discount_type' => 'percentage',
-            'discount_value' => json_encode(['discount' => 0.05]),
+            'discount_value' => json_encode(['percentage' => 5]),
         ]);
     }
 }

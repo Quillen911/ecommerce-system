@@ -25,7 +25,17 @@ abstract class BaseCampaign implements CampaignInterface
     protected function getConditionValue($condition_type)
     {
         $condition = $this->conditions->get($condition_type);
-        return $condition ? json_decode($condition->condition_value, true) : null;
+        $value = $condition ? json_decode($condition->condition_value, true) : null;
+
+        if(is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))){
+            return json_decode($value, true);
+        }
+        
+        if(is_string($value) && strpos($value, '\\u') !== false){
+            $value = json_decode(json_encode($value), true);
+        }
+        
+        return $value;
     }
 
     protected function isCampaignActive(): bool
@@ -35,6 +45,20 @@ abstract class BaseCampaign implements CampaignInterface
             $this->campaign->save();
             return false;
         }
+        $usage_count = $this->campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->first();
+        if($usage_count && $this->campaign->usage_limit_for_user <= $usage_count->usage_count){
+            return false;
+        }
+        return true;
+    }
+    protected function campaignUsageLimit()
+    {
+        $this->campaign->usage_limit = $this->campaign->usage_limit - 1;
+        if($this->campaign->usage_limit <= 0){
+            $this->campaign->is_active = 0;
+            return false;
+        }
+        $this->campaign->save();
         return true;
     }
 
