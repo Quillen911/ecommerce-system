@@ -77,7 +77,7 @@ class ElasticsearchService
         }
     }
 
-    public function searchProducts(string $query = '', array $filters = [], int $page = 1, int $size = 7 ): array
+    public function searchProducts(string $query = '', array $filters = [], string $sorting = '', int $page = 1, int $size = 7 ): array
     {
         try{
             $from = ($page-1) * $size;
@@ -118,19 +118,35 @@ class ElasticsearchService
                     ];
                 }
             }
+
+            $sortArray = [];
+            if(!empty($sorting)){
+                if($sorting == 'price_asc' || $sorting == 'price_desc'){
+                 $sortArray = [
+                     'list_price' => [
+                         'order' => $sorting == 'price_asc' ? 'asc' : 'desc'
+                     ]
+                 ];
+                }
+                else if($sorting == 'stock_quantity_asc' || $sorting == 'stock_quantity_desc'){
+                 $sortArray = [
+                     'stock_quantity' => [
+                         'order' => $sorting == 'stock_quantity_asc' ? 'asc' : 'desc'
+                     ]
+                 ];
+                }
+             }
             
-            //search query
             $params = [
                 'index' => 'products',
                 'body' => [
                     'query' => $searchQuery,
                     'size' => $size,
                     'from' => $from,
-                    'sort' => [
-                        '_score' => ['order' => 'desc']
-                    ]
+                    'sort' => $sortArray
                 ]
             ];
+            
             $response = $this->client->search($params);
             return [
                 'hits' => $response['hits']['hits'],
@@ -225,18 +241,18 @@ class ElasticsearchService
                     ]
                 ]
             ];
-            $sortArray = [];
             if(!empty($sorting)){
                if($sorting == 'price_asc' || $sorting == 'price_desc'){
-                $sortArray[] = [
+                $sortArray = [
                     'list_price' => [
                         'order' => $sorting == 'price_asc' ? 'asc' : 'desc'
                     ]
                 ];
-               }else if($sorting == 'title_asc' || $sorting == 'title_desc'){
-                $sortArray[] = [
-                    'title' => [
-                        'order' => $sorting == 'title_asc' ? 'asc' : 'desc'
+               }
+               else if($sorting == 'stock_quantity_asc' || $sorting == 'stock_quantity_desc'){
+                $sortArray = [
+                    'stock_quantity' => [
+                        'order' => $sorting == 'stock_quantity_asc' ? 'asc' : 'desc'
                     ]
                 ];
                }
@@ -300,26 +316,5 @@ class ElasticsearchService
             return [];
         }
     }
-    public function updateTitleMapping(): bool
-{
-    try {
-        $params = [
-            'index' => 'products',
-            'body' => [
-                'properties' => [
-                    'title' => [
-                        'type' => 'text',
-                        'fielddata' => true
-                    ]
-                ]
-            ]
-        ];
-        
-        $this->client->indices()->putMapping($params);
-        return true;
-    } catch (\Exception $e) {
-        Log::error("Mapping update failed: {$e->getMessage()}");
-        return false;
-    }
-}
+    
 }

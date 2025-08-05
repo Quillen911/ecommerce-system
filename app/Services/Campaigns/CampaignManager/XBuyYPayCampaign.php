@@ -14,17 +14,14 @@ class XBuyYPayCampaign extends BaseCampaign
             return false;
         }
 
-        $condition_logic = strtoupper($this->campaign->condition_logic ?? 'AND');
-        $conditions_met = ($condition_logic === 'OR') ? false : true;
-
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
             $total = collect($products)->sum(function($item) {
                 return $item->product->list_price * $item->quantity;
             });
-            $conditions_met = $condition_logic == 'AND' ? 
-                $conditions_met && ($total >= $min_bag) : 
-                $conditions_met || ($total >= $min_bag);
+            if($total < $min_bag){
+                return false;
+            }
         }
 
         $author = $this->getConditionValue('author');
@@ -32,9 +29,9 @@ class XBuyYPayCampaign extends BaseCampaign
             $eligible = collect($products)->filter(function($item) use ($author) {
                 return in_array($item->product->author, (array)$author);
             });
-            $conditions_met = $condition_logic == 'AND' ? 
-                $conditions_met && ($eligible->sum('quantity') > 0) : 
-                $conditions_met || ($eligible->sum('quantity') > 0);
+            if($eligible->sum('quantity') == 0){
+                return false;
+            }
         }
 
         $category = $this->getConditionValue('category');
@@ -42,12 +39,12 @@ class XBuyYPayCampaign extends BaseCampaign
             $eligible = collect($products)->filter(function($item) use ($category) {
                 return $item->product->category?->category_title == $category;
             }); 
-            $conditions_met = $condition_logic == 'AND' ? 
-                $conditions_met && ($eligible->sum('quantity') > 0) : 
-                $conditions_met || ($eligible->sum('quantity') > 0);
+            if($eligible->sum('quantity') == 0){
+                return false;
+            }
         }
 
-        return $conditions_met;
+        return true;
     }
 
     public function calculateDiscount(array $products): array

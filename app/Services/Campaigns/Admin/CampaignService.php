@@ -19,7 +19,7 @@ class CampaignService
     {
         try{
         $campaign = Campaign::create($request->only([
-            'name', 'type', 'condition_logic', 'description', 'is_active', 'priority', 
+            'name', 'type', 'description', 'is_active', 'priority', 
             'usage_limit', 'usage_limit_for_user', 'starts_at', 'ends_at'
         ]));
 
@@ -62,7 +62,7 @@ class CampaignService
         try {
             $campaign = Campaign::with(['conditions', 'discounts'])->findOrFail($id);
             $campaign->update($request->only([
-                'name', 'type', 'condition_logic', 'description', 'is_active', 'priority', 
+                'name', 'type', 'description', 'is_active', 'priority', 
                 'usage_limit', 'usage_limit_for_user', 'starts_at', 'ends_at'
             ]));
             

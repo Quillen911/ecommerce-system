@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('campaign_id');
             $table->enum('condition_type', ['author', 'category', 'min_bag']);
-            $table->json('condition_value');
             $table->enum('operator', ['=', '!=', '>', '>=', '<', '<=', 'in', 'not_in']);
             $table->timestamps();
 

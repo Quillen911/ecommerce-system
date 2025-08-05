@@ -17,7 +17,6 @@ class CampaignUpdateRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:255',
             'type' => 'sometimes|string|max:255',
-            'condition_logic' => 'sometimes|string|in:AND,OR',
             'description' => 'sometimes|string|max:255',
             'is_active' => 'sometimes|boolean',
             'priority' => 'nullable|string|max:255',
@@ -43,8 +42,6 @@ class CampaignUpdateRequest extends FormRequest
             'name.max' => 'Ad alanı en fazla 255 karakter olmalıdır.',
             'type.string' => 'Tip alanı metin olmalıdır.',
             'type.max' => 'Tip alanı en fazla 255 karakter olmalıdır.',
-            'condition_logic.string' => 'Koşul mantığı alanı metin olmalıdır.',
-            'condition_logic.max' => 'Koşul mantığı alanı en fazla 255 karakter olmalıdır.',
             'description.string' => 'Açıklama alanı metin olmalıdır.',
             'description.max' => 'Açıklama alanı en fazla 255 karakter olmalıdır.',
             'is_active.boolean' => 'Aktiflik alanı boolean olmalıdır.',
