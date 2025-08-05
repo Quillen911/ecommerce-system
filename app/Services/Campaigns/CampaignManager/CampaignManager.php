@@ -66,5 +66,13 @@ class CampaignManager
         }
         return true;
     }
+    public function campaignUsageLimit(Campaign $campaign)
+    {
+        $campaign->usage_limit = $campaign->usage_limit - 1;
+        if($campaign->usage_limit <= 0){
+            $campaign->is_active = 0;
+        }
+        $campaign->save();
+    }
     
 }
