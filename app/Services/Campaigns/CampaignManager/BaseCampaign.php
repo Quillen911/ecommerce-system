@@ -51,16 +51,6 @@ abstract class BaseCampaign implements CampaignInterface
         }
         return true;
     }
-    protected function campaignUsageLimit()
-    {
-        $this->campaign->usage_limit = $this->campaign->usage_limit - 1;
-        if($this->campaign->usage_limit <= 0){
-            $this->campaign->is_active = 0;
-            return false;
-        }
-        $this->campaign->save();
-        return true;
-    }
 
     protected function getDiscountRule()
     {
