@@ -11,7 +11,7 @@ class PercentageCampaign extends BaseCampaign
         }
 
         $condition_logic = strtoupper($this->campaign->condition_logic ?? 'AND');
-        $conditions_met = true;
+        $conditions_met = ($condition_logic === 'OR') ? false : true;
 
 
         $min_bag = $this->getConditionValue('min_bag');
@@ -34,9 +34,9 @@ class PercentageCampaign extends BaseCampaign
         $category = $this->getConditionValue('category');
         if($category){
             $eligible = collect($products)->filter(function($item) use ($category) {
-                return $item->product->category?->category_title;
+                return $item->product->category?->category_title == $category;
             }); 
-            $conditions_met = $condition_logic == 'AND' ? $conditions_met && $eligible = $category : $conditions_met || $eligible = $category;
+            $conditions_met = $condition_logic == 'AND' ? $conditions_met && $eligible->sum('quantity') > 0 : $conditions_met || $eligible->sum('quantity') > 0;
         }
 
         return $conditions_met;
@@ -76,7 +76,8 @@ class PercentageCampaign extends BaseCampaign
 
         return [
             'description' => $this->campaign->description,
-            'discount' => $eligible_total * $discount_rate
+            'discount' => $eligible_total * $discount_rate,
+            'campaign_id' => $this->campaign->id
         ];
     }
     

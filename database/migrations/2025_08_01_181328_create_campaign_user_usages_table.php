@@ -12,6 +12,7 @@ return new class extends Migration
         Schema::create('campaign_user_usages', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('campaign_id');
+            $table->string('campaign_name');
             $table->unsignedBigInteger('user_id');
             $table->integer('usage_count')->default(0);
             $table->dateTime('used_at')->nullable();

@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/main', [MainController::class, 'main'])->name('main');
     Route::get('/search', [MainController::class, 'search'])->name('search');
     Route::get('/filter', [MainController::class, 'filter'])->name('filter');
+    Route::get('/sorting', [MainController::class, 'sorting'])->name('sorting');
     Route::get('/search/autocomplete', [MainController::class, 'autocomplete'])->name('search/autocomplete');
 
     Route::prefix('bag')->group(function(){

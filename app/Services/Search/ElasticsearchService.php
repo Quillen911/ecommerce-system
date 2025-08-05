@@ -181,7 +181,6 @@ class ElasticsearchService
                     ];
                 }
             } else {
-                // Eğer filtre yoksa tüm ürünleri getir
                 $searchQuery['match_all'] = new \stdClass();
             }
             
@@ -213,6 +212,59 @@ class ElasticsearchService
             ];
         }
     }
+
+
+    public function sortProducts(string $sorting = '', int $page = 1, int $size = 7 ): array
+    {
+        try{
+            $from = ($page-1) * $size;
+            $searchQuery= [
+                'bool' => [
+                    'must' => [
+                        'match_all' => new \stdClass()
+                    ]
+                ]
+            ];
+            $sortArray = [];
+            if(!empty($sorting)){
+               if($sorting == 'price_asc' || $sorting == 'price_desc'){
+                $sortArray[] = [
+                    'list_price' => [
+                        'order' => $sorting == 'price_asc' ? 'asc' : 'desc'
+                    ]
+                ];
+               }else if($sorting == 'title_asc' || $sorting == 'title_desc'){
+                $sortArray[] = [
+                    'title' => [
+                        'order' => $sorting == 'title_asc' ? 'asc' : 'desc'
+                    ]
+                ];
+               }
+            }
+            $params = [
+                'index' => 'products',
+                'body' => [
+                    'query' => $searchQuery,
+                    'size' => $size,
+                    'from' => $from,
+                ]
+            ];
+            if(!empty($sortArray)){
+                $params['body']['sort'] = $sortArray;
+            }
+            $response = $this->client->search($params);
+            return [
+                'hits' => $response['hits']['hits'],
+                'total' => $response['hits']['total']['value'],
+                'page' => $page,
+                'size' => $size
+            ];
+        }catch(\Exception $e){
+            Log::error("Sorting failed: {$e->getMessage()}");
+            return [];
+        }
+    }
+
     public function autocomplete(string $query): array
     {
         try{
@@ -248,5 +300,26 @@ class ElasticsearchService
             return [];
         }
     }
-
+    public function updateTitleMapping(): bool
+{
+    try {
+        $params = [
+            'index' => 'products',
+            'body' => [
+                'properties' => [
+                    'title' => [
+                        'type' => 'text',
+                        'fielddata' => true
+                    ]
+                ]
+            ]
+        ];
+        
+        $this->client->indices()->putMapping($params);
+        return true;
+    } catch (\Exception $e) {
+        Log::error("Mapping update failed: {$e->getMessage()}");
+        return false;
+    }
+}
 }

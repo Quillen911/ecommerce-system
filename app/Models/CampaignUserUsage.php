@@ -10,6 +10,7 @@ class CampaignUserUsage extends Model
 
     protected $fillable = [
         'campaign_id',
+        'campaign_name',
         'user_id',
         'usage_count',
         'used_at',

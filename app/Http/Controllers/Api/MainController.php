@@ -10,7 +10,7 @@ use App\Models\Category;
 use App\Helpers\ResponseHelper;
 use App\Services\Search\ElasticsearchService;
 use App\Http\Requests\FilterRequest;
-
+use Illuminate\Support\Facades\Log;
 
 class MainController extends Controller
 {
@@ -106,6 +106,34 @@ class MainController extends Controller
             'filters' => $filters,
             'products' => $products,
         ]);
+    }
+
+    public function sorting(Request $request)
+    {
+        try{
+        $sorting = '';
+        if($request->filled('sorting')){
+            if($request->input('sorting') == 'title_asc' || $request->input('sorting') == 'title_desc' || $request->input('sorting') == 'price_asc' || $request->input('sorting') == 'price_desc'){
+                $sorting = $request->input('sorting');
+            }else{
+                $sorting = 'price_asc';
+            }
+        }
+        $page = $request->input('page', 1);
+        $size = $request->input('size', 12);
+        $results = $this->elasticSearch->sortProducts($sorting, $page, $size);
+        $products = collect($results['hits'])->pluck('_source')->toArray();
+        return ResponseHelper::success('Sıralama', [
+            'total' => $results['total'],
+            'page' => $page,
+            'size' => $size,
+            'sorting' => $sorting,
+            'products' => $products,
+        ]);
+        }catch(\Exception $e){
+            Log::error('Sıralama hatası', ['error' => $e->getMessage()]);
+            return ResponseHelper::error('Sıralama hatası', $e->getMessage());
+        }
     }
 
     public function autocomplete(Request $request)

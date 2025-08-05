@@ -31,11 +31,16 @@ class CampaignController extends Controller
 
     public function store(CampaignStoreRequest $request)
     {
+        try{
         $campaigns = $this->campaignService->createCampaign($request);
         if(!$campaigns){
             return ResponseHelper::error('Kampanya oluşturulamadı');
         }
         return ResponseHelper::success('Kampanya başarıyla oluşturuldu',$campaigns);
+        }
+        catch(\Exception $e){
+            return ResponseHelper::error('Kampanya oluşturulamadı');
+        }
     }
 
     public function show($id)
@@ -49,11 +54,16 @@ class CampaignController extends Controller
 
     public function update(CampaignUpdateRequest $request, $id)
     {
+        try{
         $campaigns = $this->campaignService->updateCampaign($request, $id);
         if(!$campaigns){
             return ResponseHelper::notFound('Kampanya bulunamadı');
         }
         return ResponseHelper::success('Kampanya başarıyla güncellendi',$campaigns);
+        }
+        catch(\Exception $e){
+            return ResponseHelper::error('Kampanya güncellenemedi');
+        }
     }
     
     public function destroy($id)

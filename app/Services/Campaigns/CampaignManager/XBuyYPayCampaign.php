@@ -107,13 +107,15 @@ class XBuyYPayCampaign extends BaseCampaign
 
             return [
                 'description' => $this->campaign->description,
-                'discount' => $total_discount
+                'discount' => $total_discount,
+                'campaign_id' => $this->campaign->id
             ];
         }
 
         return [
             'description' => $this->campaign->description,
-            'discount' => 0
+            'discount' => 0,
+            'campaign_id' => $this->campaign->id
         ];
     }
 }

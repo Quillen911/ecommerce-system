@@ -6,6 +6,8 @@ use App\Models\Campaign;
 use App\Models\CampaignUserUsage;
 use App\Http\Requests\Admin\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Admin\Campaign\CampaignUpdateRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 class CampaignService
 {
     public function indexCampaign()
@@ -15,7 +17,7 @@ class CampaignService
     }
     public function createCampaign(CampaignStoreRequest $request)
     {
-
+        try{
         $campaign = Campaign::create($request->only([
             'name', 'type', 'condition_logic', 'description', 'is_active', 'priority', 
             'usage_limit', 'usage_limit_for_user', 'starts_at', 'ends_at'
@@ -26,7 +28,7 @@ class CampaignService
             foreach ($request->conditions as $condition) {
                 $campaign->conditions()->create([
                     'condition_type' => $condition['condition_type'],
-                    'condition_value' => $this->formatConditionValue($condition['condition_value']),
+                    'condition_value' => $this->formatValue($condition['condition_value']),
                     'operator' => $condition['operator']
                 ]);
             }
@@ -35,19 +37,23 @@ class CampaignService
             foreach ($request->discounts as $discount) {
                 $campaign->discounts()->create([
                     'discount_type' => $discount['discount_type'],
-                    'discount_value' => $this->formatDiscountValue($discount['discount_value']),
+                    'discount_value' => $this->formatValue($discount['discount_value']),
                 ]);
             }
         }
-        
         return $campaign;
+        }
+        catch(\Exception $e){
+            Log::error('Campaign creation failed: ' . $e->getMessage());
+            return null;
+        }
     }
     public function showCampaign($id)
     {
         try {
             $campaign = Campaign::with(['conditions', 'discounts'])->findOrFail($id);
             return $campaign;
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return null;
         }
     }
@@ -66,7 +72,7 @@ class CampaignService
                     if ($condition) {
                         $condition->update([
                             'condition_type' => $conditionData['condition_type'],
-                            'condition_value' => $this->formatConditionValue($conditionData['condition_value']),
+                            'condition_value' => $this->formatValue($conditionData['condition_value']),
                             'operator' => $conditionData['operator']
                         ]);
                     }
@@ -80,13 +86,13 @@ class CampaignService
                     if ($discount) {
                         $discount->update([
                             'discount_type' => $discountData['discount_type'],
-                            'discount_value' => $this->formatDiscountValue($discountData['discount_value']),
+                            'discount_value' => $this->formatValue($discountData['discount_value']),
                         ]);
                     }
                 }
             }
             return $campaign;
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return null;
         }
     }
@@ -97,31 +103,19 @@ class CampaignService
             $campaign = Campaign::findOrFail($id);
             $campaign->delete();
             return $campaign;
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return null;
         }
     }
 
-    private function formatConditionValue($value)
+    private function formatValue($value)
     {
-
         if (is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
             return $value;
         }
         
-
-        return json_encode($value);
+        return json_encode($value, JSON_UNESCAPED_UNICODE);
     }
 
-    private function formatDiscountValue($value)
-    {
-
-        if (is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
-            return $value;
-        }
-        
-
-        return json_encode($value);
-    }
 
 }
