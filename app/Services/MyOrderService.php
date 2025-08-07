@@ -42,7 +42,7 @@ class MyOrderService
                 $product->save();
             }
         }
-        $campaign = Campaign::where('description', $order->campaign_info)->first();
+        $campaign = Campaign::where('id', $order->campaign_id)->first();
         if($campaign){
             $campaignManager->decreaseUserUsageCount($campaign);
             $campaignManager->increaseUsageLimit($campaign);

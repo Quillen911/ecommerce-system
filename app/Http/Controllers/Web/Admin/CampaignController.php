@@ -35,6 +35,14 @@ class CampaignController extends Controller
     {
         try {
             $campaigns = $this->campaignService->createCampaign($request);
+
+            if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Kampanya başarıyla eklendi',
+                    'data' => $campaigns
+                ]);
+            }
             return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla eklendi');
         } catch (\Exception $e) {
             \Log::error('CampaignController - Error creating campaign:', [
@@ -51,13 +59,28 @@ class CampaignController extends Controller
         if(!$campaigns){
             return redirect()->route('admin.campaign')->with('error', 'Kampanya bulunamadı');
         }
+        
+        if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Kampanya bulundu',
+                'data' => $campaigns
+            ]);
+        }
+        
         return view('Admin.Campaign.editCampaign' ,compact('campaigns'));
     }
 
     public function updateCampaign(CampaignUpdateRequest $request, $id)
     {
         $campaigns = $this->campaignService->updateCampaign($request, $id);
-        \Log::info('updateCampaign called', ['id' => $id, 'data' => $request->all()]);
+        if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Kampanya başarıyla güncellendi',
+                'data' => $campaigns
+            ]);
+        }
 
         return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla güncellendi');
     }

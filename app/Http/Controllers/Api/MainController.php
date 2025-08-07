@@ -11,14 +11,16 @@ use App\Helpers\ResponseHelper;
 use App\Services\Search\ElasticsearchService;
 use App\Http\Requests\FilterRequest;
 use Illuminate\Support\Facades\Log;
+use App\Services\Search\ElasticSearchTypeService;
 
 class MainController extends Controller
 {
     protected $elasticSearch;
-    
-    public function __construct(ElasticsearchService $elasticSearch)
+    protected $elasticSearchTypeService;
+    public function __construct(ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService)
     {
         $this->elasticSearch = $elasticSearch;
+        $this->elasticSearchTypeService = $elasticSearchTypeService;
     }
 
     public function index(Request $request)
@@ -47,30 +49,17 @@ class MainController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q', '');
-        $filters = [];
-        $sorting = '';
-        if($request->filled('sorting')){
-            if($request->input('sorting') == 'stock_quantity_asc' || $request->input('sorting') == 'stock_quantity_desc' || $request->input('sorting') == 'price_asc' || $request->input('sorting') == 'price_desc'){
-                $sorting = $request->input('sorting');
-            }else{
-                $sorting = 'price_asc';
-            }
-        }
-        if($request->filled('category_title')){
-            $filters['category_title'] = $request->input('category_title');
-        }
-        if($request->filled('min_price')){
-            $filters['min_price'] = $request->input('min_price');
-        }
-        if($request->filled('max_price')){
-            $filters['max_price'] = $request->input('max_price');
-        }
+
+        $filters = $this->elasticSearchTypeService->filterType($request);
+        $sorting = $this->elasticSearchTypeService->sortingType($request);
+        
         $page = $request->input('page', 1);
         $size = $request->input('size', 12);
 
         $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
         
         $products = collect($results['hits'])->pluck('_source')->toArray();
+
         if(!empty($products)){
             return ResponseHelper::success('Ürünler Bulundu', [
             'total' => $results['total'],
@@ -80,7 +69,7 @@ class MainController extends Controller
             'products' => $products,
         ]);
         }
-        return ResponseHelper::success('Ürün bulunamadı.', [
+        return ResponseHelper::notFound('Ürün bulunamadı.', [
             'total' => 0,
             'page' => $page,
             'size' => $size,
@@ -91,16 +80,7 @@ class MainController extends Controller
 
     public function filter(FilterRequest $request)
     {
-        $filters = [];
-        if($request->filled('category_title')){
-            $filters['category_title'] = $request->input('category_title') ?? '';
-        }
-        if($request->filled('min_price')){
-            $filters['min_price'] = $request->input('min_price') ?? '';
-        }
-        if($request->filled('max_price')){
-            $filters['max_price'] = $request->input('max_price') ?? '';
-        }
+        $filters = $this->elasticSearchTypeService->filterType($request);
         $page = $request->input('page', 1);
         $size = $request->input('size', 12);
 
@@ -119,18 +99,15 @@ class MainController extends Controller
     public function sorting(Request $request)
     {
         try{
-        $sorting = '';
-        if($request->filled('sorting')){
-            if($request->input('sorting') == 'stock_quantity_asc' || $request->input('sorting') == 'stock_quantity_desc' || $request->input('sorting') == 'price_asc' || $request->input('sorting') == 'price_desc'){
-                $sorting = $request->input('sorting');
-            }else{
-                $sorting = 'price_asc';
-            }
-        }
+        $sorting = $this->elasticSearchTypeService->sortingType($request);
+
         $page = $request->input('page', 1);
         $size = $request->input('size', 12);
+
         $results = $this->elasticSearch->sortProducts($sorting, $page, $size);
+
         $products = collect($results['hits'])->pluck('_source')->toArray();
+
         return ResponseHelper::success('Sıralama', [
             'total' => $results['total'],
             'page' => $page,

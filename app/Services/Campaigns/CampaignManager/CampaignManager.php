@@ -49,28 +49,27 @@ class CampaignManager
             if($campaign->usage_limit_for_user <= $usage_count->usage_count){
                 return false;
             }
-
-            $usage_count->usage_count += 1;
-            $usage_count->used_at = now();
-            $usage_count->save();
-        }
-        else{
             $campaign->campaign_user_usages()->create([
                 'user_id' => auth()->user()->id,
                 'campaign_id' => $campaign->id,
                 'campaign_name' => $campaign->name,
-                'usage_count' => 1,
                 'used_at' => now(),
             ]);
-            
+        }else{
+            $campaign->campaign_user_usages()->create([
+                'user_id' => auth()->user()->id,
+                'campaign_id' => $campaign->id,
+                'campaign_name' => $campaign->name,
+                'used_at' => now(),
+            ]);
         }
+        
         return true;
     }
     public function decreaseUserUsageCount(Campaign $campaign)
     {
-        $usage_count = $campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->first();
-        $usage_count->usage_count = $usage_count->usage_count - 1;
-        $usage_count->save();
+        $campaign->campaign_user_usages()->where('campaign_id', $campaign->id)->where('user_id', auth()->user()->id)->first()->delete();
+        $campaign->save();
     }
     public function decreaseUsageLimit(Campaign $campaign)
     {
