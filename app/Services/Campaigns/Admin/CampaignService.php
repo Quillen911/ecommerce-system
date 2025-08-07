@@ -104,12 +104,16 @@ class CampaignService
 
     private function formatValue($value)
     {
-        if (is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
+        if (is_string($value) && (str_starts_with($value, '"') || str_starts_with($value, '{') || str_starts_with($value, '['))) {
             return $value;
         }
         
         if (is_array($value)) {
             return json_encode($value, JSON_UNESCAPED_UNICODE);
+        }
+
+        if (is_numeric($value)) {
+            return (string) $value;
         }
         
         return json_encode($value, JSON_UNESCAPED_UNICODE);

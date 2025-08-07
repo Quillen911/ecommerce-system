@@ -35,10 +35,11 @@ class CampaignController extends Controller
     {
         try {
             $campaigns = $this->campaignService->createCampaign($request);
+
             if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Kampanya bulundu',
+                    'message' => 'Kampanya başarıyla eklendi',
                     'data' => $campaigns
                 ]);
             }
@@ -59,7 +60,6 @@ class CampaignController extends Controller
             return redirect()->route('admin.campaign')->with('error', 'Kampanya bulunamadı');
         }
         
-        // JSON request ise JSON döndür
         if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
             return response()->json([
                 'success' => true,
