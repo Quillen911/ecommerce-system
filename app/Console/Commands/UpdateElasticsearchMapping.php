@@ -27,7 +27,7 @@ class UpdateElasticsearchMapping extends Command
     {
         $this->info('Updating Elasticsearch mapping...');
 
-        if($elasticsearchService->updateTitleMapping()){
+        if($elasticsearchService->updateMapping()){
             $this->info('Elasticsearch mapping updated successfully');
         }else{
             $this->error('Elasticsearch mapping update failed');

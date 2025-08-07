@@ -30,7 +30,8 @@ class OrderService
         $discount = $bestCampaign['discount'] ?? 0;
 
         $totally = $total + $cargo_price - $discount;
-        $campaign_info = $bestCampaign['description'] ?? '';    
+        $campaign_info = $bestCampaign['description'] ?? ''; 
+        $campaign_id = $bestCampaign['campaign_id'] ?? null;
         
         $orderData = [
             'user_id' => $user->id,
@@ -42,6 +43,7 @@ class OrderService
                 ];
                
             })->toArray(),
+            'campaign_id' => $campaign_id,
             'campaign_info' => $campaign_info,
             'total' => $total,
             'cargo_price' => $cargo_price,
@@ -49,23 +51,22 @@ class OrderService
             'status' => 'bekliyor',   
             
         ];
-        
         foreach($orderData['products'] as $productData) {
             $product = Product::find($productData['product_id']);
             
             if (!$product) {
-                return ResponseHelper::error('Ürün bulunamadı', 404);
+                return new \Exception('Ürün bulunamadı, Sipariş oluşturulamadı!');
             }
             
             if ($product->stock_quantity < $productData['quantity']) {
-                return ResponseHelper::error('Ürün stokta yok', 404);
+                return new \Exception('Ürün stokta yok, Sipariş oluşturulamadı!');
             }
             
             $this->updateStock($productData['product_id'], $productData['quantity']);
         }
 
-        if($bestCampaign['campaign_id'] && $bestCampaign['discount'] > 0){
-            $appliedCampaign = Campaign::find($bestCampaign['campaign_id']);
+        if($campaign_id && $discount > 0){
+            $appliedCampaign = Campaign::find($campaign_id);
             if($appliedCampaign){
                 $campaignManager->userEligible($appliedCampaign);
                 $campaignManager->decreaseUsageLimit($appliedCampaign);

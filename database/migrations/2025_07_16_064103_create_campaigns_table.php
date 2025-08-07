@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->enum('type', ['percentage', 'fixed','x_buy_y_pay']);     
-            $table->enum('condition_logic', ['AND', 'OR'])->default('AND');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->json('priority')->nullable();

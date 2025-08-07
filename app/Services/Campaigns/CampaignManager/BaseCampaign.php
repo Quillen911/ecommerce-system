@@ -45,8 +45,9 @@ abstract class BaseCampaign implements CampaignInterface
             $this->campaign->save();
             return false;
         }
-        $usage_count = $this->campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->first();
-        if($usage_count && $this->campaign->usage_limit_for_user <= $usage_count->usage_count){
+        $usage_count = $this->campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->count();
+        
+        if($usage_count && $this->campaign->usage_limit_for_user <= $usage_count){
             return false;
         }
         return true;

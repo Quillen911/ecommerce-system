@@ -33,4 +33,8 @@ class Campaign extends Model
     {
         return $this->hasMany(CampaignUserUsage::class, 'campaign_id');
     }
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'campaign_id');
+    }
 }

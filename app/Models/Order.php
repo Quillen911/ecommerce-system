@@ -10,10 +10,12 @@ class Order extends Model
     use SoftDeletes;
     protected $fillable = [
         'Bag_User_id',
+        'user_id',
         'price', 
         'cargo_price',
         'discount',
         'campaing_price',
+        'campaign_id',
         'campaign_info',
         'status'
     ];
@@ -23,10 +25,16 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'Bag_User_id');
     }
-
-    
+    public function user_id()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class, 'campaign_id');
     }
 }
