@@ -5,9 +5,11 @@ namespace App\Services\Search;
 use Elastic\Elasticsearch\ClientBuilder;
 use Elastic\Elasticsearch\Client;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ElasticSearchTrait;
 
 class ElasticsearchService
 {
+    use ElasticSearchTrait;
     private Client $client;
 
     public function __construct()
@@ -83,59 +85,23 @@ class ElasticsearchService
             $from = ($page-1) * $size;
             $searchQuery = [];
             //search query
-            if(!empty($query)){
-                $searchQuery['bool']['must'][] = [
-                    'multi_match' => [
-                        'query' => $query,
-                        'fields' => ['title^2', 'author'],
-                        'fuzziness' => 'AUTO'
-                    ]
-                ];
-            } else {
-                $searchQuery['match_all'] = new \stdClass();
-            }
+                if(!empty($query)){
+                    $searchQuery['bool']['must'][] = [
+                        'multi_match' => [
+                            'query' => $query,
+                            'fields' => ['title^2', 'author'],
+                            'fuzziness' => 'AUTO'
+                        ]
+                    ];
+                } else {
+                    $searchQuery['match_all'] = new \stdClass();
+                }
 
             if(!empty($filters)){
-            
-                if(isset($filters['category_title'])){
-                        $searchQuery['bool']['filter'][] = [
-                            'match' => [
-                                'category_title' => [
-                                    'query' => $filters['category_title'],
-                                    'operator' => 'or',
-                                    'fuzziness' => 'AUTO'
-                                ]
-                            ]
-                        ];
-                    }
-                if(isset($filters['min_price']) || isset($filters['max_price'])) {
-                    $range = [];
-                    if (isset($filters['min_price'])) $range['gte'] = $filters['min_price'];
-                    if (isset($filters['max_price'])) $range['lte'] = $filters['max_price'];
-                    
-                    $searchQuery['bool']['filter'][] = [
-                        'range' => ['list_price' => $range]
-                    ];
-                }
+                $searchQuery['bool']['filter'] = $this->mergeFiltersTrait($filters);
             }
 
-            $sortArray = [];
-            if(!empty($sorting)){
-                if($sorting == 'price_asc' || $sorting == 'price_desc'){
-                 $sortArray = [
-                     'list_price' => [
-                         'order' => $sorting == 'price_asc' ? 'asc' : 'desc'
-                     ]
-                 ];
-                }
-                else if($sorting == 'stock_quantity_asc' || $sorting == 'stock_quantity_desc'){
-                 $sortArray = [
-                     'stock_quantity' => [
-                         'order' => $sorting == 'stock_quantity_asc' ? 'asc' : 'desc'
-                     ]
-                 ];
-                }
-             }
+            $sortArray = $this->getSortTrait($sorting);
             
             $params = [
                 'index' => 'products',
@@ -174,28 +140,7 @@ class ElasticsearchService
             
             //filter search
             if(!empty($filters)){
-                $searchQuery['bool']['filter'] = [];
-                
-                if(isset($filters['category_title'])){
-                    $searchQuery['bool']['filter'][] = [
-                        'match' => [
-                            'category_title' => [
-                                'query' => $filters['category_title'],
-                                'operator' => 'or',
-                                'fuzziness' => 'AUTO'
-                            ]
-                        ]
-                    ];
-                }
-                if(isset($filters['min_price']) || isset($filters['max_price'])) {
-                    $range = [];
-                    if (isset($filters['min_price'])) $range['gte'] = (float)$filters['min_price'];
-                    if (isset($filters['max_price'])) $range['lte'] = (float)$filters['max_price'];
-                    
-                    $searchQuery['bool']['filter'][] = [
-                        'range' => ['list_price' => $range]
-                    ];
-                }
+                $searchQuery['bool']['filter'] = $this->mergeFiltersTrait($filters);                
             } else {
                 $searchQuery['match_all'] = new \stdClass();
             }
@@ -234,40 +179,22 @@ class ElasticsearchService
     {
         try{
             $from = ($page-1) * $size;
-            $searchQuery= [
-                'bool' => [
-                    'must' => [
-                        'match_all' => new \stdClass()
-                    ]
-                ]
+            $searchQuery = [
+                'match_all' => new \stdClass()
             ];
-            if(!empty($sorting)){
-               if($sorting == 'price_asc' || $sorting == 'price_desc'){
-                $sortArray = [
-                    'list_price' => [
-                        'order' => $sorting == 'price_asc' ? 'asc' : 'desc'
-                    ]
-                ];
-               }
-               else if($sorting == 'stock_quantity_asc' || $sorting == 'stock_quantity_desc'){
-                $sortArray = [
-                    'stock_quantity' => [
-                        'order' => $sorting == 'stock_quantity_asc' ? 'asc' : 'desc'
-                    ]
-                ];
-               }
-            }
+            
+            $sortArray = $this->getSortTrait($sorting);
+            
             $params = [
                 'index' => 'products',
                 'body' => [
                     'query' => $searchQuery,
                     'size' => $size,
                     'from' => $from,
+                    'sort' => $sortArray,
                 ]
             ];
-            if(!empty($sortArray)){
-                $params['body']['sort'] = $sortArray;
-            }
+            
             $response = $this->client->search($params);
             return [
                 'hits' => $response['hits']['hits'],
@@ -314,6 +241,42 @@ class ElasticsearchService
         }catch(\Exception $e){
             Log::error("Autocomplete failed: {$e->getMessage()}");
             return [];
+        }
+    }
+
+    public function updateMapping(): bool
+    {
+        try {
+            // Elasticsearch index'ini yeniden oluştur
+            $indexName = 'products';
+            
+            // Eğer index varsa sil
+            if ($this->client->indices()->exists(['index' => $indexName])) {
+                $this->client->indices()->delete(['index' => $indexName]);
+            }
+            
+            // Yeni index oluştur
+            $mapping = [
+                'properties' => [
+                    'id' => ['type' => 'integer'],
+                    'title' => ['type' => 'text'],
+                    'author' => ['type' => 'text'],
+                    'category_title' => ['type' => 'text'],
+                    'list_price' => ['type' => 'float'],
+                    'stock_quantity' => ['type' => 'integer'],
+                    'created_at' => ['type' => 'date'],
+                    'updated_at' => ['type' => 'date']
+                ]
+            ];
+            
+            $this->createIndex($indexName, $mapping);
+            
+            Log::info("Elasticsearch mapping updated successfully");
+            return true;
+            
+        } catch (\Exception $e) {
+            Log::error("Elasticsearch mapping update failed: " . $e->getMessage());
+            return false;
         }
     }
     

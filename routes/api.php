@@ -20,6 +20,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('admin/campaign', CampaignController::class)->only(['index','store','show','update','destroy']);
     Route::apiResource('admin/product', ProductController::class)->only(['index','store','show','update','destroy']);
     Route::post('admin/product/bulk', [ProductController::class, 'bulkStore']);
+    Route::get('/admin/product/search', [ProductController::class, 'searchProduct']);
+
     
     Route::get('/search', [MainController::class, 'search']);
     Route::get('/filter', [MainController::class, 'filter']);
