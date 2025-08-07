@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Helpers\ResponseHelper;
 use App\Services\Search\ElasticsearchService; 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Jobs\IndexProductToElasticsearch;
+use App\Jobs\DeleteProductToElasticsearch;
+
 class Product extends Model
 {
     use SoftDeletes;
@@ -31,18 +34,17 @@ class Product extends Model
     //Elasticsearch
     protected static function boot()
     {
+        
         parent::boot();
         static::saved(function ($product){
             $data = $product->toArray();
-            $data['list_price'] = (float) $data['list_price'];
             $data['category_title'] = $product->category?->category_title ?? '';
             
-            
-            app(ElasticsearchService::class)->indexDocument('products', $product->id, $data);
+            dispatch(new IndexProductToElasticsearch($data));
         });
 
         static::deleted(function ($product) {
-            app(ElasticsearchService::class)->deleteDocument('products', $product->id);
+            dispatch(new DeleteProductToElasticsearch($product->toArray()));
         });
     }
 

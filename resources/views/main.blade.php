@@ -143,7 +143,7 @@
                             <form action="{{ route('add') }}" method="POST" style="display:inline;">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{$p['id'] }}">
-                                <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Sepete Ekle</button>
+                                <button style="background-color: #000; color:rgb(255, 255, 255); border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Sepete Ekle</button>
                             </form>
                         </td>
                     </tr>
@@ -151,10 +151,10 @@
             </tbody>
                  
         </table><br>
-        <a href="{{ route('main') }}">Tüm ürünleri göster</a> <br> <br>
     @else
     <p>Ürün bulunamadı</p>
     @endif
+    <a href="{{ route('main') }}">Tüm ürünleri göster</a> <br> <br>
     <form action="{{ route('logout') }}" method="POST">
         @csrf
       <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Çıkış Yap</button>

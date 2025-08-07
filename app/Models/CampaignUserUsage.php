@@ -3,16 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 class CampaignUserUsage extends Model
 {
     protected $table = 'campaign_user_usages';
-
+    use SoftDeletes;
     protected $fillable = [
         'campaign_id',
         'campaign_name',
         'user_id',
-        'usage_count',
         'used_at',
     ];
     public function campaign()

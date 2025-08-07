@@ -14,15 +14,19 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('Bag_User_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->decimal('price', 8, 2);
             $table->decimal('cargo_price', 8, 2);
             $table->decimal('discount', 8, 2)->nullable();
             $table->decimal('campaing_price', 8, 2);
+            $table->unsignedBigInteger('campaign_id')->nullable();
             $table->string('campaign_info');
             $table->string('status');
             $table->timestamps();
 
             $table->foreign('Bag_User_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
         });
     }

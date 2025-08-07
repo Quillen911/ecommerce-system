@@ -55,7 +55,9 @@ class OrderController extends Controller
             return ResponseHelper::notFound('Sepetiniz boş!');
         }
         $result = $this->orderService->createOrder($user, $products, new CampaignManager());
-
+        if($result instanceof \Exception){
+            return ResponseHelper::error($result->getMessage());
+        }
         $bag->bagItems()->delete();
         return ResponseHelper::success('Sipariş oluşturuldu.', $products);
     }

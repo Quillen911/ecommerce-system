@@ -27,9 +27,11 @@ class CreateOrderJob implements ShouldQueue
     {
         $order = Order::create([
             'Bag_User_id' => $this->orderData['user_id'],
+            'user_id' => $this->orderData['user_id'],
             'price' => $this->orderData['total'] + $this->orderData['cargo_price'],
             'cargo_price' => $this->orderData['cargo_price'],
             'discount' => $this->orderData['discount'],
+            'campaign_id' => $this->orderData['campaign_id'] ?? null,
             'campaign_info' => $this->orderData['campaign_info'],
             'campaing_price' => $this->orderData['total'] + $this->orderData['cargo_price'] - $this->orderData['discount'],
             'status' => $this->orderData['status'],

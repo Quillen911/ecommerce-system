@@ -18,10 +18,7 @@ class CampaignService
     public function createCampaign(CampaignStoreRequest $request)
     {
         try{
-        $campaign = Campaign::create($request->only([
-            'name', 'type', 'description', 'is_active', 'priority', 
-            'usage_limit', 'usage_limit_for_user', 'starts_at', 'ends_at'
-        ]));
+        $campaign = Campaign::create($request->all());
 
         
         if ($request->has('conditions')) {
@@ -61,10 +58,7 @@ class CampaignService
     {
         try {
             $campaign = Campaign::with(['conditions', 'discounts'])->findOrFail($id);
-            $campaign->update($request->only([
-                'name', 'type', 'description', 'is_active', 'priority', 
-                'usage_limit', 'usage_limit_for_user', 'starts_at', 'ends_at'
-            ]));
+            $campaign->update($request->all());
             
             if ($request->has('existing_conditions')) {
                 foreach ($request->existing_conditions as $conditionId => $conditionData) {
@@ -112,6 +106,10 @@ class CampaignService
     {
         if (is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
             return $value;
+        }
+        
+        if (is_array($value)) {
+            return json_encode($value, JSON_UNESCAPED_UNICODE);
         }
         
         return json_encode($value, JSON_UNESCAPED_UNICODE);

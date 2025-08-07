@@ -7,12 +7,13 @@ use App\Models\Product;
 use App\Http\Requests\Admin\Product\ProductStoreRequest;
 use App\Http\Requests\Admin\Product\ProductUpdateRequest;
 
+
 class ProductService
 {
 
     public function indexProduct()
     {
-        $products = Product::orderBy('id')->get();
+        $products = Product::with('category')->orderBy('id')->get();
         return $products;
     }
     public function createProduct(ProductStoreRequest $request)

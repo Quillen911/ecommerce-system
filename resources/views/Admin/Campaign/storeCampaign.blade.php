@@ -29,11 +29,6 @@
             <option value="fixed">Sabit İndirim</option>
             <option value="x_buy_y_pay">X Al Y Öde</option>
         </select> <br>
-        <select name="condition_logic" required>
-            <option value="">Koşul Mantığı Seçin</option>
-            <option value="AND">AND (Tüm koşullar sağlanmalı)</option>
-            <option value="OR">OR (Herhangi bir koşul sağlanmalı)</option>
-        </select> <br>
         <input type="text" name="description" placeholder="Açıklama"> <br>
         <select name="is_active">
             <option value="1">Aktif</option>
@@ -74,7 +69,7 @@
         <button type="button" onclick="addCondition()">Koşul Ekle</button>
         
         <h2>İndirimler</h2>
-        <p>Değer (örn: {'percentage':15} veya {'amount':100} veya {'x':2, 'y':1})</p>
+        <p>Değer (örn: {"percentage":15} veya {"amount":100} veya {"x":2, "y":1})</p>
         <div id="discounts">
             <div class="discount-item">
                 <select name="discounts[0][discount_type]">
@@ -134,7 +129,7 @@
                         <option value="x_buy_y_pay">X Al Y Öde</option>
                     </select>
                     <input type="text" name="discounts[${discountIndex}][discount_value]" 
-                    placeholder="Değer (örn: {'percentage':15} veya {'amount':100} veya {'x':2, 'y':1})" required>
+                    placeholder="Değer (örn: {"percentage":15} veya {"amount":100} veya {"x":2, "y":1})" required>
                     <button type="button" onclick="removeDiscount(this)">Kaldır</button>
                 </div>
             `;
