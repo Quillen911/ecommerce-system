@@ -143,7 +143,7 @@
                             <form action="{{ route('add') }}" method="POST" style="display:inline;">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{$p['id'] }}">
-                                <button style="background-color: #000; color:rgb(255, 255, 255); border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Sepete Ekle</button>
+                                <button style="background-color:rgb(163, 24, 24); color:rgb(255, 255, 255); border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Sepete Ekle</button>
                             </form>
                         </td>
                     </tr>
