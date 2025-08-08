@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MainController;
 use App\Http\Controllers\Api\MyOrdersController;
 use App\Http\Controllers\Api\Admin\CampaignController;
 use App\Http\Controllers\Api\Admin\ProductController;
+use App\Http\Controllers\Api\Payments\IyzicoController;
 
 Route::post('/login',[AuthController::class, 'login']);
 
@@ -17,8 +18,11 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('orders', OrderController::class)->only(['index','store','show']);
     Route::apiResource('main', MainController::class)->only(['index','show']);
     Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
-    Route::apiResource('admin/campaign', CampaignController::class)->only(['index','store','show','update','destroy']);
-    Route::apiResource('admin/product', ProductController::class)->only(['index','store','show','update','destroy']);
+    Route::apiResource('admin/campaign', CampaignController::class);
+    Route::apiResource('admin/product', ProductController::class);
+    Route::apiResource('creditcard', IyzicoController::class);
+
+
     Route::post('admin/product/bulk', [ProductController::class, 'bulkStore']);
     Route::get('/admin/product/search', [ProductController::class, 'searchProduct']);
 

@@ -101,11 +101,9 @@
             <strong>Genel Toplam</strong> {{ number_format($Totally,2) }} TL <br>
         </p>
 
-        <br>
-
-        <form action="{{route('done')}}" method="POST">
+        <form action="{{route('done')}}" method="POST"> 
             @csrf
-            <button style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;" type="submit">Siparişi Tamamla</button>
+            <button type="submit" style="background-color: #000; color: #fff; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;">Siparişi Tamamla</button>
         </form>
     @endif
     <br>

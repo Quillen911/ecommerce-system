@@ -32,7 +32,7 @@ class OrderService
         $totally = $total + $cargo_price - $discount;
         $campaign_info = $bestCampaign['description'] ?? ''; 
         $campaign_id = $bestCampaign['campaign_id'] ?? null;
-        
+    
         $orderData = [
             'user_id' => $user->id,
             'products' => $products->map(function($item){
@@ -48,7 +48,7 @@ class OrderService
             'total' => $total,
             'cargo_price' => $cargo_price,
             'discount' => $discount,
-            'status' => 'bekliyor',   
+            'status' => 'bekliyor',
             
         ];
         foreach($orderData['products'] as $productData) {

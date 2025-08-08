@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\MyOrdersController;
 use App\Http\Controllers\Web\Admin\CampaignController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\AdminController;
+use App\Http\Controllers\Web\Payments\IyzicoController;
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
 Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
@@ -43,6 +44,10 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/createOrderJob',[OrderController::class, 'CreateOrderJob'])->name('createOrderJob');
 
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
+
+    Route::prefix('payments')->group(function(){
+        Route::post('/storeCreditCard', [IyzicoController::class, 'storeCreditCard'])->name('payments.storeCreditCard');
+    });
 });
 
 //Admin

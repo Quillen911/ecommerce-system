@@ -11,6 +11,8 @@ class Order extends Model
     protected $fillable = [
         'Bag_User_id',
         'user_id',
+        'credit_card_id',
+        'card_holder_name',
         'price', 
         'cargo_price',
         'discount',
@@ -28,6 +30,10 @@ class Order extends Model
     public function user_id()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+    public function creditCard()
+    {
+        return $this->belongsTo(CreditCard::class, 'credit_card_id');
     }
     public function orderItems()
     {
