@@ -20,6 +20,7 @@
                 <th>Kullanıcı Kullanım Limit</th>
                 <th>Kampanya Başlangıç Tarihi</th>
                 <th>Kampanya Bitiş Tarihi</th>
+                <th>Kalan Süre</th>
                 <th>Kampanya Aktiflik Durumu</th>
                 <th>Düzenle</th>
             </tr>
@@ -36,6 +37,47 @@
                 <td>{{ $campaign->usage_limit_for_user }}</td>
                 <td>{{ $campaign->starts_at }}</td>
                 <td>{{ $campaign->ends_at }}</td>
+                @php
+                    $now = \Carbon\Carbon::now();
+                    $endsAt = \Carbon\Carbon::parse($campaign->ends_at);
+                    $endsAtTimestamp = $endsAt->timestamp;
+                @endphp
+                <td>
+                    @if($campaign->usage_limit == 0)
+                        <p style="color: red; font-size: 15.3px; font-weight: italic;">Kullanım Limiti Tükendi</p>
+                    @else
+                    <span id="countdown-{{ $campaign->id }}" style="color: darkgreen;"></span><br>
+                        <script>
+                            function updateCountdown() {
+                                const now = Math.floor(Date.now() / 1000);
+                                const endTime = {{ $endsAtTimestamp }};
+                                const timeLeft = endTime - now;
+                                
+                                if (timeLeft <= 0) {
+                                    document.getElementById('countdown-{{ $campaign->id }}').innerHTML = 'Kampanya sona erdi.';
+                                    document.getElementById('countdown-{{ $campaign->id }}').style.color = 'red';
+                                    return;
+                                }
+                                
+                                const days = Math.floor(timeLeft / 86400);
+                                const hours = Math.floor((timeLeft % 86400) / 3600);
+                                const minutes = Math.floor((timeLeft % 3600) / 60);
+                                const seconds = timeLeft % 60;
+                                
+                                let timeString = '';
+                                if (days > 0) timeString += days + ' gün ';
+                                if (hours > 0) timeString += hours + ' saat ';
+                                if (minutes > 0) timeString += minutes + ' dakika ';
+                                timeString += seconds + ' saniye';
+                                
+                                document.getElementById('countdown-{{ $campaign->id }}').innerHTML = timeString;
+                            }
+                            
+                            updateCountdown();
+                            setInterval(updateCountdown, 1000);
+                        </script>
+                    @endif    
+                </td>
                 <td>{{ $campaign->is_active ? 'Aktif' : 'Pasif' }}</td>
                 <td>
                     <a href="{{ route('admin.editCampaign', $campaign->id) }}">Düzenle</a>

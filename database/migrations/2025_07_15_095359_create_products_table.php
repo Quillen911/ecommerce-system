@@ -17,7 +17,8 @@ return new class extends Migration
             $table->decimal('list_price',8,2);
             $table->integer('stock_quantity');
             $table->timestamps();
-
+            $table->softDeletes();
+            
             $table->foreign('category_id')
                   ->references('id')
                   ->on('categories')
