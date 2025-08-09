@@ -48,18 +48,30 @@ class OrderController extends Controller
         if(!$bag){
             return ResponseHelper::error('Sepetiniz bulunamadı!');
         }
+        $selectedCreditCard = $request->input('selected_credit_card_id');
+        if(!$selectedCreditCard){
+            return ResponseHelper::error('Lütfen bir kredi kartı seçiniz!');
+        }
 
         $products = $bag->bagItems()->with('product.category')->get();
 
         if($products->isEmpty()){
             return ResponseHelper::notFound('Sepetiniz boş!');
         }
-        $result = $this->orderService->createOrder($user, $products, new CampaignManager());
+        $result = $this->orderService->createOrder($user, $products, new CampaignManager(), $selectedCreditCard);
         if($result instanceof \Exception){
             return ResponseHelper::error($result->getMessage());
         }
-        $bag->bagItems()->delete();
-        return ResponseHelper::success('Sipariş oluşturuldu.', $products);
+        if(is_array($result) && isset($result['success'])){
+            if($result['success']){
+                $bag->bagItems()->delete();
+                Cache::flush();
+                return ResponseHelper::success('Sipariş oluşturuldu.', $products);
+            }else{
+                return ResponseHelper::error($result['error']);
+            }
+        }
+        return ResponseHelper::error('Beklenmeyen bir hata oluştu!' , $result['error']);
     }
 
     public function show($id)

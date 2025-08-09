@@ -9,11 +9,12 @@ use App\Models\Campaign;
 use App\Jobs\CreateOrderJob;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\ResponseHelper;
-
+use App\Models\CreditCard;
+use App\Services\Payments\IyzicoPaymentService;
 
 class OrderService
 {
-    public function createOrder($user, $products, $campaignManager)
+    public function createOrder($user, $products, $campaignManager, $selectedCreditCard)
     {
         $campaigns = Campaign::where('is_active', 1)
                             ->where('starts_at', '<=', now())
@@ -30,9 +31,10 @@ class OrderService
         $discount = $bestCampaign['discount'] ?? 0;
 
         $totally = $total + $cargo_price - $discount;
-        $campaign_info = $bestCampaign['description'] ?? ''; 
+        $campaign_info = !empty($bestCampaign['description']) ? $bestCampaign['description'] : null;
         $campaign_id = $bestCampaign['campaign_id'] ?? null;
-    
+        $credit_card_holder = CreditCard::find($selectedCreditCard)->card_holder_name;
+
         $orderData = [
             'user_id' => $user->id,
             'products' => $products->map(function($item){
@@ -49,20 +51,16 @@ class OrderService
             'cargo_price' => $cargo_price,
             'discount' => $discount,
             'status' => 'bekliyor',
-            
+            'credit_card_id' => $selectedCreditCard,
+            'credit_card_holder' => $credit_card_holder,
         ];
+        
         foreach($orderData['products'] as $productData) {
             $product = Product::find($productData['product_id']);
             
             if (!$product) {
                 return new \Exception('Ürün bulunamadı, Sipariş oluşturulamadı!');
             }
-            
-            if ($product->stock_quantity < $productData['quantity']) {
-                return new \Exception('Ürün stokta yok, Sipariş oluşturulamadı!');
-            }
-            
-            $this->updateStock($productData['product_id'], $productData['quantity']);
         }
 
         if($campaign_id && $discount > 0){
@@ -72,9 +70,57 @@ class OrderService
                 $campaignManager->decreaseUsageLimit($appliedCampaign);
             }
         }
-           
+        $exOrder = Order::create([
+            'Bag_User_id' => $user->id,
+            'user_id' => $user->id,
+            'credit_card_id' => $selectedCreditCard,
+            'card_holder_name' => $credit_card_holder,
+            'price' => $totally,
+            'cargo_price' => $cargo_price,
+            'discount' => $discount,
+            'campaign_id' => $campaign_id,
+            'campaign_info' => $campaign_info,
+            'campaing_price' => $total + $cargo_price - $discount,
+            'status' => 'Başarısız Ödeme',
+        ]);
+        foreach($orderData['products'] as $productData) {
+            OrderItem::create([
+                'order_id' => $exOrder->id,
+                'product_id' => $productData['product_id'],
+                'quantity' => $productData['quantity'],
+                'price' => $productData['price']
+            ]);
+        }
+        if(!$exOrder){
+            return new \Exception('Sipariş oluşturulamadı!');
+        }
 
-        CreateOrderJob::dispatch($orderData)->onQueue('order_create');
+        $creditCard = CreditCard::find($selectedCreditCard);
+        $iyzicoService = new IyzicoPaymentService();
+        $paymentResult = $iyzicoService->processPayment($exOrder, $creditCard, $totally);
+                
+        if ($paymentResult['success']) {
+            $exOrder->forcedelete();
+            $job = new CreateOrderJob($orderData);
+            $job->handle();
+            return $paymentResult;
+        } else {
+            try {
+                $exOrder->delete();
+            } catch (\Exception $e) {
+                \Log::error('Error deleting order: ' . $e->getMessage());
+            }
+            
+            $errorMessage = $paymentResult['error'];
+            if (isset($paymentResult['error_code'])) {
+                $errorMessage .= ' (Hata Kodu: ' . $paymentResult['error_code'] . ')';
+            }
+            
+            return [
+                'success' => false,
+                'error' => $errorMessage
+            ];
+        }
 
     }
     public function showOrder($user, $id)
@@ -83,22 +129,5 @@ class OrderService
                     ->where('id',$id)
                     ->first();
     }
-    
-    private function updateStock($productId, $quantity)
-    {
-        $product = Product::find($productId);
-        
-        if (!$product) {
-            return ResponseHelper::error('Ürün bulunamadı', 404);
-        }
-        
-        if ($product->stock_quantity < $quantity) {
-            return ResponseHelper::error('Ürün stokta yok', 404);
-        }
-        
-        $product->stock_quantity -= $quantity;
-        $product->save();
-    }
-    
 
 }

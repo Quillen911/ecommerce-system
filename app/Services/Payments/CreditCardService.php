@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Payments\CreditCardStoreRequest;
 use App\Http\Requests\Payments\CreditCardUpdateRequest;
 
-class IyzicoService
+class CreditCardService
 {
     public function indexCreditCard()
     {

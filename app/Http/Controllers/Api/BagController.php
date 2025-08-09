@@ -31,7 +31,7 @@ class BagController extends Controller
         if (!$bag) {
             return ResponseHelper::notFound('Sepetiniz bulunamadı!');
         }
-        $products = $this->bagService->getIndexBag($bag);
+        $products = $this->bagService->getBag($bag);
         if($products->isEmpty()){
             $products = "Ürün Yok!";
             return ResponseHelper::success('Sepetiniz boş!',$products);
