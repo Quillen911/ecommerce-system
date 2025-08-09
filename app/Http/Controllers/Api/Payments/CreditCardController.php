@@ -5,23 +5,23 @@ namespace App\Http\Controllers\Api\Payments;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
-use App\Services\Payments\IyzicoService;
+use App\Services\Payments\CreditCardService;
 use App\Http\Requests\Payments\CreditCardStoreRequest;
 use App\Http\Requests\Payments\CreditCardUpdateRequest;
 
-class IyzicoController extends Controller
+class CreditCardController extends Controller
 {
 
-    protected $iyzicoService;
+    protected $creditCardService;
 
-    public function __construct(IyzicoService $iyzicoService)
+    public function __construct(CreditCardService $creditCardService)
     {
-        $this->iyzicoService = $iyzicoService;
+        $this->creditCardService = $creditCardService;
     }
 
     public function index()
     {
-        $paymentInfo = $this->iyzicoService->indexCreditCard();
+        $paymentInfo = $this->creditCardService->indexCreditCard();
         if(!$paymentInfo){
             return ResponseHelper::notFound('Ödeme bilgileri bulunamadı');
         }
@@ -35,7 +35,7 @@ class IyzicoController extends Controller
                 return ResponseHelper::error('Kullanıcı bulunamadı');
             }
             else{
-            $paymentInfo = $this->iyzicoService->storeCreditCard($request, $user);
+            $paymentInfo = $this->creditCardService->storeCreditCard($request, $user);
             if(!$paymentInfo){
                 return ResponseHelper::error('Ödeme bilgileri oluşturulamadı');
             }
@@ -48,7 +48,7 @@ class IyzicoController extends Controller
     }
 
     public function show($id){
-        $paymentInfo = $this->iyzicoService->showCreditCard($id);
+        $paymentInfo = $this->creditCardService->showCreditCard($id);
         if(!$paymentInfo){
             return ResponseHelper::notFound('Ödeme bilgileri bulunamadı');
         }
@@ -57,7 +57,7 @@ class IyzicoController extends Controller
 
     public function update(CreditCardUpdateRequest $request, $id){
         try{
-            $paymentInfo = $this->iyzicoService->updateCreditCard($request, $id);
+            $paymentInfo = $this->creditCardService->updateCreditCard($request, $id);
             if(!$paymentInfo){
                 return ResponseHelper::error('Ödeme bilgileri güncellenemedi');
             }
@@ -69,7 +69,7 @@ class IyzicoController extends Controller
     }
 
     public function destroy($id){
-        $paymentInfo = $this->iyzicoService->destroyCreditCard($id);
+        $paymentInfo = $this->creditCardService->destroyCreditCard($id);
         if(!$paymentInfo){
             return ResponseHelper::error('Ödeme bilgileri silinemedi');
         }

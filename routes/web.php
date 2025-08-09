@@ -10,7 +10,7 @@ use App\Http\Controllers\Web\MyOrdersController;
 use App\Http\Controllers\Web\Admin\CampaignController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\AdminController;
-use App\Http\Controllers\Web\Payments\IyzicoController;
+use App\Http\Controllers\Web\Payments\CreditCardController;
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
 Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function(){
     Route::prefix('order')->group(function(){
         Route::get('/', [OrderController::class, 'order'])->name('order');
         Route::post('/done', [OrderController::class, 'done'])->name('done');
+        // Route::post('/payment/callback', [OrderController::class, 'paymentCallback'])->name('payment.callback'); //iyzico payment callback
     });
 
     Route::prefix('myorders')->group(function(){
@@ -46,7 +47,7 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
     Route::prefix('payments')->group(function(){
-        Route::post('/storeCreditCard', [IyzicoController::class, 'storeCreditCard'])->name('payments.storeCreditCard');
+        Route::post('/storeCreditCard', [CreditCardController::class, 'storeCreditCard'])->name('payments.storeCreditCard');
     });
 });
 

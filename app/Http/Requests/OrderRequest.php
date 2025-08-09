@@ -13,18 +13,6 @@ class OrderRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
-    {
-        return [ 'Bag_User_id' => 'required|exists:users,id' ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'Bag_User_id.required' => 'Kullanıcı ID zorunludur.',
-            'Bag_User_id.exists' => 'Geçersiz kullanıcı ID.',
-        ];
-    }
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('discount', 8, 2)->nullable();
             $table->decimal('campaing_price', 8, 2);
             $table->unsignedBigInteger('campaign_id')->nullable();
-            $table->string('campaign_info');
+            $table->string('campaign_info')->nullable();
             $table->string('status');
             $table->timestamps();
             $table->softDeletes();

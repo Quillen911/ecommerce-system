@@ -18,72 +18,66 @@ use App\Services\Campaigns\CampaignManager\LocalAuthorCampaign;
 use App\Http\Requests\OrderRequest;
 use App\Traits\UserBagTrait;
 use App\Services\OrderService;
+use App\Services\BagService;
 
 class OrderController extends Controller
 {
 
     use UserBagTrait;
     protected $orderService;
+    protected $bagService;
 
-    public function __construct(OrderService $orderService)
+    public function __construct(OrderService $orderService, BagService $bagService)
     {
         $this->orderService = $orderService;
+        $this->bagService = $bagService;
     }
 
     public function order()
     {
-        //sepet ve ürünleri getirir.
-        $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
-        $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
-        $campaigns = Campaign::where('is_active', 1)->get();
-        $campaignManager = new CampaignManager();
-        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
-        
-        $bestCampaignModel = null;
-        if (!empty($bestCampaign['description'])) {
-            $bestCampaignModel = Campaign::where('description', $bestCampaign['description'])->first();
-        }
-        
-        $total = $products->sum(function($item){
-            return $item->quantity * $item->product->list_price;
-        });
-
-        $cargoPrice = $total >= 50 ? 0 : 10;
-        
-        $discount = $bestCampaign['discount'] ?? 0;
-
-        $Totally = $total +$cargoPrice -$discount;
-        Cache::flush();
-        return view('order', compact('products', 'bestCampaign', 'total', 'cargoPrice', 'discount', 'Totally', 'bestCampaignModel'));
+        $bag = $this->bagService->getIndexBag();
+        return view('order', $bag);
     }
 
     public function done(Request $request)
     {
+        
         $user = $this->getUser();
         $bag = $this->getUserBag();
-
         if(!$bag){
             return redirect('main')->with('error', 'Sepetiniz bulunamadı!');
         }
-
+        $selectedCreditCard = $request->input('selected_credit_card_id');
+        if(!$selectedCreditCard){
+            return redirect('order')->with('error', 'Lütfen bir kredi kartı seçiniz!');
+        }
         $products = $bag->bagItems()->with('product.category')->get();
-
         if($products->isEmpty()){
             return redirect('main')->with('error', 'Sepetiniz boş!');
         }
-
-        $result = $this->orderService->createOrder($user, $products, new CampaignManager());
+        $result = $this->orderService->createOrder($user, $products, new CampaignManager(), $selectedCreditCard);
         
-        $bag->bagItems()->delete();
-        Cache::flush();
-        return redirect('main')->with('success', 'Siparişiniz işleme alındı!');
+        if($result instanceof \Exception){
+            return redirect('order')->with('error', $result->getMessage());
+        }
+        if(is_array($result) && isset($result['success'])){
+            if($result['success']){
+                $bag->bagItems()->delete();
+                Cache::flush();
+                return redirect('main')->with('success', 'Siparişiniz başarıyla oluşturuldu!');
+            }else{
+                return redirect('order')->with('error', $result['error']);
+            }
+        }else{
+            return redirect('order')->with('error', 'Beklenmeyen bir hata oluştu!');
+        }
     }
-
+    
     public function CreateOrderJob()
     {
         CreateOrderJob::dispatch();
         return 'Job Kuyruğa eklendi';
     }
+
 
 }

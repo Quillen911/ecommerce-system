@@ -7,12 +7,40 @@ use App\Models\Bag;
 use App\Models\BagItem;
 use App\Models\Product;
 use App\Helpers\ResponseHelper;
+use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Models\Campaign;
 
 class BagService{
 
-    public function getIndexBag($bag)
+    public function getBag($bag)
     {
         return $bag->bagItems()->with('product.category')->get();
+    }
+
+    public function getIndexBag()
+    {
+        $user = auth()->user();
+        $bag = Bag::where('Bag_User_id', $user->id)->first();
+        $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
+        $campaigns = Campaign::where('is_active', 1)->get();
+        $campaignManager = new CampaignManager();
+        $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
+        
+        $bestCampaignModel = null;
+        if (!empty($bestCampaign['description'])) {
+            $bestCampaignModel = Campaign::where('description', $bestCampaign['description'])->first();
+        }
+        
+        $total = $products->sum(function($item){
+            return $item->quantity * $item->product->list_price;
+        });
+
+        $cargoPrice = $total >= 50 ? 0 : 10;
+        
+        $discount = $bestCampaign['discount'] ?? 0;
+        $creditCards = $user->creditCard()->where('is_active', true)->get();
+        $Totally = $total +$cargoPrice -$discount;
+        return ['products' => $products, 'bestCampaign' => $bestCampaign, 'total' => $total, 'cargoPrice' => $cargoPrice, 'discount' => $discount, 'Totally' => $Totally, 'bestCampaignModel' => $bestCampaignModel, 'creditCards' => $creditCards];
     }
 
     public function getAddBag($bag, $productId)

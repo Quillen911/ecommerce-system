@@ -11,6 +11,8 @@ use App\Models\Bag;
 use App\Models\BagItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
+use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Models\Campaign;
 
 class BagController extends Controller
 {
@@ -24,20 +26,9 @@ class BagController extends Controller
 
     public function bag(Request $request)
     {
-        $user = $this->getUser();
-        $bag = $this->getUserBag();
-
-        if(!$bag){
-            return redirect()->route('main')->with('error', 'Sepetiniz bulunamadı!');
-        }
-
-        $products = $this->bagService->getIndexBag($bag);
-
-        if($products->isEmpty()){
-            return view('bag', ['products' => $products, 'empty' => true]);
-        }
-
-        return view('bag', compact('products'));
+        $bag = $this->bagService->getIndexBag();
+        
+        return view('bag', $bag);
     }
 
     public function add(Request $request)
