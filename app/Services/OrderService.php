@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Campaign;
-use App\Jobs\CreateOrderJob;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\ResponseHelper;
 use App\Models\CreditCard;
@@ -35,32 +34,17 @@ class OrderService
         $campaign_id = $bestCampaign['campaign_id'] ?? null;
         $credit_card_holder = CreditCard::find($selectedCreditCard)->card_holder_name;
 
-        $orderData = [
-            'user_id' => $user->id,
-            'products' => $products->map(function($item){
-                return [
-                    'product_id' => $item->product->id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->list_price,
-                ];
-               
-            })->toArray(),
-            'campaign_id' => $campaign_id,
-            'campaign_info' => $campaign_info,
-            'total' => $total,
-            'cargo_price' => $cargo_price,
-            'discount' => $discount,
-            'status' => 'bekliyor',
-            'credit_card_id' => $selectedCreditCard,
-            'credit_card_holder' => $credit_card_holder,
-        ];
-        
-        foreach($orderData['products'] as $productData) {
-            $product = Product::find($productData['product_id']);
-            
-            if (!$product) {
+        $productsData = [];
+        foreach($products as $product) {
+            $productData = Product::find($product->product_id);
+            if (!$productData) {
                 return new \Exception('Ürün bulunamadı, Sipariş oluşturulamadı!');
             }
+            $productsData[] = [
+                'product_id' => $product->product_id,
+                'quantity' => $product->quantity,
+                'price' => $product->product->list_price,
+            ];
         }
 
         if($campaign_id && $discount > 0){
@@ -75,20 +59,30 @@ class OrderService
             'user_id' => $user->id,
             'credit_card_id' => $selectedCreditCard,
             'card_holder_name' => $credit_card_holder,
-            'price' => $totally,
+            'price' => $total,
             'cargo_price' => $cargo_price,
             'discount' => $discount,
             'campaign_id' => $campaign_id,
             'campaign_info' => $campaign_info,
             'campaing_price' => $total + $cargo_price - $discount,
+            'paid_price' => 0,
+            'currency' => 'TRY',
+            'payment_id' => null,
+            'conversation_id' => null,
+            'payment_status' => 'failed',
             'status' => 'Başarısız Ödeme',
         ]);
-        foreach($orderData['products'] as $productData) {
-            OrderItem::create([
+        foreach($productsData as $productData) {
+            $orderItem = OrderItem::create([
                 'order_id' => $exOrder->id,
                 'product_id' => $productData['product_id'],
                 'quantity' => $productData['quantity'],
-                'price' => $productData['price']
+                'price' => $productData['price'],
+                'payment_transaction_id' => "",
+                'payment_status' => 'failed',
+                'refunded_amount' => 0,
+                'refunded_at' => null,
+                'canceled_at' => null,
             ]);
         }
         if(!$exOrder){
@@ -98,19 +92,44 @@ class OrderService
         $creditCard = CreditCard::find($selectedCreditCard);
         $iyzicoService = new IyzicoPaymentService();
         $paymentResult = $iyzicoService->processPayment($exOrder, $creditCard, $totally);
-                
+
         if ($paymentResult['success']) {
-            $exOrder->forcedelete();
-            $job = new CreateOrderJob($orderData);
-            $job->handle();
-            return $paymentResult;
-        } else {
-            try {
-                $exOrder->delete();
-            } catch (\Exception $e) {
-                \Log::error('Error deleting order: ' . $e->getMessage());
+            $exOrder->update([
+                'paid_price'      => $paymentResult['paid_price'] ?? 0,
+                'currency'        => $paymentResult['currency'] ?? 'TRY',
+                'payment_id'      => $paymentResult['payment_id'] ?? null,
+                'conversation_id' => $paymentResult['conversation_id'] ?? null,
+                'payment_status'  => $paymentResult['payment_status'],
+                'status'          => 'pending',
+            ]);
+
+            foreach ($paymentResult['payment_transaction_id'] as $itemId => $txId) {
+                $orderItem = OrderItem::where('order_id', $exOrder->id)
+                    ->where('product_id', $itemId)
+                    ->first();
+                if($orderItem){
+                $orderItem->update([
+                        'payment_transaction_id' => $txId,
+                        'payment_status' => $paymentResult['payment_status'],
+                    ]);
+                }
             }
+
             
+            foreach ($productsData as $p) {
+                Product::whereKey($p['product_id'])->decrement('stock_quantity', (int) $p['quantity']);
+            }
+
+            return ['success' => true, 'order_id' => $exOrder->id];
+        } else {
+            $exOrder->update([
+                'payment_status' => 'failed',
+                'status' => 'Başarısız Ödeme',
+            ]);
+            $exOrder->delete();
+            foreach($exOrder->orderItems as $item){
+                $item->forceDelete();
+            }
             $errorMessage = $paymentResult['error'];
             if (isset($paymentResult['error_code'])) {
                 $errorMessage .= ' (Hata Kodu: ' . $paymentResult['error_code'] . ')';

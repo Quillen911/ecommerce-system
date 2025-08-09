@@ -55,11 +55,18 @@
                 <strong>Toplam Fiyat: </strong>{{ $order->price }}<br>
                 <strong>İndirimli Fiyatı: </strong>{{ $order->campaing_price }}<br>
                 <br>
-                <form action="{{route('myorders.delete', $order->id)}}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" style="background-color: #f3f3f3; color: #000; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;">Siparişi İptal Et</button>
-                </form>
+                @php
+                    $canCancel = !in_array($order->payment_status, ['canceled','refunded','partial_refunded']);
+                @endphp
+                @if($canCancel)
+                    <form action="{{route('myorders.delete', $order->id)}}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" style="background-color: #f3f3f3; color: #000; border-radius: 10px; padding: 10px; border: 1px solid #000; cursor: pointer;">Siparişi İptal Et</button>
+                    </form>
+                @else
+                    <em>Bu sipariş {{ $order->payment_status === 'canceled' ? 'iptal edildi' : ($order->payment_status === 'refunded' ? 'iade edildi' : 'kısmi iade edildi') }}.</em>
+                @endif
             </div>
         @endforeach
     @endif
