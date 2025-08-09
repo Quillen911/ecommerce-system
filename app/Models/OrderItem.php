@@ -15,6 +15,11 @@ class OrderItem extends Model
         'product_id',
         'quantity',
         'price',
+        'payment_transaction_id',
+        'payment_status',
+        'refunded_amount',
+        'refunded_at',
+        'canceled_at',
 
     ];
 

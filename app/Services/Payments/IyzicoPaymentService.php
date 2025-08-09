@@ -4,14 +4,28 @@ namespace App\Services\Payments;
 
 use App\Models\Order;
 use App\Models\CreditCard;
+use Illuminate\Support\Facades\Log;
+//Iyzipay kütüphanesi
+use Iyzipay\Options;
 use Iyzipay\Model\Locale;
 use Iyzipay\Model\Currency;
 use Iyzipay\Model\Buyer;
 use Iyzipay\Model\Address;
 use Iyzipay\Model\BasketItem;
+use Iyzipay\Model\PaymentCard;
+use Iyzipay\Model\PaymentGroup;
 use Iyzipay\Model\BasketItemType;
-use Iyzipay\Options;
-use Illuminate\Support\Facades\Log;
+
+use Iyzipay\Model\Payment;
+use Iyzipay\Model\Cancel;
+use Iyzipay\Model\Refund;
+use Iyzipay\Model\RefundReason;
+
+use Iyzipay\Model\CheckoutForm;
+use Iyzipay\Request\RetrieveCheckoutFormRequest;
+use Iyzipay\Request\CreatePaymentRequest;
+use Iyzipay\Request\CreateCancelRequest;
+use Iyzipay\Request\CreateRefundRequest;
 
 class IyzicoPaymentService implements PaymentInterface
 {
@@ -28,16 +42,17 @@ class IyzicoPaymentService implements PaymentInterface
     public function processPayment(Order $order, CreditCard $creditCard, float $amount): array
     {
         try{
-            $request = new \Iyzipay\Request\CreatePaymentRequest();
+            $request = new CreatePaymentRequest();
 
             $request->setLocale(Locale::TR);
             $request->setConversationId($order->id . '_' . time());
             $request->setCurrency(Currency::TL);
             $request->setBasketId($order->id);
-            $request->setPaymentGroup(\Iyzipay\Model\PaymentGroup::PRODUCT);
+            $request->setPaymentGroup(PaymentGroup::PRODUCT);
             $request->setInstallment(1);
 
-            $paymentCard = new \Iyzipay\Model\PaymentCard();
+            $paymentCard = new PaymentCard();
+
             $paymentCard->setCardHolderName($creditCard->card_holder_name);
             $paymentCard->setCardNumber($creditCard->card_number);
             $paymentCard->setExpireMonth($creditCard->expire_month);
@@ -46,6 +61,7 @@ class IyzicoPaymentService implements PaymentInterface
             $request->setPaymentCard($paymentCard);
 
             $buyer = new Buyer();
+
             $buyer->setId($order->user_id);
             $buyer->setName($order->user->username ?? 'Test User');
             $buyer->setSurname($order->user->surname ?? 'Test');
@@ -61,6 +77,7 @@ class IyzicoPaymentService implements PaymentInterface
             $request->setBuyer($buyer);
 
             $shippingAddress = new Address();
+
             $shippingAddress->setContactName('Test User');
             $shippingAddress->setCity('Istanbul');
             $shippingAddress->setCountry('Turkey');
@@ -69,6 +86,7 @@ class IyzicoPaymentService implements PaymentInterface
             $request->setShippingAddress($shippingAddress);
 
             $billingAddress = new Address();
+            
             $billingAddress->setContactName('Test User');
             $billingAddress->setCity('Istanbul');
             $billingAddress->setCountry('Turkey');
@@ -79,32 +97,44 @@ class IyzicoPaymentService implements PaymentInterface
 
 
             $basketItems = array();
-            $totalBasketPrice = 0;
+            $totalBasketPrice = 0.0;
 
             foreach ($order->orderItems as $item) {
                 $basketItem = new BasketItem();
+                
                 $basketItem->setId($item->product_id);
                 $basketItem->setName($item->product->title);
                 $basketItem->setCategory1($item->product->category?->category_title ?? 'Genel');
                 $basketItem->setItemType(BasketItemType::PHYSICAL);
-                $basketItem->setPrice($item->product->list_price * $item->quantity);
+                $linePrice = round($item->product->list_price * $item->quantity, 2);
+                $basketItem->setPrice(number_format($linePrice, 2, '.', ''));
                 $basketItems[] = $basketItem;
 
-                $totalBasketPrice += $item->product->list_price * $item->quantity;
+                $totalBasketPrice += $linePrice;
                 
             }
 
             $request->setBasketItems($basketItems);
-            $request->setPrice($totalBasketPrice);
-            $request->setPaidPrice($amount);
+            $request->setPrice(number_format($totalBasketPrice, 2, '.', ''));
+            $request->setPaidPrice(number_format($amount, 2, '.', ''));
 
-            $payment = \Iyzipay\Model\Payment::create($request, $this->options);
+            $payment = Payment::create($request, $this->options);
 
             if ($payment->getStatus() === 'success') {
+                $itemsTxMap = [];
+                foreach ($payment->getPaymentItems() as $pItem) {
+                    $itemsTxMap[$pItem->getItemId()] = $pItem->getPaymentTransactionId();
+
+                }
                 return [
                     'success' => true,
                     'payment_id' => $payment->getPaymentId(),
-                    'message' => 'Ödeme başarılı'
+                    'conversation_id' => $request->getConversationId(),
+                    'paid_price' => (float) $payment->getPaidPrice(),
+                    'currency' => $payment->getCurrency(),
+                    'payment_status' => $payment->getStatus() === 'success' ? 'paid' : 'failed',
+                    'payment_transaction_id' => $itemsTxMap , 
+                    'message' => 'Ödeme başarılı',
                 ];
             } else {
                 $errorMessage = $this->translateErrorMessage($payment->getErrorMessage(), $payment->getErrorCode());
@@ -129,10 +159,10 @@ class IyzicoPaymentService implements PaymentInterface
     public function checkPaymentStatus(string $paymentId): array
     {
         try {
-            $request = new \Iyzipay\Request\RetrieveCheckoutFormRequest();
+            $request = new RetrieveCheckoutFormRequest();
             $request->setToken($paymentId);
 
-            $checkoutForm = \Iyzipay\Model\CheckoutForm::retrieve($request, $this->options);
+            $checkoutForm = CheckoutForm::retrieve($request, $this->options);
 
             if ($checkoutForm->getStatus() === 'success') {
                 return [
@@ -157,14 +187,75 @@ class IyzicoPaymentService implements PaymentInterface
         }
     }
 
+
     public function cancelPayment(string $paymentId): array
     {
-        return ['success' => false, 'error' => 'İptal işlemi henüz implement edilmedi'];
+        try {
+
+            $request = new CreateCancelRequest();
+            $ip = request()->ip() ?? '127.0.0.1';
+            $request->setIp($ip);
+            $request->setConversationId($paymentId);
+            $request->setPaymentId($paymentId);
+            $request->setLocale(Locale::TR);
+        //  $request->setReason(RefundReason::OTHER);
+        //  $request->setDescription("customer requested for default sample");
+
+        $cancel = Cancel::create($request, $this->options);
+
+        if ($cancel->getStatus() === 'success') {
+            return [
+                'success' => true,
+                'message' => 'Ödeme iptal edildi'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error' => $cancel->getErrorMessage()
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Ödeme iptal edilirken hata oluştu: ' . $e->getMessage()
+            ];
+        }
     }
 
-    public function refundPayment(string $paymentId, float $amount): array
+    public function refundPayment(string $paymentTransactionId, float $amount): array
     {
-        return ['success' => false, 'error' => 'İade işlemi henüz implement edilmedi'];
+        try {
+            $request = new CreateRefundRequest();
+
+            $ip = request()->ip() ?? '127.0.0.1';
+            $request->setIp($ip);
+            $request->setLocale(Locale::TR);
+            $request->setConversationId($paymentTransactionId);
+            $request->setPaymentTransactionId($paymentTransactionId);
+            $request->setPrice(number_format($amount, 2, '.', ''));
+            $request->setCurrency(Currency::TL);
+        //  $request->setReason(RefundReason::OTHER);
+        //  $request->setDescription("customer requested for default sample");
+
+            $refund = Refund::create($request, $this->options);
+
+            if ($refund->getStatus() === 'success') {
+                return [
+                    'success' => true,
+                    'message' => 'Ödeme iade edildi'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $refund->getErrorMessage()
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Ödeme iade edilirken hata oluştu: ' . $e->getMessage()
+            ];
+        }
     }
     
     private function translateErrorMessage(string $errorMessage, string $errorCode): string

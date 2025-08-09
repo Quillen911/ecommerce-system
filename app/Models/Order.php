@@ -19,7 +19,12 @@ class Order extends Model
         'campaing_price',
         'campaign_id',
         'campaign_info',
-        'status'
+        'status',
+        'paid_price',
+        'currency',
+        'payment_id',
+        'conversation_id',
+        'payment_status',
     ];
     protected $dates = ['deleted_at'];
     
