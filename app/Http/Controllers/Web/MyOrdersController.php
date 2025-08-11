@@ -7,6 +7,7 @@ use App\Services\MyOrderService;
 use App\Traits\UserBagTrait;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 use Illuminate\Http\Request;
+use App\Http\Requests\MyOrders\RefundRequest;
 
 class MyOrdersController extends Controller{
 
@@ -38,13 +39,19 @@ class MyOrdersController extends Controller{
         return redirect()->route('myorders')->with('success', 'Sipariş başarıyla iptal edildi.');
     }
 
-    public function refundItems($id, Request $request)
+    public function refundItems($id, RefundRequest $request)
     {
         $user = $this->getUser();
-        $quantities = (array) $request->input('refund_quantities', []);
-        $quantities = array_map('intval', $quantities);
-        $quantities = array_filter($quantities, fn($q) => $q > 0);
-        if (empty($quantities)) {
+        $raw = (array) $request->input('refund_quantities', []);
+
+        $quantities = [];
+        foreach ($raw as $itemId => $qty) {
+            $qty = (int) $qty;
+            if ($qty > 0) {
+                $quantities[(int) $itemId] = $qty;
+            }
+        }
+        if (count($quantities) === 0) {
             return redirect()->route('myorders')->with('error', 'İade adedi giriniz.');
         }
         $result = $this->myOrderService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());

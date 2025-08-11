@@ -166,7 +166,7 @@
             @if($creditCards->count() > 0)
                 @foreach($creditCards as $card)
                     <div class="credit-card-item">
-                        <input type="radio" name="selected_credit_card" value="{{ $card->id }}" id="card_{{ $card->id }}">
+                        <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}">
                         <label for="card_{{ $card->id }}">
                             <strong>{{ $card->name }}</strong><br>
                             <span class="muted">**** **** **** {{ substr($card->card_number, -4) }}</span><br>
@@ -220,7 +220,7 @@
     @if($creditCards->count() > 0)
         <form action="{{route('done')}}" method="POST" style="margin-top:26px;">
             @csrf
-            <input type="hidden" name="selected_credit_card_id" id="selected_credit_card_id">
+            <input type="hidden" name="credit_card_id" id="credit_card_id">
             <button type="submit" class="btn" style="width:100%;max-width:420px;" onclick="return validateCardSelection()">Siparişi Tamamla</button>
         </form>
     @else
@@ -229,8 +229,8 @@
 </div>
 
 <script>
-    document.querySelectorAll('input[name="selected_credit_card"]').forEach(radio=>{
-        radio.addEventListener('change',()=>document.getElementById('selected_credit_card_id').value=radio.value);
+    document.querySelectorAll('input[name="credit_card_id"]').forEach(radio=>{
+        radio.addEventListener('change',()=>document.getElementById('credit_card_id').value=radio.value);
     });
     const toggleBtn = document.getElementById('toggleCardForm');
     const cardForm = document.getElementById('cardForm');
@@ -245,7 +245,7 @@
     });
 
     function validateCardSelection() {
-        const selectedCard = document.getElementById('selected_credit_card_id').value;
+        const selectedCard = document.getElementById('credit_card_id').value;
         if (!selectedCard) {
             alert('Lütfen bir kredi kartı seçiniz!');
             return false;

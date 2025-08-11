@@ -1,32 +1,26 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\MyOrders;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class OrderRequest extends FormRequest
+class RefundRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
     }
 
-    
     public function rules(): array
     {
         return [
-            'credit_card_id' => 'required|exists:credit_cards,id',
+            'refund_quantities' => 'required|array|min:1',
+            'refund_quantities.*' => 'nullable|integer|min:0',
         ];
     }
-    public function messages(): array
-    {
-        return [
-            'credit_card_id.required' => 'Kredi kartı seçiniz.',
-            'credit_card_id.exists' => 'Kredi kartı bulunamadı.',
-        ];
-    }
+
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
@@ -35,3 +29,5 @@ class OrderRequest extends FormRequest
         ], 422));
     }
 }
+
+

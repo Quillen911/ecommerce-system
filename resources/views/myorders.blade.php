@@ -82,6 +82,7 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Sipariş İtem ID</th>
                                     <th>Ürün</th>
                                     <th>Kategori Adı</th>
                                     <th>Yazar</th>
@@ -94,6 +95,7 @@
                             <tbody>
                                 @foreach($order->orderItems as $item)
                                     <tr>
+                                        <td>{{ $item->id }}</td>
                                         <td>{{ $item->product_title }}</td>
                                         <td>{{ $item->product_category_title }}</td>
                                         <td>{{ $item->product->author }}</td>
@@ -106,8 +108,8 @@
                                             $refundedPrice = round(($item->refunded_price ?? 0), 2);
                                             $remainingRefundedPrice = max(0, round($paidPrice - $refundedPrice, 2));
                                             // Birim fiyatı yuvarlamadan hesapla; kalan adet hesabında hassasiyet önemli
-                                            $unitPaidPrice = $paidPrice / max(1, (int)$item->quantity);
-                                            $remainingUnits = $unitPaidPrice > 0 ? (int) floor(($remainingRefundedPrice + 0.000001) / $unitPaidPrice) : 0;
+                                            $unitPaidPrice = $paidPrice / (int)$item->quantity;
+                                            $remainingUnits = $unitPaidPrice > 0 ? (int) floor($remainingRefundedPrice / $unitPaidPrice) : 0;
                                             $eligible = ($order->status !== 'pending')
                                                         && !in_array($item->payment_status, ['refunded','canceled'])
                                                         && $remainingUnits > 0;
