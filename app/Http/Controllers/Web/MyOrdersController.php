@@ -41,13 +41,15 @@ class MyOrdersController extends Controller{
     public function refundItems($id, Request $request)
     {
         $user = $this->getUser();
-        $itemIds = array_filter((array) $request->input('refund_items', []));
-        if (count($itemIds) === 0) {
-            return redirect()->route('myorders')->with('error', 'İade edilecek ürün seçiniz.');
+        $quantities = (array) $request->input('refund_quantities', []);
+        $quantities = array_map('intval', $quantities);
+        $quantities = array_filter($quantities, fn($q) => $q > 0);
+        if (empty($quantities)) {
+            return redirect()->route('myorders')->with('error', 'İade adedi giriniz.');
         }
-        $result = $this->myOrderService->refundSelectedItems($user->id, $id, $itemIds, new CampaignManager());
+        $result = $this->myOrderService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
         return ($result['success'] ?? false)
-          ? redirect()->route('myorders')->with('success', $result['message'] ?? 'Seçilen ürünler için kısmi iade yapıldı.')
+          ? redirect()->route('myorders')->with('success', $result['message'] ?? 'Kısmi iade yapıldı.')
           : redirect()->route('myorders')->with('error', $result['error'] ?? 'İade işlemi başarısız.');
     }
 }

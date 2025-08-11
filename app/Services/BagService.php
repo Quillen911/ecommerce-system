@@ -20,7 +20,7 @@ class BagService{
     public function getIndexBag()
     {
         $user = auth()->user();
-        $bag = Bag::where('Bag_User_id', $user->id)->first();
+        $bag = Bag::where('bag_user_id', $user->id)->first();
         $products = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
         $campaigns = Campaign::where('is_active', 1)->get();
         $campaignManager = new CampaignManager();

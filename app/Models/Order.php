@@ -9,11 +9,11 @@ class Order extends Model
     protected $table = 'orders';
     use SoftDeletes;
     protected $fillable = [
-        'Bag_User_id',
+        'bag_user_id',
         'user_id',
         'credit_card_id',
         'card_holder_name',
-        'price', 
+        'order_price', 
         'cargo_price',
         'discount',
         'campaing_price',
@@ -28,11 +28,19 @@ class Order extends Model
         'refunded_at',
         'canceled_at',
     ];
+
+    protected $casts = [
+        'order_price' => 'float',
+        'cargo_price' => 'float',
+        'discount' => 'float',
+        'campaing_price' => 'float',
+        'paid_price' => 'float',
+    ];
     protected $dates = ['deleted_at', 'refunded_at', 'canceled_at'];
     
     public function user()
     {
-        return $this->belongsTo(User::class, 'Bag_User_id');
+        return $this->belongsTo(User::class, 'bag_user_id');
     }
     public function user_id()
     {
