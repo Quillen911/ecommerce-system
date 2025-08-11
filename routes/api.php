@@ -18,6 +18,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::apiResource('orders', OrderController::class)->only(['index','store','show']);
     Route::apiResource('main', MainController::class)->only(['index','show']);
     Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
+    // Farklı isim vererek web tarafındaki myorders.refundItems ile çakışmayı önlüyoruz
+    Route::post('/myorders/{id}/refund', [MyOrdersController::class, 'refundItems']);
     Route::apiResource('admin/campaign', CampaignController::class);
     Route::apiResource('admin/product', ProductController::class);
     Route::apiResource('creditcard', CreditCardController::class);

@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Order;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 class OrderItem extends Model
 {
     protected $table = 'order_items';
+    use SoftDeletes;
     
     protected $fillable = [
         'order_id',
@@ -20,7 +21,7 @@ class OrderItem extends Model
         'refunded_amount',
         'refunded_at',
         'canceled_at',
-
+        'deleted_at',
     ];
 
     public function order()

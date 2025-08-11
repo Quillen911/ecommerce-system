@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function(){
     Route::prefix('myorders')->group(function(){
         Route::get('/', [MyOrdersController::class, 'myorders'])->name('myorders');
         Route::delete('/{id}', [MyOrdersController::class, 'delete'])->name('myorders.delete');
+        Route::post('/{id}/refund', [MyOrdersController::class, 'refundItems'])->name('myorders.refundItems');
     });
 
     Route::get('/createOrderJob',[OrderController::class, 'CreateOrderJob'])->name('createOrderJob');

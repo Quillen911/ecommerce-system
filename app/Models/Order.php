@@ -25,8 +25,10 @@ class Order extends Model
         'payment_id',
         'conversation_id',
         'payment_status',
+        'refunded_at',
+        'canceled_at',
     ];
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'refunded_at', 'canceled_at'];
     
     public function user()
     {

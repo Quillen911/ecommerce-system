@@ -19,10 +19,11 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('payment_transaction_id')->nullable();
             $table->decimal('refunded_amount', 10, 2)->default(0);
-            $table->enum('payment_status', ['pending','paid','refunded','partial_refunded','canceled','failed'])->default('pending');
+            $table->enum('payment_status', ['pending','paid','refunded','canceled','failed'])->default('pending');
             $table->timestamp('refunded_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('payment_transaction_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
