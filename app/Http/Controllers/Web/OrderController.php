@@ -10,7 +10,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Campaign;
 use Illuminate\Support\Facades\Cache;
-use App\Jobs\CreateOrderJob;
 use App\Models\OrderItem;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 use App\Services\Campaigns\CampaignManager\SabahattinAliCampaign;
@@ -73,11 +72,6 @@ class OrderController extends Controller
         }
     }
     
-    public function CreateOrderJob()
-    {
-        CreateOrderJob::dispatch();
-        return 'Job Kuyruğa eklendi';
-    }
 
 
 }

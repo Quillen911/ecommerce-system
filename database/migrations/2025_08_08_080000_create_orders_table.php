@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('Bag_User_id');
+            $table->unsignedBigInteger('bag_user_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('credit_card_id')->nullable();
             $table->string('card_holder_name')->nullable();
-            $table->decimal('price', 8, 2);
+            $table->unsignedBigInteger('campaign_id')->nullable();
+            $table->string('campaign_info')->nullable();
+            $table->decimal('order_price', 8, 2);
             $table->decimal('cargo_price', 8, 2);
             $table->decimal('discount', 8, 2)->nullable();
             $table->decimal('campaing_price', 8, 2);
@@ -27,15 +29,13 @@ return new class extends Migration
             $table->string('conversation_id')->nullable();
             $table->string('status');
             $table->enum('payment_status', ['pending','paid','failed','canceled','refunded','partial_refunded','partial_canceled'])->default('pending');
-            $table->unsignedBigInteger('campaign_id')->nullable();
-            $table->string('campaign_info')->nullable();
             $table->timestamp('refunded_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
             
             $table->index('payment_id');
-            $table->foreign('Bag_User_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('bag_user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('credit_card_id')->references('id')->on('credit_cards')->onDelete('cascade');

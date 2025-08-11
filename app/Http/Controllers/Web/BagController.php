@@ -34,7 +34,7 @@ class BagController extends Controller
     public function add(Request $request)
     {
         $user = $this->getUser();
-        $bag = Bag::firstOrCreate(['Bag_User_id' => $user->id]);
+        $bag = Bag::firstOrCreate(['bag_user_id' => $user->id]);
 
         if(!$bag){
             return redirect()->route('main')->with('error', 'Sepetiniz bulunamadı!');

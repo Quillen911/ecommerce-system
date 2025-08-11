@@ -33,7 +33,7 @@ class OrderController extends Controller
     public function index()
     {
         $user = $this->getUser();
-        $orders = Order::where('Bag_User_id', $user->id)->get();
+        $orders = Order::where('bag_user_id', $user->id)->get();
         if($orders->isEmpty()){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }

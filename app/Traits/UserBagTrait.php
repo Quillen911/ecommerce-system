@@ -11,7 +11,7 @@ trait UserBagTrait
 
     }
     public function getUserBag(){
-        return Bag::where('Bag_User_id', $this->getUser()->id)->first();
+        return Bag::where('bag_user_id', $this->getUser()->id)->first();
 
     }
 }

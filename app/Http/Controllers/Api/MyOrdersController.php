@@ -52,17 +52,15 @@ class MyOrdersController extends Controller
     public function refundItems($id, Request $request)
     {
         $user = $this->getUser();
-        $order = $this->myOrderService->getOneOrderforUser($user->id, $id);
-        if(!$order){
-            return ResponseHelper::notFound('Sipariş bulunamadı.');
+        $quantities = (array) $request->input('refund_quantities', []);
+        $quantities = array_map('intval', $quantities);
+        $quantities = array_filter($quantities, fn($q) => $q > 0);
+        if (empty($quantities)) {
+            return ResponseHelper::error('İade adedi giriniz.');
         }
-        $itemIds = array_filter((array) $request->input('refund_items', []));
-        if (count($itemIds) === 0) {
-            return ResponseHelper::error('İade edilecek ürün seçiniz.');
-        }
-        $result = $this->myOrderService->refundSelectedItems($user->id, $id, new CampaignManager(), $itemIds);
+        $result = $this->myOrderService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
         return ($result['success'] ?? false)
-          ? ResponseHelper::success('Seçilen ürünler için kısmi iade yapıldı.', $order)
+          ? ResponseHelper::success('Seçilen ürünler için kısmi iade yapıldı.', $result)
           : ResponseHelper::error('İade işlemi başarısız.', $result['error'] ?? 'İade işlemi başarısız.');
     }
 }

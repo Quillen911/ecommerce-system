@@ -28,12 +28,15 @@ class OrderService
         $cargo_price = $total >= 50 ? 0 : 10;
 
         $discount = $bestCampaign['discount'] ?? 0;
-
         $totally = $total + $cargo_price - $discount;
+
         $campaign_info = !empty($bestCampaign['description']) ? $bestCampaign['description'] : null;
         $campaign_id = $bestCampaign['campaign_id'] ?? null;
-        $credit_card_holder = CreditCard::find($selectedCreditCard)->card_holder_name;
 
+        $credit_card_holder = CreditCard::find($selectedCreditCard)->card_holder_name;
+        
+        $discountedPriceRate = min(1.0, round($totally / $total, 6));
+    
         $productsData = [];
         foreach($products as $product) {
             $productData = Product::find($product->product_id);
@@ -41,12 +44,15 @@ class OrderService
                 return new \Exception('Ürün bulunamadı, Sipariş oluşturulamadı!');
             }
             $productsData[] = [
+                'product_title' => $product->product->title,
+                'product_category_title' => $product->product->category->category_title,
                 'product_id' => $product->product_id,
                 'quantity' => $product->quantity,
-                'price' => $product->product->list_price,
+                'list_price' => $product->product->list_price,
+                'paid_price' => round(((float)$product->product->list_price * (int)$product->quantity)  * $discountedPriceRate, 2),
             ];
         }
-
+            
         if($campaign_id && $discount > 0){
             $appliedCampaign = Campaign::find($campaign_id);
             if($appliedCampaign){
@@ -55,11 +61,11 @@ class OrderService
             }
         }
         $exOrder = Order::create([
-            'Bag_User_id' => $user->id,
+            'bag_user_id' => $user->id,
             'user_id' => $user->id,
             'credit_card_id' => $selectedCreditCard,
             'card_holder_name' => $credit_card_holder,
-            'price' => $total,
+            'order_price' => $total,
             'cargo_price' => $cargo_price,
             'discount' => $discount,
             'campaign_id' => $campaign_id,
@@ -76,11 +82,14 @@ class OrderService
             $orderItem = OrderItem::create([
                 'order_id' => $exOrder->id,
                 'product_id' => $productData['product_id'],
+                'product_title' => $productData['product_title'],
+                'product_category_title' => $productData['product_category_title'],
                 'quantity' => $productData['quantity'],
-                'price' => $productData['price'],
+                'list_price' => $productData['list_price'],
+                'paid_price' => $productData['paid_price'],
                 'payment_transaction_id' => "",
+                'refunded_price' => 0,
                 'payment_status' => 'failed',
-                'refunded_amount' => 0,
                 'refunded_at' => null,
                 'canceled_at' => null,
             ]);
@@ -109,6 +118,7 @@ class OrderService
                     ->first();
                 if($orderItem){
                 $orderItem->update([
+                        'paid_price' => $orderItem->paid_price,
                         'payment_transaction_id' => $txId,
                         'payment_status' => $paymentResult['payment_status'],
                     ]);
@@ -144,7 +154,7 @@ class OrderService
     }
     public function showOrder($user, $id)
     {
-        return Order::where('Bag_User_id', $user)
+        return Order::where('bag_user_id', $user)
                     ->where('id',$id)
                     ->first();
     }

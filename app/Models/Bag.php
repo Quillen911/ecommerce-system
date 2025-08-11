@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 class Bag extends Model 
 {
     protected $fillable = [
-        'Bag_User_id'
+        'bag_user_id'
     ];
     
     
     public function user(){
-        return $this->belongsTo(User::class, 'Bag_User_id');
+        return $this->belongsTo(User::class, 'bag_user_id');
     }
 
     public function bagItems() {

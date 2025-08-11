@@ -51,6 +51,10 @@
         .refund-col{text-align:center;}
         .order-card:not(.select-mode) .refund-checkbox{display:none;}
         .order-card:not(.select-mode) .select-all{display:none;}
+        .qty-box{display:inline-flex;align-items:center;gap:6px;}
+        .qty-btn{width:28px;height:28px;border:1px solid var(--line);background:#fafafa;border-radius:6px;cursor:pointer;}
+        .refund-qty{width:64px;padding:6px;border:1px solid var(--line);border-radius:6px;}
+        .order-card:not(.select-mode) .qty-box{display:none;}
     </style>
     </head>
     <body>
@@ -74,6 +78,7 @@
                     <form action="{{ route('myorders.refundItems', $order->id) }}" method="POST" class="refund-form" style="margin:0;">
                         @csrf
                         <div class="table-wrap">
+                        @php /* Satır bazlı hesap kullanılacak, global oran yok */ @endphp
                         <table>
                             <thead>
                                 <tr>
@@ -83,24 +88,39 @@
                                     <th>Ürün Sayısı</th>
                                     <th>Fiyat</th>
                                     <th>Toplam Fiyat</th>
-                                    <th>İade Edilecek Ürünler <input type="checkbox" class="select-all" title="Tümünü Seç"></th>
+                                    <th>İade Adedi <input type="checkbox" class="select-all" title="Tümünü Doldur"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($order->orderItems as $item)
                                     <tr>
-                                        <td>{{ $item->product->title }}</td>
-                                        <td>{{ $item->product->category?->category_title }}</td>
+                                        <td>{{ $item->product_title }}</td>
+                                        <td>{{ $item->product_category_title }}</td>
                                         <td>{{ $item->product->author }}</td>
                                         <td>{{ $item->quantity }}</td>
-                                        <td>{{ number_format($item->product->list_price, 2) }} TL</td>
-                                        <td>{{ number_format($item->product->list_price * $item->quantity, 2) }} TL</td>
+                                        <td>{{ number_format($item->list_price, 2) }} TL</td>
+                                        <td>{{ number_format($item->list_price * $item->quantity, 2) }} TL</td>
                                         <td class="refund-col">
-                                            @php $eligible = ($order->status !== 'pending') && !in_array($item->payment_status, ['refunded','canceled', 'partial_refunded', 'partial_canceled']); @endphp
+                                        @php
+                                            $paidPrice = round(($item->paid_price ?? 0), 2);
+                                            $refundedPrice = round(($item->refunded_price ?? 0), 2);
+                                            $remainingRefundedPrice = max(0, round($paidPrice - $refundedPrice, 2));
+                                            // Birim fiyatı yuvarlamadan hesapla; kalan adet hesabında hassasiyet önemli
+                                            $unitPaidPrice = $paidPrice / max(1, (int)$item->quantity);
+                                            $remainingUnits = $unitPaidPrice > 0 ? (int) floor(($remainingRefundedPrice + 0.000001) / $unitPaidPrice) : 0;
+                                            $eligible = ($order->status !== 'pending')
+                                                        && !in_array($item->payment_status, ['refunded','canceled'])
+                                                        && $remainingUnits > 0;
+                                        @endphp
                                             @if($eligible)
-                                                <input type="checkbox" class="refund-checkbox" name="refund_items[]" value="{{ $item->id }}">
+                                                <div class="qty-box">
+                                                    <button type="button" class="qty-btn dec">-</button>
+                                                    <input type="number" class="refund-qty" name="refund_quantities[{{ $item->id }}]" value="0" min="0" max="{{ $remainingUnits }}" data-max="{{ $remainingUnits }}" title="İade edilebilir adet: {{ $remainingUnits }}">
+                                                    <button type="button" class="qty-btn inc">+</button>
+                                                </div>
+                                                <div class="muted" style="font-size:12px; margin-top:6px;">İade edilebilir: {{ $remainingUnits }} adet</div>
                                             @else
-                                                <span class="muted">{{ $item->payment_status === 'refunded' || $item->payment_status === 'partial_refunded' ? 'İade edildi' : ($item->payment_status === 'canceled' || $item->payment_status === 'partial_canceled' ? 'İptal edildi' : 'İade edilemez') }}</span>
+                                                <span class="muted">{{ $item->payment_status === 'refunded' ?'İade edildi' : '' }}</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -129,7 +149,7 @@
                         </div>
                         <div class="row"><strong>Kampanya</strong><span>{{ $order->campaign_info ?? 'Kampanya Yok' }}</span></div>
                         <div class="row"><strong>İndirim</strong><span>{{ number_format($order->discount,2) }} TL</span></div>
-                        <div class="row"><strong>Toplam Fiyat</strong><span>{{ number_format($order->price,2) }} TL</span></div>
+                        <div class="row"><strong>Toplam Fiyat</strong><span>{{ number_format($order->order_price,2) }} TL</span></div>
                         <div class="row"><strong>İndirimli Fiyat</strong><span>{{ number_format($order->campaing_price,2) }} TL</span></div>
                     </div>
 
@@ -165,6 +185,7 @@
             const cancelBtn = card.querySelector('.cancel-select');
             const selectAll = card.querySelector('.select-all');
             const refundForm = card.querySelector('.refund-form');
+            const qtyInputs = card.querySelectorAll('.refund-qty');
             if(toggleBtn){
                 toggleBtn.addEventListener('click', function(){
                     card.classList.add('select-mode');
@@ -173,21 +194,34 @@
             if(cancelBtn){
                 cancelBtn.addEventListener('click', function(){
                     card.classList.remove('select-mode');
-                    card.querySelectorAll('.refund-checkbox').forEach(cb=>cb.checked=false);
+                    qtyInputs.forEach(inp => inp.value = 0);
                     if(selectAll){ selectAll.checked = false; }
                 });
             }
             if(selectAll){
                 selectAll.addEventListener('change', function(){
-                    const checked = !!this.checked;
-                    card.querySelectorAll('.refund-checkbox').forEach(function(cb){ cb.checked = checked; });
+                    const fillMax = !!this.checked;
+                    qtyInputs.forEach(function(inp){
+                        inp.value = fillMax ? (inp.dataset.max || inp.max || 0) : 0;
+                    });
                 });
             }
+            // plus/minus buttons
+            card.querySelectorAll('.qty-box').forEach(function(box){
+                const dec = box.querySelector('.qty-btn.dec');
+                const inc = box.querySelector('.qty-btn.inc');
+                const inp = box.querySelector('.refund-qty');
+                const getMax = () => parseInt(inp.dataset.max || inp.max || '0', 10) || 0;
+                const clamp = v => Math.max(0, Math.min(getMax(), v|0));
+                if(dec){ dec.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) - 1); }); }
+                if(inc){ inc.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) + 1); }); }
+            });
             if(refundForm){
                 refundForm.addEventListener('submit', function(e){
-                    if(!card.querySelector('.refund-checkbox:checked')){
+                    const anyPositive = Array.from(qtyInputs).some(inp => (parseInt(inp.value||'0',10)||0) > 0);
+                    if(!anyPositive){
                         e.preventDefault();
-                        alert('Lütfen iade edilecek en az bir ürün seçiniz.');
+                        alert('Lütfen iade adedi giriniz.');
                     }
                 });
             }

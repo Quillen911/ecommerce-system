@@ -11,10 +11,10 @@ return new class extends Migration
     {
         Schema::create('bags', function (Blueprint $table) {
             $table->id();   
-            $table->unsignedBigInteger('Bag_User_id')->nullable();
+            $table->unsignedBigInteger('bag_user_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('Bag_User_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('bag_user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
        
