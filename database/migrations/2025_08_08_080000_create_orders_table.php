@@ -26,9 +26,11 @@ return new class extends Migration
             $table->string('payment_id')->nullable();
             $table->string('conversation_id')->nullable();
             $table->string('status');
-            $table->enum('payment_status', ['pending','paid','failed','canceled','refunded','partial_refunded'])->default('pending');
+            $table->enum('payment_status', ['pending','paid','failed','canceled','refunded','partial_refunded','partial_canceled'])->default('pending');
             $table->unsignedBigInteger('campaign_id')->nullable();
             $table->string('campaign_info')->nullable();
+            $table->timestamp('refunded_at')->nullable();
+            $table->timestamp('canceled_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
             
