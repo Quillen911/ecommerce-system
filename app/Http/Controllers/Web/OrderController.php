@@ -46,7 +46,7 @@ class OrderController extends Controller
         if(!$bag){
             return redirect('main')->with('error', 'Sepetiniz bulunamadı!');
         }
-        $selectedCreditCard = $request->input('selected_credit_card_id');
+        $selectedCreditCard = $request->input('credit_card_id');
         if(!$selectedCreditCard){
             return redirect('order')->with('error', 'Lütfen bir kredi kartı seçiniz!');
         }

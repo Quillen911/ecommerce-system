@@ -48,7 +48,7 @@ class OrderController extends Controller
         if(!$bag){
             return ResponseHelper::error('Sepetiniz bulunamadı!');
         }
-        $selectedCreditCard = $request->input('selected_credit_card_id');
+        $selectedCreditCard = $request->input('credit_card_id');
         if(!$selectedCreditCard){
             return ResponseHelper::error('Lütfen bir kredi kartı seçiniz!');
         }

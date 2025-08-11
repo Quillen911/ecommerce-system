@@ -13,24 +13,24 @@ class MyOrderService
     public function getOrdersforUser($userId)
     {
         return Order::with('orderItems.product.category')
-                        ->where('bag_user_id' , $userId)
-                        ->orderByDesc('id')
-                        ->get();
+            ->where('user_id', $userId)
+            ->orderByDesc('id')
+            ->get();
     }
 
     public function getOneOrderforUser($userId, $orderId)
     {
         return Order::with('orderItems.product.category')
-                        ->where('bag_user_id',$userId)
-                        ->where('id', $orderId)
-                        ->first();
+            ->where('id', $orderId)
+            ->where('user_id', $userId)
+            ->first();
     }
     
     public function cancelOrder($userId, $orderId, $campaignManager)
     {
-        $order = Order::where('bag_user_id', $userId)
-                        ->where('id', $orderId)
-                        ->first();
+        $order = Order::where('id', $orderId)
+            ->where('user_id', $userId)
+            ->first();
 
         if(!$order){
             return null;
@@ -64,11 +64,17 @@ class MyOrderService
     }
 
     public function refundSelectedItems($userId, $orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager){
-        $order = Order::where('bag_user_id', $userId)
-                        ->where('id', $orderId)
-                        ->first();
+        $order = Order::where('id', $orderId)
+            ->where('user_id', $userId)
+            ->first();
         if(!$order){
             return ['success' => false, 'error' => 'Sipariş bulunamadı.'];
+        }
+        if($order->status === 'pending'){
+            return ['success' => false, 'error' => 'Sipariş bekliyor.'];
+        }
+        if($order->payment_status === 'refunded' || $order->payment_status === 'canceled'){
+            return ['success' => false, 'error' => 'Sipariş iade edilemez.', 'message' => 'Bu Sipariş iade veya iptal edildi.'];
         }
         $iyzicoService = new IyzicoPaymentService();
         $items = $order->orderItems()->whereIn('id', array_keys($refundQuantitiesByItemId))->get();
@@ -89,14 +95,14 @@ class MyOrderService
             $remainingRefundedPrice = max(0, round($paidPrice - $refundedPrice, 2));
             if ($remainingRefundedPrice <= 0) { continue; }
 
-            $requestedQty = max(0, (int) ($refundQuantitiesByItemId[$item->id] ?? 0));
+            $requestedQty = (int) ($refundQuantitiesByItemId[$item->id] ?? 0);
             if ($requestedQty <= 0) { continue; }
 
-            $unitPaidPrice = $paidPrice / max(1, (int)$item->quantity);
+            $unitPaidPrice = $paidPrice / (int)$item->quantity;
             if ($unitPaidPrice <= 0) { continue; }
 
-            $maxItemsByPrice = (int) floor(($remainingRefundedPrice + 0.000001) / max($unitPaidPrice, 0.0001));
-            $itemsToRefund = max(0, min($requestedQty, $maxItemsByPrice));
+            $maxItemsByPrice = (int) floor($remainingRefundedPrice / $unitPaidPrice);
+            $itemsToRefund = min($requestedQty, $maxItemsByPrice);
             if ($itemsToRefund <= 0) { continue; }
 
             $priceToRefund = round($itemsToRefund * $unitPaidPrice, 2);

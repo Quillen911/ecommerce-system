@@ -7,6 +7,7 @@ use App\Services\MyOrderService;
 use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
 use Illuminate\Http\Request;
+use App\Http\Requests\MyOrders\RefundRequest;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 
 class MyOrdersController extends Controller
@@ -46,21 +47,30 @@ class MyOrdersController extends Controller
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
-        return ResponseHelper::success('Sipariş silindi ve ürün stokları güncellendi.', $order);
+        return ResponseHelper::success('Sipariş İptal Edildi.', $order);
     }
 
-    public function refundItems($id, Request $request)
+    public function refundItems($id, RefundRequest $request)
     {
         $user = $this->getUser();
-        $quantities = (array) $request->input('refund_quantities', []);
-        $quantities = array_map('intval', $quantities);
-        $quantities = array_filter($quantities, fn($q) => $q > 0);
+        $raw = (array) $request->input('refund_quantities', []);
+
+        $quantities = [];
+        foreach ($raw as $itemId => $qty) {
+            if ($qty > 0) {
+                $quantities[$itemId] = $qty;
+            }
+        }
+        
         if (empty($quantities)) {
-            return ResponseHelper::error('İade adedi giriniz.');
+            return ResponseHelper::error('İade edilecek ürün seçiniz.');
         }
         $result = $this->myOrderService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
-        return ($result['success'] ?? false)
-          ? ResponseHelper::success('Seçilen ürünler için kısmi iade yapıldı.', $result)
-          : ResponseHelper::error('İade işlemi başarısız.', $result['error'] ?? 'İade işlemi başarısız.');
+        if ($result['success'] ?? false) {
+            return ResponseHelper::success('Seçilen ürünler için kısmi iade yapıldı.', $result);
+        }
+        
+        $errorMessage = $result['error'] ?? 'İade işlemi başarısız.';
+        return ResponseHelper::errorForArray($errorMessage, $result, 400);
     }
 }
