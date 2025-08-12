@@ -8,8 +8,17 @@ use App\Services\Payments\IyzicoPaymentService;
 use App\Models\Product;
 use App\Models\Campaign;
 
+
+
 class MyOrderService
 {
+    private $iyzicoService;
+    
+    public function __construct(IyzicoPaymentService $iyzicoService)
+    {
+        $this->iyzicoService = $iyzicoService;
+    }
+    
     public function getOrdersforUser($userId)
     {
         return Order::with('orderItems.product.category')
@@ -36,10 +45,9 @@ class MyOrderService
             return null;
         }
 
-        $iyzicoService = new IyzicoPaymentService();
         $campaign = Campaign::where('id', $order->campaign_id)->first();
 
-        $cancel = $iyzicoService->cancelPayment((string) $order->payment_id);
+        $cancel = $this->iyzicoService->cancelPayment((string) $order->payment_id);
         if ($cancel['success'] ?? false) {
             foreach($order->orderItems as $item){
                 Product::whereKey($item->product_id)->increment('stock_quantity', (int) $item->quantity);
@@ -76,7 +84,6 @@ class MyOrderService
         if($order->payment_status === 'refunded' || $order->payment_status === 'canceled'){
             return ['success' => false, 'error' => 'Sipariş iade edilemez.', 'message' => 'Bu Sipariş iade veya iptal edildi.'];
         }
-        $iyzicoService = new IyzicoPaymentService();
         $items = $order->orderItems()->whereIn('id', array_keys($refundQuantitiesByItemId))->get();
         
         if($items->isEmpty()){
@@ -90,29 +97,29 @@ class MyOrderService
             if (in_array($item->payment_status, ['refunded','canceled'])) { continue; }
             if(!$item->payment_transaction_id) { $errors[] = "TxId yok: item {$item->id}"; continue; }
 
-            $paidPrice = round(($item->paid_price ?? 0), 2);
-            $refundedPrice = round(($item->refunded_price ?? 0), 2);
-            $remainingRefundedPrice = max(0, round($paidPrice - $refundedPrice, 2));
+            $paidPrice = $item->paid_price ?? 0;
+            $refundedPrice = $item->refunded_price ?? 0;
+            $remainingRefundedPrice = max(0, $paidPrice - $refundedPrice);
             if ($remainingRefundedPrice <= 0) { continue; }
 
-            $requestedQty = (int) ($refundQuantitiesByItemId[$item->id] ?? 0);
+            $requestedQty = ($refundQuantitiesByItemId[$item->id] ?? 0);
             if ($requestedQty <= 0) { continue; }
 
-            $unitPaidPrice = $paidPrice / (int)$item->quantity;
+            $unitPaidPrice = $paidPrice / $item->quantity;
             if ($unitPaidPrice <= 0) { continue; }
 
-            $maxItemsByPrice = (int) floor($remainingRefundedPrice / $unitPaidPrice);
+            $maxItemsByPrice = floor($remainingRefundedPrice / $unitPaidPrice);
             $itemsToRefund = min($requestedQty, $maxItemsByPrice);
             if ($itemsToRefund <= 0) { continue; }
 
-            $priceToRefund = round($itemsToRefund * $unitPaidPrice, 2);
+            $priceToRefund = ($itemsToRefund * $unitPaidPrice);
             if ($priceToRefund <= 0) { continue; }
             
-            $refund = $iyzicoService->refundPayment($item->payment_transaction_id, $priceToRefund);
+            $refund = $this->iyzicoService->refundPayment($item->payment_transaction_id, $priceToRefund);
 
             if($refund['success']){
-                $newRefunded = round($refundedPrice + $priceToRefund, 2);
-                $fullyRefunded = $newRefunded + 0.00001 >= $paidPrice;
+                $newRefunded = $refundedPrice + $priceToRefund;
+                $fullyRefunded = $newRefunded == $paidPrice;
 
                 if ($itemsToRefund > 0) {
                     Product::whereKey($item->product_id)->increment('stock_quantity', $itemsToRefund);
