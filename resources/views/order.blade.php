@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    
     <title>Siparişini Tamamla</title>
     <style>
         :root{
@@ -75,13 +76,20 @@
 <body>
 <div class="shell">
     <h1>Sipariş Özeti</h1>
-
+    
+    <div class="actions" style="justify-content:left;margin-bottom:20px;">
+        <a href="/bag" class="btn outline" style="display:flex;align-items:center;gap:8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            Sepete Dön
+        </a>
+    </div>
     @if(session('success')) <div class="notice success">{{session('success')}}</div> @endif
     @if(session('error')) <div class="notice error">{{session('error')}}</div> @endif
 
     @if($products->isEmpty())
         <div class="empty"><strong>Siparişiniz yok</strong></div>
     @else
+    
         <div class="table-wrap">
             <table>
                 <thead>
@@ -166,7 +174,7 @@
             @if($creditCards->count() > 0)
                 @foreach($creditCards as $card)
                     <div class="credit-card-item">
-                        <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}">
+                        <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}" autocomplete="off">
                         <label for="card_{{ $card->id }}">
                             <strong>{{ $card->name }}</strong><br>
                             <span class="muted">**** **** **** {{ substr($card->card_number, -4) }}</span><br>
@@ -186,32 +194,32 @@
             <h4>Yeni Kart Ekle</h4>
             <form action="{{ route('payments.storeCreditCard') }}" method="POST" autocomplete="off">
                 @csrf
-                <div class="field"><label>Kart Adı</label><input type="text" name="name" required></div>
-                <div class="field"><label>Kart Numarası</label><input type="text" name="card_number" required maxlength="16" inputmode="numeric"></div>
-                <div class="field"><label>CVV</label><input type="password" name="cvv" required maxlength="3" inputmode="numeric"></div>
-                <div class="field"><label>Ay</label>
-                    <select name="expire_month" required>
+                <div class="field"><label for="card_name">Kart Adı</label><input type="text" id="card_name" name="name" autocomplete="off" required></div>
+                <div class="field"><label for="card_number">Kart Numarası</label><input type="text" id="card_number" name="card_number" autocomplete="off" required maxlength="16" inputmode="numeric"></div>
+                <div class="field"><label for="cvv">CVV</label><input type="password" id="cvv" name="cvv" autocomplete="off" required maxlength="3" inputmode="numeric"></div>
+                <div class="field"><label for="expire_month">Ay</label>
+                    <select id="expire_month" name="expire_month" autocomplete="off" required>
                         @for($i=1;$i<=12;$i++)
                             <option value="{{ str_pad($i,2,'0',STR_PAD_LEFT) }}">{{ str_pad($i,2,'0',STR_PAD_LEFT) }}</option>
                         @endfor
                     </select>
                 </div>
-                <div class="field"><label>Yıl</label>
-                    <select name="expire_year" required>
+                <div class="field"><label for="expire_year">Yıl</label>
+                    <select id="expire_year" name="expire_year" autocomplete="off" required>
                         @for($i=date('Y');$i<=date('Y')+10;$i++)
                             <option value="{{ $i }}">{{ $i }}</option>
                         @endfor
                     </select>
                 </div>
-                <div class="field"><label>Kart Tipi</label>
-                    <select name="card_type" required>
+                <div class="field"><label for="card_type">Kart Tipi</label>
+                    <select id="card_type" name="card_type" autocomplete="off" required>
                         <option value="visa">Visa</option><option value="mastercard">Mastercard</option><option value="amex">Amex</option>
                     </select>
                 </div>
-                <div class="field full"><label>Kart Sahibi</label><input type="text" name="card_holder_name" required></div>
-                <div class="field full"><label><input type="checkbox" name="is_active" value="1" checked> Kaydet</label></div>
+                <div class="field full"><label for="card_holder_name">Kart Sahibi</label><input type="text" id="card_holder_name" name="card_holder_name" autocomplete="off" required></div>
+                <div class="field full"><label for="is_active"><input type="checkbox" id="is_active" name="is_active" value="1" checked autocomplete="off"> Kaydet</label></div>
                 <div class="actions">
-                    <button type="submit" class="btn">Kaydet</button>
+                    <button type="submit" class="btn" >Kaydet</button>
                     <button type="button" class="btn outline" id="cancelCardForm">İptal</button>
                 </div>
             </form>

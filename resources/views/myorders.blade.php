@@ -89,7 +89,7 @@
                                     <th>Ürün Sayısı</th>
                                     <th>Fiyat</th>
                                     <th>Toplam Fiyat</th>
-                                    <th>İade Adedi <input type="checkbox" class="select-all" title="Tümünü Doldur"></th>
+                                    <th>İade Adedi <label for="select-all-{{ $order->id }}"><input type="checkbox" id="select-all-{{ $order->id }}" class="select-all" title="Tümünü Doldur" autocomplete="off"> Tümünü Seç</label></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,7 +117,8 @@
                                             @if($eligible)
                                                 <div class="qty-box">
                                                     <button type="button" class="qty-btn dec">-</button>
-                                                    <input type="number" class="refund-qty" name="refund_quantities[{{ $item->id }}]" value="0" min="0" max="{{ $remainingUnits }}" data-max="{{ $remainingUnits }}" title="İade edilebilir adet: {{ $remainingUnits }}">
+                                                    <label for="refund-qty-{{ $item->id }}" style="display:none;">İade Adedi</label>
+                                                    <input type="number" id="refund-qty-{{ $item->id }}" class="refund-qty" name="refund_quantities[{{ $item->id }}]" value="0" min="0" max="{{ $remainingUnits }}" data-max="{{ $remainingUnits }}" title="İade edilebilir adet: {{ $remainingUnits }}" autocomplete="off">
                                                     <button type="button" class="qty-btn inc">+</button>
                                                 </div>
                                                 <div class="muted" style="font-size:12px; margin-top:6px;">İade edilebilir: {{ $remainingUnits }} adet</div>
@@ -182,51 +183,53 @@
         @endif
     </div>
     <script>
-        document.querySelectorAll('.order-card').forEach(function(card){
-            const toggleBtn = card.querySelector('.toggle-refund');
-            const cancelBtn = card.querySelector('.cancel-select');
-            const selectAll = card.querySelector('.select-all');
-            const refundForm = card.querySelector('.refund-form');
-            const qtyInputs = card.querySelectorAll('.refund-qty');
-            if(toggleBtn){
-                toggleBtn.addEventListener('click', function(){
-                    card.classList.add('select-mode');
-                });
-            }
-            if(cancelBtn){
-                cancelBtn.addEventListener('click', function(){
-                    card.classList.remove('select-mode');
-                    qtyInputs.forEach(inp => inp.value = 0);
-                    if(selectAll){ selectAll.checked = false; }
-                });
-            }
-            if(selectAll){
-                selectAll.addEventListener('change', function(){
-                    const fillMax = !!this.checked;
-                    qtyInputs.forEach(function(inp){
-                        inp.value = fillMax ? (inp.dataset.max || inp.max || 0) : 0;
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.order-card').forEach(function(card){
+                const toggleBtn = card.querySelector('.toggle-refund');
+                const cancelBtn = card.querySelector('.cancel-select');
+                const selectAll = card.querySelector('.select-all');
+                const refundForm = card.querySelector('.refund-form');
+                const qtyInputs = card.querySelectorAll('.refund-qty');
+                if(toggleBtn){
+                    toggleBtn.addEventListener('click', function(){
+                        card.classList.add('select-mode');
                     });
+                }
+                if(cancelBtn){
+                    cancelBtn.addEventListener('click', function(){
+                        card.classList.remove('select-mode');
+                        qtyInputs.forEach(inp => inp.value = 0);
+                        if(selectAll){ selectAll.checked = false; }
+                    });
+                }
+                if(selectAll){
+                    selectAll.addEventListener('change', function(){
+                        const fillMax = !!this.checked;
+                        qtyInputs.forEach(function(inp){
+                            inp.value = fillMax ? (inp.dataset.max || inp.max || 0) : 0;
+                        });
+                    });
+                }
+                // plus/minus buttons
+                card.querySelectorAll('.qty-box').forEach(function(box){
+                    const dec = box.querySelector('.qty-btn.dec');
+                    const inc = box.querySelector('.qty-btn.inc');
+                    const inp = box.querySelector('.refund-qty');
+                    const getMax = () => parseInt(inp.dataset.max || inp.max || '0', 10) || 0;
+                    const clamp = v => Math.max(0, Math.min(getMax(), v|0));
+                    if(dec){ dec.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) - 1); }); }
+                    if(inc){ inc.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) + 1); }); }
                 });
-            }
-            // plus/minus buttons
-            card.querySelectorAll('.qty-box').forEach(function(box){
-                const dec = box.querySelector('.qty-btn.dec');
-                const inc = box.querySelector('.qty-btn.inc');
-                const inp = box.querySelector('.refund-qty');
-                const getMax = () => parseInt(inp.dataset.max || inp.max || '0', 10) || 0;
-                const clamp = v => Math.max(0, Math.min(getMax(), v|0));
-                if(dec){ dec.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) - 1); }); }
-                if(inc){ inc.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) + 1); }); }
+                if(refundForm){
+                    refundForm.addEventListener('submit', function(e){
+                        const anyPositive = Array.from(qtyInputs).some(inp => (parseInt(inp.value||'0',10)||0) > 0);
+                        if(!anyPositive){
+                            e.preventDefault();
+                            alert('Lütfen iade adedi giriniz.');
+                        }
+                    });
+                }
             });
-            if(refundForm){
-                refundForm.addEventListener('submit', function(e){
-                    const anyPositive = Array.from(qtyInputs).some(inp => (parseInt(inp.value||'0',10)||0) > 0);
-                    if(!anyPositive){
-                        e.preventDefault();
-                        alert('Lütfen iade adedi giriniz.');
-                    }
-                });
-            }
         });
     </script>
     </body>
