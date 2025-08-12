@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\Campaigns\Admin;
+namespace App\Services\Campaigns\Seller;
 
 use App\Models\Campaign;
 use App\Models\CampaignUserUsage;
-use App\Http\Requests\Admin\Campaign\CampaignStoreRequest;
-use App\Http\Requests\Admin\Campaign\CampaignUpdateRequest;
+use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
+use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 class CampaignService

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\Admin\Product\ProductStoreRequest;
-use App\Http\Requests\Admin\Product\ProductUpdateRequest;
-use App\Services\Campaigns\Admin\ProductService;
+use App\Http\Requests\Seller\Product\ProductStoreRequest;
+use App\Http\Requests\Seller\Product\ProductUpdateRequest;
+use App\Services\Campaigns\Seller\ProductService;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
 

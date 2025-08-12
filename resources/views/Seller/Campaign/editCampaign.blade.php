@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Kampanya Düzenle</h1>
-    <form action="{{ route('admin.updateCampaign', $campaigns->id) }}" method="POST">
+    <form action="{{ route('seller.updateCampaign', $campaigns->id) }}" method="POST">
         @csrf
         <label for="name">Kampanya Adı: </label>
         <input type="text" name="name" value="{{ old('name', $campaigns->name) }}" required> <br>
@@ -96,7 +96,7 @@
         <button type="submit">Güncelle</button>
         <br>
         <br>
-        <a href="{{ route('admin.campaign') }}">Geri Dön</a>
+        <a href="{{ route('seller.campaign') }}">Geri Dön</a>
     </form>
 
     <script>

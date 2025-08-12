@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\Campaigns\Admin;
+namespace App\Services\Campaigns\Seller;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Http\Requests\Admin\Product\ProductStoreRequest;
-use App\Http\Requests\Admin\Product\ProductUpdateRequest;
+use App\Http\Requests\Seller\Product\ProductStoreRequest;
+use App\Http\Requests\Seller\Product\ProductUpdateRequest;
 
 
 class ProductService

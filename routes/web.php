@@ -7,9 +7,9 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\MyOrdersController;
 
-use App\Http\Controllers\Web\Admin\CampaignController;
-use App\Http\Controllers\Web\Admin\ProductController;
-use App\Http\Controllers\Web\Admin\AdminController;
+use App\Http\Controllers\Web\Seller\CampaignController;
+use App\Http\Controllers\Web\Seller\ProductController;
+use App\Http\Controllers\Web\Seller\SellerController;
 use App\Http\Controllers\Web\Payments\CreditCardController;
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
@@ -43,8 +43,6 @@ Route::middleware(['auth'])->group(function(){
         Route::post('/{id}/refund', [MyOrdersController::class, 'refundItems'])->name('myorders.refundItems');
     });
 
-    Route::get('/createOrderJob',[OrderController::class, 'CreateOrderJob'])->name('createOrderJob');
-
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
     Route::prefix('payments')->group(function(){
@@ -52,30 +50,39 @@ Route::middleware(['auth'])->group(function(){
     });
 });
 
-//Admin
-Route::prefix('admin')->group(function(){
-    Route::get('/',[AdminController::class, 'admin'])->name('admin');    
 
-    //Campaign
-    Route::prefix('campaign')->group(function(){
-        Route::get('/',[CampaignController::class, 'campaign'])->name('admin.campaign'); 
-        Route::get('/storeCampaign',[CampaignController::class, 'storeCampaign'])->name('admin.storeCampaign'); 
-        Route::post('/createCampaign',[CampaignController::class, 'createCampaign'])->name('admin.createCampaign');
-        Route::get('/editCampaign/{id}',[CampaignController::class, 'editCampaign'])->name('admin.editCampaign');
-        Route::post('/updateCampaign/{id}',[CampaignController::class, 'updateCampaign'])->name('admin.updateCampaign'); 
-        Route::delete('/deleteCampaign/{id}',[CampaignController::class, 'deleteCampaign'])->name('admin.deleteCampaign');
+//Seller
+Route::get('/seller/login',[AuthController::class, 'sellerLogin'])->name('seller.login');  
+Route::post('/seller/postlogin', [AuthController::class,'sellerPostlogin'])->name('seller.postlogin');
+
+Route::middleware(['web', 'seller.auth'])->group(function(){
+    
+    Route::prefix('seller')->group(function(){
+        Route::get('/',[SellerController::class, 'seller'])->name('seller');  
+        Route::post('/logout', [AuthController::class, 'sellerLogout'])->name('seller.logout');
+
+        //Campaign
+        Route::prefix('campaign')->group(function(){
+            Route::get('/',[CampaignController::class, 'campaign'])->name('seller.campaign'); 
+            Route::get('/storeCampaign',[CampaignController::class, 'storeCampaign'])->name('seller.storeCampaign'); 
+            Route::post('/createCampaign',[CampaignController::class, 'createCampaign'])->name('seller.createCampaign');
+            Route::get('/editCampaign/{id}',[CampaignController::class, 'editCampaign'])->name('seller.editCampaign');
+            Route::post('/updateCampaign/{id}',[CampaignController::class, 'updateCampaign'])->name('seller.updateCampaign'); 
+            Route::delete('/deleteCampaign/{id}',[CampaignController::class, 'deleteCampaign'])->name('seller.deleteCampaign');
+        });
+
+        //Product
+        Route::prefix('product')->group(function(){
+            Route::get('/',[ProductController::class, 'product'])->name('seller.product'); 
+            Route::get('/storeProduct',[ProductController::class, 'storeProduct'])->name('seller.storeProduct'); 
+            Route::post('/createProduct',[ProductController::class, 'createProduct'])->name('seller.createProduct'); 
+            Route::get('/editProduct/{id}',[ProductController::class, 'editProduct'])->name('seller.editProduct');
+            Route::post('/updateProduct/{id}',[ProductController::class, 'updateProduct'])->name('seller.updateProduct');
+            Route::delete('/deleteProduct/{id}',[ProductController::class, 'deleteProduct'])->name('seller.deleteProduct');
+            Route::get('/searchProduct',[ProductController::class, 'searchProduct'])->name('seller.searchProduct');
+        });
+
+        Route::get('/orders',[SellerController::class, 'sellerOrders'])->name('seller.orders');
     });
-
-    //Product
-    Route::prefix('product')->group(function(){
-        Route::get('/',[ProductController::class, 'product'])->name('admin.product'); 
-        Route::get('/storeProduct',[ProductController::class, 'storeProduct'])->name('admin.storeProduct'); 
-        Route::post('/createProduct',[ProductController::class, 'createProduct'])->name('admin.createProduct'); 
-        Route::get('/editProduct/{id}',[ProductController::class, 'editProduct'])->name('admin.editProduct');
-        Route::post('/updateProduct/{id}',[ProductController::class, 'updateProduct'])->name('admin.updateProduct');
-        Route::delete('/deleteProduct/{id}',[ProductController::class, 'deleteProduct'])->name('admin.deleteProduct');
-        Route::get('/searchProduct',[ProductController::class, 'searchProduct'])->name('admin.searchProduct');
-    });
-
 });
 

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Campaign;
 use App\Helpers\ResponseHelper;
-use App\Services\Campaigns\Admin\CampaignService;
-use App\Http\Requests\Admin\Campaign\CampaignStoreRequest;
-use App\Http\Requests\Admin\Campaign\CampaignUpdateRequest;
+use App\Services\Campaigns\Seller\CampaignService;
+use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
+use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 
 
 class CampaignController extends Controller
