@@ -50,8 +50,8 @@
                     </select>
 
                     <input type="text" name="existing_conditions[{{ $condition->id }}][condition_value]" 
-                        value="{{ is_string($condition->condition_value) && str_starts_with($condition->condition_value, '"') ? json_decode($condition->condition_value, true) : $condition->condition_value }}" 
-                        placeholder="Değer">
+                        value="{{ is_string($condition->condition_value) && str_starts_with($condition->condition_value, '[') ? implode(', ', json_decode($condition->condition_value, true)) : $condition->condition_value }}" 
+                        placeholder="Değer (örn: Sabahattin Ali veya Yaşar Kemal, Sabahattin Ali)">
                     <select name="existing_conditions[{{ $condition->id }}][operator]">
 
                         <option value="=" {{ $condition->operator == '=' ? 'selected' : '' }}>=</option>
@@ -98,5 +98,39 @@
         <br>
         <a href="{{ route('admin.campaign') }}">Geri Dön</a>
     </form>
+
+    <script>
+        // Form submit edildiğinde virgülle ayrılmış yazar değerlerini JSON array'e çevir
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Mevcut koşullar için kontrol
+            const existingConditions = document.querySelectorAll('[name*="existing_conditions"]');
+            const conditionGroups = {};
+            
+            // Koşulları gruplandır
+            existingConditions.forEach(function(element) {
+                const match = element.name.match(/existing_conditions\[(\d+)\]\[(\w+)\]/);
+                if (match) {
+                    const id = match[1];
+                    const field = match[2];
+                    if (!conditionGroups[id]) conditionGroups[id] = {};
+                    conditionGroups[id][field] = element;
+                }
+            });
+            
+            // Her grup için kontrol et
+            Object.values(conditionGroups).forEach(function(group) {
+                if (group.condition_type && group.condition_value && 
+                    group.condition_type.value === 'author') {
+                    const value = group.condition_value.value.trim();
+                    // Eğer virgül varsa ve JSON array değilse
+                    if (value.includes(',') && !value.startsWith('[')) {
+                        // Virgülle ayır, temizle ve JSON array yap
+                        const authors = value.split(',').map(author => author.trim());
+                        group.condition_value.value = JSON.stringify(authors);
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

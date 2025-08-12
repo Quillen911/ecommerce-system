@@ -51,7 +51,7 @@
                 </select>
 
                 <input style="width: 30%;" type="text" name="conditions[0][condition_value]" 
-                placeholder="Değer (örn: 'Sabahattin Ali' veya 200 veya ['Yazar1','Yazar2'])" required>
+                placeholder="Değer (örn: Sabahattin Ali veya Yaşar Kemal, Sabahattin Ali)" required>
 
                 <select name="conditions[0][operator]">
                     <option value="=">=</option>
@@ -91,6 +91,26 @@
     <script>
         let conditionIndex = 1;
         let discountIndex = 1;
+
+        // Form submit edildiğinde virgülle ayrılmış yazar değerlerini JSON array'e çevir
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Tüm condition itemları bul
+            const conditionItems = document.querySelectorAll('.condition-item');
+            conditionItems.forEach(function(item) {
+                const typeSelect = item.querySelector('select[name*="condition_type"]');
+                const valueInput = item.querySelector('input[name*="condition_value"]');
+                
+                if (typeSelect && valueInput && typeSelect.value === 'author') {
+                    const value = valueInput.value.trim();
+                    // Eğer virgül varsa ve JSON array değilse
+                    if (value.includes(',') && !value.startsWith('[')) {
+                        // Virgülle ayır, temizle ve JSON array yap
+                        const authors = value.split(',').map(author => author.trim());
+                        valueInput.value = JSON.stringify(authors);
+                    }
+                }
+            });
+        });
         
         function addCondition() {
             const conditionsDiv = document.getElementById('conditions');
@@ -101,7 +121,7 @@
                         <option value="category">Kategori</option>
                         <option value="min_bag">Minimum Sepet Fiyatı</option>
                     </select>
-                    <input type="text" name="conditions[${conditionIndex}][condition_value]" placeholder="Değer" required>
+                    <input type="text" name="conditions[${conditionIndex}][condition_value]" placeholder="Değer (örn: Sabahattin Ali veya Yaşar Kemal, Sabahattin Ali)" required>
                     <select name="conditions[${conditionIndex}][operator]">
                         <option value="=">=</option>
                         <option value="!=">!=</option>
