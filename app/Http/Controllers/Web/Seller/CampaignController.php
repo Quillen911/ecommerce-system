@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Web\Admin;
+namespace App\Http\Controllers\Web\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Campaign;
 use App\Models\CampaignCondition;
 use App\Models\CampaignDiscount;
-use App\Services\Campaigns\Admin\CampaignService;
-use App\Http\Requests\Admin\Campaign\CampaignStoreRequest;
-use App\Http\Requests\Admin\Campaign\CampaignUpdateRequest;
+use App\Services\Campaigns\Seller\CampaignService;
+use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
+use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 
 class CampaignController extends Controller
 {
@@ -23,12 +23,12 @@ class CampaignController extends Controller
     public function campaign()
     {
         $campaigns = $this->campaignService->indexCampaign();
-        return view('Admin.Campaign.campaign' ,compact('campaigns'));
+        return view('Seller.Campaign.campaign' ,compact('campaigns'));
     }
 
     public function storeCampaign()
     {
-        return view('Admin.Campaign.storeCampaign');
+        return view('Seller.Campaign.storeCampaign');
     }
 
     public function createCampaign(CampaignStoreRequest $request)
@@ -43,13 +43,13 @@ class CampaignController extends Controller
                     'data' => $campaigns
                 ]);
             }
-            return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla eklendi');
+            return redirect()->route('seller.campaign')->with('success', 'Kampanya başarıyla eklendi');
         } catch (\Exception $e) {
             \Log::error('CampaignController - Error creating campaign:', [
                 'error' => $e->getMessage(),
                 'data' => $request->all()
             ]);
-            return redirect()->route('admin.campaign')->with('error', 'Kampanya oluşturulurken bir hata oluştu: ' . $e->getMessage());
+            return redirect()->route('seller.campaign')->with('error', 'Kampanya oluşturulurken bir hata oluştu: ' . $e->getMessage());
         }
     }
 
@@ -57,7 +57,7 @@ class CampaignController extends Controller
     {
         $campaigns = $this->campaignService->showCampaign($id);
         if(!$campaigns){
-            return redirect()->route('admin.campaign')->with('error', 'Kampanya bulunamadı');
+            return redirect()->route('seller.campaign')->with('error', 'Kampanya bulunamadı');
         }
         
         if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
@@ -68,7 +68,7 @@ class CampaignController extends Controller
             ]);
         }
         
-        return view('Admin.Campaign.editCampaign' ,compact('campaigns'));
+        return view('Seller.Campaign.editCampaign' ,compact('campaigns'));
     }
 
     public function updateCampaign(CampaignUpdateRequest $request, $id)
@@ -82,13 +82,13 @@ class CampaignController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla güncellendi');
+        return redirect()->route('seller.campaign')->with('success', 'Kampanya başarıyla güncellendi');
     }
 
     public function deleteCampaign($id)
     {
         $campaigns = $this->campaignService->deleteCampaign($id);
-        return redirect()->route('admin.campaign')->with('success', 'Kampanya başarıyla silindi');
+        return redirect()->route('seller.campaign')->with('success', 'Kampanya başarıyla silindi');
     }
     
 

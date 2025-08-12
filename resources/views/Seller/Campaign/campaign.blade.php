@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
+    <title>Satıcı Kampanya</title>
 </head>
 <body>
     <h1>Kampanya Ayarları</h1>
@@ -80,10 +80,10 @@
                 </td>
                 <td>{{ $campaign->is_active ? 'Aktif' : 'Pasif' }}</td>
                 <td>
-                    <a href="{{ route('admin.editCampaign', $campaign->id) }}">Düzenle</a>
+                    <a href="{{ route('seller.editCampaign', $campaign->id) }}">Düzenle</a>
                 </td>
                 <td>
-                    <form action="{{ route('admin.deleteCampaign', $campaign->id) }}" method="POST">
+                    <form action="{{ route('seller.deleteCampaign', $campaign->id) }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="submit" onclick="return confirm('Silmek istediğinize emin misiniz?')">Sil</button>
@@ -95,7 +95,7 @@
     </table>
     <br>
     
-    <a href="{{ route('admin.storeCampaign') }}">Kampanya Ekle</a><br>
-    <a href="{{ route('admin') }}">Geri Dön</a> 
+    <a href="{{ route('seller.storeCampaign') }}">Kampanya Ekle</a><br>
+    <a href="{{ route('seller') }}">Geri Dön</a> 
 </body>
 </html>

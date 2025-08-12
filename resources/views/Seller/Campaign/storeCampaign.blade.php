@@ -17,7 +17,7 @@
             {{ session('success') }}
         </div>
     @endif
-    <form action="{{ route('admin.createCampaign') }}" method="POST">
+    <form action="{{ route('seller.createCampaign') }}" method="POST">
         @csrf
         
 
@@ -165,6 +165,6 @@
             button.parentElement.remove();
         }
     </script>
-    <a href="{{ route('admin.campaign') }}">Geri Dön</a>
+    <a href="{{ route('seller.campaign') }}">Geri Dön</a>
 </body>
 </html>

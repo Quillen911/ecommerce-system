@@ -8,6 +8,7 @@ use App\Http\Requests\AuthValidation\LoginRequest;
 use Illuminate\Support\Facades\Hash; 
 use App\Models\User;
 use App\Helpers\ResponseHelper;
+use App\Models\Seller;
 
 class AuthController extends Controller
 {
@@ -41,4 +42,31 @@ class AuthController extends Controller
         return ResponseHelper::success('Çıkış Yapıldı.');
     }
 
+    //admin login
+
+    public function sellerLogin(LoginRequest $request){
+        $seller = Seller::where('email', $request->email)->first();
+        if(!$seller || !Hash::check($request->input('password'), $seller->password)){
+            return ResponseHelper::error('Email veya Şifre Hatalı',401);
+        }
+        $token = $seller->createToken('apitoken')->plainTextToken;
+        return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'seller' =>$seller]);
+    }
+
+    public function sellerLogout(Request $request){
+        $seller = $request->user('seller');
+        if(!$seller){
+            return ResponseHelper::notFound('Seller bulunamadı.');
+        }
+        $request->user()->currentAccessToken()->delete();
+        return ResponseHelper::success('Çıkış Yapıldı.');
+    }
+
+    public function mySeller(Request $request){
+        $seller = $request->user('seller');
+        if(!$seller){
+            return ResponseHelper::notFound('Seller bulunamadı.');
+        }
+        return ResponseHelper::success('Seller Bilgileri', $seller);
+    }
 }

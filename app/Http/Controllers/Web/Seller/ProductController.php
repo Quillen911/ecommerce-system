@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Web\Admin;
+namespace App\Http\Controllers\Web\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Http\Requests\Admin\Product\ProductStoreRequest;
-use App\Http\Requests\Admin\Product\ProductUpdateRequest;
-use App\Services\Campaigns\Admin\ProductService;
+use App\Http\Requests\Seller\Product\ProductStoreRequest;
+use App\Http\Requests\Seller\Product\ProductUpdateRequest;
+use App\Services\Campaigns\Seller\ProductService;
 use App\Models\Category;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
@@ -27,36 +27,36 @@ class ProductController extends Controller
     public function product()
     {
         $products = $this->productService->indexProduct();
-        return view('Admin.Product.product', compact('products'));
+        return view('Seller.Product.product', compact('products'));
     }
 
     public function storeProduct()
     {
-        return view('Admin.Product.storeProduct'); 
+        return view('Seller.Product.storeProduct'); 
     }
 
     public function createProduct(ProductStoreRequest $request) 
     {
         $products = $this->productService->createProduct($request);
-        return redirect()->route('admin.product')->with('success', 'Ürün başarıyla eklendi');
+        return redirect()->route('seller.product')->with('success', 'Ürün başarıyla eklendi');
     }
 
     public function editProduct($id)
     {
         $products = $this->productService->showProduct($id);
-        return view('Admin.Product.editProduct', compact('products'));
+        return view('Seller.Product.editProduct', compact('products'));
     }
 
     public function updateProduct(ProductUpdateRequest $request, $id)
     {
         $products = $this->productService->updateProduct($request, $id);
-        return redirect()->route('admin.product')->with('success', 'Ürün başarıyla güncellendi');
+        return redirect()->route('seller.product')->with('success', 'Ürün başarıyla güncellendi');
     }
 
     public function deleteProduct($id)
     {
         $products = $this->productService->deleteProduct($id);
-        return redirect()->route('admin.product')->with('success', 'Ürün başarıyla silindi');
+        return redirect()->route('seller.product')->with('success', 'Ürün başarıyla silindi');
     }
 
     public function searchProduct(Request $request)
@@ -70,6 +70,6 @@ class ProductController extends Controller
         $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
         $products = collect($results['hits'])->pluck('_source')->toArray();
         $categories = Category::all();
-        return view('Admin.Product.product', compact('query', 'results', 'products', 'filters', 'sorting', 'categories'));
+        return view('Seller.Product.product', compact('query', 'results', 'products', 'filters', 'sorting', 'categories'));
     }
 }

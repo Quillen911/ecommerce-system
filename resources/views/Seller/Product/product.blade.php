@@ -8,10 +8,10 @@
 <body>
     <h1>Ürünler</h1>
     <p>Gösterilen Ürün Sayısı: {{count($products)}}</p>
-    <a href="{{ route('admin.storeProduct') }}">Ürün Ekle Sayfası</a><br>
-    <a href="{{ route('admin') }}">Geri Dön</a> 
+    <a href="{{ route('seller.storeProduct') }}">Ürün Ekle Sayfası</a><br>
+    <a href="{{ route('seller') }}">Geri Dön</a> 
     <br><br>
-    <form action="{{ route('admin.searchProduct') }}" method="GET">
+    <form action="{{ route('seller.searchProduct') }}" method="GET">
         @csrf
         <input type="text" name="q" placeholder="Ürün Ara" value="{{ $query ?? request('q') }}">
         <button type="submit">Ara</button>
@@ -68,7 +68,7 @@
                 <td>{{ $product['list_price'] }}</td>
                 <td>{{ $product['stock_quantity'] }}</td>
                 <td> 
-                    <form action="{{ route('admin.deleteProduct', $product['id']) }}" method="POST">
+                    <form action="{{ route('seller.deleteProduct', $product['id']) }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="submit">Sil</button>
@@ -77,6 +77,6 @@
             </tr>
         @endforeach
     </table>
-    <a href="{{ route('admin.product') }}">Tüm Ürünleri Gör</a>
+    <a href="{{ route('seller.product') }}">Tüm Ürünleri Gör</a>
 </body>
 </html>

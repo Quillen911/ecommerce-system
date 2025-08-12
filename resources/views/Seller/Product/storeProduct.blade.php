@@ -19,7 +19,7 @@
     
     <h1>Ürün Ekle</h1>
     
-    <form action="{{ route('admin.createProduct') }}" method="post">
+    <form action="{{ route('seller.createProduct') }}" method="post">
         @csrf
         
             <input type="text" name="title" placeholder="Ürün Adı" value="{{ old('title') }}" required> <br>
@@ -37,6 +37,6 @@
         <button type="submit">Ürün Ekle</button>
     </form>
     
-    <a href="{{ route('admin.product') }}">Geri Dön</a>
+    <a href="{{ route('seller.product') }}">Geri Dön</a>
 </body>
 </html>

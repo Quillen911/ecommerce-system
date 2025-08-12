@@ -33,4 +33,30 @@ class AuthController extends Controller
         return redirect()->route('login');
 
     }
+
+    public function sellerLogin()
+    {
+        return view('Seller.sellerlogin');
+    }
+
+    public function sellerPostlogin(LoginRequest $request)
+    {
+        $info = [
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+        ];
+        if(\Auth::guard('seller')->attempt($info)) {
+            $seller = \Auth::guard('seller')->user();
+            return redirect()->route('seller');
+        }
+        return view('Seller.sellerlogin', ['error' => 'Email veya şifre yanlış']);
+        
+    }
+
+    public function sellerLogout()
+    {
+        \Auth::guard('seller')->logout();
+        return redirect()->route('seller.login');
+    }
+
 }

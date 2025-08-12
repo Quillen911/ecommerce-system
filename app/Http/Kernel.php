@@ -31,6 +31,4 @@ class Kernel extends HttpKernel
     protected $commands = [
         \App\Console\Commands\ReindexProducts::class,
     ];
-
-   
 }
