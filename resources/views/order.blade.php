@@ -94,13 +94,14 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Ürün Adı</th><th>Kategori Adı</th><th>Yazar</th><th>Ürün Sayısı</th><th>Fiyat</th><th>Toplam Fiyat</th>
+                        <th>Ürün Adı</th> <th>Mağaza</th> <th>Kategori Adı</th><th>Yazar</th><th>Ürün Sayısı</th><th>Fiyat</th><th>Toplam Fiyat</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($products as $p)
                         <tr>
                             <td>{{$p->product->title}}</td>
+                            <td>{{$p->product->store->name}}</td>
                             <td>{{$p->product->category?->category_title}}</td>
                             <td>{{$p->product->author}}</td>
                             <td>{{$p->quantity}}</td>

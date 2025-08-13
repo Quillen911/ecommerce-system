@@ -22,6 +22,9 @@ class MyOrdersController extends Controller{
     public function myorders()
     {
         $user = $this->getUser();
+        if(!$user){
+            return redirect()->route('login')->with('error', 'Lütfen giriş yapınız.');
+        }
         $orders = $this->myOrderService->getOrdersforUser($user->id);
         if(!$orders){
             return redirect()->with('error', 'Sipariş Bulunamadı.');

@@ -61,6 +61,7 @@
                 <thead>
                     <tr>
                         <th>Ürün</th>
+                        <th>Mağaza</th>
                         <th>Kategori</th>
                         <th>Yazar</th>
                         <th>Adet</th>
@@ -73,6 +74,7 @@
                     @foreach($products as $p)
                         <tr>
                             <td>{{ $p->product->title }}</td>
+                            <td>{{ $p->product->store->name }}</td>
                             <td>{{ $p->product->category?->category_title }}</td>
                             <td>{{ $p->product->author }}</td>
                             <td>{{ $p->quantity }}</td>

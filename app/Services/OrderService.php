@@ -15,10 +15,7 @@ class OrderService
 {
     public function createOrder($user, $products, $campaignManager, $selectedCreditCard)
     {
-        $campaigns = Campaign::where('is_active', 1)
-                            ->where('starts_at', '<=', now())
-                            ->where('ends_at', '>=', now())
-                            ->get();
+        $campaigns = Campaign::where('is_active', 1)->get();
 
         $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
         $total = $products->sum(function($items) {
@@ -46,6 +43,8 @@ class OrderService
             $productsData[] = [
                 'product_title' => $product->product->title,
                 'product_category_title' => $product->product->category->category_title,
+                'store_id' => $product->product->store_id,
+                'store_name' => $product->product->store_name,
                 'product_id' => $product->product_id,
                 'quantity' => $product->quantity,
                 'list_price' => $product->product->list_price,
@@ -60,7 +59,7 @@ class OrderService
                 $campaignManager->decreaseUsageLimit($appliedCampaign);
             }
         }
-        $exOrder = Order::create([
+        $order = Order::create([
             'bag_user_id' => $user->id,
             'user_id' => $user->id,
             'credit_card_id' => $selectedCreditCard,
@@ -80,7 +79,7 @@ class OrderService
         ]);
         foreach($productsData as $productData) {
             $orderItem = OrderItem::create([
-                'order_id' => $exOrder->id,
+                'order_id' => $order->id,
                 'product_id' => $productData['product_id'],
                 'product_title' => $productData['product_title'],
                 'product_category_title' => $productData['product_category_title'],
@@ -92,18 +91,21 @@ class OrderService
                 'payment_status' => 'failed',
                 'refunded_at' => null,
                 'canceled_at' => null,
+                'store_id' => $productData['store_id'],
+                'store_name' => $productData['store_name'],
+                'status' => 'pending',
             ]);
         }
-        if(!$exOrder){
+        if(!$order || !$orderItem){
             return new \Exception('Sipariş oluşturulamadı!');
         }
 
         $creditCard = CreditCard::find($selectedCreditCard);
         $iyzicoService = new IyzicoPaymentService();
-        $paymentResult = $iyzicoService->processPayment($exOrder, $creditCard, $totally);
+        $paymentResult = $iyzicoService->processPayment($order, $creditCard, $totally);
 
         if ($paymentResult['success']) {
-            $exOrder->update([
+            $order->update([
                 'paid_price'      => $paymentResult['paid_price'] ?? 0,
                 'currency'        => $paymentResult['currency'] ?? 'TRY',
                 'payment_id'      => $paymentResult['payment_id'] ?? null,
@@ -113,7 +115,7 @@ class OrderService
             ]);
 
             foreach ($paymentResult['payment_transaction_id'] as $itemId => $txId) {
-                $orderItem = OrderItem::where('order_id', $exOrder->id)
+                $orderItem = OrderItem::where('order_id', $order->id)
                     ->where('product_id', $itemId)
                     ->first();
                 if($orderItem){
@@ -130,15 +132,15 @@ class OrderService
                 Product::whereKey($p['product_id'])->decrement('stock_quantity', (int) $p['quantity']);
             }
 
-            return ['success' => true, 'order_id' => $exOrder->id];
+            return ['success' => true, 'order_id' => $order->id];
         } else {
-            $exOrder->update([
+            $order->update([
                 'payment_status' => 'failed',
                 'status' => 'Başarısız Ödeme',
             ]);
-            $exOrder->delete();
-            foreach($exOrder->orderItems as $item){
-                $item->forceDelete();
+            $order->delete();
+            foreach($order->orderItems as $item){
+                $item->delete();
             }
             $errorMessage = $paymentResult['error'];
             if (isset($paymentResult['error_code'])) {

@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
 
         
         $this->call([
+            \Database\Seeders\SellerSeeder::class,
+            \Database\Seeders\StoreSeeder::class,
             \Database\Seeders\Main\UserSeeder::class,
             \Database\Seeders\Main\CategorySeeder::class,
             \Database\Seeders\Main\ProductSeeder::class,
@@ -24,7 +26,6 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\Campaigns\CampaignConditionSeeder::class,
             \Database\Seeders\Campaigns\CampaignDiscountSeeder::class,
             \Database\Seeders\CreditCard\CreditCardSeeder::class,
-            \Database\Seeders\SellerSeeder::class,
         ]);
     }
 }

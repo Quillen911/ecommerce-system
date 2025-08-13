@@ -9,8 +9,9 @@ use App\Http\Controllers\Web\MyOrdersController;
 
 use App\Http\Controllers\Web\Seller\CampaignController;
 use App\Http\Controllers\Web\Seller\ProductController;
-use App\Http\Controllers\Web\Seller\SellerController;
 use App\Http\Controllers\Web\Payments\CreditCardController;
+use App\Http\Controllers\Web\Seller\SellerController;
+use App\Http\Controllers\Web\Seller\SellerOrderController;
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
 Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
@@ -81,8 +82,13 @@ Route::middleware(['web', 'seller.auth'])->group(function(){
             Route::delete('/deleteProduct/{id}',[ProductController::class, 'deleteProduct'])->name('seller.deleteProduct');
             Route::get('/searchProduct',[ProductController::class, 'searchProduct'])->name('seller.searchProduct');
         });
+        //Order
+        Route::prefix('order')->group(function(){
+            Route::get('/',[SellerOrderController::class, 'sellerOrders'])->name('seller.order');
+            Route::post('orders/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem'])->name('seller.confirmOrderItem');
+            Route::post('orders/{id}/cancel', [SellerOrderController::class, 'cancelOrderItem'])->name('seller.cancelOrderItem');
+        }); 
 
-        Route::get('/orders',[SellerController::class, 'sellerOrders'])->name('seller.orders');
     });
 });
 

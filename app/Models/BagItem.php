@@ -10,8 +10,15 @@ class BagItem extends Model
         'product_id', 
         'product_title',
         'author',
-        'quantity'
+        'quantity',
+        'store_id',
+        'store_name'
     ];
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
+    }
     
     public function bag() {
         return $this->belongsTo(Bag::class ,'bag_id');

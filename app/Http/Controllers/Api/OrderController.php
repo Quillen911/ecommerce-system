@@ -2,18 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Bag;
-use App\Models\BagItem;
 use App\Models\Order;
-use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
-use App\Jobs\CreateOrderJob;
-use App\Models\OrderItem;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
-use App\Services\Campaigns\CampaignManager\SabahattinAliCampaign;
-use App\Services\Campaigns\CampaignManager\LocalAuthorCampaign;
 use App\Http\Requests\OrderRequest;
 use App\Traits\UserBagTrait;
 use App\Services\OrderService;

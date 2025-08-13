@@ -65,7 +65,8 @@ class BagService{
                 'product_id' => $productId,
                 'product_title' => $product->title,
                 'author' => $product->author,
-                'quantity' => 1
+                'quantity' => 1,
+                'store_id' => $product->store_id
             ]);
         }
     }

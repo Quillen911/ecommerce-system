@@ -7,7 +7,7 @@ use App\Models\Bag;
 trait UserBagTrait
 {
     public function getUser(){
-        return auth()->user();
+        return auth('web')->user();
 
     }
     public function getUserBag(){

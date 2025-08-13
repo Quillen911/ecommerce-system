@@ -18,10 +18,12 @@ return new class extends Migration
             $table->string('product_title');
             $table->string('author');
             $table->integer('quantity')->default(1);
+            $table->unsignedBigInteger('store_id');
             $table->timestamps();
         
             $table->foreign('bag_id')->references('id')->on('bags')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');
         });
     }
 
