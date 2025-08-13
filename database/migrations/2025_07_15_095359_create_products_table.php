@@ -11,11 +11,14 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('store_id')->constrained('stores')->onDelete('cascade');
+            $table->string('store_name');
             $table->string('title');
             $table->unsignedBigInteger('category_id')->nullable();
             $table->string('author');
             $table->decimal('list_price',8,2);
             $table->integer('stock_quantity');
+            $table->json('images')->nullable();
             $table->timestamps();
             $table->softDeletes();
             
@@ -27,9 +30,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('products');

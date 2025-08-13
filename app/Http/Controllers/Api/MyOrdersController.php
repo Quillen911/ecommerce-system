@@ -23,6 +23,9 @@ class MyOrdersController extends Controller
     public function index()
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $orders = $this->myOrderService->getOrdersforUser($user->id);
         if($orders->isEmpty()){
             return ResponseHelper::notFound('Sipariş bulunamadı.');

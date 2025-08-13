@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 
 Route::post('/login',[AuthController::class, 'login']);
-Route::post('/seller-login',[AuthController::class, 'sellerLogin']);
+Route::post('/seller/login',[AuthController::class, 'sellerLogin']);
 
 
 Route::middleware('auth:sanctum')->group(function(){
@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:seller')->group(function(){
+Route::middleware('auth:sanctum')->group(function(){
 
     Route::post('/seller-logout', [AuthController::class, 'sellerLogout']);
     Route::get('/my-seller', [AuthController::class, 'mySeller']);
@@ -50,7 +50,9 @@ Route::middleware('auth:seller')->group(function(){
         Route::apiResource('campaign', CampaignController::class);
         Route::apiResource('product', ProductController::class);
 
-        Route::get('/orders', [SellerOrderController::class, 'index']);
+        Route::apiResource('order', SellerOrderController::class)->only(['index','show']);
+        Route::post('order/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem']);
+        Route::post('order/{id}/cancel', [SellerOrderController::class, 'cancelOrderItem']);
     });
     
 });

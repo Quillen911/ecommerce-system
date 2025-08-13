@@ -18,7 +18,7 @@ class AuthController extends Controller
         if(!$user || !Hash::check($request->input('password'), $user->password)){
             return ResponseHelper::error('Email veya Şifre Hatalı',401);
         }
-        $token = $user->createToken('apitoken')->plainTextToken;
+        $token = $user->createToken('user-token')->plainTextToken;
         
 
         return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'user' =>$user]);
@@ -42,19 +42,19 @@ class AuthController extends Controller
         return ResponseHelper::success('Çıkış Yapıldı.');
     }
 
-    //admin login
+    //seller login
 
     public function sellerLogin(LoginRequest $request){
         $seller = Seller::where('email', $request->email)->first();
         if(!$seller || !Hash::check($request->input('password'), $seller->password)){
             return ResponseHelper::error('Email veya Şifre Hatalı',401);
         }
-        $token = $seller->createToken('apitoken')->plainTextToken;
+        $token = $seller->createToken('seller-token')->plainTextToken;
         return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'seller' =>$seller]);
     }
 
     public function sellerLogout(Request $request){
-        $seller = $request->user('seller');
+        $seller = $request->user();
         if(!$seller){
             return ResponseHelper::notFound('Seller bulunamadı.');
         }
@@ -63,7 +63,7 @@ class AuthController extends Controller
     }
 
     public function mySeller(Request $request){
-        $seller = $request->user('seller');
+        $seller = $request->user();
         if(!$seller){
             return ResponseHelper::notFound('Seller bulunamadı.');
         }

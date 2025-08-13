@@ -27,6 +27,10 @@ class ProductController extends Controller
 
     public function index()
     {
+        $seller = auth('seller')->user();
+        if(!$seller){
+            return ResponseHelper::error('Seller access required', 403);
+        }
         $products = $this->productService->indexProduct();
         if($products->isEmpty()){
             return ResponseHelper::notFound('Ürün bulunamadı');

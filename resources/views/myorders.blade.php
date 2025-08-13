@@ -84,6 +84,7 @@
                                 <tr>
                                     <th>Sipariş İtem ID</th>
                                     <th>Ürün</th>
+                                    <th>Mağaza</th>
                                     <th>Kategori Adı</th>
                                     <th>Yazar</th>
                                     <th>Ürün Sayısı</th>
@@ -97,6 +98,7 @@
                                     <tr>
                                         <td>{{ $item->id }}</td>
                                         <td>{{ $item->product_title }}</td>
+                                        <td>{{ $item->product->store->name }}</td>
                                         <td>{{ $item->product_category_title }}</td>
                                         <td>{{ $item->product->author }}</td>
                                         <td>{{ $item->quantity }}</td>

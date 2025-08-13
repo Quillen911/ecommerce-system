@@ -27,11 +27,17 @@
   <div class="actions">
     <a href="{{ route('seller.product') }}" class="btn">Ürünler</a>
     <a href="{{ route('seller.campaign') }}" class="btn outline">Kampanyalar</a>
-    <a href="{{ route('seller.orders') }}" class="btn outline">Siparişler</a>
+    <a href="{{ route('seller.order') }}" class="btn outline">Siparişler</a>
     <form action="{{ route('seller.logout') }}" method="POST" style="display:inline-block;margin:0">
       @csrf
       <button type="submit" class="btn danger">Çıkış Yap</button>
     </form>
+  </div>
+  <div class="seller-info" style="margin-top: 60px;" align="center">
+    <h2>Satıcı Bilgileri</h2>
+    <p>Satıcı Adı: {{ $sellerInfo->seller_name}}</p>
+    <p>Satıcı Mağaza Adı: {{ $sellerInfo->name }}</p>
+    <p>Satıcı Email: {{ $sellerInfo->seller->email }}</p>
   </div>
 </div>
 </body>

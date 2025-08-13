@@ -16,11 +16,14 @@ class Product extends Model
     protected $table = 'products';
 
     protected $fillable = [
+        'store_id',
+        'store_name',
         'title',
         'category_id',  
         'author',
         'list_price',
-        'stock_quantity'
+        'stock_quantity',
+        'images'
     ];
     protected $casts = [
         'list_price' => 'float',
@@ -30,6 +33,9 @@ class Product extends Model
 
     public function category(){
         return $this->belongsTo(Category::class, 'category_id');
+    }
+    public function store(){
+        return $this->belongsTo(Store::class, 'store_id');
     }
     //Elasticsearch
     protected static function boot()
