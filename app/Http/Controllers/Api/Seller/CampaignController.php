@@ -9,7 +9,7 @@ use App\Helpers\ResponseHelper;
 use App\Services\Campaigns\Seller\CampaignService;
 use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
-
+use App\Models\Store;
 
 class CampaignController extends Controller
 {
@@ -22,7 +22,14 @@ class CampaignController extends Controller
 
     public function index()
     {
-        $campaigns = $this->campaignService->indexCampaign();
+        $seller = auth('seller')->user();
+        $store = Store::where('seller_id', $seller->id)->first();
+        $storeId = $store->id;
+        if(!$store){
+            return ResponseHelper::error('Lütfen giriş yapınız');
+        }
+
+        $campaigns = $this->campaignService->indexCampaign($storeId);
         if($campaigns->isEmpty()){
             return ResponseHelper::notFound('Kampanya bulunamadı');
         }

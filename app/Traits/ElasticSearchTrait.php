@@ -55,11 +55,24 @@ trait ElasticSearchTrait
         ];
     }
 
+    public function getStoreFilterTrait(array $filters): array
+    {
+        if(isset($filters['store_id'])){
+            return [[
+                'term' => [
+                    'store_id' => $filters['store_id']
+                ]
+            ]];
+        }
+        return [];
+    }
+
     public function mergeFiltersTrait(array $filters): array
     {
         return array_merge(
             $this->getCategoryFilterTrait($filters),
-            $this->getPriceFilterTrait($filters)
+            $this->getPriceFilterTrait($filters),
+            $this->getStoreFilterTrait($filters)
         );
     }
 }
