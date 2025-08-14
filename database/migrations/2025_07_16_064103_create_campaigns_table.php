@@ -11,6 +11,8 @@ return new class extends Migration
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->foreignId('store_id')->constrained('stores');
+            $table->string('campaign_owner')->nullable();
             $table->enum('type', ['percentage', 'fixed','x_buy_y_pay']);     
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);

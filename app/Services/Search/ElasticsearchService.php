@@ -264,6 +264,7 @@ class ElasticsearchService
                     'category_title' => ['type' => 'text'],
                     'list_price' => ['type' => 'float'],
                     'stock_quantity' => ['type' => 'integer'],
+                    'store_id' => ['type' => 'integer'],
                     'created_at' => ['type' => 'date'],
                     'updated_at' => ['type' => 'date']
                 ]

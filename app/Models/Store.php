@@ -27,4 +27,8 @@ class Store extends Model
     {
         return $this->hasMany(Product::class, 'store_id');
     }
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class, 'store_id');
+    }
 }

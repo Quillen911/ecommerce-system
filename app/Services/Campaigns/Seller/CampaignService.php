@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 class CampaignService
 {
-    public function indexCampaign()
+    public function indexCampaign($storeId)
     {
-        $campaigns = Campaign::orderBy('id')->get();
+        $campaigns = Campaign::where('store_id', $storeId)->orderBy('id')->get();
         return $campaigns;
     }
     public function createCampaign(CampaignStoreRequest $request)

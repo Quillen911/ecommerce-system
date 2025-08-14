@@ -11,9 +11,9 @@ use App\Http\Requests\Seller\Product\ProductUpdateRequest;
 class ProductService
 {
 
-    public function indexProduct()
+    public function indexProduct($storeId)
     {
-        $products = Product::with('category')->orderBy('id')->get();
+        $products = Product::with('category')->where('store_id', $storeId)->orderBy('id')->get();
         return $products;
     }
     public function createProduct(ProductStoreRequest $request)

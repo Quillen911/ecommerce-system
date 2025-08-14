@@ -11,6 +11,7 @@ use App\Services\Campaigns\Seller\ProductService;
 use App\Models\Category;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
+use App\Models\Store;
 class ProductController extends Controller
 {
     protected $productService;
@@ -26,7 +27,15 @@ class ProductController extends Controller
 
     public function product()
     {
-        $products = $this->productService->indexProduct();
+        $seller = auth('seller_web')->user();
+        if(!$seller){
+            return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+        }
+        $store = Store::where('seller_id', $seller->id)->first();
+        if(!$store){
+            return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
+        }
+        $products = $this->productService->indexProduct($store->id);
         return view('Seller.Product.product', compact('products'));
     }
 
@@ -61,8 +70,17 @@ class ProductController extends Controller
 
     public function searchProduct(Request $request)
     {
+        $seller = auth('seller_web')->user();
+        if(!$seller){
+            return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+        }
+        $store = Store::where('seller_id', $seller->id)->first();
+        if(!$store){
+            return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
+        }
         $query = $request->input('q', '') ?? '';
         $filters = $this->elasticSearchTypeService->filterType($request);
+        $filters['store_id'] = $store->id;
         $sorting = $this->elasticSearchTypeService->sortingType($request);
         $page = $request->input('page', 1);
         $size = $request->input('size', 12);

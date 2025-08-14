@@ -10,6 +10,8 @@ class Campaign extends Model
 
     protected $fillable = [
         'name',
+        'store_id',
+        'campaign_owner',
         'description',
         'type',
         'is_active',
@@ -19,6 +21,11 @@ class Campaign extends Model
         'starts_at',
         'ends_at',
     ];
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
+    }
 
     public function conditions()
     {

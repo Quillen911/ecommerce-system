@@ -10,7 +10,7 @@ use App\Models\CampaignDiscount;
 use App\Services\Campaigns\Seller\CampaignService;
 use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
-
+use App\Models\Store;
 class CampaignController extends Controller
 {
     protected $campaignService;
@@ -22,7 +22,15 @@ class CampaignController extends Controller
 
     public function campaign()
     {
-        $campaigns = $this->campaignService->indexCampaign();
+        $seller = auth('seller_web')->user();
+        if(!$seller){
+            return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+        }
+        $store = Store::where('seller_id', $seller->id)->first();
+        if(!$store){
+            return redirect()->route('seller.campaign')->with('error', 'Lütfen giriş yapınız');
+        }
+        $campaigns = $this->campaignService->indexCampaign($store->id);
         return view('Seller.Campaign.campaign' ,compact('campaigns'));
     }
 

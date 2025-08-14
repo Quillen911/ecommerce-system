@@ -35,6 +35,7 @@
   </div>
   <div class="seller-info" style="margin-top: 60px;" align="center">
     <h2>Satıcı Bilgileri</h2>
+    <p>Satıcı ID: {{ $sellerInfo->id }}</p>
     <p>Satıcı Adı: {{ $sellerInfo->seller_name}}</p>
     <p>Satıcı Mağaza Adı: {{ $sellerInfo->name }}</p>
     <p>Satıcı Email: {{ $sellerInfo->seller->email }}</p>
