@@ -35,41 +35,7 @@ class MyOrderService
             ->first();
     }
     
-    public function cancelOrder($userId, $orderId, $campaignManager)
-    {
-        $order = Order::where('id', $orderId)
-            ->where('user_id', $userId)
-            ->first();
 
-        if(!$order){
-            return null;
-        }
-
-        $campaign = Campaign::where('id', $order->campaign_id)->first();
-
-        $cancel = $this->iyzicoService->cancelPayment((string) $order->payment_id);
-        if ($cancel['success'] ?? false) {
-            foreach($order->orderItems as $item){
-                Product::whereKey($item->product_id)->increment('stock_quantity', (int) $item->quantity);
-                $item->update([
-                    'payment_status' => 'canceled',
-                    'canceled_at' => now(),
-                ]);
-            }
-            if($campaign){
-                $campaignManager->decreaseUserUsageCount($campaign);
-                $campaignManager->increaseUsageLimit($campaign);
-            }
-            $order->update([
-                'payment_status' => 'canceled',
-                'status' => 'Ödeme İptal Edildi',
-                'canceled_at' => now(),
-            ]);
-            return ['success' => true, 'message' => 'Siparişin tamamı iptal edildi.'];
-        }
-
-        return ['success' => false, 'error' => $cancel['error'] ?? 'Ödeme iptal edilemedi.'];
-    }
 
     public function refundSelectedItems($userId, $orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager){
         $order = Order::where('id', $orderId)
@@ -77,9 +43,6 @@ class MyOrderService
             ->first();
         if(!$order){
             return ['success' => false, 'error' => 'Sipariş bulunamadı.'];
-        }
-        if($order->status === 'pending'){
-            return ['success' => false, 'error' => 'Sipariş bekliyor.'];
         }
         if($order->payment_status === 'refunded' || $order->payment_status === 'canceled'){
             return ['success' => false, 'error' => 'Sipariş iade edilemez.', 'message' => 'Bu Sipariş iade veya iptal edildi.'];
@@ -125,6 +88,7 @@ class MyOrderService
                     Product::whereKey($item->product_id)->increment('stock_quantity', $itemsToRefund);
                 }
                 $item->update([
+                    'status' => 'Müşteri İade Etti',
                     'payment_status' => $fullyRefunded ? 'refunded' : 'paid',
                     'refunded_price' => $newRefunded,
                     'refunded_at' => now(),

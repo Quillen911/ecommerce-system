@@ -16,7 +16,7 @@ class SellerRedirect
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::guard('seller')->check()) {
+        if (!Auth::guard('seller_web')->check()) {
             return redirect()->route('seller.login');
         }
 

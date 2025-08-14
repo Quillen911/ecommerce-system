@@ -74,6 +74,7 @@
             <div class="empty"><strong>Siparişiniz yok</strong></div>
         @else
             @foreach($orders as $order)
+
                 <div class="order-card">
                     <form action="{{ route('myorders.refundItems', $order->id) }}" method="POST" class="refund-form" style="margin:0;">
                         @csrf
@@ -112,10 +113,9 @@
                                             // Birim fiyatı yuvarlamadan hesapla; kalan adet hesabında hassasiyet önemli
                                             $unitPaidPrice = $paidPrice / (int)$item->quantity;
                                             $remainingUnits = $unitPaidPrice > 0 ? (int) floor($remainingRefundedPrice / $unitPaidPrice) : 0;
-                                            $eligible = ($order->status !== 'pending')
-                                                        && !in_array($item->payment_status, ['refunded','canceled'])
-                                                        && $remainingUnits > 0;
+                                            $eligible = ($item->payment_status !== 'refunded') && $remainingUnits > 0;
                                         @endphp
+
                                             @if($eligible)
                                                 <div class="qty-box">
                                                     <button type="button" class="qty-btn dec">-</button>
@@ -133,7 +133,7 @@
                             </tbody>
                         </table>
                         </div>
-                        @if($order->status !== "pending")
+                        @if($order->status !== "refunded")
                         <div class="refund-actions">
                             <button type="submit" class="btn">Seçilen Ürünleri İade Et</button>
                             <button type="button" class="btn outline cancel-select">Vazgeç</button>
@@ -148,7 +148,7 @@
                     <div class="totals">
                         <div class="row"><strong>Sipariş No</strong><span>#{{ $order->id }}</span></div>
                         <div class="row"><strong>Sipariş Tarihi</strong><span>{{ $order->created_at }}</span></div>
-                        <div class="row"><strong>Durum</strong><span>{{ $order->status }}</span></div>
+                        <div class="row"><strong>Durum</strong><span>{{ $order->status ? 'Sipariş Onaylandı' : 'Sipariş Onaylanmadı' }}</span></div>
                         <div class="row"><strong>Kargo</strong>
                             <span>{{ $order->cargo_price == 0 ? 'Kargo Ücretsiz' : number_format($order->cargo_price,2).' TL' }}</span>
                         </div>
@@ -158,28 +158,17 @@
                         <div class="row"><strong>İndirimli Fiyat</strong><span>{{ number_format($order->campaing_price,2) }} TL</span></div>
                     </div>
 
-                    @php
-                        $canCancel = $order->status === 'pending' && !in_array($order->payment_status, ['canceled','refunded']);
-                        $canRefund = $order->status !== 'pending' && !in_array($order->payment_status, ['canceled','refunded']);
-                    @endphp
                     <div class="actions">
-                        @if($canCancel)
-                            <form action="{{ route('myorders.delete', $order->id) }}" method="POST" style="margin:0;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn outline">Siparişi İptal Et</button>
-                            </form>
-                        @elseif($canRefund)
+                        @if($order->payment_status !== 'refunded')
                             <button type="button" class="btn outline toggle-refund">Ürün İade Et</button>
                         @else
-                            <em class="muted" style="color:red;">Bu sipariş {{ $order->payment_status === 'canceled' ? 'iptal edildi' : ($order->payment_status === 'refunded' ? 'iade edildi' : 'kısmi iade edildi') }}.</em>
-                            @if($order->payment_status === 'refunded' || $order->payment_status === 'partial_refunded')
+                            <em class="muted" style="color:red;">Bu sipariş {{ $order->payment_status === 'refunded' ? 'iade edildi' : 'kısmi iade edildi' }}.</em>
+                            @if($order->payment_status === 'refunded')
                                 <em class="muted">İade Tarihi: {{ $order->refunded_at }}</em>
-                            @else
-                                <em class="muted">İptal Tarihi: {{ $order->canceled_at }}</em>
                             @endif
                         @endif
                     </div>
+
                 </div>
             @endforeach
         @endif

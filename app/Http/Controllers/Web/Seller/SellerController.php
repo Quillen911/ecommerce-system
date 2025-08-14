@@ -10,7 +10,7 @@ class SellerController extends Controller
 {
     public function seller()
     {
-        $seller = auth('seller')->user();
+        $seller = auth('seller_web')->user();
         $sellerInfo = Store::where('seller_id', $seller->id)->first();
         return view('Seller.seller', compact('sellerInfo'));
     }

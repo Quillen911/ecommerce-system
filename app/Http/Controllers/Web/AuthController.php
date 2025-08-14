@@ -45,8 +45,8 @@ class AuthController extends Controller
             'email' => $request->input('email'),
             'password' => $request->input('password'),
         ];
-        if(\Auth::guard('seller')->attempt($info)) {
-            $seller = \Auth::guard('seller')->user();
+        if(\Auth::guard('seller_web')->attempt($info)) {
+            $seller = \Auth::guard('seller_web')->user();
             return redirect()->route('seller');
         }
         return view('Seller.sellerlogin', ['error' => 'Email veya şifre yanlış']);
@@ -55,7 +55,7 @@ class AuthController extends Controller
 
     public function sellerLogout()
     {
-        \Auth::guard('seller')->logout();
+        \Auth::guard('seller_web')->logout();
         return redirect()->route('seller.login');
     }
 

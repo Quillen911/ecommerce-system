@@ -25,6 +25,9 @@ class OrderController extends Controller
     public function index()
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $orders = Order::where('bag_user_id', $user->id)->get();
         if($orders->isEmpty()){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
@@ -35,6 +38,9 @@ class OrderController extends Controller
     public function store(OrderRequest $request)
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $bag = $this->getUserBag();
 
         if(!$bag){
@@ -69,6 +75,9 @@ class OrderController extends Controller
     public function show($id)
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $order = $this->orderService->showOrder($user->id, $id);
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');

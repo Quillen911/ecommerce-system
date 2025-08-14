@@ -188,7 +188,7 @@ class IyzicoPaymentService implements PaymentInterface
     }
 
 
-    public function cancelPayment(string $paymentId): array
+    /*public function cancelPayment(string $paymentId): array
     {
         try {
 
@@ -220,7 +220,7 @@ class IyzicoPaymentService implements PaymentInterface
                 'error' => 'Ödeme iptal edilirken hata oluştu: ' . $e->getMessage()
             ];
         }
-    }
+    }*/
 
     public function refundPayment(string $paymentTransactionId, float $amount): array
     {

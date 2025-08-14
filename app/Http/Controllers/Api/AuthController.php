@@ -54,16 +54,18 @@ class AuthController extends Controller
     }
 
     public function sellerLogout(Request $request){
-        $seller = $request->user();
+        $seller = auth('seller')->user();
         if(!$seller){
             return ResponseHelper::notFound('Seller bulunamadı.');
         }
-        $request->user()->currentAccessToken()->delete();
-        return ResponseHelper::success('Çıkış Yapıldı.');
+        
+        $seller->currentAccessToken()->delete();
+        
+        return ResponseHelper::success('Çıkış Yapıldı.',['seller' => $seller]);
     }
 
     public function mySeller(Request $request){
-        $seller = $request->user();
+        $seller = auth('seller')->user();
         if(!$seller){
             return ResponseHelper::notFound('Seller bulunamadı.');
         }

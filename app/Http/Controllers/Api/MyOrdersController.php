@@ -36,6 +36,9 @@ class MyOrdersController extends Controller
     public function show($id)
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $order = $this->myOrderService->getOneOrderforUser($user->id, $id);
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
@@ -46,6 +49,9 @@ class MyOrdersController extends Controller
     public function destroy($id, Request $request)
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $order = $this->myOrderService->cancelOrder($user->id, $id, new CampaignManager());
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
@@ -56,6 +62,9 @@ class MyOrdersController extends Controller
     public function refundItems($id, RefundRequest $request)
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $raw = (array) $request->input('refund_quantities', []);
 
         $quantities = [];

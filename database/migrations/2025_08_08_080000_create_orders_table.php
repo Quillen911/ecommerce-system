@@ -28,9 +28,8 @@ return new class extends Migration
             $table->string('payment_id')->nullable();
             $table->string('conversation_id')->nullable();
             $table->string('status');
-            $table->enum('payment_status', ['pending','paid','failed','canceled','refunded','partial_refunded','partial_canceled'])->default('pending');
+            $table->enum('payment_status', ['paid','failed','refunded','partial_refunded']);
             $table->timestamp('refunded_at')->nullable();
-            $table->timestamp('canceled_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
             

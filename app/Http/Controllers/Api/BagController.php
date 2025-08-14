@@ -26,6 +26,9 @@ class BagController extends Controller
     public function index()
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $bag = $this->getUserBag();
         
         if (!$bag) {
@@ -43,6 +46,9 @@ class BagController extends Controller
     public function store(BaseApiRequest $request)
     {
         $user = $this->getUser(); 
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $bag = Bag::firstOrCreate(['bag_user_id' => $user->id]);
 
         if(!$bag){
@@ -63,6 +69,9 @@ class BagController extends Controller
     public function show($id)
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $bag = $this->getUserBag();
 
         if(!$bag){
@@ -79,6 +88,9 @@ class BagController extends Controller
     public function destroy($id)
     {
         $user = $this->getUser();
+        if(!$user){
+            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
+        }
         $bag = $this->getUserBag();
 
         if(!$bag){

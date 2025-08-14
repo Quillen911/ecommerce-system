@@ -86,7 +86,7 @@ Route::middleware(['web', 'seller.auth'])->group(function(){
         Route::prefix('order')->group(function(){
             Route::get('/',[SellerOrderController::class, 'sellerOrders'])->name('seller.order');
             Route::post('orders/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem'])->name('seller.confirmOrderItem');
-            Route::post('orders/{id}/cancel', [SellerOrderController::class, 'cancelOrderItem'])->name('seller.cancelOrderItem');
+            Route::post('orders/{id}/refund', [SellerOrderController::class, 'refundOrderItem'])->name('seller.refundOrderItem');
         }); 
 
     });
