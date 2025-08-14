@@ -10,7 +10,6 @@ class PercentageCampaign extends BaseCampaign
             return false;
         }
 
-
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
             $total = collect($products)->sum(function($item) use ($min_bag){

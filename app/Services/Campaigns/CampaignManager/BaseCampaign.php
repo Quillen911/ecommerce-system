@@ -5,6 +5,7 @@ namespace App\Services\Campaigns\CampaignManager;
 use App\Models\Campaign;
 use App\Models\CampaignCondition;
 use App\Models\CampaignDiscount;
+use App\Models\Store;
 
 abstract class BaseCampaign implements CampaignInterface
 {
@@ -48,6 +49,19 @@ abstract class BaseCampaign implements CampaignInterface
         $usage_count = $this->campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->count();
         
         if($usage_count && $this->campaign->usage_limit_for_user <= $usage_count){
+            return false;
+        }
+        return true;
+    }
+    protected function productEligible($products): bool
+    {
+        $storeIds = collect($products)->pluck('store_id')->toArray();
+        //dd($storeIds);
+        $storeIds = array_unique($storeIds);
+        $storeIds = array_filter($storeIds);
+        $storeIds = array_values($storeIds);
+        $store = Store::whereIn('id', $storeIds)->first();
+        if($store->id != $this->campaign->store_id){
             return false;
         }
         return true;

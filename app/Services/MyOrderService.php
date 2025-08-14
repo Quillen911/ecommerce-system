@@ -86,6 +86,7 @@ class MyOrderService
 
                 if ($itemsToRefund > 0) {
                     Product::whereKey($item->product_id)->increment('stock_quantity', $itemsToRefund);
+                    Product::whereKey($item->product_id)->decrement('sold_quantity', $itemsToRefund);
                 }
                 $item->update([
                     'status' => 'Müşteri İade Etti',

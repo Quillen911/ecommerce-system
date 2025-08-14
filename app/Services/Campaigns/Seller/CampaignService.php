@@ -8,6 +8,7 @@ use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
+use App\Models\Store;
 class CampaignService
 {
     public function indexCampaign($storeId)
@@ -18,27 +19,33 @@ class CampaignService
     public function createCampaign(CampaignStoreRequest $request)
     {
         try{
-        $campaign = Campaign::create($request->all());
 
-        
-        if ($request->has('conditions')) {
-            foreach ($request->conditions as $condition) {
-                $campaign->conditions()->create([
-                    'condition_type' => $condition['condition_type'],
-                    'condition_value' => $this->formatValue($condition['condition_value']),
-                    'operator' => $condition['operator']
-                ]);
+            $seller = auth('seller_web')->user();
+            $store = Store::where('seller_id', $seller->id)->first();
+            $campaignData = $request->all();
+            $campaignData['store_id'] = $store->id;
+            $campaignData['store_name'] = $store->name;
+            $campaign = Campaign::create($campaignData);
+            
+            
+            if ($request->has('conditions')) {
+                foreach ($request->conditions as $condition) {
+                    $campaign->conditions()->create([
+                        'condition_type' => $condition['condition_type'],
+                        'condition_value' => $this->formatValue($condition['condition_value']),
+                        'operator' => $condition['operator']
+                    ]);
+                }
             }
-        }
-        if ($request->has('discounts')) {
-            foreach ($request->discounts as $discount) {
-                $campaign->discounts()->create([
-                    'discount_type' => $discount['discount_type'],
-                    'discount_value' => $this->formatValue($discount['discount_value']),
-                ]);
+            if ($request->has('discounts')) {
+                foreach ($request->discounts as $discount) {
+                    $campaign->discounts()->create([
+                        'discount_type' => $discount['discount_type'],
+                        'discount_value' => $this->formatValue($discount['discount_value']),
+                    ]);
+                }
             }
-        }
-        return $campaign;
+            return $campaign;
         }
         catch(\Exception $e){
             Log::error('Campaign creation failed: ' . $e->getMessage());
