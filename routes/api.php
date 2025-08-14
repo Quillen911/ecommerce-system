@@ -31,9 +31,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/sorting', [MainController::class, 'sorting']);
     Route::get('/search/autocomplete', [MainController::class, 'autocomplete']);
 
-    Route::get('/my-seller', [AuthController::class, 'mySeller']);
-    Route::post('/seller-logout', [AuthController::class, 'sellerLogout']);
-
+    
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
@@ -51,8 +49,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('product', ProductController::class);
 
         Route::apiResource('order', SellerOrderController::class)->only(['index','show']);
-        Route::post('order/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem']);
-        Route::post('order/{id}/cancel', [SellerOrderController::class, 'cancelOrderItem']);
+        Route::post('orderitem/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem']);
+        Route::post('orderitem/{id}/refund', [SellerOrderController::class, 'refundOrderItem']);
     });
     
 });

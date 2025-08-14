@@ -81,7 +81,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Sipariş #{{ $orderId }}</th>
+                                    <th>Sipariş item ID</th>
                                     <th>Ürün</th>
                                     <th>Yazar</th>
                                     <th>Kategori</th>
@@ -96,7 +96,7 @@
                             <tbody>
                                 @foreach($items as $item)
                                     <tr>
-                                        <td>{{ $loop->first ? $order->created_at->format('d.m.Y H:i') : '' }}</td>
+                                        <td>{{ $item->id }}</td>
                                         <td>{{ $item->product->title }}</td>
                                         <td>{{ $item->product->author }}</td>
                                         <td>{{ $item->product_category_title }}</td>
@@ -104,17 +104,35 @@
                                         <td>{{ number_format($item->product->list_price, 2) }} TL</td>
                                         <td>{{ number_format($item->product->list_price * $item->quantity, 2) }} TL</td>
                                         <td>{{ number_format($item->paid_price, 2) }} TL</td>
-                                        <td>{{ $item->status }}</td>
                                         <td>
-                                            @if($item->status === 'pending')
-                                                <form action="{{ route('seller.confirmOrderItem', $item->order_id) }}" method="POST">
+                                            @if($item->payment_status === 'refunded')
+                                                <span class="status-badge status-canceled">İade Edildi</span>
+                                            @elseif($item->payment_status === 'paid' && $item->status === 'confirmed')
+                                                <span class="status-badge status-pending">Sipariş Onaylandı</span>
+                                            @elseif($item->status === 'shipped')
+                                                <span class="status-badge status-completed">Gönderildi</span>
+                                            @elseif($item->status === 'canceled')
+                                                <span class="status-badge status-canceled">Satıcı İptal Etti</span>
+                                            @else
+                                                <span class="status-badge">{{ $item->status }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($item->payment_status === 'paid' && $item->status === 'confirmed')
+                                                <form action="{{ route('seller.confirmOrderItem', $item->id) }}" method="POST">
                                                     @csrf
-                                                    <button class="btn">Siparişi Onayla</button>
+                                                    <button class="btn">Hazırla & Gönder</button>
                                                 </form>
-                                                <form action="{{ route('seller.cancelOrderItem', $item->order_id) }}" method="POST">
+                                                <form action="{{ route('seller.refundOrderItem', $item->id) }}" method="POST">
                                                     @csrf
-                                                    <button class="btn">Siparişi İptal Et</button>
+                                                    <button class="btn" style="background: #dc3545; border-color: #dc3545;">Stok Yok - İade Et</button>
                                                 </form>
+                                            @elseif($item->payment_status === 'refunded')
+                                                <span class="muted">İade Tarihi: {{ \Carbon\Carbon::parse($item->refunded_at)->format('d.m.Y H:i') ?? 'N/A' }}</span>
+                                            @elseif($item->status === 'shipped')
+                                                <span class="muted">Gönderildi</span>
+                                            @elseif($item->status === 'canceled')
+                                                <span class="muted">İptal Edildi</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -124,14 +142,14 @@
                     </div>
 
                     <div class="totals">
-                        <div class="row"><strong>Müşteri</strong><span>{{ $order->user->username ?? 'N/A' }}</span></div>
-                        <div class="row"><strong>Email</strong><span>{{ $order->user->email ?? 'N/A' }}</span></div>
-                        <div class="row"><strong>Sipariş Tarihi</strong><span>{{ $order->created_at->format('d.m.Y H:i') }}</span></div>
-                        @if($order->campaign_info)
+                        <div class="row"><strong>Müşteri</strong><span>{{ $order?->user?->username ?? 'N/A' }}</span></div>
+                        <div class="row"><strong>Email</strong><span>{{ $order?->user?->email ?? 'N/A' }}</span></div>
+                        <div class="row"><strong>Sipariş Tarihi</strong><span>{{ $order?->created_at?->format('d.m.Y H:i') ?? 'N/A' }}</span></div>
+                        @if($order?->campaign_info)
                             <div class="row"><strong>Kampanya</strong><span>{{ $order->campaign_info }}</span></div>
                         @endif
                         <div class="row"><strong>Kargo</strong>
-                            <span>{{ $order->cargo_price == 0 ? 'Kargo Ücretsiz' : number_format($order->cargo_price,2).' TL' }}</span>
+                            <span>{{ ($order?->cargo_price ?? 0) == 0 ? 'Kargo Ücretsiz' : number_format($order->cargo_price ?? 0, 2).' TL' }}</span>
                         </div>
                     </div>
 

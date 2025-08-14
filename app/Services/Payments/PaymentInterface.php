@@ -11,7 +11,7 @@ interface PaymentInterface
 
     public function checkPaymentStatus(string $paymentId): array;
 
-    public function cancelPayment(string $paymentId): array;
+    //public function cancelPayment(string $paymentId): array;
     
     public function refundPayment(string $paymentTransactionId, float $amount): array;
 

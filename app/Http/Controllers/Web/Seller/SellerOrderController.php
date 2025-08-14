@@ -16,7 +16,7 @@ class SellerOrderController extends Controller
     }
     public function sellerOrders()
     {
-        $seller = auth('seller')->user();
+        $seller = auth('seller_web')->user();
         $store = Store::where('seller_id', $seller->id)->first();
         if(!$store){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
@@ -26,7 +26,7 @@ class SellerOrderController extends Controller
     }
     public function confirmOrderItem($id)
     {
-        $seller = auth('seller')->user();
+        $seller = auth('seller_web')->user();
         $store = Store::where('seller_id', $seller->id)->first();
         if(!$store){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
@@ -34,14 +34,18 @@ class SellerOrderController extends Controller
         $orderItem = $this->sellerOrderService->confirmItem($store, $id);
         return redirect()->route('seller.order')->with('success', 'Sipariş başarıyla onaylandı');
     }
-    public function cancelOrderItem($id)
+    public function refundOrderItem($id)
     {
-        $seller = auth('seller')->user();
+        $seller = auth('seller_web')->user();
         $store = Store::where('seller_id', $seller->id)->first();
         if(!$store){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
-        $orderItem = $this->sellerOrderService->cancelSelectedItems($store, $id);
-        return redirect()->route('seller.order')->with('success', 'Sipariş başarıyla iptal edildi');
+        $orderItem = $this->sellerOrderService->refundSelectedItems($store, $id);
+        if($orderItem['success']){
+            return redirect()->route('seller.order')->with('success', $orderItem['message']);
+        }else{
+            return redirect()->route('seller.order')->with('error', $orderItem['message']);
+        }
     }
 }

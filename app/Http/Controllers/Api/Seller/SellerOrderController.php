@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Helpers\ResponseHelper;
 use App\Services\Campaigns\Seller\SellerOrderService;
 use App\Models\Store;
+use App\Models\Order;
 class SellerOrderController extends Controller
 {
     protected $sellerOrderService;
@@ -42,21 +43,41 @@ class SellerOrderController extends Controller
     public function confirmOrderItem($id)
     {
         $seller = auth('seller')->user();
+        if (!$seller) {
+            return ResponseHelper::error('Unauthorized', 401);
+        }
+        
         $store = Store::where('seller_id', $seller->id)->first();
         if(!$store){
-            return ResponseHelper::error('Lütfen giriş yapınız');
+            return ResponseHelper::error('Lütfen giriş yapınız', 400);
         }
+        
         $orderItem = $this->sellerOrderService->confirmItem($store, $id);
+        
+        if (!$orderItem) {
+            return ResponseHelper::error('Sipariş bulunamadı veya size ait değil', 404);
+        }
+        
         return ResponseHelper::success('Sipariş başarıyla onaylandı', $orderItem);
     }
-    public function cancelOrderItem($id)
+    public function refundOrderItem($id)
     {
         $seller = auth('seller')->user();
+        if (!$seller) {
+            return ResponseHelper::error('Unauthorized', 401);
+        }
+        
         $store = Store::where('seller_id', $seller->id)->first();
         if(!$store){
-            return ResponseHelper::error('Lütfen giriş yapınız');
+            return ResponseHelper::error('Lütfen giriş yapınız', 400);
         }
-        $orderItem = $this->sellerOrderService->cancelSelectedItems($store, $id);
-        return ResponseHelper::success('Sipariş başarıyla iptal edildi', $orderItem);
+        
+        $result = $this->sellerOrderService->refundSelectedItems($store, $id);
+        
+        if (!$result['success']) {
+            return ResponseHelper::error($result['message'] ?? 'Sipariş iade edilemedi', 400);
+        }
+        
+        return ResponseHelper::success($result['message'], $result['orderItem']);
     }
 }

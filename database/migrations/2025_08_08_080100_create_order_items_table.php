@@ -25,9 +25,8 @@ return new class extends Migration
             $table->string('payment_transaction_id')->nullable();
             $table->string('status');
             $table->decimal('refunded_price', 10, 2)->default(0);
-            $table->enum('payment_status', ['pending','paid','refunded','canceled','failed'])->default('pending');
+            $table->enum('payment_status', ['paid','refunded','failed']);
             $table->timestamp('refunded_at')->nullable();
-            $table->timestamp('canceled_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

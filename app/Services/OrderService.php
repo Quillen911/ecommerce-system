@@ -90,10 +90,10 @@ class OrderService
                 'refunded_price' => 0,
                 'payment_status' => 'failed',
                 'refunded_at' => null,
-                'canceled_at' => null,
+
                 'store_id' => $productData['store_id'],
                 'store_name' => $productData['store_name'],
-                'status' => 'pending',
+                'status' => 'Başarısız Ödeme',
             ]);
         }
         if(!$order || !$orderItem){
@@ -111,7 +111,7 @@ class OrderService
                 'payment_id'      => $paymentResult['payment_id'] ?? null,
                 'conversation_id' => $paymentResult['conversation_id'] ?? null,
                 'payment_status'  => $paymentResult['payment_status'],
-                'status'          => 'pending',
+                'status'          => 'confirmed',
             ]);
 
             foreach ($paymentResult['payment_transaction_id'] as $itemId => $txId) {
@@ -123,6 +123,7 @@ class OrderService
                         'paid_price' => $orderItem->paid_price,
                         'payment_transaction_id' => $txId,
                         'payment_status' => $paymentResult['payment_status'],
+                        'status' => 'confirmed',
                     ]);
                 }
             }
