@@ -23,6 +23,7 @@ class Product extends Model
         'author',
         'list_price',
         'stock_quantity',
+        'sold_quantity',
         'images'
     ];
     protected $casts = [
@@ -45,7 +46,6 @@ class Product extends Model
         static::saved(function ($product){
             $data = $product->toArray();
             $data['category_title'] = $product->category?->category_title ?? '';
-            
             dispatch(new IndexProductToElasticsearch($data));
         });
 

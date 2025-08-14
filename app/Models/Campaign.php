@@ -11,7 +11,7 @@ class Campaign extends Model
     protected $fillable = [
         'name',
         'store_id',
-        'campaign_owner',
+        'store_name',
         'description',
         'type',
         'is_active',

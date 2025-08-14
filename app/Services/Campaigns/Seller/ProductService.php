@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
-
+use App\Models\Store;
 
 class ProductService
 {
@@ -18,7 +18,12 @@ class ProductService
     }
     public function createProduct(ProductStoreRequest $request)
     {
-        $products = Product::create($request->validated());
+        $seller = auth('seller_web')->user();
+        $store = Store::where('seller_id', $seller->id)->first();
+        $productData = $request->all();
+        $productData['store_id'] = $store->id;
+        $productData['store_name'] = $store->name;
+        $products = Product::create($productData);
         return $products;
     }
 

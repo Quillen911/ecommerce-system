@@ -12,6 +12,7 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Mağaza Adı</th>
                 <th>Kampanya Adı</th>
                 <th>Kampanya Tipi</th>
                 <th>Kampanya Açıklaması</th>
@@ -29,6 +30,7 @@
         @foreach($campaigns as $campaign)
             <tr>
                 <td>{{ $campaign->id }}</td>
+                <td>{{ $campaign->store_name }}</td>
                 <td>{{ $campaign->name }}</td>
                 <td>{{ $campaign->type }}</td>
                 <td>{{ $campaign->description }}</td>

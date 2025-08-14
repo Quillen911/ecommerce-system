@@ -44,8 +44,8 @@
     </form>
     <table border="1" width="100%" style="text-align: center; margin-bottom: 20px;">
         <tr>
-            
             <th>ID</th>
+            <th>Satılan Miktar</th>
             <th>Ürün Adı</th>
             <th>Kategori</th>
             <th>Yazar</th>
@@ -56,6 +56,7 @@
         @foreach($products as $product)
             <tr>
                 <td>{{ $product['id'] }}</td>
+                <td>{{ $product['sold_quantity'] }}</td>
                 <td>{{ $product['title'] }}</td>
                 <td>
                     @if(is_array($product))

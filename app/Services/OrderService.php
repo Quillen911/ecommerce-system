@@ -131,6 +131,7 @@ class OrderService
             
             foreach ($productsData as $p) {
                 Product::whereKey($p['product_id'])->decrement('stock_quantity', (int) $p['quantity']);
+                Product::whereKey($p['product_id'])->increment('sold_quantity', (int) $p['quantity']);
             }
 
             return ['success' => true, 'order_id' => $order->id];

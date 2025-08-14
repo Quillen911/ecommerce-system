@@ -12,7 +12,7 @@ class CampaignSeeder extends Seeder
     {
         Campaign::create([
             'store_id' => 1,
-            'campaign_owner' => 'i&d',
+            'store_name' => 'i&d',
             'name' => 'Sabahattin Ali Romanlarında 2 Al 1 Öde',
             'type' => 'x_buy_y_pay',
             'description' => 'Sabahattin Ali Romanlarında 2 Al 1 Öde',
@@ -25,7 +25,7 @@ class CampaignSeeder extends Seeder
 
         Campaign::create([
             'store_id' => 1,
-            'campaign_owner' => 'i&d',
+            'store_name' => 'i&d',
             'name' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
             'type' => 'percentage',
             'description' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
@@ -37,7 +37,7 @@ class CampaignSeeder extends Seeder
         ]);
         Campaign::create([
             'store_id' => 1,
-            'campaign_owner' => 'i&d',
+            'store_name' => 'i&d',
             'name' => 'Yerli Yazarlarda %5 indirim',
             'type' => 'percentage',
             'description' => 'Yerli Yazarlarda %5 indirim',

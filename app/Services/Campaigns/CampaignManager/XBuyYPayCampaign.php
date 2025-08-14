@@ -13,7 +13,10 @@ class XBuyYPayCampaign extends BaseCampaign
         if(!$this->isCampaignActive()){
             return false;
         }
-
+        if(!$this->productEligible($products)){
+            return false;
+        }
+        
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
             $total = collect($products)->sum(function($item) {

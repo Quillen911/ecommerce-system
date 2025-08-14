@@ -20,6 +20,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 10, 
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null    
             ],
             [
@@ -30,6 +31,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 20,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -40,6 +42,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 4,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -50,6 +53,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 8,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -70,6 +74,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 7,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -80,6 +85,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 2,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -90,6 +96,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 18,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -100,6 +107,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 9,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -110,6 +118,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 12,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -120,6 +129,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 2,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -130,6 +140,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 9,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -140,6 +151,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 1,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -150,6 +162,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 4,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -160,6 +173,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 1,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -170,6 +184,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 0,
                 "store_id" => 1,
                 "store_name" => "i&d",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             // Ahmet Kitapçı'nın ürünleri (store_id: 2)
@@ -181,6 +196,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 25,
                 "store_id" => 2,
                 "store_name" => "Ahmet'in Kitap Dünyası",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -191,6 +207,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 15,
                 "store_id" => 2,
                 "store_name" => "Ahmet'in Kitap Dünyası",
+                "sold_quantity" => 0,
                 "images" => null
             ],
             [
@@ -201,6 +218,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 8,
                 "store_id" => 2,
                 "store_name" => "Ahmet'in Kitap Dünyası",
+                "sold_quantity" => 0,
                 "images" => null
             ],
         ];
