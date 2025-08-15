@@ -15,12 +15,15 @@ return [
             'properties' => [
                 'id' => ['type' => 'integer'],
                 'store_id' => ['type' => 'integer'],
+                'store_name' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
                 'title' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
                 'author' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
                 'list_price' => ['type' => 'float'],
                 'category_id' => ['type' => 'integer'],
                 'category_title' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
                 'stock_quantity' => ['type' => 'integer'],
+                'sold_quantity' => ['type' => 'integer'],
+                'images' => ['type' => 'keyword'],
                 'created_at' => ['type' => 'date'],
                 'updated_at' => ['type' => 'date'],
             ]

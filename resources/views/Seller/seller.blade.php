@@ -6,8 +6,9 @@
   <title>Satıcı Paneli</title>
   <style>
     :root{
-      --bg:#fff; --text:#111; --muted:#666; --line:#e6e6e6;
-      --accent:#000; --success:#0f8a44; --warn:#ff9800; --danger:#c62828;
+      --bg:#1E293B; --text:#F1F5F9; --muted:#94A3B8; --line:#334155;
+      --accent:#3B82F6; --success:#22C55E; --warn:#F59E0B; --danger:#EF4444;
+      --header:#0F172A; --card:#334155;
     }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
