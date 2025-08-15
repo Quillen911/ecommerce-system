@@ -6,139 +6,514 @@
     <title>Ana Sayfa</title>
     <style>
         :root{
-            --bg:#fff; --text:#111; --muted:#666; --line:#e6e6e6;
-            --accent:#000; --success:#0f8a44; --warn:#ff9800; --danger:#c62828;
-        }
-        *{box-sizing:border-box}
-        html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
-        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,sans-serif;letter-spacing:.2px;line-height:1.4}
-        .shell{max-width:1140px;margin:0 auto;padding:24px 16px 80px}
-        h1{font-size:22px;font-weight:600;text-transform:uppercase;letter-spacing:4px;margin:20px 0 10px;text-align:center}
-        h3{font-size:15px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;margin:12px 0}
-        .notice{padding:10px 12px;border:1px solid var(--line);margin:8px 0;border-radius:6px}
-        .notice.success{color:var(--success);background:#f0f9f4;border-color:var(--success)}
-        .notice.error{color:var(--danger);background:#fef2f2;border-color:var(--danger)}
-        .toolbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0 18px}
-        .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:10px 16px;border-radius:28px;cursor:pointer;text-transform:uppercase;letter-spacing:1.2px;font-size:12px;transition:filter .15s ease;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-        .btn:hover{filter:brightness(.9)}
-        .btn.outline{background:transparent;color:var(--accent)}
-        .card{border:1px solid var(--line);border-radius:8px;padding:12px}
-        .filters{display:grid;grid-template-columns:1.6fr repeat(5,1fr);gap:10px;align-items:end}
-        .field{display:flex;flex-direction:column;gap:6px}
-        .field label{font-size:10px;color:#333;text-transform:uppercase;letter-spacing:.6px}
-        .field input,.field select{padding:2px;border:1px solid var(--line);border-radius:6px}
-        /* Ürün Grid */
-        .products-grid{
-            display:grid;grid-template-columns:repeat(5,1fr);gap:20px;margin-top:16px
-        }
-        .product-card{
-            border:1px solid var(--line);border-radius:8px;overflow:hidden;
-            transition:all 0.2s ease;background:#fff;position:relative
-        }
-        .product-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-2px)}
-        .product-image{
-            width:100%;height:250px;background:#f8f8f8;position:relative;overflow:hidden
-        }
-        .product-image img{width:100%;height:100%;object-fit:cover}
-        .product-info{padding:12px}
-        .product-title{
-            font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;
-            line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;
-            -webkit-box-orient:vertical;overflow:hidden
-        }
-        .product-author{font-size:11px;color:var(--muted);margin-bottom:6px}
-        .product-price{
-            font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px
-        }
-        .product-actions{padding:0 12px 12px}
-        .add-btn{
-            width:100%;padding:8px;background:var(--accent);color:#fff;border:none;
-            border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;
-            letter-spacing:0.5px;cursor:pointer;transition:all 0.2s ease
-        }
-        .add-btn:hover{background:#333}
-        .add-btn:disabled{background:#ccc;cursor:not-allowed}
-        
-        @media (max-width:1200px){.products-grid{grid-template-columns:repeat(4,1fr)}}
-        @media (max-width:900px){.products-grid{grid-template-columns:repeat(3,1fr)}}
-        @media (max-width:600px){.products-grid{grid-template-columns:repeat(2,1fr);gap:12px}}
-        .actions{display:flex;gap:10px;flex-wrap:wrap}
-        .right{justify-content:flex-end}
-        .muted{color:var(--muted);font-size:12px}
-        
-        /* Sepet Bildirimi */
-        .cart-notification{
-            position:fixed;top:20px;right:-400px;width:350px;background:#fff;
-            border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.12);
-            z-index:1000;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);font-family:inherit
-        }
-        .cart-notification.show{right:20px}
-        .cart-notification-content{
-            padding:16px;display:flex;align-items:flex-start;gap:12px;
-            border-bottom:1px solid var(--line)
-        }
-        .cart-icon{
-            width:40px;height:40px;background:var(--success);border-radius:50%;
-            display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0
-        }
-        .cart-text{flex:1}
-        .cart-title{
-            font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
-            color:var(--text);margin-bottom:4px
-        }
-        .cart-message{font-size:14px;color:var(--muted)}
-        .cart-close{
-            background:none;border:none;padding:4px;border-radius:4px;cursor:pointer;
-            color:var(--muted);transition:background-color 0.2s ease;flex-shrink:0
-        }
-        .cart-close:hover{background:#f5f5f5}
-        .cart-actions{padding:12px 16px}
-        .cart-btn{
-            display:inline-block;padding:8px 16px;border-radius:4px;text-decoration:none;
-            font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
-            transition:all 0.2s ease;text-align:center;width:100%
-        }
-        .cart-btn-outline{
-            background:transparent;color:var(--accent);border:1px solid var(--accent)
-        }
-        .cart-btn-outline:hover{background:var(--accent);color:#fff}
-        
-        @media (max-width:480px){
-            .cart-notification{width:calc(100vw - 40px);right:-100%}
-            .cart-notification.show{right:20px}
+            --bg: #fafafa; 
+            --text: #1a1a1a; 
+            --muted: #6b7280; 
+            --line: #e5e7eb;
+            --accent: #111827; 
+            --accent-light: #374151;
+            --success: #059669; 
+            --warn: #d97706; 
+            --danger: #dc2626;
+            --gradient-primary: linear-gradient(135deg, #111827 0%, #374151 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --card-bg: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
-        @keyframes spin{
-            from{transform:rotate(0deg)}
-            to{transform:rotate(360deg)}
+        * { box-sizing: border-box; }
+        
+        html, body {
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg); 
+            color: var(--text);
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+            letter-spacing: 0.025em;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+        
+        .shell {
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px 80px;
+        }
+        
+        /* Header Improvements */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(250, 250, 250, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            border-bottom: 1px solid var(--line);
+            margin: 0 -20px 32px;
+            padding: 24px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        h1 {
+            font-size: 28px; 
+            font-weight: 700; 
+            letter-spacing: 0.02em;
+            margin: 0 0 20px; 
+            text-align: center;
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: none;
+        }
+        
+        h3 {
+            font-size: 16px; 
+            font-weight: 600; 
+            letter-spacing: 0.025em;
+            margin: 16px 0 8px;
+            color: var(--text);
+        }
+        
+        /* Notice Improvements */
+        .notice {
+            padding: 16px 20px; 
+            border: none;
+            margin: 16px 0; 
+            border-radius: 12px;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+        .notice.success { 
+            color: var(--success); 
+            background: rgba(5, 150, 105, 0.1);
+            border-left: 4px solid var(--success);
+        }
+        .notice.error { 
+            color: var(--danger); 
+            background: rgba(220, 38, 38, 0.1);
+            border-left: 4px solid var(--danger);
+        }
+        
+        /* Toolbar Improvements */
+        .toolbar {
+            display: flex; 
+            justify-content: space-between; 
+            gap: 16px; 
+            flex-wrap: wrap; 
+            margin: 0;
+        }
+        
+        /* Button Improvements */
+        .btn {
+            border: 2px solid var(--accent); 
+            background: var(--gradient-primary);
+            color: #fff; 
+            padding: 12px 24px; 
+            border-radius: 50px;
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn.outline {
+            background: var(--card-bg); 
+            color: var(--accent);
+            border: 2px solid var(--line);
+        }
+        
+        .btn.outline:hover {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #fff;
+        }
+        
+        /* Card Improvements */
+        .card {
+            border: none;
+            border-radius: 16px; 
+            padding: 24px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-md);
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Form Improvements */
+        .filters {
+            display: grid; 
+            grid-template-columns: 2fr repeat(5, 1fr); 
+            gap: 16px; 
+            align-items: end;
+        }
+        
+        .field {
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px;
+        }
+        
+        .field label {
+            font-size: 11px; 
+            color: var(--muted); 
+            font-weight: 600;
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+        }
+        
+        .field input, .field select {
+            padding: 12px 16px; 
+            border: 2px solid var(--line); 
+            border-radius: 12px;
+            background: var(--card-bg);
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
+        }
+
+        /* Product Grid Improvements */
+        .products-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 24px; 
+            margin-top: 32px;
+        }
+        
+        .product-card {
+            border: none;
+            border-radius: 20px; 
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card-bg); 
+            position: relative;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .product-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-8px);
+        }
+        
+        .product-image {
+            width: 100%; 
+            height: 280px; 
+            background: #f8fafc; 
+            position: relative; 
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-title {
+            font-size: 15px; 
+            font-weight: 600; 
+            color: var(--text); 
+            margin-bottom: 8px;
+            line-height: 1.4; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; 
+            overflow: hidden;
+        }
+        
+        .product-author {
+            font-size: 12px; 
+            color: var(--muted); 
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .product-price {
+            font-size: 18px; 
+            font-weight: 700; 
+            color: var(--accent); 
+            margin-bottom: 16px;
+        }
+        
+        .product-actions {
+            padding: 0 20px 20px;
+        }
+        
+        .add-btn {
+            width: 100%; 
+            padding: 14px 20px; 
+            background: var(--gradient-primary);
+            color: #fff; 
+            border: none;
+            border-radius: 50px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            letter-spacing: 0.05em;
+            cursor: pointer; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .add-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+        
+        .add-btn:hover::before {
+            left: 100%;
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .add-btn:disabled {
+            background: var(--muted); 
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .add-btn:disabled::before {
+            display: none;
+        }
+
+        /* Stock Overlay Improvements */
+        .stock-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Responsive Improvements */
+        @media (max-width: 1200px) { .products-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); } }
+        @media (max-width: 900px) { 
+            .products-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+            .filters { grid-template-columns: 1fr; }
+            .shell { padding: 0 16px 60px; }
+        }
+        @media (max-width: 600px) { 
+            .products-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+            .btn { padding: 10px 20px; font-size: 12px; }
+            h1 { font-size: 24px; }
+        }
+
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .right { justify-content: flex-end; }
+        .muted { color: var(--muted); font-size: 13px; font-weight: 500; }
+
+        /* Cart Notification Improvements */
+        .cart-notification {
+            position: fixed; 
+            top: 24px; 
+            right: -420px; 
+            width: 380px; 
+            background: var(--card-bg);
+            border: none;
+            border-radius: 16px; 
+            box-shadow: var(--shadow-xl);
+            z-index: 1000; 
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+        
+        .cart-notification.show { right: 24px; }
+        
+        .cart-notification-content {
+            padding: 20px; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+        
+        .cart-icon {
+            width: 48px; 
+            height: 48px; 
+            background: var(--gradient-success);
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #fff; 
+            flex-shrink: 0;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .cart-text { flex: 1; }
+        
+        .cart-title {
+            font-size: 12px; 
+            font-weight: 700; 
+            letter-spacing: 0.05em;
+            color: var(--text); 
+            margin-bottom: 6px;
+        }
+        
+        .cart-message { 
+            font-size: 14px; 
+            color: var(--muted); 
+            line-height: 1.4;
+        }
+        
+        .cart-close {
+            background: none; 
+            border: none; 
+            padding: 8px; 
+            border-radius: 8px; 
+            cursor: pointer;
+            color: var(--muted); 
+            transition: all 0.2s ease; 
+            flex-shrink: 0;
+        }
+        
+        .cart-close:hover { 
+            background: #f3f4f6; 
+            color: var(--text);
+        }
+        
+        .cart-actions { 
+            padding: 16px 20px; 
+        }
+        
+        .cart-btn {
+            display: inline-block; 
+            padding: 12px 20px; 
+            border-radius: 50px; 
+            text-decoration: none;
+            font-size: 12px; 
+            font-weight: 600; 
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease; 
+            text-align: center; 
+            width: 100%;
+        }
+        
+        .cart-btn-outline {
+            background: transparent; 
+            color: var(--accent); 
+            border: 2px solid var(--accent);
+        }
+        
+        .cart-btn-outline:hover { 
+            background: var(--accent); 
+            color: #fff; 
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        @media (max-width: 480px) {
+            .cart-notification { width: calc(100vw - 32px); right: -100%; }
+            .cart-notification.show { right: 16px; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Loading Animation Improvements */
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
         }
     </style>
 </head>
 <body>
 <div class="shell">
-    <h1>Hoş geldiniz {{ auth()->user()->username }}</h1>
-
-    <div class="toolbar">
-        <div class="actions">
-            <a href="/bag" class="btn outline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/></svg>
-                Sepetim
-            </a>
-            <a href="/myorders" class="btn outline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18"/><path d="M6 10h12"/><path d="M6 13h12"/><path d="M6 16h12"/></svg>
-                Siparişlerim
-            </a>
+    <div class="header">
+        <h1>Hoş geldiniz {{ auth()->user()->username }}</h1>
+        
+        <div class="toolbar">
+            <div class="actions">
+                <a href="/bag" class="btn outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/></svg>
+                    Sepetim
+                </a>
+                <a href="/myorders" class="btn outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    Siparişlerim
+                </a>
+            </div>
+            <form action="{{ route('logout') }}" method="POST" class="actions">
+                @csrf
+                <button type="submit" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16,17 21,12 16,7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Çıkış Yap
+                </button>
+            </form>
         </div>
-        <form action="{{ route('logout') }}" method="POST" class="actions">
-            @csrf
-            <button type="submit" class="btn">Çıkış Yap</button>
-        </form>
     </div>
 
     @if(session('success')) <div class="notice success">{{ session('success') }}</div> @endif
     @if(session('error')) <div class="notice error">{{ session('error') }}</div> @endif
 
-    <div class="card" style="margin-top:10px">
+    <div class="card">
         <form action="{{ route('search') }}" method="GET" class="filters">
             @csrf
             <div class="field" style="grid-column:1/span 2">
@@ -183,14 +558,17 @@
                 </div>
             @else
                 <div class="actions right">
-                    <button class="btn" type="submit">Ara</button>
+                    <button class="btn" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                        Ara
+                    </button>
                 </div>
             @endif
         </form>
     </div>
 
     @if(empty($query))
-        <div class="card" style="margin-top:12px">
+        <div class="card" style="margin-top:20px">
             <form action="{{ route('sorting') }}" method="GET" class="actions" style="justify-content:flex-start">
                 @csrf
                 <div class="field" style="min-width:220px">
@@ -208,10 +586,11 @@
         </div>
     @endif
 
-    <p class="muted" style="display:none">Gösterilen Ürün Sayısı: {{ count($products) }}</p>
-
     @if(isset($query) && !empty($query))
-        <div class="muted" style="margin-top:10px"><strong>Arama Sonuçları</strong></div>
+        <div class="muted" style="margin-top:24px; font-weight: 600;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            Arama Sonuçları
+        </div>
     @endif
 
     @if(count($products) > 0)
@@ -225,7 +604,7 @@
                         $images = $p->images ?? null;
                     }
                     
-                    $imageUrl = '/images/no-image.jpg'; // Varsayılan
+                    $imageUrl = '/images/no-image.jpg';
                     if ($images) {
                         if (is_string($images)) {
                             $imagesArray = json_decode($images, true);
@@ -244,14 +623,17 @@
                     <div class="product-image">
                         <img src="{{ $imageUrl }}" alt="{{ is_array($p) ? $p['title'] : $p->title }}">
                         @if($isOutOfStock)
-                            <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;">STOKTA YOK</div>
+                            <div class="stock-overlay">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                                STOKTA YOK
+                            </div>
                         @endif
                     </div>
                     
                     <div class="product-info">
                         <div class="product-title">{{ is_array($p) ? $p['title'] : $p->title }}</div>
                         <div class="product-author">{{ is_array($p) ? $p['author'] : $p->author }}</div>
-                        <div class="product-price">{{ number_format(is_array($p) ? $p['list_price'] : $p->list_price, 2) }} TL</div>
+                        <div class="product-price">{{ number_format(is_array($p) ? $p['list_price'] : $p->list_price, 2) }} ₺</div>
                     </div>
                     
                     <div class="product-actions">
@@ -259,7 +641,13 @@
                             @csrf
                             <input type="hidden" name="product_id" value="{{ is_array($p) ? $p['id'] : $p->id }}">
                             <button class="add-btn" type="submit" {{ $isOutOfStock ? 'disabled' : '' }}>
-                                {{ $isOutOfStock ? 'STOKTA YOK' : 'SEPETE EKLE' }}
+                                @if($isOutOfStock)
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                                    STOKTA YOK
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/></svg>
+                                    SEPETE EKLE
+                                @endif
                             </button>
                         </form>
                     </div>
@@ -267,11 +655,17 @@
             @endforeach
         </div>
     @else
-        <div class="notice">Ürün bulunamadı</div>
+        <div class="notice" style="margin-top: 32px; text-align: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 12px; color: var(--muted);"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            Ürün bulunamadı
+        </div>
     @endif
 
-    <div class="actions" style="justify-content:space-between;margin-top:16px">
-        <a href="{{ route('main') }}" class="btn outline">Tüm ürünleri göster</a>
+    <div class="actions" style="justify-content:space-between;margin-top:32px">
+        <a href="{{ route('main') }}" class="btn outline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18m-9-9l9 9-9 9"/></svg>
+            Tüm ürünleri göster
+        </a>
     </div>
 </div>
 
@@ -280,12 +674,6 @@
         const searchQuery = document.getElementById('q')?.value || '';
         const url = new URL(window.location.origin + '/search');
         url.searchParams.set('q', searchQuery);
-        url.searchParams.set('page', '1');
-        url.searchParams.set('size', '12');
-        window.location.href = url.toString();
-    }
-    function resetFilter(){
-        const url = new URL(window.location.origin + '/filter');
         url.searchParams.set('page', '1');
         url.searchParams.set('size', '12');
         window.location.href = url.toString();
@@ -299,12 +687,12 @@
                 e.preventDefault();
                 
                 const button = form.querySelector('button');
-                const originalText = button.textContent;
+                const originalText = button.innerHTML;
                 button.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="loading-spinner">
                         <path d="M21 12a9 9 0 11-6.219-8.56"/>
                     </svg>
-                    Ekleniyor
+                    Ekleniyor...
                 `;
                 button.disabled = true;
                 
@@ -338,20 +726,18 @@
     });
 
     function showNotification(message, type) {
-        // Mevcut bildirimleri kaldır
         const existingNotification = document.querySelector('.cart-notification');
         if (existingNotification) {
             existingNotification.remove();
         }
         
         const isSuccess = type === 'success';
-        const iconBg = isSuccess ? 'var(--success)' : 'var(--danger)';
-        const title = isSuccess ? 'SEPETİNİZE EKLENDİ' : 'ÜRÜN SEPETE EKLENEMEDİ';
+        const iconBg = isSuccess ? 'var(--gradient-success)' : 'var(--danger)';
+        const title = isSuccess ? 'SEPETİNİZE EKLENDİ' : 'SEPETE EKLENEMEDİ';
         const iconSvg = isSuccess ? 
-            `<path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/>` :
+            `<path d="M20 6L9 17l-5-5"/>` :
             `<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>`;
         
-        // Sepet bildirimi oluştur
         const notification = document.createElement('div');
         notification.className = 'cart-notification';
         notification.innerHTML = `
@@ -374,15 +760,12 @@
             ${isSuccess ? '<div class="cart-actions"><a href="/bag" class="cart-btn cart-btn-outline">SEPETE GİT</a></div>' : ''}
         `;
         
-        // Body'ye ekle
         document.body.appendChild(notification);
         
-        // Animasyonla göster
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
         
-        // 5 saniye sonra kaldır
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.classList.remove('show');
@@ -390,7 +773,7 @@
                     if (notification.parentNode) {
                         notification.remove();
                     }
-                }, 300);
+                }, 400);
             }
         }, 5000);
     }
