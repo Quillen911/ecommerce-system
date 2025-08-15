@@ -23,6 +23,17 @@ class ProductService
         $productData = $request->all();
         $productData['store_id'] = $store->id;
         $productData['store_name'] = $store->name;
+        $productData['sold_quantity'] = 0;
+        if($request->hasFile('images')){
+            $images = [];
+            foreach($request->file('images') as $image){
+                $filename = time() . '.' . $image->getClientOriginalName();
+                $image->storeAs('productsImages', $filename, 'public');
+                $images[] = $filename;
+            }
+            $productData['images'] = $images;
+            
+        }
         $products = Product::create($productData);
         return $products;
     }

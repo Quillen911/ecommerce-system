@@ -31,6 +31,8 @@ class IndexProductToElasticsearch implements ShouldQueue
 
         $data['list_price'] = (float) $data['list_price'];
         $data['category_title'] = $data['category_title'] ?? '';
+        $data['sold_quantity'] = $data['sold_quantity'] ?? 0;
+        $data['images'] = $data['images'] ?? [];
 
         $elasticsearchService->indexDocument('products', $this->product['id'], $data);
 

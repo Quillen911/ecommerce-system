@@ -46,8 +46,12 @@ class ProductController extends Controller
 
     public function createProduct(ProductStoreRequest $request) 
     {
-        $products = $this->productService->createProduct($request);
-        return redirect()->route('seller.product')->with('success', 'Ürün başarıyla eklendi');
+        try {
+            $products = $this->productService->createProduct($request);
+            return redirect()->route('seller.product')->with('success', 'Ürün başarıyla eklendi');
+        } catch (\Exception $e) {
+            return redirect()->route('seller.product')->with('error', $e->getMessage());
+        }
     }
 
     public function editProduct($id)

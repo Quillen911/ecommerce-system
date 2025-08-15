@@ -33,7 +33,7 @@ class Product extends Model
     ];
 
     public function getFirstImageAttribute() {
-        return empty($this->images) ? '/images/no-image.jpg' : '/storage/products/' . $this->images[0];
+        return empty($this->images) ? '/images/no-image.jpg' : '/storage/productsImages/' . $this->images[0];
     }
     public function category(){
         return $this->belongsTo(Category::class, 'category_id');
