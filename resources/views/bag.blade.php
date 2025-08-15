@@ -126,9 +126,7 @@
             </div>
         @endif
 
-        <div class="actions" style="justify-content:flex-end">
-            <a href="{{ route('order') }}" class="btn">Siparişi Tamamla</a>
-        </div>
+        
     @endif
 </div>
 </body>

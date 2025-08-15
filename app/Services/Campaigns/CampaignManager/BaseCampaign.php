@@ -53,18 +53,17 @@ abstract class BaseCampaign implements CampaignInterface
         }
         return true;
     }
-    protected function productEligible($products): bool
+    protected function productEligible($products): array
     {
         $storeIds = collect($products)->pluck('store_id')->toArray();
-        //dd($storeIds);
-        $storeIds = array_unique($storeIds);
-        $storeIds = array_filter($storeIds);
-        $storeIds = array_values($storeIds);
-        $store = Store::whereIn('id', $storeIds)->first();
-        if($store->id != $this->campaign->store_id){
-            return false;
+        
+        $eligibleProducts = [];
+        foreach($products as $product){
+            if($product->store_id == $this->campaign->store_id){
+                $eligibleProducts[] = $product;
+            }
         }
-        return true;
+        return $eligibleProducts;
     }
 
     protected function getDiscountRule()

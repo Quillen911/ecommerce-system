@@ -41,5 +41,17 @@ class CampaignConditionSeeder extends Seeder
             'condition_value' => json_encode(['Yaşar Kemal', 'Oğuz Atay', 'Sabahattin Ali', 'Hakan Mengüç', 'Uğur Koşar', 'Mert Arık', 'Peyami Safa'], JSON_UNESCAPED_UNICODE),
             'operator' => 'in',
         ]);
+        CampaignCondition::create([
+            'campaign_id' => 4,
+            'condition_type' => 'min_bag',
+            'condition_value' => json_encode(200.00),
+            'operator' => '>=',
+        ]);
+        CampaignCondition::create([
+            'campaign_id' => 5,
+            'condition_type' => 'author',
+            'condition_value' => json_encode('Dostoyevski'),
+            'operator' => '=',
+        ]);
     }
 }

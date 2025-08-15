@@ -28,7 +28,7 @@ class MainController extends Controller
         });
         
         $categories = Category::all();
-        
+    
         return view('main', compact('products', 'categories'));
     }
 

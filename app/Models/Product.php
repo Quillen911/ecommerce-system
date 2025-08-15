@@ -29,15 +29,19 @@ class Product extends Model
     protected $casts = [
         'list_price' => 'float',
         'stock_quantity' => 'integer',
+        'images' => 'array'
     ];
 
-
+    public function getFirstImageAttribute() {
+        return empty($this->images) ? '/images/no-image.jpg' : '/storage/products/' . $this->images[0];
+    }
     public function category(){
         return $this->belongsTo(Category::class, 'category_id');
     }
     public function store(){
         return $this->belongsTo(Store::class, 'store_id');
     }
+
     //Elasticsearch
     protected static function boot()
     {
