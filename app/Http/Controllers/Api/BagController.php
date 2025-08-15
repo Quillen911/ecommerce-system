@@ -32,16 +32,15 @@ class BagController extends Controller
         $bag = $this->getUserBag();
         
         if (!$bag) {
-            return ResponseHelper::notFound('Sepetiniz bulunamadı!');
+            return ResponseHelper::error('Sepetiniz bulunamadı!', 404);
         }
+        
         $products = $this->bagService->getBag($bag);
         if($products->isEmpty()){
-            $products = "Ürün Yok!";
-            return ResponseHelper::success('Sepetiniz boş!',$products);
+            return ResponseHelper::success('Sepetiniz boş!', []);
         }
-        return ResponseHelper::success('Sepetiniz', $products);
-
         
+        return ResponseHelper::success('Sepetiniz', $products);
     }
     public function store(BaseApiRequest $request)
     {
@@ -52,16 +51,19 @@ class BagController extends Controller
         $bag = Bag::firstOrCreate(['bag_user_id' => $user->id]);
 
         if(!$bag){
-            return ResponseHelper::notFound('Sepetiniz bulunamadı!');
+            return ResponseHelper::error('Sepetiniz bulunamadı!', 400);
         }
 
         $productItem = $this->bagService->getAddBag($bag, $request->product_id);
+        
         if (is_array($productItem) && isset($productItem['error'])) {
-            return ResponseHelper::error($productItem['error']);
+            return ResponseHelper::error($productItem['error'], 400);
         }
+        
         if(!$productItem){
-            return ResponseHelper::notFound('Ürün bulunamadı!');
+            return ResponseHelper::error('Ürün bulunamadı!', 404);
         }
+        
         Cache::flush();
         return ResponseHelper::success('Ürün sepete eklendi.', $productItem);
     }
@@ -75,12 +77,12 @@ class BagController extends Controller
         $bag = $this->getUserBag();
 
         if(!$bag){
-            return ResponseHelper::notFound('Sepet bulunamadı!');
+            return ResponseHelper::error('Sepet bulunamadı!', 404);
         }
 
         $bagItem = $this->bagService->showBagItem($bag, $id);
         if(!$bagItem){
-            return ResponseHelper::notFound('Ürün bulunamadı!');
+            return ResponseHelper::error('Ürün bulunamadı!', 404);
         }
         
         return ResponseHelper::success('Ürün', $bagItem);
@@ -94,13 +96,13 @@ class BagController extends Controller
         $bag = $this->getUserBag();
 
         if(!$bag){
-            return ResponseHelper::notFound('Sepet bulunamadı!');
+            return ResponseHelper::error('Sepet bulunamadı!', 404);
         }
 
         $result = $this->bagService->destroyBagItem($bag, $id);
         
         if(isset($result['success']) && !$result['success']){
-            return ResponseHelper::notFound($result['message']);
+            return ResponseHelper::error($result['message'], 400);
         }
 
         return ResponseHelper::success($result['message'] ?? 'Ürün sepetten silindi.');

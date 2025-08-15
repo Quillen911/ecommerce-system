@@ -27,14 +27,91 @@
         .field{display:flex;flex-direction:column;gap:6px}
         .field label{font-size:10px;color:#333;text-transform:uppercase;letter-spacing:.6px}
         .field input,.field select{padding:2px;border:1px solid var(--line);border-radius:6px}
-        .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:6px;margin-top:16px}
-        table{width:100%;border-collapse:collapse;min-width:860px}
-        thead th{font-size:11px;color:#222;font-weight:600;text-transform:uppercase;letter-spacing:1.4px;background:#fafafa;border-bottom:1px solid var(--line);padding:12px 10px;text-align:left}
-        tbody td{padding:12px 10px;border-bottom:1px solid var(--line);font-size:14px}
-        tbody tr:hover{background:#fcfcfc}
+        /* Ürün Grid */
+        .products-grid{
+            display:grid;grid-template-columns:repeat(5,1fr);gap:20px;margin-top:16px
+        }
+        .product-card{
+            border:1px solid var(--line);border-radius:8px;overflow:hidden;
+            transition:all 0.2s ease;background:#fff;position:relative
+        }
+        .product-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-2px)}
+        .product-image{
+            width:100%;height:250px;background:#f8f8f8;position:relative;overflow:hidden
+        }
+        .product-image img{width:100%;height:100%;object-fit:cover}
+        .product-info{padding:12px}
+        .product-title{
+            font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;
+            line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;
+            -webkit-box-orient:vertical;overflow:hidden
+        }
+        .product-author{font-size:11px;color:var(--muted);margin-bottom:6px}
+        .product-price{
+            font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px
+        }
+        .product-actions{padding:0 12px 12px}
+        .add-btn{
+            width:100%;padding:8px;background:var(--accent);color:#fff;border:none;
+            border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;
+            letter-spacing:0.5px;cursor:pointer;transition:all 0.2s ease
+        }
+        .add-btn:hover{background:#333}
+        .add-btn:disabled{background:#ccc;cursor:not-allowed}
+        
+        @media (max-width:1200px){.products-grid{grid-template-columns:repeat(4,1fr)}}
+        @media (max-width:900px){.products-grid{grid-template-columns:repeat(3,1fr)}}
+        @media (max-width:600px){.products-grid{grid-template-columns:repeat(2,1fr);gap:12px}}
         .actions{display:flex;gap:10px;flex-wrap:wrap}
         .right{justify-content:flex-end}
         .muted{color:var(--muted);font-size:12px}
+        
+        /* Sepet Bildirimi */
+        .cart-notification{
+            position:fixed;top:20px;right:-400px;width:350px;background:#fff;
+            border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.12);
+            z-index:1000;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);font-family:inherit
+        }
+        .cart-notification.show{right:20px}
+        .cart-notification-content{
+            padding:16px;display:flex;align-items:flex-start;gap:12px;
+            border-bottom:1px solid var(--line)
+        }
+        .cart-icon{
+            width:40px;height:40px;background:var(--success);border-radius:50%;
+            display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0
+        }
+        .cart-text{flex:1}
+        .cart-title{
+            font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
+            color:var(--text);margin-bottom:4px
+        }
+        .cart-message{font-size:14px;color:var(--muted)}
+        .cart-close{
+            background:none;border:none;padding:4px;border-radius:4px;cursor:pointer;
+            color:var(--muted);transition:background-color 0.2s ease;flex-shrink:0
+        }
+        .cart-close:hover{background:#f5f5f5}
+        .cart-actions{padding:12px 16px}
+        .cart-btn{
+            display:inline-block;padding:8px 16px;border-radius:4px;text-decoration:none;
+            font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
+            transition:all 0.2s ease;text-align:center;width:100%
+        }
+        .cart-btn-outline{
+            background:transparent;color:var(--accent);border:1px solid var(--accent)
+        }
+        .cart-btn-outline:hover{background:var(--accent);color:#fff}
+        
+        @media (max-width:480px){
+            .cart-notification{width:calc(100vw - 40px);right:-100%}
+            .cart-notification.show{right:20px}
+        }
+        
+        @keyframes spin{
+            from{transform:rotate(0deg)}
+            to{transform:rotate(360deg)}
+        }
     </style>
 </head>
 <body>
@@ -138,47 +215,56 @@
     @endif
 
     @if(count($products) > 0)
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Ürün</th>
-                        <th>Kategori ID</th>
-                        <th>Kategori</th>
-                        <th>Yazar</th>
-                        <th>Fiyat</th>
-                        <th>Stok</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach($products as $p)
-                    <tr>
-                        <td>{{ $p['id'] }}</td>
-                        <td>{{ $p['title'] }}</td>
-                        <td>{{ $p['category_id'] }}</td>
-                        <td>
-                            @if(is_array($p))
-                                {{ $p['category_title'] }}
-                            @else
-                                {{ $p->category?->category_title }}
-                            @endif
-                        </td>
-                        <td>{{ $p['author'] }}</td>
-                        <td>{{ $p['list_price'] }}</td>
-                        <td>{{ $p['stock_quantity'] }}</td>
-                        <td>
-                            <form action="{{ route('add') }}" method="POST" style="margin:0">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $p['id'] }}">
-                                <button class="btn outline" type="submit">Sepete Ekle</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
+        <div class="products-grid">
+            @foreach($products as $p)
+                @php
+                    $images = null;
+                    if (is_array($p)) {
+                        $images = $p['images'] ?? null;
+                    } else {
+                        $images = $p->images ?? null;
+                    }
+                    
+                    $imageUrl = '/images/no-image.jpg'; // Varsayılan
+                    if ($images) {
+                        if (is_string($images)) {
+                            $imagesArray = json_decode($images, true);
+                        } else {
+                            $imagesArray = $images;
+                        }
+                        if (is_array($imagesArray) && !empty($imagesArray)) {
+                            $imageUrl = $imagesArray[0];
+                        }
+                    }
+                    
+                    $isOutOfStock = (is_array($p) ? $p['stock_quantity'] : $p->stock_quantity) <= 0;
+                @endphp
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{{ $imageUrl }}" alt="{{ is_array($p) ? $p['title'] : $p->title }}">
+                        @if($isOutOfStock)
+                            <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;">STOKTA YOK</div>
+                        @endif
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-title">{{ is_array($p) ? $p['title'] : $p->title }}</div>
+                        <div class="product-author">{{ is_array($p) ? $p['author'] : $p->author }}</div>
+                        <div class="product-price">{{ number_format(is_array($p) ? $p['list_price'] : $p->list_price, 2) }} TL</div>
+                    </div>
+                    
+                    <div class="product-actions">
+                        <form action="{{ route('add') }}" method="POST" style="margin:0" class="add-to-bag-form">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ is_array($p) ? $p['id'] : $p->id }}">
+                            <button class="add-btn" type="submit" {{ $isOutOfStock ? 'disabled' : '' }}>
+                                {{ $isOutOfStock ? 'STOKTA YOK' : 'SEPETE EKLE' }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
         </div>
     @else
         <div class="notice">Ürün bulunamadı</div>
@@ -203,6 +289,110 @@
         url.searchParams.set('page', '1');
         url.searchParams.set('size', '12');
         window.location.href = url.toString();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('.add-to-bag-form');
+        
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const button = form.querySelector('button');
+                const originalText = button.textContent;
+                button.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;">
+                        <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                    </svg>
+                    Ekleniyor
+                `;
+                button.disabled = true;
+                
+                const formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        showNotification(data.message, 'success');
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                    
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                })
+                .catch(error => {
+                    showNotification('Bir hata oluştu!', 'error');
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                });
+            });
+        });
+    });
+
+    function showNotification(message, type) {
+        // Mevcut bildirimleri kaldır
+        const existingNotification = document.querySelector('.cart-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const isSuccess = type === 'success';
+        const iconBg = isSuccess ? 'var(--success)' : 'var(--danger)';
+        const title = isSuccess ? 'SEPETİNİZE EKLENDİ' : 'ÜRÜN SEPETE EKLENEMEDİ';
+        const iconSvg = isSuccess ? 
+            `<path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/>` :
+            `<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>`;
+        
+        // Sepet bildirimi oluştur
+        const notification = document.createElement('div');
+        notification.className = 'cart-notification';
+        notification.innerHTML = `
+            <div class="cart-notification-content">
+                <div class="cart-icon" style="background: ${iconBg}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        ${iconSvg}
+                    </svg>
+                </div>
+                <div class="cart-text">
+                    <div class="cart-title">${title}</div>
+                    <div class="cart-message">${message}</div>
+                </div>
+                <button class="cart-close" onclick="this.parentElement.parentElement.remove()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            ${isSuccess ? '<div class="cart-actions"><a href="/bag" class="cart-btn cart-btn-outline">SEPETE GİT</a></div>' : ''}
+        `;
+        
+        // Body'ye ekle
+        document.body.appendChild(notification);
+        
+        // Animasyonla göster
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // 5 saniye sonra kaldır
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
     }
 </script>
 </body>

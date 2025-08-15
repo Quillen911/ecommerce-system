@@ -21,7 +21,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null    
+                "images" => ["/images/kitap-seckimizince-memed-i-baebe-.jpg"]
             ],
             [
                 "title" => "Tutunamayanlar",
@@ -32,7 +32,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/tutunamayanlar.png"]
             ],
             [
                 "title" => "Kürk Mantolu Madonna",
@@ -43,7 +43,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/kurk-mantolu-madonna.png"]
             ],
             [
                 "title" => "Fareler ve İnsanlar",
@@ -54,7 +54,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/fareler-ve-insanlar.png"]
             ],
             [
                 "title" => "Şeker Portakalı",
@@ -64,7 +64,7 @@ class ProductSeeder extends Seeder
                 "stock_quantity" => 1,
                 "store_id" => 1,
                 "store_name" => "i&d",
-                "images" => null
+                "images" => ["/images/seker-portakali.png"]
             ],
             [
                 "title" => "Sen Yola Çık Yol Sana Görünür",
@@ -75,7 +75,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/sen-yola-cik-yol-sana-gorunur.png"]
             ],
             [
                 "title" => "Kara Delikler",
@@ -86,7 +86,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/kara-delikler.png"]
             ],
             [
                 "title" => "Allah De Ötesini Bırak",
@@ -97,7 +97,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/allah-de-otesini-birak.png"]
             ],
             [
                 "title" => "Aşk 5 Vakittir",
@@ -108,7 +108,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/ask-5-vakittir.png"]
             ],
             [
                 "title" => "Benim Zürafam Uçabilir",
@@ -119,7 +119,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/benim-zurafam-ucabilir.png"]
             ],
             [
                 "title" => "Kuyucaklı Yusuf",
@@ -130,7 +130,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/kuyucakli-yusuf.png"]
             ],
             [
                 "title" => "Kamyon - Seçme Öyküler",
@@ -141,7 +141,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/kamyon-secme-oykuler.png"]
             ],
             [
                 "title" => "Kendime Düşünceler",
@@ -152,7 +152,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/kendime-dusunceler.png"]
             ],
             [
                 "title" => "Denemeler - Hasan Ali Yücel Klasikleri",
@@ -163,7 +163,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/denemeler-montaigne.png"]
             ],
             [
                 "title" => "Animal Farm",
@@ -174,7 +174,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/animal-farm.png"]
             ],
             [
                 "title" => "Dokuzuncu Hariciye Koğuşu",
@@ -185,7 +185,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 1,
                 "store_name" => "i&d",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/dokuzuncu-hariciye-kogusu.png"]
             ],
             // Ahmet Kitapçı'nın ürünleri (store_id: 2)
             [
@@ -197,7 +197,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 2,
                 "store_name" => "Ahmet'in Kitap Dünyası",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/suc-ve-ceza.png"]
             ],
             [
                 "title" => "Beyaz Geceler",
@@ -208,7 +208,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 2,
                 "store_name" => "Ahmet'in Kitap Dünyası",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/beyaz-geceler.png"]
             ],
             [
                 "title" => "Karamazov Kardeşler",
@@ -219,7 +219,7 @@ class ProductSeeder extends Seeder
                 "store_id" => 2,
                 "store_name" => "Ahmet'in Kitap Dünyası",
                 "sold_quantity" => 0,
-                "images" => null
+                "images" => ["/images/karamazov-kardesler.png"]
             ],
         ];
 

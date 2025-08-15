@@ -12,7 +12,7 @@ class CampaignManager
         $best = ['discount' => 0, 'description' => '', 'campaign_id' => null];
         foreach ($campaigns as $campaign) {
             $service = $this->createServiceByType($campaign);
-
+            
             if ($service && $service->isApplicable($products)) {
                 $result = $service->calculateDiscount($products);
                 if ($result['discount'] > $best['discount']) {
@@ -21,7 +21,6 @@ class CampaignManager
                 }
             }
         }
-        
         return $best;
     }
 

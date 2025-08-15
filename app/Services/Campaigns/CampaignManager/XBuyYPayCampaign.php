@@ -13,13 +13,11 @@ class XBuyYPayCampaign extends BaseCampaign
         if(!$this->isCampaignActive()){
             return false;
         }
-        if(!$this->productEligible($products)){
-            return false;
-        }
+        $eligibleProducts = $this->productEligible($products);
         
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
-            $total = collect($products)->sum(function($item) {
+            $total = collect($eligibleProducts)->sum(function($item) {
                 return $item->product->list_price * $item->quantity;
             });
             if($total < $min_bag){
@@ -29,7 +27,7 @@ class XBuyYPayCampaign extends BaseCampaign
 
         $author = $this->getConditionValue('author');
         if($author){
-            $eligible = collect($products)->filter(function($item) use ($author) {
+            $eligible = collect($eligibleProducts)->filter(function($item) use ($author) {
                 return in_array($item->product->author, (array)$author);
             });
             if($eligible->sum('quantity') == 0){
@@ -39,7 +37,7 @@ class XBuyYPayCampaign extends BaseCampaign
 
         $category = $this->getConditionValue('category');
         if($category){
-            $eligible = collect($products)->filter(function($item) use ($category) {
+            $eligible = collect($eligibleProducts)->filter(function($item) use ($category) {
                 return $item->product->category?->category_title == $category;
             }); 
             if($eligible->sum('quantity') == 0){
@@ -60,23 +58,23 @@ class XBuyYPayCampaign extends BaseCampaign
         $discount_value = json_decode($discount_rule->discount_value, true);
         $x = $discount_value['x'] ?? 0;
         $y = $discount_value['y'] ?? 0;
-        $eligible_products = collect($products);
+        $eligible_products = $this->productEligible($products);
         
         $author = $this->getConditionValue('author');
         if($author){
-            $eligible_products = $eligible_products->filter(function($item) use ($author) {
+            $eligible_products = collect($eligible_products)->filter(function($item) use ($author) {
                 return in_array($item->product->author, (array)$author);
             });
         }
 
         $category = $this->getConditionValue('category');
         if($category){
-            $eligible_products = $eligible_products->filter(function($item) use ($category) {
+            $eligible_products = collect($eligible_products)->filter(function($item) use ($category) {
                 return $item->product->category?->category_title == $category;
             });
         }
 
-        $total_quantity = $eligible_products->sum('quantity');
+        $total_quantity = collect($eligible_products)->sum('quantity');
 
         if($total_quantity >= $x && $x > 0){
             $free_per_group = $x - $y;
@@ -85,7 +83,7 @@ class XBuyYPayCampaign extends BaseCampaign
             
             $total_free = $full_groups * $free_per_group;
 
-            $sorted_products = $eligible_products->sortBy('product.list_price');
+            $sorted_products = collect($eligible_products)->sortBy('product.list_price');
             $free_products = collect();
             $remaining_free = $total_free;
 

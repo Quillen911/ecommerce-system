@@ -9,13 +9,13 @@ class FixedCampaign extends BaseCampaign
         if(!$this->isCampaignActive()){
             return false;
         }
-        if(!$this->productEligible($products)){
-            return false;
-        }
+        $eligibleProducts = $this->productEligible($products);
+
+       
 
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
-            $total = collect($products)->sum(function($item) {
+            $total = collect($eligibleProducts)->sum(function($item) {
                 return $item->product->list_price * $item->quantity;
             });
             if($total < $min_bag){
@@ -25,7 +25,7 @@ class FixedCampaign extends BaseCampaign
 
         $author = $this->getConditionValue('author');
         if($author){
-            $eligible = collect($products)->filter(function($item) use ($author) {
+            $eligible = collect($eligibleProducts)->filter(function($item) use ($author) {
                 return in_array($item->product->author, (array)$author);
             });
             if($eligible->sum('quantity') == 0){
@@ -35,7 +35,7 @@ class FixedCampaign extends BaseCampaign
 
         $category = $this->getConditionValue('category');
         if($category){
-            $eligible = collect($products)->filter(function($item) use ($category) {
+            $eligible = collect($eligibleProducts)->filter(function($item) use ($category) {
                 return $item->product->category?->category_title == $category;
             }); 
             if($eligible->sum('quantity') == 0){
@@ -56,22 +56,22 @@ class FixedCampaign extends BaseCampaign
         $discount_value = json_decode($discount_rule->discount_value, true);
         $discount_amount = $discount_value['amount'] ?? 0;
 
-        $eligible_products = collect($products);
+        $eligible_products = $this->productEligible($products);
         
         $author = $this->getConditionValue('author');
         if($author){
-            $eligible_products = $eligible_products->filter(function($item) use ($author) {
+            $eligible_products = collect($eligible_products)->filter(function($item) use ($author) {
                 return in_array($item->product->author, (array)$author);
             });
         }
 
         $category = $this->getConditionValue('category');
         if($category){
-            $eligible_products = $eligible_products->filter(function($item) use ($category) {
+            $eligible_products = collect($eligible_products)->filter(function($item) use ($category) {
                 return $item->product->category?->category_title == $category;
             });
         }
-        if($eligible_products->sum('quantity') > 0) {
+        if(collect($eligible_products)->sum('quantity') > 0) {
             return [
                 'description' => $this->campaign->description,
                 'discount' => $discount_amount,
@@ -82,7 +82,7 @@ class FixedCampaign extends BaseCampaign
         return [
             'description' => $this->campaign->description,
             'discount' => 0,
-            'campaign_id' => $this->campaign->id
+            'campaign_id' => $this->campaign->id,
         ];
     }
 }

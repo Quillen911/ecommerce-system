@@ -37,21 +37,35 @@ class BagController extends Controller
         $bag = Bag::firstOrCreate(['bag_user_id' => $user->id]);
 
         if(!$bag){
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Sepetiniz bulunamadı!']);
+            }
             return redirect()->route('main')->with('error', 'Sepetiniz bulunamadı!');
         }
 
         $productItem = $this->bagService->getAddBag($bag, $request->product_id);
 
         if (is_array($productItem) && isset($productItem['error'])) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $productItem['error']]);
+            }
             return redirect()->route('main')->with('error', $productItem['error']);
         }
         
         if(!$productItem){
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Ürün bulunamadı!']);
+            }
             return redirect()->route('main')->with('error', 'Ürün bulunamadı!');
         }
         
         Cache::flush();
-        return redirect()->route('main')->with('success', 'Ürün sepete eklendi.');
+        
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Ürün sepete eklendi.']);
+        }
+        
+        return redirect()->back()->with('success', 'Ürün sepete eklendi.');
     }
 
     public function delete($id)

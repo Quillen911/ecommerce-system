@@ -10,6 +10,13 @@
         <div class="row">
             <div class="col-md-6">
                 <h1>Satıcı Giriş</h1>
+                @if(isset($error))
+                    {{ $error }}
+                @endif
+                @if(isset($success) && $success)
+                    {{success}}
+                @endif
+                <br><br>
                 <form action="{{ route('seller.postlogin') }}" method="post">
                     @csrf
                     <div class="form-group">

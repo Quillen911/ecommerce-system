@@ -47,5 +47,29 @@ class CampaignSeeder extends Seeder
             'starts_at' => now(),
             'ends_at' => now()->addHours(24),
         ]);
+        Campaign::create([
+            'store_id' => 2,
+            'store_name' => 'Ahmet Kitapçı',
+            'name' => '200 TL ve üzeri alışverişlerde sipariş toplamına %10 indirim',
+            'type' => 'percentage',
+            'description' => '200 TL ve üzeri alışverişlerde sipariş toplamına %10 indirim',
+            'is_active' => true,
+            'usage_limit_for_user' => 1,
+            'usage_limit' => 100,
+            'starts_at' => now(),
+            'ends_at' => now()->addHours(24),
+        ]);
+        Campaign::create([
+            'store_id' => 2,
+            'store_name' => 'Ahmet Kitapçı',
+            'name' => 'Dostoyevski Kitaplarında 2 Al 1 Öde',
+            'type' => 'x_buy_y_pay',
+            'description' => 'Dostoyevski Kitaplarında 2 Al 1 Öde',
+            'is_active' => true,
+            'usage_limit_for_user' => 1,
+            'usage_limit' => 100,
+            'starts_at' => now(),
+            'ends_at' => now()->addHours(24),
+        ]);
     }
 }
