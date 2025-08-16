@@ -37,7 +37,8 @@
         .form-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
         .form-input{padding:12px 16px;border:2px solid var(--line);border-radius:8px;transition:border-color .2s ease;font-size:14px;background:var(--bg);color:var(--text)}
         .form-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
-        .form-select{padding:12px 16px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);cursor:pointer;transition:border-color .2s ease}
+        .form-select{padding:12px 16px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);cursor:pointer;transition:border-color .2s ease;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23F1F5F9' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 8px center;background-repeat:no-repeat;background-size:16px}
+        .form-select:hover{border-color:var(--accent)}
         .form-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
         
         /* Sections */

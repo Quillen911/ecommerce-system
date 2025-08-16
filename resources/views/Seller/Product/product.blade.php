@@ -40,7 +40,9 @@
         .search-form{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto auto;gap:12px;align-items:end}
         .field{display:flex;flex-direction:column;gap:6px}
         .field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
-        .field input,.field select{padding:10px 12px;border:2px solid var(--line);border-radius:8px;transition:border-color .2s ease;background:var(--bg);color:var(--text)}
+        .field input,.field select{padding:10px 12px;border:2px solid var(--line);border-radius:8px;transition:border-color .2s ease;background:var(--bg);color:var(--text);-webkit-appearance:none;-moz-appearance:none;appearance:none}
+        .field select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23F1F5F9' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 8px center;background-repeat:no-repeat;background-size:16px}
+        .field input:hover,.field select:hover{border-color:var(--accent)}
         .field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
         
         /* Products Table */
