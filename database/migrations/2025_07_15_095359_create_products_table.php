@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('list_price',8,2);
             $table->integer('stock_quantity');
             $table->integer('sold_quantity')->default(0);
-            $table->json('images')->nullable();
+            $table->json('images');
             $table->timestamps();
             $table->softDeletes();
             

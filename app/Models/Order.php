@@ -42,10 +42,7 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'bag_user_id');
     }
-    public function user_id()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
+
     public function creditCard()
     {
         return $this->belongsTo(CreditCard::class, 'credit_card_id');

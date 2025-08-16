@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Helpers\ResponseHelper;
 use App\Services\Search\ElasticsearchService; 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Jobs\IndexProductToElasticsearch;
@@ -33,7 +32,7 @@ class Product extends Model
     ];
 
     public function getFirstImageAttribute() {
-        return empty($this->images) ? '/images/no-image.jpg' : '/storage/productsImages/' . $this->images[0];
+        return '/storage/productsImages/' . $this->images[0];
     }
     public function category(){
         return $this->belongsTo(Category::class, 'category_id');
