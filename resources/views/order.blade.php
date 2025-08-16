@@ -57,8 +57,9 @@
         .field{display:flex;flex-direction:column;gap:6px;}
         .field label{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:#333;}
         .field input,.field select{
-            padding:10px;border:1px solid var(--line);border-radius:6px;outline:none;background:#fff;
+            padding:10px;border:1px solid var(--line);border-radius:6px;outline:none;background:#fff;-webkit-appearance:none;-moz-appearance:none;appearance:none
         }
+        .field select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23111' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 8px center;background-repeat:no-repeat;background-size:16px}
         .field input:focus,.field select:focus{border-color:#bbb;}
         .btn{
             border:1px solid var(--accent); background:var(--accent); color:#fff;
