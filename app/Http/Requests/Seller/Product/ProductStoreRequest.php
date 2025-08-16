@@ -20,7 +20,7 @@ class ProductStoreRequest extends FormRequest
             'author' => 'required|string|max:255',
             'list_price' => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
-            'images' => 'nullable|array',
+            'images' => 'required|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
@@ -40,6 +40,7 @@ class ProductStoreRequest extends FormRequest
             'stock_quantity.integer' => 'Stok miktarı sayı olmalıdır.',
             'stock_quantity.min' => 'Stok miktarı en az 0 olmalıdır.',
             'images.array' => 'Resimler dizisi olmalıdır.',
+            'images.required' => 'Resimler dizisi boş bırakılamaz.',
             'images.*.image' => 'Resimler resim dosyası olmalıdır.',
             'images.*.mimes' => 'Resimler jpeg, png, jpg, gif, svg formatında olmalıdır.',
             'images.*.max' => 'Resimler en fazla 2MB olmalıdır.',

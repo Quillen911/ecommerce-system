@@ -40,19 +40,21 @@
         .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;box-shadow:0 1px 3px var(--shadow)}
         
         /* Filters */
-        .filters{display:grid;grid-template-columns:2fr repeat(4,1fr) auto;gap:8px;align-items:end}
+        .filters{display:grid;grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 1fr auto;gap:8px;align-items:end}
         .field{display:flex;flex-direction:column;gap:8px}
         .field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600}
-        .field input,.field select{padding:12px 16px;border:2px solid var(--line);border-radius:10px;transition:all 0.2s ease;background:var(--card);font-size:14px;font-weight:500}
+        .field input,.field select{padding:8px 12px;border:2px solid var(--line);border-radius:8px;transition:all 0.2s ease;background:var(--card);color:var(--text);font-size:13px;font-weight:500;-webkit-appearance:none;-moz-appearance:none;appearance:none}
+        .field select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23EDEDED' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 8px center;background-repeat:no-repeat;background-size:16px}
+        .field input:hover,.field select:hover{border-color:var(--accent)}
         .field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(64,64,70,0.1)}
         .field input::placeholder{color:var(--muted)}
         
         /* Filter Actions */
-        .filter-actions{display:flex;gap:4px}
+        .filter-actions{display:flex;gap:4px;flex-wrap:wrap}
         
         /* Search Group */
         .search-group{display:flex;gap:4px;align-items:end}
-        .btn-sm{padding:10px 16px;font-size:12px;border-radius:8px}
+        .btn-sm{padding:8px 12px;font-size:11px;border-radius:6px}
         
         /* Custom Dropdown */
         .custom-dropdown{position:relative;display:inline-block;width:200px}
@@ -78,7 +80,7 @@
         .dropdown-item.selected{background:var(--accent);color:#EDEDED}
         .dropdown-arrow{
             width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
-            border-top:4px solid var(--muted);transition:transform 0.2s ease
+            border-top:4px solid var(--text);transition:transform 0.2s ease
         }
         .dropdown-btn.active .dropdown-arrow{transform:rotate(180deg)}
         /* Ürün Grid */
@@ -132,9 +134,9 @@
         /* Responsive */
         @media (max-width:1024px){
             .products-grid{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
-            .filters{grid-template-columns:1fr;gap:8px}
-            .filter-actions{grid-column:1;justify-content:stretch;gap:8px}
-            .btn{width:100%}
+            .filters{grid-template-columns:1fr;gap:12px}
+            .filter-actions{grid-column:1;justify-content:stretch;gap:8px;flex-direction:column}
+            .filter-actions .btn{width:100%}
         }
         @media (max-width:768px){
             .shell{padding:24px 16px 60px}
@@ -142,6 +144,8 @@
             h1{font-size:24px}
             .toolbar{padding:16px 20px;flex-direction:column;align-items:stretch}
             .nav-section{justify-content:center}
+            .search-group{flex-direction:column;gap:8px}
+            .search-group .btn{margin-top:0!important}
             .products-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px}
             .product-image{height:200px}
             .product-info{padding:16px}
@@ -298,8 +302,8 @@
                     <select id="category_title" name="category_title">
                         <option value="">Seçiniz</option>
                         @foreach($categories as $category)
-                            <option value="{{ strtolower($category->category_title) }}" {{ request('category_title') == strtolower($category->category_title) ? 'selected' : '' }}>
-                                {{ strtolower($category->category_title) }}
+                            <option value="{{ $category->category_title }}" {{ request('category_title') == $category->category_title ? 'selected' : '' }}>
+                                {{ $category->category_title }}
                             </option>
                         @endforeach
                     </select>
@@ -375,7 +379,7 @@
                 @php
                     $isOutOfStock = (is_array($p) ? $p['stock_quantity'] : $p->stock_quantity) <= 0;
                     $imageUrl = is_array($p) 
-                        ? (empty($p['images']) ? '/images/no-image.jpg' : '/storage/productsImages/' . $p['images'][0])
+                        ? '/storage/productsImages/' . $p['images'][0]
                         : $p->first_image;
                 @endphp
                 
