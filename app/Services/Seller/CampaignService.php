@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Campaigns\Seller;
+namespace App\Services\Seller;
 
 use App\Models\Campaign;
 use App\Models\CampaignUserUsage;

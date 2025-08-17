@@ -9,26 +9,28 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
+use App\Services\MainService;
+use App\Services\Search\ElasticSearchProductService;
 
 class MainController extends Controller
 {
     protected $elasticSearch;
     protected $elasticSearchTypeService;
-    public function __construct(ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService)
+    protected $mainService;
+    protected $elasticSearchProductService;
+    public function __construct(ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService, MainService $mainService, ElasticSearchProductService $elasticSearchProductService)
     {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
+        $this->mainService = $mainService;
+        $this->elasticSearchProductService = $elasticSearchProductService;
     }
 
     public function main()
     {
-        $page = request('page', 1);
-        $products = Cache::remember("products.page.$page", 60, function () {
-            return Product::with('category')->orderBy('id')->paginate(100);
-        });
-        
-        $categories = Category::all();
-    
+        $products = $this->mainService->getProducts();
+        $categories = $this->mainService->getCategories();
+
         return view('main', compact('products', 'categories'));
     }
 
@@ -38,50 +40,43 @@ class MainController extends Controller
         $filters = $this->elasticSearchTypeService->filterType($request);
         $sorting = $this->elasticSearchTypeService->sortingType($request);
         
-        $page = $request->input('page', 1);
-        $size = $request->input('size', 12);
+        $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
 
-        $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
-        $products = collect($results['hits'])->pluck('_source')->toArray();
-        $categories = Category::all();
-                
-        return view('main', compact('query', 'results', 'products', 'categories', 'sorting', 'filters'));
+        return view('main', array_merge($data, [
+            'query' => $query,
+            'categories' => $this->mainService->getCategories(),
+            'sorting' => $sorting,
+            'filters' => $filters
+        ]));
     }
 
     public function filter(Request $request)
     {
         $filters = $this->elasticSearchTypeService->filterType($request);
-        $page = $request->input('page', 1);
-        $size = $request->input('size', 12);
-
-        $results = $this->elasticSearch->filterProducts($filters, $page, $size);
-        $products = collect($results['hits'])->pluck('_source')->toArray();
-        $categories = Category::all();
-
-        return view('main', compact('results', 'products', 'categories'));
+        $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('page', 1), $request->input('size', 12));
+        return view('main', array_merge($data, [
+            'filters' => $filters,
+            'categories' => $this->mainService->getCategories()
+        ]));
     }
 
     public function sorting(Request $request)
     {
         $sorting = $this->elasticSearchTypeService->sortingType($request);
-        $page = $request->input('page', 1);
-        $size = $request->input('size', 12);
-        $results = $this->elasticSearch->sortProducts($sorting, $page, $size);
-        
-        $products = collect($results['hits'])->pluck('_source')->toArray();
-        $categories = Category::all();
-
-        return view('main', compact('results', 'products', 'categories', 'sorting'));
+        $data = $this->elasticSearchProductService->sortingProducts($sorting, $request->input('page', 1), $request->input('size', 12));
+        return view('main', array_merge($data, [
+            'categories' => $this->mainService->getCategories(),
+            'sorting' => $sorting
+        ]));
     }
 
     public function autocomplete(Request $request)
     {
         $query = $request->input('q', '') ?? '';
-        $results = $this->elasticSearch->autocomplete($query);
-
-        $products = collect($results)->pluck('_source')->toArray();
-        $categories = Category::all();
-            
-        return view('main', compact('query', 'results', 'products', 'categories'));
+        $data = $this->elasticSearchProductService->autocomplete($query);
+        return view('main', array_merge($data, [
+            'query' => $query,
+            'categories' => $this->mainService->getCategories()
+        ]));
     }
 }

@@ -89,7 +89,7 @@ class ElasticsearchService
                     $searchQuery['bool']['must'][] = [
                         'multi_match' => [
                             'query' => $query,
-                            'fields' => ['title^2', 'author'],
+                            'fields' => ['title^2', 'author', 'store_name^2'],
                             'fuzziness' => 'AUTO'
                         ]
                     ];
@@ -264,7 +264,9 @@ class ElasticsearchService
                     'category_title' => ['type' => 'text'],
                     'list_price' => ['type' => 'float'],
                     'stock_quantity' => ['type' => 'integer'],
+                    'sold_quantity' => ['type' => 'integer'],
                     'store_id' => ['type' => 'integer'],
+                    'store_name' => ['type' => 'text'],
                     'created_at' => ['type' => 'date'],
                     'updated_at' => ['type' => 'date']
                 ]

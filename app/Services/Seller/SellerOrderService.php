@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Campaigns\Seller;
+namespace App\Services\Seller;
 
 use App\Models\Product;
 use App\Models\OrderItem;
@@ -13,6 +13,7 @@ class SellerOrderService
     {
         $this->iyzicoService = $iyzicoService;
     }
+
     public function getSellerOrders($store)
     {
         $orderItems = OrderItem::with('product')
@@ -21,11 +22,13 @@ class SellerOrderService
             ->get();
         return $orderItems;
     }
+
     public function getSellerOneOrder($store, $id)
     {
         $orderItem = OrderItem::with('product')->where('store_id', $store->id)->where('order_id', $id)->first();
         return $orderItem;
     }
+
     public function confirmItem($store, $id)
     {
         $orderItem = OrderItem::where('store_id', $store->id)->where('id', $id)->first();
@@ -41,6 +44,7 @@ class SellerOrderService
         $orderItem->save();
         return $orderItem;  
     }
+
     public function refundSelectedItems($store, $id)
     {
         $orderItem = OrderItem::where('id', $id)->where('store_id', $store->id)->first();
@@ -75,10 +79,10 @@ class SellerOrderService
         $confirmedItems = $orderItems->where('status', 'confirmed')->count();
 
         if ($refundedItems === $totalItems) {
-            
             $order->status = 'refunded';
             $order->payment_status = 'refunded';
             $order->refunded_at = now();
+            
         } elseif ($refundedItems > 0 && ($completedItems > 0 || $confirmedItems > 0)) {
             $order->status = 'partial_refunded';
             $order->payment_status = 'partial_refunded';

@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Services\Campaigns\Seller;
+namespace App\Services\Seller;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
 use App\Models\Store;
+use App\Models\Category;
+
 
 class ProductService
 {
@@ -67,5 +69,9 @@ class ProductService
             $created[] = $product;
         }
         return $created;
+    }
+    public function getCategories()
+    {
+        return Category::where('category_title')->get();
     }
 }

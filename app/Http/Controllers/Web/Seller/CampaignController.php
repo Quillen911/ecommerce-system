@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Campaign;
 use App\Models\CampaignCondition;
 use App\Models\CampaignDiscount;
-use App\Services\Campaigns\Seller\CampaignService;
+use App\Services\Seller\CampaignService;
 use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 use App\Models\Store;

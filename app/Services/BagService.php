@@ -77,6 +77,18 @@ class BagService{
         ->where('id', $bagItemId)
         ->first();   
     }
+    
+    public function updateBagItem($bag, $bagItemId, $quantity)
+    {
+        $bagItem = $bag->bagItems()->where('id', $bagItemId)->first();
+        if($bagItem){
+            $bagItem->quantity = $quantity;
+            $bagItem->save();
+            return $bagItem;
+        }else{
+            return ['success' => false, 'message' => 'Ürün bulunamadı!'];
+        }
+    }
 
     public function destroyBagItem($bag, $bagItemId)
     {
