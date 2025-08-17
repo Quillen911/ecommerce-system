@@ -87,6 +87,32 @@ class BagController extends Controller
         
         return ResponseHelper::success('Ürün', $bagItem);
     }
+
+    public function update(Request $request, $id)
+    {
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+        
+        if(!$bag){
+            return ResponseHelper::error('Sepet bulunamadı!', 404);
+        }
+
+        $quantity = $request->input('quantity');
+
+        if($quantity < 1){
+            return ResponseHelper::error('Ürün adedi 1\'den az olamaz!', 400);
+        }
+
+        $bagItem = $this->bagService->updateBagItem($bag, $id, $request->quantity);
+
+        if(isset($bagItem['success']) && !$bagItem['success']){
+            return ResponseHelper::error($bagItem['message'], 400);
+        }
+
+        Cache::flush();
+        return ResponseHelper::success('Ürün adedi güncellendi.', $bagItem);
+    }
+
     public function destroy($id)
     {
         $user = $this->getUser();

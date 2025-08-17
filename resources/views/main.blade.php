@@ -109,7 +109,10 @@
             -webkit-box-orient:vertical;overflow:hidden
         }
         .product-author{
-            font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:400
+            font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:400
+        }
+        .product-store{
+            font-size:11px;color:var(--primary);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px
         }
         .product-price{
             font-size:16px;font-weight:600;color:var(--price-color);margin-bottom:12px
@@ -285,7 +288,7 @@
             <div class="search-group">
                 <div class="field" style="flex:1">
                     <label for="q">Ürün Ara</label>
-                    <input id="q" type="text" name="q" placeholder="Ürün adı, yazar..." value="{{ $query ?? request('q') }}">
+                    <input id="q" type="text" name="q" placeholder="Ürün adı, Mağaza adı, yazar..." value="{{ $query ?? request('q') }}">
                     <input type="hidden" name="page" value="1">
                     <input type="hidden" name="size" value="12">
                 </div>
@@ -399,6 +402,7 @@
                     <div class="product-info">
                         <div class="product-title">{{ is_array($p) ? $p['title'] : $p->title }}</div>
                         <div class="product-author">{{ is_array($p) ? $p['author'] : $p->author }}</div>
+                        <div class="product-store">{{ is_array($p) ? $p['store_name'] : $p->store->name }}</div>
                         <div class="product-price">{{ number_format(is_array($p) ? $p['list_price'] : $p->list_price, 2) }} TL</div>
                     </div>
                     

@@ -32,26 +32,8 @@ class OrderService
 
         $credit_card_holder = CreditCard::find($selectedCreditCard)->card_holder_name;
         
-        $discountedPriceRate = min(1.0, round($totally / $total, 6));
+        $discountedPriceRate = min(1.0, $totally / $total);
     
-        $productsData = [];
-        foreach($products as $product) {
-            $productData = Product::find($product->product_id);
-            if (!$productData) {
-                return new \Exception('Ürün bulunamadı, Sipariş oluşturulamadı!');
-            }
-            $productsData[] = [
-                'product_title' => $product->product->title,
-                'product_category_title' => $product->product->category->category_title,
-                'store_id' => $product->product->store_id,
-                'store_name' => $product->product->store_name,
-                'product_id' => $product->product_id,
-                'quantity' => $product->quantity,
-                'list_price' => $product->product->list_price,
-                'paid_price' => round(((float)$product->product->list_price * (int)$product->quantity)  * $discountedPriceRate, 2),
-            ];
-        }
-            
         if($campaign_id && $discount > 0){
             $appliedCampaign = Campaign::find($campaign_id);
             if($appliedCampaign){
@@ -59,6 +41,7 @@ class OrderService
                 $campaignManager->decreaseUsageLimit($appliedCampaign);
             }
         }
+        
         $order = Order::create([
             'bag_user_id' => $user->id,
             'user_id' => $user->id,
@@ -77,22 +60,25 @@ class OrderService
             'payment_status' => 'failed',
             'status' => 'Başarısız Ödeme',
         ]);
-        foreach($productsData as $productData) {
+        
+        foreach($products as $product) {
+            $paid_price = round(($product->product->list_price * $product->quantity) * $discountedPriceRate, 2);
+            
+            
             $orderItem = OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => $productData['product_id'],
-                'product_title' => $productData['product_title'],
-                'product_category_title' => $productData['product_category_title'],
-                'quantity' => $productData['quantity'],
-                'list_price' => $productData['list_price'],
-                'paid_price' => $productData['paid_price'],
+                'product_id' => $product->product_id,
+                'product_title' => $product->product->title,
+                'product_category_title' => $product->product->category->category_title,
+                'quantity' => $product->quantity,
+                'list_price' => $product->product->list_price,
+                'paid_price' => $paid_price,
                 'payment_transaction_id' => "",
                 'refunded_price' => 0,
                 'payment_status' => 'failed',
                 'refunded_at' => null,
-
-                'store_id' => $productData['store_id'],
-                'store_name' => $productData['store_name'],
+                'store_id' => $product->product->store_id,
+                'store_name' => $product->product->store_name,
                 'status' => 'Başarısız Ödeme',
             ]);
         }
@@ -129,9 +115,9 @@ class OrderService
             }
 
             
-            foreach ($productsData as $p) {
-                Product::whereKey($p['product_id'])->decrement('stock_quantity', (int) $p['quantity']);
-                Product::whereKey($p['product_id'])->increment('sold_quantity', (int) $p['quantity']);
+            foreach ($products as $product) {
+                Product::whereKey($product->product_id)->decrement('stock_quantity', (int) $product->quantity);
+                Product::whereKey($product->product_id)->increment('sold_quantity', (int) $product->quantity);
             }
 
             return ['success' => true, 'order_id' => $order->id];

@@ -7,22 +7,26 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
-use App\Services\Campaigns\Seller\ProductService;
+use App\Services\Seller\ProductService;
 use App\Models\Category;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Models\Store;
+use App\Services\Search\ElasticSearchProductService;
+
 class ProductController extends Controller
 {
     protected $productService;
     protected $elasticSearch;
     protected $elasticSearchTypeService;
+    protected $elasticSearchProductService;
 
-    public function __construct(ProductService $productService, ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService)
+    public function __construct(ProductService $productService, ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService, ElasticSearchProductService $elasticSearchProductService)
     {
         $this->productService = $productService;
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
+        $this->elasticSearchProductService = $elasticSearchProductService;
     }
 
     public function product()
@@ -84,14 +88,14 @@ class ProductController extends Controller
         }
         $query = $request->input('q', '') ?? '';
         $filters = $this->elasticSearchTypeService->filterType($request);
-        $filters['store_id'] = $store->id;
         $sorting = $this->elasticSearchTypeService->sortingType($request);
-        $page = $request->input('page', 1);
-        $size = $request->input('size', 12);
 
-        $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
-        $products = collect($results['hits'])->pluck('_source')->toArray();
-        $categories = Category::all();
-        return view('Seller.Product.product', compact('query', 'results', 'products', 'filters', 'sorting', 'categories'));
+        $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
+        return view('Seller.Product.product', array_merge($data, [
+            'query' => $query,
+            'categories' => $this->productService->getCategories(),
+            'filters' => $filters,
+            'sorting' => $sorting
+        ]));
     }
 }

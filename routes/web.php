@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function(){
     Route::prefix('bag')->group(function(){
         Route::get('/', [BagController::class, 'bag'])->name('bag');
         Route::post('/add', [BagController::class, 'add'])->name('add');
+        Route::post('/update/{id}', [BagController::class, 'update'])->name('bag.update');
         Route::delete('/{id}', [BagController::class, 'delete'])->name('bag.delete');
         
     });

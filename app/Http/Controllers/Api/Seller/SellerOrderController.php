@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Seller;
 use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
 use App\Helpers\ResponseHelper;
-use App\Services\Campaigns\Seller\SellerOrderService;
+use App\Services\Seller\SellerOrderService;
 use App\Models\Store;
 use App\Models\Order;
 class SellerOrderController extends Controller

@@ -12,24 +12,28 @@ use App\Services\Search\ElasticsearchService;
 use App\Http\Requests\FilterRequest;
 use Illuminate\Support\Facades\Log;
 use App\Services\Search\ElasticSearchTypeService;
+use App\Services\Search\ElasticSearchProductService;
+use App\Services\MainService;
 
 class MainController extends Controller
 {
     protected $elasticSearch;
     protected $elasticSearchTypeService;
-    public function __construct(ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService)
+    protected $elasticSearchProductService;
+    protected $mainService;
+    
+    public function __construct(ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService, ElasticSearchProductService $elasticSearchProductService, MainService $mainService)
     {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
+        $this->elasticSearchProductService = $elasticSearchProductService;
+        $this->mainService = $mainService;
     }
 
     public function index(Request $request)
     {
-        $page = request('page', 1);
-        $products = Cache::remember("products.page.$page", 60, function () {
-            return Product::with('category')->orderBy('id')->paginate(100);
-        });
-        $categories = Category::all();
+        $products = $this->mainService->getProducts();
+        $categories = $this->mainService->getCategories();
         return ResponseHelper::success('Ürünler', [
             'products' => $products,
             'categories' => $categories
@@ -38,7 +42,7 @@ class MainController extends Controller
 
     public function show(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product = $this->mainService->getProduct($id);
         if(!$product){
             return ResponseHelper::notFound('Ürün bulunamadı.');
         }
@@ -49,30 +53,24 @@ class MainController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q', '');
-
         $filters = $this->elasticSearchTypeService->filterType($request);
         $sorting = $this->elasticSearchTypeService->sortingType($request);
         
-        $page = $request->input('page', 1);
-        $size = $request->input('size', 12);
-
-        $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
+        $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
         
-        $products = collect($results['hits'])->pluck('_source')->toArray();
-
-        if(!empty($products)){
+        if(!empty($data['products'])){
             return ResponseHelper::success('Ürünler Bulundu', [
-            'total' => $results['total'],
-            'page' => $page,
-            'size' => $size,
-            'query' => $query ? $query : "null",
-            'products' => $products,
-        ]);
+                'total' => $data['results']['total'],
+                'page' => $request->input('page', 1),
+                'size' => $request->input('size', 12),
+                'query' => $query ? $query : "null",
+                'products' => $data['products'],
+            ]);
         }
         return ResponseHelper::notFound('Ürün bulunamadı.', [
             'total' => 0,
-            'page' => $page,
-            'size' => $size,
+            'page' => $request->input('page', 1),
+            'size' => $request->input('size', 12),
             'query' => $query ? $query : "null",
             'products' => []
         ]);
@@ -81,52 +79,36 @@ class MainController extends Controller
     public function filter(FilterRequest $request)
     {
         $filters = $this->elasticSearchTypeService->filterType($request);
-        $page = $request->input('page', 1);
-        $size = $request->input('size', 12);
-
-        $results = $this->elasticSearch->filterProducts($filters, $page, $size);
+        $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('page', 1), $request->input('size', 12));
         
-        $products = collect($results['hits'])->pluck('_source')->toArray();
         return ResponseHelper::success('Ürünler Bulundu', [
-            'total' => $results['total'],
-            'page' => $page,
-            'size' => $size,
+            'total' => $data['results']['total'],
+            'page' => $request->input('page', 1),
+            'size' => $request->input('size', 12),
             'filters' => $filters,
-            'products' => $products,
+            'products' => $data['products'],
         ]);
     }
 
     public function sorting(Request $request)
     {
-        try{
         $sorting = $this->elasticSearchTypeService->sortingType($request);
-
-        $page = $request->input('page', 1);
-        $size = $request->input('size', 12);
-
-        $results = $this->elasticSearch->sortProducts($sorting, $page, $size);
-
-        $products = collect($results['hits'])->pluck('_source')->toArray();
+        $data = $this->elasticSearchProductService->sortingProducts($sorting, $request->input('page', 1), $request->input('size', 12));
 
         return ResponseHelper::success('Sıralama', [
-            'total' => $results['total'],
-            'page' => $page,
-            'size' => $size,
+            'total' => $data['results']['total'],
+            'page' => $request->input('page', 1),
+            'size' => $request->input('size', 12),
             'sorting' => $sorting,
-            'products' => $products,
+            'products' => $data['products'],
         ]);
-        }catch(\Exception $e){
-            Log::error('Sıralama hatası', ['error' => $e->getMessage()]);
-            return ResponseHelper::error('Sıralama hatası', $e->getMessage());
-        }
     }
 
     public function autocomplete(Request $request)
     {
         $query = $request->input('q', '');
-        $results = $this->elasticSearch->autocomplete($query);
-        Cache::flush();
-        return ResponseHelper::success('Otomatik Tamamlama', $results);
+        $data = $this->elasticSearchProductService->autocomplete($query);
+        return ResponseHelper::success('Otomatik Tamamlandı', $data);
     }
     
 }

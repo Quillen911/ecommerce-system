@@ -68,6 +68,32 @@ class BagController extends Controller
         return redirect()->back()->with('success', 'Ürün sepete eklendi.');
     }
 
+    public function update(Request $request, $id)
+    {
+        $user = $this->getUser();
+        $bag = $this->getUserBag();
+
+        if(!$bag){
+            return redirect()->route('bag')->with('error', 'Sepet bulunamadı!');
+        }
+
+        $quantity = $request->input('quantity');
+        
+        if($quantity < 1){
+            return redirect()->route('bag')->with('error', 'Ürün adedi 1\'den az olamaz!');
+        }
+
+        $bagItem = $this->bagService->updateBagItem($bag, $id, $quantity);
+
+        if(isset($bagItem['success']) && !$bagItem['success']){
+            return redirect()->route('bag')->with('error', $bagItem['message']);
+        }
+
+        Cache::flush();
+
+        return redirect()->route('bag')->with('success', 'Ürün adedi güncellendi.');
+    }
+
     public function delete($id)
     {   
         $user = $this->getUser();
@@ -85,4 +111,5 @@ class BagController extends Controller
 
         return redirect()->route('bag')->with('success', $result['message'] ?? 'Ürün sepetten silindi.');
     }
+
 }

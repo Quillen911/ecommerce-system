@@ -33,6 +33,7 @@ class IndexProductToElasticsearch implements ShouldQueue
         $data['category_title'] = $data['category_title'] ?? '';
         $data['sold_quantity'] = $data['sold_quantity'] ?? 0;
         $data['images'] = $data['images'] ?? [];
+        $data['store_name'] = $data['store_name'] ?? '';
 
         $elasticsearchService->indexDocument('products', $this->product['id'], $data);
 
