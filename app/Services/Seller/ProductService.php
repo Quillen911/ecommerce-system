@@ -18,6 +18,7 @@ class ProductService
         $products = Product::with('category')->where('store_id', $storeId)->orderBy('id')->get();
         return $products;
     }
+    
     public function createProduct(ProductStoreRequest $request)
     {
         $seller = auth('seller_web')->user();
@@ -26,6 +27,12 @@ class ProductService
         $productData['store_id'] = $store->id;
         $productData['store_name'] = $store->name;
         $productData['sold_quantity'] = 0;
+        
+        // Kuruş alanını ekle
+        if (isset($productData['list_price'])) {
+            $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
+        }
+        
         if($request->hasFile('images')){
             $images = [];
             foreach($request->file('images') as $image){
@@ -34,8 +41,8 @@ class ProductService
                 $images[] = $filename;
             }
             $productData['images'] = $images;
-            
         }
+        
         $products = Product::create($productData);
         return $products;
     }
@@ -49,7 +56,14 @@ class ProductService
     public function updateProduct(ProductUpdateRequest $request, $id)
     {
         $products = Product::findOrFail($id);
-        $products->update($request->validated());
+        $updateData = $request->validated();
+        
+        // Kuruş alanını güncelle
+        if (isset($updateData['list_price'])) {
+            $updateData['list_price_cents'] = (int)($updateData['list_price'] * 100);
+        }
+        
+        $products->update($updateData);
         return $products;
     }
 
@@ -59,17 +73,24 @@ class ProductService
         $products->delete();
         return $products;
     }
+    
     public function bulkStoreProduct(Request $request)
     {
         $products = $request->all();
         $created = [];
         
         foreach ($products as $productData) {
+            // Kuruş alanını ekle
+            if (isset($productData['list_price'])) {
+                $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
+            }
+            
             $product = Product::create($productData);
             $created[] = $product;
         }
         return $created;
     }
+    
     public function getCategories()
     {
         return Category::where('category_title')->get();

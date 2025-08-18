@@ -8,5 +8,5 @@ interface MyOrderUpdateInterface
 {
     public function updateOrderItem($item, $refundedAmount, $refundedQuantity): void;
     public function updateProductStock($productId, $refundedQuantity): void;
-    public function updateOrderStatus($order, $refundResults, CampaignManager $campaignManager): array;
+    public function updateOrderStatus($order, array $refundResults, CampaignManager $campaignManager): array;
 }

@@ -8,23 +8,25 @@ class MyOrderCalculationService implements MyOrderCalculationInterface
 {
     public function calculateRefundAmount($item, $requestedQuantity): array
     {
+        // Kuruş cinsinden hesaplama
+        $paidCents = $item->paid_price_cents ?? 0;
+        $refundedCents = $item->refunded_price_cents ?? 0;
+        $remainingCents = max(0, $paidCents - $refundedCents);
         
-        $paidPrice = round($item->paid_price ?? 0, 4);
-        $refundedPrice = round($item->refunded_price ?? 0, 4);
-        $remainingRefundedPrice = round(max(0, $paidPrice - $refundedPrice), 4);
+        $unitPaidCents = $item->quantity > 0 ? intdiv($paidCents, $item->quantity) : 0;
         
-        $unitPaidPrice = $item->quantity > 0 ? round($paidPrice / $item->quantity, 4) : 0;
+        $maxItemsByPrice = $unitPaidCents > 0 ? intdiv($remainingCents, $unitPaidCents) : 0;
+        $availableQuantity = $item->quantity - ($item->refunded_quantity ?? 0);
         
-        $maxItemsByPrice = $unitPaidPrice > 0 ? floor($remainingRefundedPrice / $unitPaidPrice) : 0;
-        $itemsToRefund = min($requestedQuantity, $maxItemsByPrice);
-        
-        $priceToRefund = round($itemsToRefund * $unitPaidPrice, 4);
+        $itemsToRefund = min($requestedQuantity, $maxItemsByPrice, $availableQuantity);
+        $priceToRefundCents = $itemsToRefund * $unitPaidCents;
             
-        $canRefund = $itemsToRefund > 0 && $priceToRefund > 0.01;
+        $canRefund = $itemsToRefund > 0 && $priceToRefundCents > 0;
         
         return [
             'itemsToRefund' => $itemsToRefund,
-            'priceToRefund' => $priceToRefund,
+            'priceToRefundCents' => $priceToRefundCents,
+            'priceToRefund' => $priceToRefundCents / 100, // TL cinsinden geri dönüş için
             'canRefund' => $canRefund
         ];
     }
@@ -41,6 +43,7 @@ class MyOrderCalculationService implements MyOrderCalculationInterface
                 'item' => $item,
                 'requestedQty' => $requestedQuantity,
                 'itemsToRefund' => $calculation['itemsToRefund'],
+                'priceToRefundCents' => $calculation['priceToRefundCents'],
                 'priceToRefund' => $calculation['priceToRefund'],
                 'canRefund' => $calculation['canRefund']
             ];

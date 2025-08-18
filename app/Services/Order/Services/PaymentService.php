@@ -25,8 +25,11 @@ class PaymentService implements PaymentInterface
 
     public function handlePaymentSuccess(Order $order, array $paymentResult): void
     {
+        $paidPrice = $paymentResult['paid_price'] ?? 0;
+        
         $order->update([
-            'paid_price'      => $paymentResult['paid_price'] ?? 0,
+            'paid_price'      => $paidPrice,
+            'paid_price_cents' => (int)($paidPrice * 100),
             'currency'        => $paymentResult['currency'] ?? 'TRY',
             'payment_id'      => $paymentResult['payment_id'] ?? null,
             'conversation_id' => $paymentResult['conversation_id'] ?? null,
@@ -50,6 +53,7 @@ class PaymentService implements PaymentInterface
             }
         }
     }
+    
     public function handlePaymentFailed(Order $order, string $error, ?string $errorCode = null): void
     {
         $order->update([
