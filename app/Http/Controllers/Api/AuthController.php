@@ -25,7 +25,7 @@ class AuthController extends Controller
     }
     
     public function me(Request $request){
-        $user = auth()->user();
+        $user = auth('sanctum')->user();
         if(!$user){
             return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }
@@ -33,7 +33,7 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request){
-        $user = auth()->user();
+        $user = auth('sanctum')->user();
         if(!$user){
             return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }

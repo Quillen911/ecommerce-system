@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('order_price', 8, 2);
             $table->decimal('cargo_price', 8, 2);
             $table->decimal('discount', 8, 2)->nullable();
-            $table->decimal('campaing_price', 8, 2);
+            $table->decimal('campaign_price', 8, 2);
             $table->decimal('paid_price', 10, 2)->nullable();
             $table->string('currency', 3)->default('TRY');
             $table->string('payment_id')->nullable();

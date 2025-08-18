@@ -57,32 +57,67 @@ class MyOrderService
         $refundedCount = 0;
         foreach($items as $item){
 
-            if (in_array($item->payment_status, ['refunded','canceled'])) { continue; }
-            if(!$item->payment_transaction_id) { $errors[] = "TxId yok: item {$item->id}"; continue; }
+            if (in_array($item->payment_status, ['refunded','canceled'])) { 
+                $errors[] = "Ürün ID {$item->id} zaten iade edilmiş"; 
+                continue; 
+            }
+            
+            if(!$item->payment_transaction_id) { 
+                $errors[] = "Ürün ID {$item->id} için ödeme bilgisi bulunamadı"; 
+                continue; 
+            }
 
             $paidPrice = $item->paid_price ?? 0;
             $refundedPrice = $item->refunded_price ?? 0;
             $remainingRefundedPrice = max(0, $paidPrice - $refundedPrice);
-            if ($remainingRefundedPrice <= 0) { continue; }
+            
+            if ($remainingRefundedPrice <= 0) { 
+                $errors[] = "Ürün ID {$item->id} için iade edilebilir tutar kalmamış"; 
+                continue; 
+            }
 
             $requestedQty = ($refundQuantitiesByItemId[$item->id] ?? 0);
-            if ($requestedQty <= 0) { continue; }
+            if ($requestedQty <= 0) { 
+                $errors[] = "Ürün ID {$item->id} için iade adedi 0"; 
+                continue; 
+            }
 
             $unitPaidPrice = $paidPrice / $item->quantity;
-            if ($unitPaidPrice <= 0) { continue; }
+            if ($unitPaidPrice <= 0) { 
+                $errors[] = "Ürün ID {$item->id} için birim fiyat hesaplanamadı"; 
+                continue; 
+            }
 
             $maxItemsByPrice = floor($remainingRefundedPrice / $unitPaidPrice);
             $itemsToRefund = min($requestedQty, $maxItemsByPrice);
-            if ($itemsToRefund <= 0) { continue; }
+            
+            // Debug bilgisi
+            \Log::info("İade Debug - Ürün ID: {$item->id}", [
+                'paidPrice' => $paidPrice,
+                'refundedPrice' => $refundedPrice,
+                'remainingRefundedPrice' => $remainingRefundedPrice,
+                'unitPaidPrice' => $unitPaidPrice,
+                'maxItemsByPrice' => $maxItemsByPrice,
+                'requestedQty' => $requestedQty,
+                'itemsToRefund' => $itemsToRefund
+            ]);
+            
+            if ($itemsToRefund <= 0) { 
+                $errors[] = "Ürün ID {$item->id} için iade edilebilir adet kalmamış (Maksimum: {$maxItemsByPrice}, İstenen: {$requestedQty})"; 
+                continue; 
+            }
 
             $priceToRefund = ($itemsToRefund * $unitPaidPrice);
-            if ($priceToRefund <= 0) { continue; }
+            if ($priceToRefund <= 0) { 
+                $errors[] = "Ürün ID {$item->id} için iade tutarı hesaplanamadı"; 
+                continue; 
+            }
             
             $refund = $this->iyzicoService->refundPayment($item->payment_transaction_id, $priceToRefund);
 
             if($refund['success']){
                 $newRefunded = $refundedPrice + $priceToRefund;
-                $fullyRefunded = $newRefunded == $paidPrice;
+                $fullyRefunded = $newRefunded >= $paidPrice; // >= kullanarak floating point hassasiyet sorunlarını önle
 
                 if ($itemsToRefund > 0) {
                     Product::whereKey($item->product_id)->increment('stock_quantity', $itemsToRefund);
@@ -96,7 +131,7 @@ class MyOrderService
                 ]);
                 $refundedCount++;
             } else {
-                $errors[] = ($refund['error'] ?? 'Bilinmeyen hata');
+                $errors[] = "Ürün ID {$item->id}: " . ($refund['error'] ?? 'Bilinmeyen hata');
             }
         }
         $total = $order->orderItems()->count();
@@ -123,7 +158,8 @@ class MyOrderService
             ]);
             return ['success' => true, 'message' => 'Seçilen ürünler için kısmi iade yapıldı.'];
         }
-        return ['success' => false, 'error' => implode(' | ', $errors) ?: 'İade yapılamadı'];
+        $errorMessage = !empty($errors) ? implode(' | ', $errors) : 'İade yapılamadı';
+        return ['success' => false, 'error' => $errorMessage];
     }
 
 }

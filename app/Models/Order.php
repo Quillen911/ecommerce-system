@@ -16,7 +16,7 @@ class Order extends Model
         'order_price', 
         'cargo_price',
         'discount',
-        'campaing_price',
+        'campaign_price',
         'campaign_id',
         'campaign_info',
         'status',
@@ -33,7 +33,7 @@ class Order extends Model
         'order_price' => 'float',
         'cargo_price' => 'float',
         'discount' => 'float',
-        'campaing_price' => 'float',
+        'campaign_price' => 'float',
         'paid_price' => 'float',
     ];
     protected $dates = ['deleted_at', 'refunded_at', 'canceled_at'];

@@ -232,10 +232,10 @@
                                             $unitPrice = $paidPrice / $originalQuantity;
                                             
                                             // Kalan iade edilebilir adet
-                                            $remainingUnits = $unitPrice > 0 ? (int) floor($remainingRefundedPrice / $unitPrice) : 0;
+                                            $remainingUnits = $unitPrice > 0 ? (int) round($remainingRefundedPrice / $unitPrice) : 0;
                                             
                                             // İade edilebilir mi kontrol et
-                                            $eligible = ($item->payment_status !== 'refunded') && $remainingUnits > 0;
+                                            $eligible = ($item->payment_status !== 'refunded') && $remainingUnits > 0 && $remainingRefundedPrice > 0;
                                             
                                             // Debug bilgisi (geliştirme sırasında kullanılabilir)
                                             // echo "<!-- Debug: Original: $originalQuantity, Paid: $paidPrice, Refunded: $refundedPrice, Remaining: $remainingRefundedPrice, Unit: $unitPrice, RemainingUnits: $remainingUnits -->";
@@ -252,7 +252,9 @@
                                             @else
                                                 @if($item->payment_status === 'refunded')
                                                     <span class="muted">Tamamen iade edildi</span>
-                                                @elseif($refundedPrice > 0)
+                                                @elseif($refundedPrice > 0 && $remainingUnits == 0)
+                                                    <span class="muted">Tamamen iade edildi ({{ $originalQuantity }}/{{ $originalQuantity }})</span>
+                                                @elseif($refundedPrice > 0 && $remainingUnits > 0)
                                                     <span class="muted">Kısmi iade edildi ({{ $originalQuantity - $remainingUnits }}/{{ $originalQuantity }})</span>
                                                 @else
                                                     <span class="muted">İade edilemez</span>
@@ -273,8 +275,9 @@
                                 $refundedPrice = round(($item->refunded_price ?? 0), 2);
                                 $remainingRefundedPrice = max(0, round($paidPrice - $refundedPrice, 2));
                                 $unitPrice = $paidPrice / $originalQuantity;
-                                $remainingUnits = $unitPrice > 0 ? (int) floor($remainingRefundedPrice / $unitPrice) : 0;
+                                $remainingUnits = $unitPrice > 0 ? (int) round($remainingRefundedPrice / $unitPrice) : 0;
                                 
+                                // İade edilebilir kontrolü: payment_status 'refunded' değilse VE kalan adet varsa
                                 if (($item->payment_status !== 'refunded') && $remainingUnits > 0) {
                                     $hasRefundableItems = true;
                                     break;
@@ -376,7 +379,7 @@
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">Ödenecek Tutar</span>
-                                <span class="summary-value">{{ number_format($order->campaing_price,2) }} TL</span>
+                                <span class="summary-value">{{ number_format($order->campaign_price,2) }} TL</span>
                             </div>
                         </div>
                     </div>
@@ -397,10 +400,28 @@
                                 // Tüm ürünlerin durumunu kontrol et
                                 $allRefunded = true;
                                 $partiallyRefunded = false;
+                                $hasAnyRefund = false;
+                                
                                 foreach($order->orderItems as $item) {
+                                    $originalQuantity = (int)$item->quantity;
+                                    $paidPrice = round(($item->paid_price ?? 0), 2);
+                                    $refundedPrice = round(($item->refunded_price ?? 0), 2);
+                                    $remainingRefundedPrice = max(0, round($paidPrice - $refundedPrice, 2));
+                                    $unitPrice = $paidPrice / $originalQuantity;
+                                    $remainingUnits = $unitPrice > 0 ? (int) round($remainingRefundedPrice / $unitPrice) : 0;
+                                    
+                                    // Herhangi bir iade var mı kontrol et
+                                    if($refundedPrice > 0) {
+                                        $hasAnyRefund = true;
+                                    }
+                                    
+                                    // Tamamen iade edilmiş mi kontrol et
                                     if($item->payment_status !== 'refunded') {
                                         $allRefunded = false;
-                                    } else {
+                                    }
+                                    
+                                    // Kısmi iade var mı kontrol et (refunded_price > 0 ama hala iade edilebilir adet varsa)
+                                    if($refundedPrice > 0 && $remainingUnits > 0) {
                                         $partiallyRefunded = true;
                                     }
                                 }
@@ -423,7 +444,14 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                     </svg>
-                                    Kısmi iade yapıldı
+                                    Kısmi iade yapıldı - Kalan ürünler iade edilebilir
+                                </div>
+                            @elseif($hasAnyRefund)
+                                <div style="display:flex;align-items:center;gap:8px;color:var(--warn);font-weight:600;font-size:14px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    İade işlemi yapıldı
                                 </div>
                             @else
                                 <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:600;font-size:14px;">
@@ -484,7 +512,15 @@
                         if(!anyPositive){
                             e.preventDefault();
                             alert('Lütfen iade adedi giriniz.');
+                            return;
                         }
+                        
+                        // Sıfır değerli input'ları form'dan kaldır
+                        qtyInputs.forEach(function(inp) {
+                            if (parseInt(inp.value || '0', 10) === 0) {
+                                inp.disabled = true;
+                            }
+                        });
                     });
                 }
             });
