@@ -281,7 +281,7 @@
             @if($discount > 0)
                 <div class="summary-row">
                     <span>İndirim</span>
-                    <span>-{{ number_format($discount,2) }} TL</span>
+                    <span>-{{ number_format($discount,4) }} TL</span>
                 </div>
             @endif
             <div class="summary-row">

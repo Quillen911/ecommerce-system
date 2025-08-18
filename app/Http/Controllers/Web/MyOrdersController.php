@@ -3,20 +3,27 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Services\MyOrderService;
+use App\Services\MyOrder\Contracts\MyOrderInterface;
+use App\Services\MyOrder\Contracts\MyOrderRefundInterface;
 use App\Traits\UserBagTrait;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 use Illuminate\Http\Request;
 use App\Http\Requests\MyOrders\RefundRequest;
 
+
 class MyOrdersController extends Controller{
 
     use UserBagTrait;
     protected $myOrderService;
+    protected $myOrderRefundService;
 
-    public function __construct(MyOrderService $myOrderService)
+    public function __construct(
+        MyOrderInterface $myOrderService,
+        MyOrderRefundInterface $myOrderRefundService
+    )
     {
         $this->myOrderService = $myOrderService;
+        $this->myOrderRefundService = $myOrderRefundService;
     }
 
     public function myorders()
@@ -35,9 +42,10 @@ class MyOrdersController extends Controller{
     public function delete($id, Request $request)
     {
         $user = $this->getUser();
-        $order = $this->myOrderService->cancelOrder($user->id, $id, new CampaignManager());
-        if(!$order){
-            return redirect()->back()->with('error', 'Sipariş bulunamadı.');
+        // Eski cancelOrder metodu artık yok, refund kullanacağız
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], new CampaignManager());
+        if(!$result['success']){
+            return redirect()->back()->with('error', $result['error'] ?? 'Sipariş bulunamadı.');
         }
         return redirect()->route('myorders')->with('success', 'Sipariş başarıyla iptal edildi.');
     }
@@ -57,7 +65,7 @@ class MyOrdersController extends Controller{
         if (count($quantities) === 0) {
             return redirect()->route('myorders')->with('error', 'İade adedi giriniz.');
         }
-        $result = $this->myOrderService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
         return ($result['success'] ?? false)
           ? redirect()->route('myorders')->with('success', $result['message'] ?? 'Kısmi iade yapıldı.')
           : redirect()->route('myorders')->with('error', $result['error'] ?? 'İade işlemi başarısız.');

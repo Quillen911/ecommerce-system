@@ -19,11 +19,11 @@ return new class extends Migration
             $table->string('card_holder_name')->nullable();
             $table->unsignedBigInteger('campaign_id')->nullable();
             $table->string('campaign_info')->nullable();
-            $table->decimal('order_price', 8, 2);
-            $table->decimal('cargo_price', 8, 2);
-            $table->decimal('discount', 8, 2)->nullable();
-            $table->decimal('campaign_price', 8, 2);
-            $table->decimal('paid_price', 10, 2)->nullable();
+            $table->decimal('order_price', 10, 4);
+            $table->decimal('cargo_price', 10, 4);
+            $table->decimal('discount', 10, 4)->nullable();
+            $table->decimal('campaign_price', 10, 4);
+            $table->decimal('paid_price', 10, 4)->nullable();
             $table->string('currency', 3)->default('TRY');
             $table->string('payment_id')->nullable();
             $table->string('conversation_id')->nullable();

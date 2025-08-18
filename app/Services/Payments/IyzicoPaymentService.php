@@ -45,9 +45,9 @@ class IyzicoPaymentService implements PaymentInterface
             $request = new CreatePaymentRequest();
 
             $request->setLocale(Locale::TR);
-            $request->setConversationId($order->id . '_' . time());
+            $request->setConversationId((string) $order->id . '_' . time());
             $request->setCurrency(Currency::TL);
-            $request->setBasketId($order->id);
+            $request->setBasketId((string) $order->id);
             $request->setPaymentGroup(PaymentGroup::PRODUCT);
             $request->setInstallment(1);
 
@@ -62,7 +62,7 @@ class IyzicoPaymentService implements PaymentInterface
 
             $buyer = new Buyer();
 
-            $buyer->setId($order->user_id);
+            $buyer->setId((string) $order->user_id);
             $buyer->setName($order->user->username ?? 'Test User');
             $buyer->setSurname($order->user->surname ?? 'Test');
             $buyer->setGsmNumber($order->user->phone ?? '+905350000000');
@@ -102,12 +102,12 @@ class IyzicoPaymentService implements PaymentInterface
             foreach ($order->orderItems as $item) {
                 $basketItem = new BasketItem();
                 
-                $basketItem->setId($item->product_id);
+                $basketItem->setId((string) $item->product_id);
                 $basketItem->setName($item->product->title);
                 $basketItem->setCategory1($item->product->category?->category_title ?? 'Genel');
                 $basketItem->setItemType(BasketItemType::PHYSICAL);
-                $linePrice = round($item->product->list_price * $item->quantity, 2);
-                $basketItem->setPrice(number_format($linePrice, 2, '.', ''));
+                $linePrice = round($item->product->list_price * $item->quantity, 4);
+                $basketItem->setPrice(number_format($linePrice, 4, '.', ''));
                 $basketItems[] = $basketItem;
 
                 $totalBasketPrice += $linePrice;
@@ -115,8 +115,8 @@ class IyzicoPaymentService implements PaymentInterface
             }
 
             $request->setBasketItems($basketItems);
-            $request->setPrice(number_format($totalBasketPrice, 2, '.', ''));
-            $request->setPaidPrice(number_format($amount, 2, '.', ''));
+            $request->setPrice(number_format($totalBasketPrice, 4, '.', ''));
+            $request->setPaidPrice(number_format($amount, 4, '.', ''));
 
             $payment = Payment::create($request, $this->options);
 
@@ -124,16 +124,15 @@ class IyzicoPaymentService implements PaymentInterface
                 $itemsTxMap = [];
                 foreach ($payment->getPaymentItems() as $pItem) {
                     $itemsTxMap[$pItem->getItemId()] = $pItem->getPaymentTransactionId();
-
                 }
                 return [
                     'success' => true,
-                    'payment_id' => $payment->getPaymentId(),
+                    'payment_id' => (int) $payment->getPaymentId(),
                     'conversation_id' => $request->getConversationId(),
                     'paid_price' => (float) $payment->getPaidPrice(),
                     'currency' => $payment->getCurrency(),
                     'payment_status' => $payment->getStatus() === 'success' ? 'paid' : 'failed',
-                    'payment_transaction_id' => $itemsTxMap , 
+                    'payment_transaction_id' => $itemsTxMap, 
                     'message' => 'Ödeme başarılı',
                 ];
             } else {
@@ -230,9 +229,11 @@ class IyzicoPaymentService implements PaymentInterface
             $ip = request()->ip() ?? '127.0.0.1';
             $request->setIp($ip);
             $request->setLocale(Locale::TR);
+            
             $request->setConversationId($paymentTransactionId);
             $request->setPaymentTransactionId($paymentTransactionId);
-            $request->setPrice(number_format($amount, 2, '.', ''));
+            
+            $request->setPrice(number_format($amount, 4, '.', ''));
             $request->setCurrency(Currency::TL);
         //  $request->setReason(RefundReason::OTHER);
         //  $request->setDescription("customer requested for default sample");

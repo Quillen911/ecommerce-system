@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('product_category_title')->nullable();
             $table->integer('quantity');
             $table->decimal('list_price', 10, 2);
-            $table->decimal('paid_price', 10, 2)->default(0);
+            $table->decimal('paid_price', 10, 4)->default(0);
             $table->string('payment_transaction_id')->nullable();
             $table->string('status');
-            $table->decimal('refunded_price', 10, 2)->default(0);
+            $table->decimal('refunded_price', 10, 4)->default(0);
             $table->enum('payment_status', ['paid','refunded','failed']);
             $table->timestamp('refunded_at')->nullable();
             $table->timestamps();
