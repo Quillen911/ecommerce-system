@@ -161,6 +161,8 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\OrderServiceProvider::class,
+        App\Providers\MyOrderServiceProvider::class,
 
         /*
         |--------------------------------------------------------------------------

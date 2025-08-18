@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Services\MyOrder\Services;
+
+use App\Services\MyOrder\Contracts\MyOrderRefundInterface;
+use App\Services\MyOrder\Contracts\MyOrderInterface;
+use App\Services\MyOrder\Contracts\MyOrderCalculationInterface;
+use App\Services\MyOrder\Contracts\MyOrderCheckInterface;
+use App\Services\MyOrder\Contracts\MyOrderUpdateInterface;
+use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Services\Payments\IyzicoPaymentService;
+
+class MyOrderRefundService implements MyOrderRefundInterface
+{
+
+    public function __construct(
+        private IyzicoPaymentService $iyzicoService,
+        private MyOrderCalculationInterface $MyOrderCalculationService,
+        private MyOrderCheckInterface $MyOrderCheckService,
+        private MyOrderUpdateInterface $MyOrderUpdateService,
+    ) {}
+
+    public function refundSelectedItems($userId, $orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager): array
+    {
+        $checkOrder = $this->MyOrderCheckService->checkOrder($userId, $orderId);
+        if(!$checkOrder['success']){
+            return $checkOrder;
+        }
+        $checkItems = $this->MyOrderCheckService->checkItems($checkOrder['order'], $refundQuantitiesByItemId);
+        if(!$checkItems['success']){
+            return $checkItems;
+        }
+        $calculations = $this->MyOrderCalculationService->calculateRefundableItems($checkItems['items'], $refundQuantitiesByItemId);
+
+        $refundResults = $this->processRefunds($calculations);
+
+        return $this->MyOrderUpdateService->updateOrderStatus($checkOrder['order'], $refundResults, $campaignManager);
+    }
+
+    private function processRefunds(array $calculations): array
+    {
+        $refundResults = [];
+        foreach($calculations as $calculation){
+            if(!$calculation['canRefund']){
+                $refundResults[] = [
+                    'success' => false,
+                    'error' => 'İade edilebilir adet kalmamış'
+                ];
+                continue;
+            }
+
+            $refund = $this->iyzicoService->refundPayment(
+                $calculation['item']->payment_transaction_id, 
+                $calculation['priceToRefund']
+            );
+
+            if($refund['success']){
+                $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
+                $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);
+            }
+
+            $refundResults[] = [
+                'success' => $refund['success'],
+                'error' => $refund['error'] ?? null,
+                'refundedAmount' => $calculation['priceToRefund'],
+                'refundedQuantity' => $calculation['itemsToRefund']
+            ];
+        }
+        return $refundResults;
+    }
+}

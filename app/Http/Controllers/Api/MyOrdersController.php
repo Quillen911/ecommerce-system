@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\MyOrderService;
+use App\Services\MyOrder\Contracts\MyOrderInterface;
+use App\Services\MyOrder\Contracts\MyOrderRefundInterface;
 use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
 use Illuminate\Http\Request;
@@ -14,10 +15,15 @@ class MyOrdersController extends Controller
 {
     use UserBagTrait;
     protected $myOrderService;
+    protected $myOrderRefundService;
 
-    public function __construct(MyOrderService $myOrderService)
+    public function __construct(
+        MyOrderInterface $myOrderService,
+        MyOrderRefundInterface $myOrderRefundService
+    )
     {
         $this->myOrderService = $myOrderService;
+        $this->myOrderRefundService = $myOrderRefundService;
     }
 
     public function index()
@@ -52,11 +58,12 @@ class MyOrdersController extends Controller
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
-        $order = $this->myOrderService->cancelOrder($user->id, $id, new CampaignManager());
-        if(!$order){
-            return ResponseHelper::notFound('Sipariş bulunamadı.');
+        
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], new CampaignManager());
+        if(!$result['success']){
+            return ResponseHelper::notFound($result['error'] ?? 'Sipariş bulunamadı.');
         }
-        return ResponseHelper::success('Sipariş İptal Edildi.', $order);
+        return ResponseHelper::success('Sipariş İptal Edildi.', $result);
     }
 
     public function refundItems($id, RefundRequest $request)
@@ -77,7 +84,7 @@ class MyOrdersController extends Controller
         if (empty($quantities)) {
             return ResponseHelper::error('İade edilecek ürün seçiniz.');
         }
-        $result = $this->myOrderService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
         if ($result['success'] ?? false) {
             return ResponseHelper::success('Seçilen ürünler için kısmi iade yapıldı.', $result);
         }

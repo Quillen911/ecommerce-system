@@ -30,11 +30,11 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'order_price' => 'float',
-        'cargo_price' => 'float',
-        'discount' => 'float',
-        'campaign_price' => 'float',
-        'paid_price' => 'float',
+        'order_price' => 'decimal:4',
+        'cargo_price' => 'decimal:4',
+        'discount' => 'decimal:4',
+        'campaign_price' => 'decimal:4',
+        'paid_price' => 'decimal:4',
     ];
     protected $dates = ['deleted_at', 'refunded_at', 'canceled_at'];
     

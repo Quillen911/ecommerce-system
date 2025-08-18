@@ -36,11 +36,11 @@ class PaymentService implements PaymentInterface
 
         if (isset($paymentResult['payment_transaction_id'])) {
             foreach ($paymentResult['payment_transaction_id'] as $itemId => $txId){
-                $orderItem = OrderItem::where('order_id', $order->id)
+                $orderItems = OrderItem::where('order_id', $order->id)
                     ->where('product_id', $itemId)
-                    ->first();
+                    ->get();
                 
-                if ($orderItem) {
+                foreach ($orderItems as $orderItem) {
                     $orderItem->update([
                         'payment_transaction_id' => $txId,
                         'payment_status' => $paymentResult['payment_status'],

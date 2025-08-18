@@ -31,9 +31,10 @@ class OrderItem extends Model
     ];
 
     protected $casts = [
-        'list_price' => 'float',
-        'paid_price' => 'float',
-        'refunded_price' => 'float',
+        'list_price' => 'decimal:2',
+        'paid_price' => 'decimal:4',
+        'refunded_price' => 'decimal:4',
+        'quantity' => 'integer',
     ];
 
     public function order()
