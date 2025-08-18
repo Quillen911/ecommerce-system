@@ -267,7 +267,7 @@
             </div>
             <div class="summary-row">
                 <span>Kargo</span>
-                <span>{{ $cargoPrice == 0 ? "50 TL üzeri ücretsiz" : number_format($cargoPrice,2)." TL" }}</span>
+                <span>{{ $cargoPrice == 0 ? config('order.cargo.threshold')." TL üzeri ücretsiz" : number_format($cargoPrice,2)." TL" }}</span>
             </div>
             @if($discount > 0)
                 <div class="summary-row">

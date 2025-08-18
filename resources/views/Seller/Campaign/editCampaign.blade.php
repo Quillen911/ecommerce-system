@@ -134,6 +134,22 @@
                     <input type="date" id="ends_at" name="ends_at" class="form-input" value="{{ old('ends_at', \Carbon\Carbon::parse($campaigns->ends_at)->format('Y-m-d')) }}" required>
                 </div>
             </div>
+            
+            <!-- Form Submit -->
+            <div class="form-actions">
+                <a href="{{ route('seller.campaign') }}" class="btn outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H6m6-7-7 7 7 7"/>
+                    </svg>
+                    İptal
+                </a>
+                <button type="submit" class="btn success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Kampanyayı Güncelle
+                </button>
+            </div>
         </form>
     </div>
     
@@ -233,26 +249,6 @@
             </div>
         @endif
     </div>
-    
-    <!-- Form Submit -->
-    <form action="{{ route('seller.updateCampaign', $campaigns->id) }}" method="POST">
-        @csrf
-        <!-- Hidden inputs for conditions and discounts will be added by JavaScript -->
-        <div class="form-actions">
-            <a href="{{ route('seller.campaign') }}" class="btn outline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 12H6m6-7-7 7 7 7"/>
-                </svg>
-                İptal
-            </a>
-            <button type="submit" class="btn success">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
-                </svg>
-                Kampanyayı Güncelle
-            </button>
-        </div>
-    </form>
 
     <script>
         // Form submit edildiğinde virgülle ayrılmış yazar değerlerini JSON array'e çevir

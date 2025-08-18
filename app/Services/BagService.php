@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Helpers\ResponseHelper;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 use App\Models\Campaign;
+use App\Services\Order\Services\CalculationService;
 
 class BagService{
 
@@ -31,11 +32,9 @@ class BagService{
             $bestCampaignModel = Campaign::where('description', $bestCampaign['description'])->first();
         }
         
-        $total = $products->sum(function($item){
-            return $item->quantity * $item->product->list_price;
-        });
-
-        $cargoPrice = $total >= 50 ? 0 : 10;
+        $calculationService = new CalculationService();
+        $total = $calculationService->calculateTotal($products);
+        $cargoPrice = $calculationService->calculateCargoPrice($total);
         
         $discount = $bestCampaign['discount'] ?? 0;
         $creditCards = $user->creditCard()->where('is_active', true)->get();

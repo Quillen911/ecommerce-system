@@ -2,24 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Order;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
-use App\Http\Requests\OrderRequest;
 use App\Traits\UserBagTrait;
-use App\Services\OrderService;
+use App\Services\BagService;
+use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Helpers\ResponseHelper;
-
+use App\Models\Order;
 
 class OrderController extends Controller
 {
     use UserBagTrait;
     protected $orderService;
-
-    public function __construct(OrderService $orderService)
+    protected $bagService;
+    protected $campaignManager;
+    public function __construct(OrderServiceInterface $orderService, BagService $bagService, CampaignManager $campaignManager)
     {
         $this->orderService = $orderService;
+        $this->bagService = $bagService;
+        $this->campaignManager = $campaignManager;
     }
 
     public function index()
@@ -35,7 +38,7 @@ class OrderController extends Controller
         return ResponseHelper::success('Siparişler', $orders);
     }
 
-    public function store(OrderRequest $request)
+    public function store(Request $request)
     {
         $user = $this->getUser();
         if(!$user){
@@ -56,7 +59,7 @@ class OrderController extends Controller
         if($products->isEmpty()){
             return ResponseHelper::notFound('Sepetiniz boş!');
         }
-        $result = $this->orderService->createOrder($user, $products, new CampaignManager(), $selectedCreditCard);
+        $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard);
         if($result instanceof \Exception){
             return ResponseHelper::error($result->getMessage());
         }
