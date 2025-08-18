@@ -9,6 +9,7 @@ use App\Services\MyOrder\Contracts\MyOrderCheckInterface;
 use App\Services\MyOrder\Contracts\MyOrderUpdateInterface;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 use App\Services\Payments\IyzicoPaymentService;
+use Illuminate\Support\Facades\DB;
 
 class MyOrderRefundService implements MyOrderRefundInterface
 {
@@ -40,6 +41,7 @@ class MyOrderRefundService implements MyOrderRefundInterface
     private function processRefunds(array $calculations): array
     {
         $refundResults = [];
+        
         foreach($calculations as $calculation){
             if(!$calculation['canRefund']){
                 $refundResults[] = [
@@ -51,12 +53,15 @@ class MyOrderRefundService implements MyOrderRefundInterface
 
             $refund = $this->iyzicoService->refundPayment(
                 $calculation['item']->payment_transaction_id, 
-                $calculation['priceToRefund']
+                $calculation['priceToRefund'] // TL cinsinden gönder (Iyzico TL bekliyor)
             );
 
             if($refund['success']){
-                $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
-                $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);
+                // DB Transaction ile atomik güncelleme
+                DB::transaction(function() use ($calculation) {
+                    $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
+                    $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);
+                });
             }
 
             $refundResults[] = [

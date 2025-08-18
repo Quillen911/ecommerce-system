@@ -21,12 +21,14 @@ class Product extends Model
         'category_id',  
         'author',
         'list_price',
+        'list_price_cents',
         'stock_quantity',
         'sold_quantity',
         'images'
     ];
     protected $casts = [
         'list_price' => 'float',
+        'list_price_cents' => 'integer',
         'stock_quantity' => 'integer',
         'images' => 'array'
     ];

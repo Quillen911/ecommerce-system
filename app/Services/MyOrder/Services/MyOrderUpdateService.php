@@ -11,13 +11,15 @@ class MyOrderUpdateService implements MyOrderUpdateInterface
 {
     public function updateOrderItem($item, $refundedAmount, $refundedQuantity): void
     {
-        $newRefunded = ($item->refunded_price ?? 0) + $refundedAmount;
-        $fullyRefunded = $newRefunded >= $item->paid_price;
+        $newRefundedCents = ($item->refunded_price_cents ?? 0) + (int)($refundedAmount * 100);
+        $fullyRefunded = $newRefundedCents >= $item->paid_price_cents;
 
         $item->update([
             'status' => 'Müşteri İade Etti',
             'payment_status' => $fullyRefunded ? 'refunded' : 'paid',
-            'refunded_price' => $newRefunded,
+            'refunded_price_cents' => $newRefundedCents,
+            'refunded_price' => $newRefundedCents / 100, // TL cinsinden güncelleme
+            'refunded_quantity' => ($item->refunded_quantity ?? 0) + $refundedQuantity,
             'refunded_at' => now(),
         ]);
     }
@@ -30,7 +32,7 @@ class MyOrderUpdateService implements MyOrderUpdateInterface
         }
     }
 
-    public function updateOrderStatus($order, $refundResults, $campaignManager): array
+    public function updateOrderStatus($order, $refundResults, CampaignManager $campaignManager): array
     {
         $successfulRefunds = array_filter($refundResults, fn($r) => $r['success']);
         
@@ -54,6 +56,7 @@ class MyOrderUpdateService implements MyOrderUpdateInterface
             return ['success' => true, 'message' => 'Seçilen ürünler için kısmi iade yapıldı.'];
         }
     }
+    
     private function handleFullRefund($order, $campaignManager): void
     {
         if ($order->campaign_id && ($campaign = Campaign::find($order->campaign_id))) {
