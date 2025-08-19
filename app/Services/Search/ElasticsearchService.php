@@ -79,7 +79,7 @@ class ElasticsearchService
         }
     }
 
-    public function searchProducts(string $query = '', array $filters = [], string $sorting = '', int $page = 1, int $size = 7 ): array
+    public function searchProducts(string $query = '', array $filters = [], string $sorting = '', int $page = 1, int $size = 7): array
     {
         try{
             $from = ($page-1) * $size;

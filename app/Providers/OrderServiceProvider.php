@@ -20,6 +20,8 @@ class OrderServiceProvider extends ServiceProvider
         $this->app->bind(CalculationInterface::class, CalculationService::class);
         $this->app->bind(PaymentInterface::class, PaymentService::class);
         $this->app->bind(InventoryInterface::class, InventoryService::class);
+        
+
         $this->app->singleton(OrderService::class);
     }
 

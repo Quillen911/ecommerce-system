@@ -3,7 +3,7 @@
 namespace App\Services\Order\Services;
 
 use App\Services\Order\Contracts\InventoryInterface;
-use App\Services\Order\Exceptions\InsufficientStockException;
+use App\Exceptions\InsufficientStockException;
 use App\Models\Product;
 
 class InventoryService implements InventoryInterface

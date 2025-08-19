@@ -7,8 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 use App\Traits\UserBagTrait;
-use App\Services\BagService;
+use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Order\Contracts\OrderServiceInterface;
+use App\Models\CreditCard;
 
 class OrderController extends Controller
 {
@@ -17,7 +18,7 @@ class OrderController extends Controller
     protected $orderService;
     protected $bagService;
     protected $campaignManager;
-    public function __construct(OrderServiceInterface  $orderService, BagService $bagService, CampaignManager $campaignManager)
+    public function __construct(OrderServiceInterface  $orderService, BagInterface $bagService, CampaignManager $campaignManager)
     {
         $this->orderService = $orderService;
         $this->bagService = $bagService;
@@ -26,8 +27,11 @@ class OrderController extends Controller
 
     public function order()
     {
-        $bag = $this->bagService->getIndexBag();
-        return view('order', $bag);
+        $user = $this->getUser();
+        $bag = $this->bagService->getBag();
+        $creditCards = CreditCard::where('user_id', $user->id)->get();
+        
+        return view('order', array_merge($bag, ['creditCards' => $creditCards]));
     }
 
     public function done(Request $request)

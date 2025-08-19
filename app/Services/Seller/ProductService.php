@@ -28,7 +28,7 @@ class ProductService
         $productData['store_name'] = $store->name;
         $productData['sold_quantity'] = 0;
         
-        // Kuruş alanını ekle
+        
         if (isset($productData['list_price'])) {
             $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
         }
@@ -58,7 +58,6 @@ class ProductService
         $products = Product::findOrFail($id);
         $updateData = $request->validated();
         
-        // Kuruş alanını güncelle
         if (isset($updateData['list_price'])) {
             $updateData['list_price_cents'] = (int)($updateData['list_price'] * 100);
         }
@@ -80,7 +79,7 @@ class ProductService
         $created = [];
         
         foreach ($products as $productData) {
-            // Kuruş alanını ekle
+            
             if (isset($productData['list_price'])) {
                 $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
             }
@@ -93,6 +92,6 @@ class ProductService
     
     public function getCategories()
     {
-        return Category::where('category_title')->get();
+        return Category::all();
     }
 }

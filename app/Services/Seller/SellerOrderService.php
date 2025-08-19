@@ -34,15 +34,18 @@ class SellerOrderService
         $orderItem = OrderItem::where('store_id', $store->id)->where('id', $id)->first();
         
         if (!$orderItem) {
-            return null;
+            return ['success' => false, 'message' => 'Sipariş bulunamadı'];
         }
         if($orderItem->status === 'refunded'){
             return ['success' => false, 'message' => 'Sipariş iade edildi'];
         }
+        if($orderItem->status !== 'confirmed'){
+            return ['success' => false, 'message' => 'Sipariş durumu uygun değil'];
+        }
         
         $orderItem->status = 'shipped';
         $orderItem->save();
-        return $orderItem;  
+        return ['success' => true, 'message' => 'Sipariş başarıyla kargoya verildi', 'orderItem' => $orderItem];  
     }
 
     public function refundSelectedItems($store, $id)
@@ -79,12 +82,12 @@ class SellerOrderService
         $confirmedItems = $orderItems->where('status', 'confirmed')->count();
 
         if ($refundedItems === $totalItems) {
-            $order->status = 'refunded';
+            $order->status = 'İade Edildi'; // OrderStatus::FULL_REFUND
             $order->payment_status = 'refunded';
             $order->refunded_at = now();
             
         } elseif ($refundedItems > 0 && ($completedItems > 0 || $confirmedItems > 0)) {
-            $order->status = 'partial_refunded';
+            $order->status = 'Kısmi İade'; // OrderStatus::PARTIAL_REFUND
             $order->payment_status = 'partial_refunded';
         }
         

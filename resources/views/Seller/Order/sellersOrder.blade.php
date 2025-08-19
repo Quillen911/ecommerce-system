@@ -6,16 +6,20 @@
     <title>Seller Siparişleri</title>
     <style>
         :root{
-            --bg:#1E293B;
-            --text:#F1F5F9;
-            --muted:#94A3B8;
-            --line:#334155;
+            --bg:#f8fafc;
+            --text:#1f2937;
+            --muted:#6b7280;
+            --line:#e5e7eb;
             --accent:#3B82F6;
-            --success:#22C55E;
-            --warn:#F59E0B;
-            --danger:#EF4444;
-            --header:#0F172A;
-            --card:#334155;
+            --success:#10b981;
+            --warn:#f59e0b;
+            --danger:#ef4444;
+            --header:#ffffff;
+            --card:#ffffff;
+            --table-bg:#ffffff;
+            --table-text:#374151;
+            --table-header:#f9fafb;
+            --table-border:#e5e7eb;
         }
         *{box-sizing:border-box;}
         html,body{margin:0;padding:0;background:var(--bg);color:var(--text);}    
@@ -23,40 +27,40 @@
             font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,sans-serif;
             letter-spacing:.2px; line-height:1.4;
         }
-        .shell{max-width:1060px;margin:0 auto;padding:24px 16px 80px;}
-        h1{font-size:22px;font-weight:600;text-transform:uppercase;letter-spacing:4px;margin:20px 0 10px;text-align:center;color:var(--accent);}
-        h3,h4{font-weight:600;text-transform:uppercase;}
-        h3{font-size:16px;letter-spacing:2px;margin:30px 0 12px;}
+        .shell{max-width:1200px;margin:0 auto;padding:20px 16px 40px;}
+        h1{font-size:24px;font-weight:600;margin:0 0 20px;text-align:center;color:var(--text);}
+        h3,h4{font-weight:600;}
+        h3{font-size:18px;margin:20px 0 12px;}
         .notice{padding:10px 12px;border:1px solid var(--line);margin:8px 0;border-radius:4px;}
         .notice.success{color:var(--success);background:#f0f9f4;border-color:var(--success);} 
         .notice.error{color:var(--danger);background:#fef2f2;border-color:var(--danger);font-weight:500;}
         .empty{text-align:center;color:var(--muted);padding:24px 0;}
-        .order-card{border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:16px;background:#fff;}
-        .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:6px;}
-        table{width:100%;border-collapse:collapse;min-width:720px;}
+        .order-card{border:1px solid var(--table-border);border-radius:12px;padding:20px;margin-top:20px;background:var(--table-bg);color:var(--table-text);box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+        .table-wrap{overflow:auto;border:1px solid var(--table-border);border-radius:8px;}
+        table{width:100%;border-collapse:collapse;min-width:800px;color:var(--table-text);}
         thead th{
-            font-size:11px;color:#222;font-weight:600;text-transform:uppercase;letter-spacing:1.4px;
-            background:#fafafa;border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;
+            font-size:12px;color:var(--table-text);font-weight:600;
+            background:var(--table-header);border-bottom:1px solid var(--table-border);padding:12px 8px;text-align:left;
         }
-        tbody td{padding:14px 10px;border-bottom:1px solid var(--line);font-size:14px;}
-        tbody tr:hover{background:#fcfcfc;}
-        .totals{margin-top:14px;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:6px;}
+        tbody td{padding:12px 8px;border-bottom:1px solid var(--table-border);font-size:14px;color:var(--table-text);}
+        tbody tr:hover{background:#f9fafb;}
+        .totals{margin-top:14px;border-top:1px solid var(--table-border);padding-top:14px;display:grid;gap:6px;color:var(--table-text);}
         .totals .row{display:flex;justify-content:space-between;gap:10px;}
-        .totals strong{font-weight:600;}
-        .muted{color:var(--muted);}
-        .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:10px 16px;border-radius:28px;cursor:pointer;text-transform:uppercase;letter-spacing:1.2px;font-size:12px;transition:filter .15s ease;display:inline-block;text-decoration:none;}
-        .btn.outline{background:transparent;color:var(--accent);} 
-        .btn:hover{filter:brightness(0.9);} 
-        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
-        .status-badge{padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;}
-        .status-pending{background:#fff3cd;color:#856404;}
-        .status-completed{background:#d4edda;color:#155724;}
-        .status-canceled{background:#f8d7da;color:#721c24;}
+        .totals strong{font-weight:600;color:var(--table-text);}
+        .muted{color:#6b7280;}
+        .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s ease;display:inline-block;text-decoration:none;border:none;min-width:120px;}
+        .btn.outline{background:transparent;color:var(--accent);border:1px solid var(--accent);} 
+        .btn:hover{opacity:0.9;transform:translateY(-1px);} 
+        .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+        .status-badge{padding:4px 8px;border-radius:6px;font-size:11px;font-weight:500;}
+        .status-confirmed{background:#fef3c7;color:#92400e;}
+        .status-completed{background:#d1fae5;color:#065f46;}
+        .status-canceled{background:#fee2e2;color:#991b1b;}
     </style>
 </head>
 <body>
     <div class="shell">
-        <h1>Seller Siparişleri</h1>
+        <h1>Satıcı Siparişleri</h1>
 
         @if(session('success')) <div class="notice success">{{ session('success') }}</div> @endif
         @if(session('error')) <div class="notice error">{{ session('error') }}</div> @endif
@@ -99,18 +103,18 @@
                                 @foreach($items as $item)
                                     <tr>
                                         <td>{{ $item->id }}</td>
-                                        <td>{{ $item->product->title }}</td>
-                                        <td>{{ $item->product->author }}</td>
+                                        <td>{{ $item->product?->title ?? 'Ürün bilgisi yok' }}</td>
+                                        <td>{{ $item->product?->author ?? 'Yazar bilgisi yok' }}</td>
                                         <td>{{ $item->product_category_title }}</td>
                                         <td>{{ $item->quantity }}</td>
-                                        <td>{{ number_format($item->product->list_price, 2) }} TL</td>
-                                        <td>{{ number_format($item->product->list_price * $item->quantity, 2) }} TL</td>
+                                                                    <td>{{ number_format($item->product?->list_price ?? 0, 2) }} TL</td>
+                            <td>{{ number_format(($item->product?->list_price ?? 0) * $item->quantity, 2) }} TL</td>
                                         <td>{{ number_format($item->paid_price, 2) }} TL</td>
                                         <td>
                                             @if($item->payment_status === 'refunded')
                                                 <span class="status-badge status-canceled">İade Edildi</span>
                                             @elseif($item->payment_status === 'paid' && $item->status === 'confirmed')
-                                                <span class="status-badge status-pending">Sipariş Onaylandı</span>
+                                                <span class="status-badge status-confirmed">Sipariş Onaylandı</span>
                                             @elseif($item->status === 'shipped')
                                                 <span class="status-badge status-completed">Gönderildi</span>
                                             @elseif($item->status === 'canceled')
@@ -120,21 +124,25 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @if($item->payment_status === 'paid' && $item->status === 'confirmed')
-                                                <form action="{{ route('seller.confirmOrderItem', $item->id) }}" method="POST">
-                                                    @csrf
-                                                    <button class="btn">Hazırla & Gönder</button>
-                                                </form>
-                                                <form action="{{ route('seller.refundOrderItem', $item->id) }}" method="POST">
-                                                    @csrf
-                                                    <button class="btn" style="background: #dc3545; border-color: #dc3545;">Stok Yok - İade Et</button>
-                                                </form>
-                                            @elseif($item->payment_status === 'refunded')
+                                            @if($item->payment_status->value === 'paid' && $item->status === 'confirmed')
+                                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                    <form action="{{ route('seller.confirmOrderItem', $item->id) }}" method="POST" style="margin: 0;">
+                                                        @csrf
+                                                        <button type="submit" style="background: #10b981; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; width: 100%;">Hazırla & Gönder</button>
+                                                    </form>
+                                                    <form action="{{ route('seller.refundOrderItem', $item->id) }}" method="POST" style="margin: 0;">
+                                                        @csrf
+                                                        <button type="submit" style="background: #dc2626; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; width: 100%;">Stok Yok - İade Et</button>
+                                                    </form>
+                                                </div>
+                                            @elseif($item->payment_status->value === 'refunded')
                                                 <span class="muted">İade Tarihi: {{ \Carbon\Carbon::parse($item->refunded_at)->format('d.m.Y H:i') ?? 'N/A' }}</span>
                                             @elseif($item->status === 'shipped')
                                                 <span class="muted">Gönderildi</span>
                                             @elseif($item->status === 'canceled')
                                                 <span class="muted">İptal Edildi</span>
+                                            @else
+                                                <span class="muted">Durum: {{ $item->status }} - {{ $item->payment_status->value }}</span>
                                             @endif
                                         </td>
                                     </tr>

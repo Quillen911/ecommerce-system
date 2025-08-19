@@ -2,31 +2,26 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Services\Bag\Contracts\BagInterface;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Traits\UserBagTrait;
-use App\Helpers\ResponseHelper;
-use App\Services\BagService;
 use App\Models\Bag;
-use App\Models\BagItem;
-use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
-use App\Services\Campaigns\CampaignManager\CampaignManager;
-use App\Models\Campaign;
 
 class BagController extends Controller
 {
     use UserBagTrait;
     protected $bagService;
 
-    public function __construct(BagService $bagService)
+    public function __construct(BagInterface $bagService)
     {
         $this->bagService = $bagService;
     }
 
     public function bag(Request $request)
     {
-        $bag = $this->bagService->getIndexBag();
+        $bag = $this->bagService->getBag();
         
         return view('bag', $bag);
     }
@@ -42,8 +37,7 @@ class BagController extends Controller
             }
             return redirect()->route('main')->with('error', 'Sepetiniz bulunamadı!');
         }
-
-        $productItem = $this->bagService->getAddBag($bag, $request->product_id);
+        $productItem = $this->bagService->addToBag($bag, $request->product_id);
 
         if (is_array($productItem) && isset($productItem['error'])) {
             if ($request->ajax()) {
@@ -85,8 +79,8 @@ class BagController extends Controller
 
         $bagItem = $this->bagService->updateBagItem($bag, $id, $quantity);
 
-        if(isset($bagItem['success']) && !$bagItem['success']){
-            return redirect()->route('bag')->with('error', $bagItem['message']);
+        if(isset($bagItem['error'])){
+            return redirect()->route('bag')->with('error', $bagItem['error']);
         }
 
         Cache::flush();

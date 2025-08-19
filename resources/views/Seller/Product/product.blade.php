@@ -133,21 +133,28 @@
     <div class="search-card">
         <form action="{{ route('seller.searchProduct') }}" method="GET" class="search-form">
             @csrf
-            <div class="field">
-                <label for="q">Ürün Ara</label>
-                <input type="text" id="q" name="q" placeholder="Ürün adı, yazar..." value="{{ $query ?? request('q') }}">
-                <input type="hidden" name="page" value="1">
-                <input type="hidden" name="size" value="12">
+            <div class="search-group">
+                <div class="field" style="flex:1">
+                    <label for="q">Ürün Ara</label>
+                    <input type="text" id="q" name="q" placeholder="Ürün adı, yazar..." value="{{ $query ?? request('q') }}">
+                    <input type="hidden" name="page" value="1">
+                    <input type="hidden" name="size" value="12">
+                </div>
+                <button class="btn" type="submit" style="margin-top:26px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Ara
+                </button>
             </div>
-            
             @if(isset($query) && !empty($query))
                 <div class="field">
                     <label for="category_title">Kategori</label>
                     <select name="category_title" id="category_title">
-                        <option value="">Tüm Kategoriler</option>
+                        <option value="">Seçiniz</option>
                         @foreach($categories as $category)
-                            <option value="{{ strtolower($category->category_title) }}" {{ request('category_title') == strtolower($category->category_title) ? 'selected' : '' }}>
-                                {{ ucfirst($category->category_title) }}
+                            <option value="{{ $category->category_title }}" {{ request('category_title') == $category->category_title ? 'selected' : '' }}>
+                                {{ $category->category_title }}
                             </option>
                         @endforeach
                     </select>
@@ -155,48 +162,47 @@
                 
                 <div class="field">
                     <label for="min_price">Min Fiyat</label>
-                    <input type="number" id="min_price" name="min_price" placeholder="0" value="{{ request('min_price') }}">
+                    <input type="text" id="min_price" name="min_price" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Min" value="{{ request('min_price') }}">
                 </div>
                 
                 <div class="field">
                     <label for="max_price">Max Fiyat</label>
-                    <input type="number" id="max_price" name="max_price" placeholder="999" value="{{ request('max_price') }}">
+                    <input type="text" id="max_price" name="max_price" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Max" value="{{ request('max_price') }}">
                 </div>
                 
                 <div class="field">
                     <label for="sorting">Sıralama</label>
                     <select name="sorting" id="sorting">
-                        <option value="">Varsayılan</option>
-                        <option value="price_asc" {{ request('sorting') == 'price_asc' ? 'selected' : '' }}>Fiyat: Düşük-Yüksek</option>
-                        <option value="price_desc" {{ request('sorting') == 'price_desc' ? 'selected' : '' }}>Fiyat: Yüksek-Düşük</option>
-                        <option value="stock_quantity_asc" {{ request('sorting') == 'stock_quantity_asc' ? 'selected' : '' }}>Stok: Az-Çok</option>
-                        <option value="stock_quantity_desc" {{ request('sorting') == 'stock_quantity_desc' ? 'selected' : '' }}>Stok: Çok-Az</option>
+                        <option value="">Seçiniz</option>
+                        <option value="price_asc" {{ request('sorting') == 'price_asc' ? 'selected' : '' }}>Fiyata Göre Artan</option>
+                        <option value="price_desc" {{ request('sorting') == 'price_desc' ? 'selected' : '' }}>Fiyata Göre Azalan</option>
+                        <option value="stock_quantity_asc" {{ request('sorting') == 'stock_quantity_asc' ? 'selected' : '' }}>Stoka Göre Artan</option>
+                        <option value="stock_quantity_desc" {{ request('sorting') == 'stock_quantity_desc' ? 'selected' : '' }}>Stoka Göre Azalan</option>
                     </select>
                 </div>
                 
-                <button type="submit" class="btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    Filtrele
-                </button>
-                
-                <button type="button" class="btn outline" onclick="resetFilters()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/>
-                    </svg>
-                    Sıfırla
-                </button>
-            @else
-                <button type="submit" class="btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    Ara
-                </button>
+                <div class="filter-actions">
+                    <button class="btn outline btn-sm" type="button" onclick="resetFilters()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/>
+                        </svg>
+                        Sıfırla
+                    </button>
+                    <button class="btn btn-sm" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        Uygula
+                    </button>
+                </div>
             @endif
         </form>
     </div>
+
+    @if(isset($query) && !empty($query))
+        <div class="muted" style="margin-top:10px"><strong>Arama Sonuçları</strong></div>
+    @endif
+
     <div class="products-container">
         <table class="products-table">
             <thead>

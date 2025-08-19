@@ -185,12 +185,12 @@
             @foreach($products as $p)
                 <div class="cart-item" data-item-id="{{ $p->id }}">
                     <div class="product-image">
-                        <img src="{{ $p->product->first_image }}" alt="{{ $p->product->title }}">
+                        <img src="{{ $p->product?->first_image ?? '/images/no-image.png' }}" alt="{{ $p->product?->title ?? 'Ürün' }}">
                     </div>
                     <div class="product-info">
-                        <div class="product-title">{{ $p->product->title }}</div>
-                        <div class="product-author">{{ $p->product->author }}</div>
-                        <div class="product-store">{{ $p->product->store->name }}</div>
+                        <div class="product-title">{{ $p->product?->title ?? 'Ürün bilgisi yok' }}</div>
+                        <div class="product-author">{{ $p->product?->author ?? 'Yazar bilgisi yok' }}</div>
+                        <div class="product-store">{{ $p->product?->store?->name ?? 'Mağaza bilgisi yok' }}</div>
                         <div class="product-category">{{ $p->product->category?->category_title }}</div>
                     </div>
                     <div class="quantity-price">
@@ -199,15 +199,17 @@
                             <span class="quantity-number">{{ $p->quantity }}</span>
                             <button class="quantity-btn" onclick="updateQuantity({{ $p->id }}, 1)">+</button>
                         </div>
-                        <div class="price">{{ number_format($p->product->list_price,2) }} TL</div>
-                        <div class="total-price">{{ number_format($p->product->list_price * $p->quantity,2) }} TL</div>
-                        <form action="{{ route('bag.delete', $p->id) }}" method="POST" style="margin:0">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn danger" style="padding:6px 12px;font-size:10px">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                                </svg>
+                        <div class="price">{{ number_format($p->product?->list_price ?? 0,2) }} TL</div>
+                        <div class="total-price">{{ number_format(($p->product?->list_price ?? 0) * $p->quantity,2) }} TL</div>
+    
+                    <form action="{{ route('bag.delete', $p->id) }}" method="POST" style="margin:0">
+                        @csrf
+                        @method('DELETE')
+                        
+                        <button type="submit" class="btn danger" style="padding:6px 12px;font-size:10px">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                            </svg>
                                 Kaldır
                             </button>
                         </form>
@@ -276,17 +278,17 @@
             </div>
             <div class="summary-row">
                 <span>Kargo</span>
-                <span>{{ $cargoPrice == 0 ? "50 TL üzeri ücretsiz" : number_format($cargoPrice,2)." TL" }}</span>
+                <span>{{ $cargoPrice == 0 ? "200 TL üzeri ücretsiz" : number_format($cargoPrice,2)." TL" }}</span>
             </div>
             @if($discount > 0)
                 <div class="summary-row">
                     <span>İndirim</span>
-                    <span>-{{ number_format($discount,4) }} TL</span>
+                    <span>-{{ number_format($discount,2) }} TL</span>
                 </div>
             @endif
             <div class="summary-row">
                 <span>Genel Toplam</span>
-                <span>{{ number_format($Totally,2) }} TL</span>
+                <span>{{ number_format($finalPrice,2) }} TL</span>
             </div>
         </div>
     @endif
@@ -294,18 +296,13 @@
 
 <script>
 function updateQuantity(itemId, change) {
-    // CSRF token'ı al
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-    // Mevcut quantity'yi al
     const quantityElement = document.querySelector(`[data-item-id="${itemId}"] .quantity-number`);
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + change;
     
-    // Eğer 0'a düşürülmeye çalışılıyorsa, ürünü sil
     if (newQuantity < 1) {
         if (confirm('Bu ürünü sepetten tamamen silmek istediğinizden emin misiniz?')) {
-            // Ürünü sil
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/bag/${itemId}`;
@@ -328,47 +325,27 @@ function updateQuantity(itemId, change) {
         return;
     }
     
-    // Loading göster
     quantityElement.textContent = '...';
     
-    // AJAX isteği gönder
-    fetch(`/bag/update/${itemId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            quantity: newQuantity
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Quantity'yi güncelle
-            quantityElement.textContent = newQuantity;
-            
-            // Toplam fiyatı güncelle
-            const priceElement = document.querySelector(`[data-item-id="${itemId}"] .price`);
-            const unitPrice = parseFloat(priceElement.textContent.replace(' TL', '').replace(',', ''));
-            const totalPriceElement = document.querySelector(`[data-item-id="${itemId}"] .total-price`);
-            totalPriceElement.textContent = (unitPrice * newQuantity).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
-            
-            // Sayfayı yenile (toplam tutarları güncellemek için)
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
-        } else {
-            alert(data.message || 'Bir hata oluştu!');
-            quantityElement.textContent = currentQuantity;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Bir hata oluştu!');
-        quantityElement.textContent = currentQuantity;
-    });
+    // Normal form submit kullan (AJAX yerine)
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/bag/update/${itemId}`;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = token;
+    
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'hidden';
+    quantityInput.name = 'quantity';
+    quantityInput.value = newQuantity;
+    
+    form.appendChild(csrfInput);
+    form.appendChild(quantityInput);
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 </body>

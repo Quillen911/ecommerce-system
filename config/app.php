@@ -163,7 +163,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\OrderServiceProvider::class,
         App\Providers\MyOrderServiceProvider::class,
-
+        App\Providers\BagServiceProvider::class,
         /*
         |--------------------------------------------------------------------------
         | Third-Party Service Providers

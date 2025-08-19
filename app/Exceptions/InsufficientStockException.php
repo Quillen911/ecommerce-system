@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Order\Exceptions;
+namespace App\Exceptions;
 
 class InsufficientStockException extends \Exception
 {
