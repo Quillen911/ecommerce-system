@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Enums\PaymentStatus;
+use App\Enums\OrderItemStatus;
 
 class OrderItem extends Model
 {
@@ -37,15 +38,16 @@ class OrderItem extends Model
     ];
 
     protected $casts = [
-        'list_price' => 'decimal:2',
+        'list_price' => 'float',
         'list_price_cents' => 'integer',
-        'paid_price' => 'decimal:4',
+        'paid_price' => 'float',
         'paid_price_cents' => 'integer',
-        'refunded_price' => 'decimal:4',
+        'refunded_price' => 'float',
         'refunded_price_cents' => 'integer',
         'quantity' => 'integer',
         'refunded_quantity' => 'integer',
         'payment_status' => PaymentStatus::class,
+        'status' => OrderItemStatus::class,
     ];
 
     public function order()

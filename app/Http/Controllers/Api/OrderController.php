@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
 use App\Traits\UserBagTrait;
-use App\Services\BagService;
+use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Helpers\ResponseHelper;
 use App\Models\Order;
@@ -18,7 +18,7 @@ class OrderController extends Controller
     protected $orderService;
     protected $bagService;
     protected $campaignManager;
-    public function __construct(OrderServiceInterface $orderService, BagService $bagService, CampaignManager $campaignManager)
+    public function __construct(OrderServiceInterface $orderService, BagInterface $bagService, CampaignManager $campaignManager)
     {
         $this->orderService = $orderService;
         $this->bagService = $bagService;

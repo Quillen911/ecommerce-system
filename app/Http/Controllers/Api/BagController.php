@@ -12,14 +12,14 @@ use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\BaseApiRequest;
 use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
-use App\Services\BagService;
+use App\Services\Bag\Contracts\BagInterface;
 
 class BagController extends Controller
 {
     use UserBagTrait;
     protected $bagService;
 
-    public function __construct(BagService $bagService)
+    public function __construct(BagInterface $bagService)
     {
         $this->bagService = $bagService;
     }
@@ -35,7 +35,7 @@ class BagController extends Controller
             return ResponseHelper::error('Sepetiniz bulunamadı!', 404);
         }
         
-        $products = $this->bagService->getBag($bag);
+        $products = $this->bagService->getBag();
         if($products->isEmpty()){
             return ResponseHelper::success('Sepetiniz boş!', []);
         }
@@ -54,7 +54,8 @@ class BagController extends Controller
             return ResponseHelper::error('Sepetiniz bulunamadı!', 400);
         }
 
-        $productItem = $this->bagService->getAddBag($bag, $request->product_id);
+        $productItem = $this->bagService->addToBag($bag, $request->product_id);
+
         
         if (is_array($productItem) && isset($productItem['error'])) {
             return ResponseHelper::error($productItem['error'], 400);
@@ -105,8 +106,8 @@ class BagController extends Controller
 
         $bagItem = $this->bagService->updateBagItem($bag, $id, $request->quantity);
 
-        if(isset($bagItem['success']) && !$bagItem['success']){
-            return ResponseHelper::error($bagItem['message'], 400);
+        if(isset($bagItem['error'])){
+            return ResponseHelper::error($bagItem['error'], 400);
         }
 
         Cache::flush();
@@ -127,8 +128,8 @@ class BagController extends Controller
 
         $result = $this->bagService->destroyBagItem($bag, $id);
         
-        if(isset($result['success']) && !$result['success']){
-            return ResponseHelper::error($result['message'], 400);
+        if(isset($result['error'])){
+            return ResponseHelper::error($result['error'], 400);
         }
 
         return ResponseHelper::success($result['message'] ?? 'Ürün sepetten silindi.');

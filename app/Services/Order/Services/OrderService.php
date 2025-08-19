@@ -6,7 +6,7 @@ use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Services\Order\Contracts\CalculationInterface;
 use App\Services\Order\Contracts\PaymentInterface;
 use App\Services\Order\Contracts\InventoryInterface;
-use App\Services\Order\Exceptions\OrderCreationException;
+use App\Exceptions\OrderCreationException;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Campaign;

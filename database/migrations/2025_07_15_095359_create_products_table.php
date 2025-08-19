@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('title');
             $table->unsignedBigInteger('category_id')->nullable();
             $table->string('author');
-            $table->decimal('list_price',8,2);
+            $table->decimal('list_price',10,2);
+            $table->bigInteger('list_price_cents')->default(0);
             $table->integer('stock_quantity');
             $table->integer('sold_quantity')->default(0);
             $table->json('images');

@@ -53,11 +53,10 @@ class MyOrderRefundService implements MyOrderRefundInterface
 
             $refund = $this->iyzicoService->refundPayment(
                 $calculation['item']->payment_transaction_id, 
-                $calculation['priceToRefund'] // TL cinsinden gönder (Iyzico TL bekliyor)
+                $calculation['priceToRefund'] 
             );
 
             if($refund['success']){
-                // DB Transaction ile atomik güncelleme
                 DB::transaction(function() use ($calculation) {
                     $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
                     $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);

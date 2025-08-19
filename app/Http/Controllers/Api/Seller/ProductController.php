@@ -95,7 +95,7 @@ class ProductController extends Controller
         $query = $request->input('q', '') ?? '';
         $filters = $this->elasticSearchTypeService->filterType($request);
         $sorting = $this->elasticSearchTypeService->sortingType($request);
-
+        $filters['store_id'] = auth('seller')->user()->store_id;
         $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
         
         if(!empty($data['products'])){

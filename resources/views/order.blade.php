@@ -183,13 +183,13 @@
                 <tbody>
                     @foreach($products as $p)
                         <tr>
-                            <td>{{$p->product->title}}</td>
-                            <td>{{$p->product->store->name}}</td>
+                            <td>{{$p->product?->title ?? 'Ürün bilgisi yok'}}</td>
+                            <td>{{$p->product?->store?->name ?? 'Mağaza bilgisi yok'}}</td>
                             <td>{{$p->product->category?->category_title}}</td>
-                            <td>{{$p->product->author}}</td>
+                            <td>{{$p->product?->author ?? 'Yazar bilgisi yok'}}</td>
                             <td>{{$p->quantity}}</td>
-                            <td>{{ number_format($p->product->list_price,2) }} TL</td>
-                            <td>{{ number_format($p->product->list_price * $p->quantity,2) }} TL</td>
+                            <td>{{ number_format($p->product?->list_price ?? 0,2) }} TL</td>
+                            <td>{{ number_format(($p->product?->list_price ?? 0) * $p->quantity,2) }} TL</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -277,7 +277,7 @@
             @endif
             <div class="summary-row">
                 <span>Genel Toplam</span>
-                <span>{{ number_format($Totally,2) }} TL</span>
+                <span>{{ number_format($finalPrice,2) }} TL</span>
             </div>
         </div>
     @endif

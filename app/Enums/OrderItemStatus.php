@@ -2,15 +2,14 @@
 
 namespace App\Enums;
 
-enum OrderStatus: string
+enum OrderItemStatus: string
 {
     case PENDING = 'pending';
     case CONFIRMED = 'confirmed';
     case SHIPPED = 'shipped';
     case DELIVERED = 'delivered';
-    case PARTIAL_REFUND = 'Kısmi İade';
-    case FULL_REFUND = 'İade Edildi';
-    case CANCELLED = 'cancelled';
+    case REFUNDED = 'refunded';
+    case CUSTOMER_RETURNED = 'Müşteri İade Etti';
     case FAILED = 'Başarısız Ödeme';
 
     public function label(): string
@@ -20,9 +19,8 @@ enum OrderStatus: string
             self::CONFIRMED => 'Onaylandı',
             self::SHIPPED => 'Kargoda',
             self::DELIVERED => 'Teslim Edildi',
-            self::PARTIAL_REFUND => 'Kısmi İade',
-            self::FULL_REFUND => 'İade Edildi',
-            self::CANCELLED => 'İptal Edildi',
+            self::REFUNDED => 'İade Edildi',
+            self::CUSTOMER_RETURNED => 'Müşteri İade Etti',
             self::FAILED => 'Başarısız Ödeme',
         };
     }
@@ -34,9 +32,8 @@ enum OrderStatus: string
             self::CONFIRMED => 'success',
             self::SHIPPED => 'info',
             self::DELIVERED => 'success',
-            self::PARTIAL_REFUND => 'warning',
-            self::FULL_REFUND => 'danger',
-            self::CANCELLED => 'danger',
+            self::REFUNDED => 'danger',
+            self::CUSTOMER_RETURNED => 'danger',
             self::FAILED => 'danger',
         };
     }

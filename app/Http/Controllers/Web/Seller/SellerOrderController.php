@@ -31,8 +31,12 @@ class SellerOrderController extends Controller
         if(!$store){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
-        $orderItem = $this->sellerOrderService->confirmItem($store, $id);
-        return redirect()->route('seller.order')->with('success', 'Sipariş başarıyla onaylandı');
+        $result = $this->sellerOrderService->confirmItem($store, $id);
+        if($result['success']){
+            return redirect()->route('seller.order')->with('success', $result['message']);
+        }else{
+            return redirect()->route('seller.order')->with('error', $result['message']);
+        }
     }
     public function refundOrderItem($id)
     {

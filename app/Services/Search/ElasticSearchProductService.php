@@ -6,7 +6,7 @@ use App\Services\Search\ElasticsearchService;
 
 class ElasticSearchProductService
 {
-    protected $elasticSearch;
+    protected ElasticsearchService $elasticSearch;
     public function __construct(ElasticsearchService $elasticSearch)
     {
         $this->elasticSearch = $elasticSearch;
@@ -32,7 +32,7 @@ class ElasticSearchProductService
 
     public function sortingProducts($sorting, $page = 1, $size = 12)
     {
-        $results = $this->elasticSearch->sortingProducts($sorting, $page, $size);
+        $results = $this->elasticSearch->sortProducts($sorting, $page, $size);
         return [
             'products' => collect($results['hits'])->pluck('_source')->toArray(),
             'results' => $results

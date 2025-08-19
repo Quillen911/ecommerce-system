@@ -40,7 +40,8 @@ class ProductController extends Controller
             return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
         }
         $products = $this->productService->indexProduct($store->id);
-        return view('Seller.Product.product', compact('products'));
+        $categories = $this->productService->getCategories();
+        return view('Seller.Product.product', compact('products', 'categories'));
     }
 
     public function storeProduct()
@@ -88,6 +89,7 @@ class ProductController extends Controller
         }
         $query = $request->input('q', '') ?? '';
         $filters = $this->elasticSearchTypeService->filterType($request);
+        $filters['store_id'] = $store->id;
         $sorting = $this->elasticSearchTypeService->sortingType($request);
 
         $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
@@ -95,7 +97,7 @@ class ProductController extends Controller
             'query' => $query,
             'categories' => $this->productService->getCategories(),
             'filters' => $filters,
-            'sorting' => $sorting
+            'sorting' => $sorting,
         ]));
     }
 }

@@ -16,6 +16,9 @@ class ElasticSearchTypeService
         if($request->filled('max_price')){
             $filters['max_price'] = $request->input('max_price') ?? '';
         }
+        if($request->filled('store_id')){
+            $filters['store_id'] = $request->input('store_id') ?? '';
+        }
         return $filters;
         
     }
