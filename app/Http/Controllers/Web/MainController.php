@@ -11,6 +11,8 @@ use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Services\MainService;
 use App\Services\Search\ElasticSearchProductService;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 
 class MainController extends Controller
 {
@@ -18,12 +20,22 @@ class MainController extends Controller
     protected $elasticSearchTypeService;
     protected $mainService;
     protected $elasticSearchProductService;
-    public function __construct(ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService, MainService $mainService, ElasticSearchProductService $elasticSearchProductService)
-    {
+    protected $productRepository;
+    protected $categoryRepository;
+    public function __construct(
+        ElasticsearchService $elasticSearch, 
+        ElasticSearchTypeService $elasticSearchTypeService, 
+        MainService $mainService, 
+        ElasticSearchProductService $elasticSearchProductService, 
+        ProductRepositoryInterface $productRepository, 
+        CategoryRepositoryInterface $categoryRepository
+    ) {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
         $this->mainService = $mainService;
         $this->elasticSearchProductService = $elasticSearchProductService;
+        $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public function main()

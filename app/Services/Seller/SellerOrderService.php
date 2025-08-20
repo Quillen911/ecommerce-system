@@ -2,36 +2,39 @@
 
 namespace App\Services\Seller;
 
-use App\Models\Product;
-use App\Models\OrderItem;
 use App\Services\Payments\IyzicoPaymentService;
+use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 
 class SellerOrderService
 {
-    private $iyzicoService;
-    public function __construct(IyzicoPaymentService $iyzicoService)
-    {
+    protected $iyzicoService;
+    protected $orderItemRepository;
+    protected $productRepository;
+
+    public function __construct(
+        IyzicoPaymentService $iyzicoService, 
+        OrderItemRepositoryInterface $orderItemRepository,
+        ProductRepositoryInterface $productRepository
+    ) {
         $this->iyzicoService = $iyzicoService;
+        $this->orderItemRepository = $orderItemRepository;
+        $this->productRepository = $productRepository;
     }
 
     public function getSellerOrders($store)
     {
-        $orderItems = OrderItem::with('product')
-            ->where('store_id', $store->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return $orderItems;
+        return $this->orderItemRepository->getOrderItemsBySeller($store->id);
     }
 
     public function getSellerOneOrder($store, $id)
     {
-        $orderItem = OrderItem::with('product')->where('store_id', $store->id)->where('order_id', $id)->first();
-        return $orderItem;
+        return $this->orderItemRepository->getOrderItemBySeller($store->id, $id);
     }
 
     public function confirmItem($store, $id)
     {
-        $orderItem = OrderItem::where('store_id', $store->id)->where('id', $id)->first();
+        $orderItem = $this->orderItemRepository->getOrderItemById($store->id, $id);
         
         if (!$orderItem) {
             return ['success' => false, 'message' => 'Sipariş bulunamadı'];
@@ -50,7 +53,7 @@ class SellerOrderService
 
     public function refundSelectedItems($store, $id)
     {
-        $orderItem = OrderItem::where('id', $id)->where('store_id', $store->id)->first();
+        $orderItem = $this->orderItemRepository->getOrderItemById($store->id, $id);
         if (!$orderItem) {
             return ['success' => false, 'message' => 'Sipariş bulunamadı'];
         }
@@ -58,12 +61,12 @@ class SellerOrderService
         $refundItem = $this->iyzicoService->refundPayment($orderItem->payment_transaction_id, $orderItem->paid_price);
         
         if($refundItem['success']){
-            Product::whereKey($orderItem->product_id)->increment('stock_quantity', $orderItem->quantity);
+            $this->productRepository->incrementStockQuantity($orderItem->product_id, $orderItem->quantity);
+
             $orderItem->status = 'refunded';
             $orderItem->payment_status = 'refunded';
             $orderItem->refunded_at = now();
             $orderItem->save();
-
 
             $order = $orderItem->order;
             $this->updateOrderStatusAfterRefund($order);
@@ -82,12 +85,12 @@ class SellerOrderService
         $confirmedItems = $orderItems->where('status', 'confirmed')->count();
 
         if ($refundedItems === $totalItems) {
-            $order->status = 'İade Edildi'; // OrderStatus::FULL_REFUND
+            $order->status = 'İade Edildi'; 
             $order->payment_status = 'refunded';
             $order->refunded_at = now();
             
         } elseif ($refundedItems > 0 && ($completedItems > 0 || $confirmedItems > 0)) {
-            $order->status = 'Kısmi İade'; // OrderStatus::PARTIAL_REFUND
+            $order->status = 'Kısmi İade'; 
             $order->payment_status = 'partial_refunded';
         }
         

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Product;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
@@ -12,28 +11,45 @@ use App\Services\Seller\ProductService;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Services\Search\ElasticSearchProductService;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+
 class ProductController extends Controller
 {
     protected $productService;
     protected $elasticSearch;
     protected $elasticSearchTypeService;
     protected $elasticSearchProductService;
-
-    public function __construct(ProductService $productService, ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService, ElasticSearchProductService $elasticSearchProductService)
-    {
+    protected $productRepository;
+    protected $categoryRepository;
+    protected $storeRepository;
+    public function __construct(
+        ProductService $productService, 
+        ElasticsearchService $elasticSearch, 
+        ElasticSearchTypeService $elasticSearchTypeService, 
+        ElasticSearchProductService $elasticSearchProductService,
+        ProductRepositoryInterface $productRepository,
+        CategoryRepositoryInterface $categoryRepository,
+        StoreRepositoryInterface $storeRepository
+    ) {
         $this->productService = $productService;
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
         $this->elasticSearchProductService = $elasticSearchProductService;
+        $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
+        $this->storeRepository = $storeRepository;
     }
 
     public function index()
     {
         $seller = auth('seller')->user();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$seller){
             return ResponseHelper::error('Seller access required', 403);
         }
-        $products = $this->productService->indexProduct();
+        $products = $this->productService->indexProduct($store->id);
         if($products->isEmpty()){
             return ResponseHelper::notFound('Ürün bulunamadı');
         }
@@ -92,10 +108,15 @@ class ProductController extends Controller
 
     public function searchProduct(Request $request)
     {
+        $seller = auth('seller')->user();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
+        if(!$seller){
+            return ResponseHelper::error('Seller access required', 403);
+        }
         $query = $request->input('q', '') ?? '';
         $filters = $this->elasticSearchTypeService->filterType($request);
+        $filters['store_id'] = $store->id;
         $sorting = $this->elasticSearchTypeService->sortingType($request);
-        $filters['store_id'] = auth('seller')->user()->store_id;
         $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
         
         if(!empty($data['products'])){
