@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\Api\Seller;
 
 use App\Http\Controllers\Controller;
-use App\Models\OrderItem;
 use App\Helpers\ResponseHelper;
 use App\Services\Seller\SellerOrderService;
-use App\Models\Store;
-use App\Models\Order;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+
 class SellerOrderController extends Controller
 {
     protected $sellerOrderService;
-
-    public function __construct(SellerOrderService $sellerOrderService)
+    protected $storeRepository;
+    public function __construct(SellerOrderService $sellerOrderService, StoreRepositoryInterface $storeRepository)
     {
         $this->sellerOrderService = $sellerOrderService;
+        $this->storeRepository = $storeRepository;
     }
     public function index()
     {
@@ -22,7 +22,7 @@ class SellerOrderController extends Controller
         if (!$seller) {
             return ResponseHelper::error('Unauthorized', 401);
         }
-        $store = Store::where('seller_id', $seller->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             return ResponseHelper::error('Lütfen giriş yapınız');
         }
@@ -33,7 +33,7 @@ class SellerOrderController extends Controller
     public function show($id)
     {
         $seller = auth('seller')->user();
-        $store = Store::where('seller_id', $seller->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             return ResponseHelper::error('Lütfen giriş yapınız');
         }
@@ -47,7 +47,7 @@ class SellerOrderController extends Controller
             return ResponseHelper::error('Unauthorized', 401);
         }
         
-        $store = Store::where('seller_id', $seller->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             return ResponseHelper::error('Lütfen giriş yapınız', 400);
         }
@@ -67,7 +67,7 @@ class SellerOrderController extends Controller
             return ResponseHelper::error('Unauthorized', 401);
         }
         
-        $store = Store::where('seller_id', $seller->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             return ResponseHelper::error('Lütfen giriş yapınız', 400);
         }

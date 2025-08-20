@@ -4,15 +4,15 @@ namespace App\Http\Controllers\Web\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Product;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
 use App\Services\Seller\ProductService;
-use App\Models\Category;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
-use App\Models\Store;
 use App\Services\Search\ElasticSearchProductService;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 
 class ProductController extends Controller
 {
@@ -20,13 +20,27 @@ class ProductController extends Controller
     protected $elasticSearch;
     protected $elasticSearchTypeService;
     protected $elasticSearchProductService;
+    protected $storeRepository;
+    protected $categoryRepository;
+    protected $productRepository;
 
-    public function __construct(ProductService $productService, ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService, ElasticSearchProductService $elasticSearchProductService)
+    public function __construct(
+        ProductService $productService, 
+        ElasticsearchService $elasticSearch, 
+        ElasticSearchTypeService $elasticSearchTypeService, 
+        ElasticSearchProductService $elasticSearchProductService,
+        StoreRepositoryInterface $storeRepository,
+        CategoryRepositoryInterface $categoryRepository,
+        ProductRepositoryInterface $productRepository
+    )
     {
         $this->productService = $productService;
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
         $this->elasticSearchProductService = $elasticSearchProductService;
+        $this->storeRepository = $storeRepository;
+        $this->categoryRepository = $categoryRepository;
+        $this->productRepository = $productRepository;
     }
 
     public function product()
@@ -35,7 +49,7 @@ class ProductController extends Controller
         if(!$seller){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
-        $store = Store::where('seller_id', $seller->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
         }
@@ -83,7 +97,7 @@ class ProductController extends Controller
         if(!$seller){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
-        $store = Store::where('seller_id', $seller->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
         }

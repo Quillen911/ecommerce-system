@@ -4,20 +4,19 @@ namespace App\Http\Controllers\Web\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Campaign;
-use App\Models\CampaignCondition;
-use App\Models\CampaignDiscount;
 use App\Services\Seller\CampaignService;
 use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
-use App\Models\Store;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 class CampaignController extends Controller
 {
     protected $campaignService;
+    protected $storeRepository;
 
-    public function __construct(CampaignService $campaignService)
+    public function __construct(CampaignService $campaignService, StoreRepositoryInterface $storeRepository)
     {
         $this->campaignService = $campaignService;
+        $this->storeRepository = $storeRepository;
     }
 
     public function campaign()
@@ -26,7 +25,7 @@ class CampaignController extends Controller
         if(!$seller){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
-        $store = Store::where('seller_id', $seller->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             return redirect()->route('seller.campaign')->with('error', 'Lütfen giriş yapınız');
         }

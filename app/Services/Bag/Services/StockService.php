@@ -22,7 +22,7 @@ class StockService implements StockInterface
          throw new InsufficientStockException(
             'Stokta yeterli ürün yok!', 
             $product, 
-            $currentQuantity + 1, 
+            $currentQuantity, 
             $product->stock_quantity
          );
       }

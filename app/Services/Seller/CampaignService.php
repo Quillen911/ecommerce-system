@@ -2,30 +2,47 @@
 
 namespace App\Services\Seller;
 
-use App\Models\Campaign;
-use App\Models\CampaignUserUsage;
 use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
-use App\Models\Store;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
+use App\Helpers\ResponseHelper;
 class CampaignService
 {
-    public function indexCampaign($storeId)
+    protected $storeRepository;
+    protected $campaignRepository;
+    public function __construct(StoreRepositoryInterface $storeRepository, CampaignRepositoryInterface $campaignRepository)
     {
-        $campaigns = Campaign::where('store_id', $storeId)->orderBy('id')->get();
-        return $campaigns;
+        $this->storeRepository = $storeRepository;
+        $this->campaignRepository = $campaignRepository;
     }
+
+    public function indexCampaign()
+    {
+        $seller = auth('seller')->user();
+        if(!$seller){
+            return ['success' => false, 'message' => 'Lütfen giriş yapınız'];
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
+        if(!$store){
+            return ['success' => false, 'message' => 'Mağaza bulunamadı'];
+        }
+        $campaigns = $this->campaignRepository->getCampaignsByStoreId($store->id);
+        return ['success' => true, 'data' => $campaigns];
+    }
+
     public function createCampaign(CampaignStoreRequest $request)
     {
         try{
 
-            $seller = auth('seller_web')->user();
-            $store = Store::where('seller_id', $seller->id)->first();
+            $seller = auth('seller')->user();
+            $store = $this->storeRepository->getStoreBySellerId($seller->id);
             $campaignData = $request->all();
             $campaignData['store_id'] = $store->id;
             $campaignData['store_name'] = $store->name;
-            $campaign = Campaign::create($campaignData);
+            $campaign = $this->campaignRepository->createCampaign($campaignData);
             
             
             if ($request->has('conditions')) {
@@ -55,17 +72,41 @@ class CampaignService
     public function showCampaign($id)
     {
         try {
-            $campaign = Campaign::with(['conditions', 'discounts'])->findOrFail($id);
-            return $campaign;
-        } catch (ModelNotFoundException $e) {
-            return null;
+            $seller = auth('seller')->user();
+            if(!$seller){
+                return ResponseHelper::error('Lütfen giriş yapınız');
+            }
+            $store = $this->storeRepository->getStoreBySellerId($seller->id);
+            if(!$store){
+                return ResponseHelper::error('Mağaza bulunamadı');
+            }
+            $campaigns = $this->campaignRepository->getCampaignByStoreId($store->id, $id);
+            if(!$campaigns){
+                return ResponseHelper::notFound('Kampanya bulunamadı');
+            }
+            return ResponseHelper::success('Kampanya detayı',$campaigns);
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error('Kampanya bulunamadı');
         }
     }
     public function updateCampaign(CampaignUpdateRequest $request, $id)
     {
         try {
-            $campaign = Campaign::with(['conditions', 'discounts'])->findOrFail($id);
-            $campaign->update($request->all());
+            $seller = auth('seller')->user();
+            if(!$seller){
+                return ResponseHelper::error('Lütfen giriş yapınız');
+            }
+            $store = $this->storeRepository->getStoreBySellerId($seller->id);
+            if(!$store){
+                return ResponseHelper::error('Mağaza bulunamadı');
+            }
+            $campaign = $this->campaignRepository->getCampaignByStoreId($store->id, $id);
+
+            $campaignData = $request->all();
+            $campaignData['store_id'] = $campaign->store_id;
+            $campaignData['store_name'] = $campaign->store_name;
+            $campaign = $this->campaignRepository->updateCampaign($campaignData, $id);
             
             if ($request->has('existing_conditions')) {
                 foreach ($request->existing_conditions as $conditionId => $conditionData) {
@@ -92,20 +133,29 @@ class CampaignService
                     }
                 }
             }
-            return $campaign;
+            return ResponseHelper::success('Kampanya başarıyla güncellendi',$campaignData);
+
         } catch (ModelNotFoundException $e) {
-            return null;
+            return ResponseHelper::error('Kampanya bulunamadı');
         }
     }
 
     public function deleteCampaign($id)
     {
         try {
-            $campaign = Campaign::findOrFail($id);
+            $seller = auth('seller')->user();
+            if(!$seller){
+                return ResponseHelper::error('Lütfen giriş yapınız');
+            }
+            $store = $this->storeRepository->getStoreBySellerId($seller->id);
+            if(!$store){
+                return ResponseHelper::error('Mağaza bulunamadı');
+            }
+            $campaign = $this->campaignRepository->getCampaignByStoreId($store->id, $id);
             $campaign->delete();
-            return $campaign;
+            return ResponseHelper::success('Kampanya başarıyla silindi',$campaign);
         } catch (ModelNotFoundException $e) {
-            return null;
+            return ResponseHelper::error('Kampanya bulunamadı');
         }
     }
 
