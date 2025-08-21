@@ -58,6 +58,11 @@
         .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
         .empty-state svg{margin-bottom:12px;opacity:0.5}
         
+        /* Notices */
+        .notice{padding:12px 16px;border:1px solid var(--line);margin:0 0 20px;border-radius:8px;display:flex;align-items:center;gap:8px}
+        .notice.success{color:var(--success);background:rgba(34,197,94,0.1);border-color:var(--success)}
+        .notice.error{color:var(--danger);background:rgba(239,68,68,0.1);border-color:var(--danger)}
+        
         @media (max-width:768px){
             .header-content{flex-direction:column;gap:12px;text-align:center}
             .form-grid{grid-template-columns:1fr;gap:16px}
@@ -78,6 +83,64 @@
         </div>
     </div>
 
+    @if(session('success'))
+        <div class="notice success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+            </svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="notice error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="notice error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @php
+      $discount = $campaigns->discounts->first();
+      // dType'ı doğru şekilde ayarla - önce discount'tan, sonra campaign'den al
+      $dType = $discount ? $discount->discount_type : (old('type') ?: $campaigns->type);
+      $dVal = $discount ? $discount->discount_value : null;
+
+      // $dVal'ı doğru şekilde parse et
+      if (is_string($dVal)) {
+          $decoded = json_decode($dVal, true);
+          if (json_last_error() === JSON_ERROR_NONE) {
+              $dVal = $decoded;
+          }
+      }
+      
+      // Discount value'yu tip bazlı olarak ayarla
+      $displayValue = null;
+      if ($dType === 'percentage' && is_array($dVal) && isset($dVal['percentage'])) {
+          $displayValue = $dVal['percentage'];
+      } elseif ($dType === 'fixed' && is_array($dVal) && isset($dVal['amount'])) {
+          $displayValue = $dVal['amount'];
+      } elseif ($dType === 'x_buy_y_pay' && is_array($dVal)) {
+          $displayValue = $dVal;
+      } elseif (is_numeric($dVal)) {
+          $displayValue = $dVal;
+      }
+    @endphp
+
     <div class="form-container">
         <form action="{{ route('seller.updateCampaign', $campaigns->id) }}" method="POST">
             @csrf
@@ -90,9 +153,9 @@
                 <div class="form-group">
                     <label class="form-label" for="type">Kampanya Tipi</label>
                     <select name="type" id="type" class="form-select">
-                        <option value="percentage" {{ old('type', $campaigns->type) == 'percentage' ? 'selected' : '' }}>Yüzde İndirimi</option>
-                        <option value="fixed" {{ old('type', $campaigns->type) == 'fixed' ? 'selected' : '' }}>Sabit Tutar İndirimi</option>
-                        <option value="x_buy_y_pay" {{ old('type', $campaigns->type) == 'x_buy_y_pay' ? 'selected' : '' }}>X Al Y Öde</option>
+                        <option value="percentage" {{ $dType == 'percentage' ? 'selected' : '' }}>Yüzde İndirimi</option>
+                        <option value="fixed" {{ $dType == 'fixed' ? 'selected' : '' }}>Sabit Tutar İndirimi</option>
+                        <option value="x_buy_y_pay" {{ $dType == 'x_buy_y_pay' ? 'selected' : '' }}>X Al Y Öde</option>
                     </select>
                 </div>
                 
@@ -188,49 +251,18 @@
                 @endif
             </div>
             
-            <!-- İndirimler Bölümü -->
+            <!-- Kampanya İndirimi -->
             <div class="section">
                 <div class="section-title">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12a9 9 0 11-6.219-8.56"/><circle cx="9" cy="9" r="2"/><path d="M21 21l-6-6"/>
                     </svg>
-                    Kampanya İndirimleri
+                    Kampanya İndirimi
                 </div>
-                
-                @if($campaigns->discounts && $campaigns->discounts->count() > 0)
-                    @foreach($campaigns->discounts as $index => $discount)
-                        <div class="discount-item">
-                            <div class="discount-grid">
-                                <div class="form-group">
-                                    <label class="form-label">İndirim Tipi</label>
-                                    <select name="existing_discounts[{{ $discount->id }}][discount_type]" class="form-select">
-                                        <option value="percentage" {{ $discount->discount_type == 'percentage' ? 'selected' : '' }}>Yüzde İndirimi</option>
-                                        <option value="fixed" {{ $discount->discount_type == 'fixed' ? 'selected' : '' }}>Sabit Tutar</option>
-                                        <option value="x_buy_y_pay" {{ $discount->discount_type == 'x_buy_y_pay' ? 'selected' : '' }}>X Al Y Öde</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="form-label">İndirim Değeri</label>
-                                    <input type="text" name="existing_discounts[{{ $discount->id }}][discount_value]" class="form-input"
-                                        value="{{ is_array($discount->discount_value) ? json_encode($discount->discount_value) : (is_string($discount->discount_value) ? $discount->discount_value : '') }}" 
-                                        placeholder="Örn: 20 (% için) veya 50 (TL için)">
-                                </div>
-                                
-                                <div style="display:flex;align-items:end;">
-                                    <!-- Boş alan - gelecekte silme butonu eklenebilir -->
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-                        </svg>
-                        <div>Henüz indirim tanımlanmamış</div>
-                    </div>
-                @endif
+
+                <div id="discount-fields" class="dynamic-fields">
+                    <!-- JavaScript ile render edilecek -->
+                </div>
             </div>
             
             <!-- Form Submit -->
@@ -250,6 +282,70 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function renderDiscountFieldsForEdit(type, preset) {
+            const box = document.getElementById('discount-fields');
+            if (!box) return;
+
+            if (type === 'percentage' || type === 'fixed') {
+                const val = (preset && typeof preset === 'number') ? preset : (preset && typeof preset === 'string' && !isNaN(preset) ? parseInt(preset, 10) : '');
+                box.innerHTML = `
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">${type === 'percentage' ? 'Yüzde (%)' : 'Sabit Tutar'}</label>
+                            <input type="number" min="0" step="1" name="discount_value" class="form-input" value="${val ?? ''}" placeholder="${type === 'percentage' ? 'Örn: 20' : 'Örn: 50'}" required>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'x_buy_y_pay') {
+                const x = (preset && typeof preset === 'object' && preset.x) ? preset.x : '';
+                const y = (preset && typeof preset === 'object' && preset.y) ? preset.y : '';
+                box.innerHTML = `
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">X (Alınan)</label>
+                            <input type="number" min="1" step="1" name="discount_value[x]" class="form-input" value="${x}" placeholder="Örn: 2" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Y (Ödenen)</label>
+                            <input type="number" min="1" step="1" name="discount_value[y]" class="form-input" value="${y}" placeholder="Örn: 1" required>
+                        </div>
+                    </div>
+                `;
+            } else {
+                box.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                        </svg>
+                        <div>Tip seçimine göre indirim alanları belirecek.</div>
+                    </div>
+                `;
+            }
+        }
+
+        // İlk render: backend'den gelen değeri JS'e taşıyalım
+        const initialType = document.getElementById('type')?.value || '';
+    </script>
+
+    {{-- Backend değişkenini JS'e geçiriyoruz --}}
+    <script>
+        const presetDiscountValue = {!! json_encode($displayValue ?? null) !!};
+        const currentType = '{{ $dType }}';
+        
+        // Sayfa yüklendiğinde mevcut değerleri göster
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentType) {
+                renderDiscountFieldsForEdit(currentType, presetDiscountValue);
+            }
+        });
+
+        // Tip değiştiğinde alanları güncelle
+        document.getElementById('type')?.addEventListener('change', (e) => {
+            renderDiscountFieldsForEdit(e.target.value, null);
+        });
+    </script>
 
     <script>
         // Form submit edildiğinde virgülle ayrılmış yazar değerlerini JSON array'e çevir

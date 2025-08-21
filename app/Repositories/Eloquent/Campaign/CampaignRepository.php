@@ -27,7 +27,6 @@ class CampaignRepository extends BaseRepository implements CampaignRepositoryInt
     public function updateCampaign(array $campaignData, $id)
     {
         $campaign = $this->model->find($id);
-       // dd($campaignData);
         if($campaign){
             return $campaign->update($campaignData);
         }

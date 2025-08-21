@@ -53,5 +53,11 @@ class CampaignConditionSeeder extends Seeder
             'condition_value' => 'Dostoyevski',
             'operator' => '=',
         ]);
+        CampaignCondition::create([
+            'campaign_id' => 6,
+            'condition_type' => 'category',
+            'condition_value' => 'Kişisel Gelişim',
+            'operator' => '=',
+        ]);
     }
 }

@@ -223,52 +223,24 @@
             </button>
         </div>
         
-        <!-- Kampanya İndirimleri -->
+        <!-- Kampanya İndirimi (TEK kaydı destekler) -->
         <div class="section">
             <div class="section-title">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12a9 9 0 11-6.219-8.56"/><circle cx="9" cy="9" r="2"/><path d="M21 21l-6-6"/>
                 </svg>
-                Kampanya İndirimleri
+                Kampanya İndirimi
             </div>
-            
-            <div id="discounts-container">
-                <div class="dynamic-fields discount-item">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">İndirim Tipi</label>
-                            <select name="discounts[0][discount_type]" class="form-select">
-                                <option value="">Seçiniz</option>
-                                <option value="percentage">Yüzde İndirimi</option>
-                                <option value="fixed">Sabit Tutar</option>
-                                <option value="x_buy_y_pay">X Al Y Öde</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">İndirim Değeri</label>
-                            <input type="text" name="discounts[0][discount_value]" class="form-input" placeholder="Örn: 20 (% için) veya 50 (TL için)">
-                        </div>
-                        
-                        <div style="display:flex;align-items:end;">
-                            <!-- Boş alan -->
-                        </div>
+
+            <div id="discount-fields" class="dynamic-fields">
+                <!-- Varsayılan: boş; JS seçilen tipe göre inputları basacak -->
+                <div class="form-group">
+                    <div class="form-label">İndirim Değeri</div>
+                    <div class="form-label" style="color: var(--muted); font-weight: 400;">
+                        Kampanya tipine göre alanlar otomatik gelecektir.
                     </div>
-                    <button type="button" class="btn danger" onclick="removeDiscount(this)" style="margin-top:10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c0 1 1 2 2 2v2"/>
-                        </svg>
-                        Kaldır
-                    </button>
                 </div>
             </div>
-            
-            <button type="button" class="add-btn" onclick="addDiscount()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                İndirim Ekle
-            </button>
         </div>
         
         <!-- Form Actions -->
@@ -291,7 +263,6 @@
 
 <script>
 let conditionIndex = 1;
-let discountIndex = 1;
 
 function addCondition() {
     const container = document.getElementById('conditions-container');
@@ -339,57 +310,63 @@ function addCondition() {
     conditionIndex++;
 }
 
-function addDiscount() {
-    const container = document.getElementById('discounts-container');
-    const newDiscount = document.createElement('div');
-    newDiscount.className = 'dynamic-fields discount-item';
-    newDiscount.innerHTML = `
-        <div class="form-grid">
-            <div class="form-group">
-                <label class="form-label">İndirim Tipi</label>
-                <select name="discounts[${discountIndex}][discount_type]" class="form-select">
-                    <option value="">Seçiniz</option>
-                    <option value="percentage">Yüzde İndirimi</option>
-                    <option value="fixed">Sabit Tutar</option>
-                    <option value="x_buy_y_pay">X Al Y Öde</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">İndirim Değeri</label>
-                <input type="text" name="discounts[${discountIndex}][discount_value]" class="form-input" placeholder="Örn: 20 (% için) veya 50 (TL için)">
-            </div>
-            
-            <div style="display:flex;align-items:end;">
-                <!-- Boş alan -->
-            </div>
-        </div>
-        <button type="button" class="btn danger" onclick="removeDiscount(this)" style="margin-top:10px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c0 1 1 2 2 2v2"/>
-            </svg>
-            Kaldır
-        </button>
-    `;
-    container.appendChild(newDiscount);
-    discountIndex++;
-}
-
 function removeCondition(button) {
     button.parentElement.remove();
 }
 
-function removeDiscount(button) {
-    button.parentElement.remove();
+// --- İNDİRİM ALANLARINI TİPE GÖRE ÇİZ ---
+function renderDiscountFields(type) {
+    const box = document.getElementById('discount-fields');
+    if (!box) return;
+
+    if (type === 'percentage' || type === 'fixed') {
+        box.innerHTML = `
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">${type === 'percentage' ? 'Yüzde (%)' : 'Sabit Tutar'}</label>
+                    <input type="number" min="0" step="1" name="discount_value" class="form-input" placeholder="${type === 'percentage' ? 'Örn: 20' : 'Örn: 50'}" required>
+                </div>
+            </div>
+        `;
+    } else if (type === 'x_buy_y_pay') {
+        box.innerHTML = `
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">X (Alınan)</label>
+                    <input type="number" min="1" step="1" name="discount_value[x]" class="form-input" placeholder="Örn: 2" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Y (Ödenen)</label>
+                    <input type="number" min="1" step="1" name="discount_value[y]" class="form-input" placeholder="Örn: 1" required>
+                </div>
+            </div>
+        `;
+    } else {
+        box.innerHTML = `
+            <div class="form-group">
+                <div class="form-label">İndirim Değeri</div>
+                <div class="form-label" style="color: var(--muted); font-weight: 400;">
+                    Kampanya tipine göre alanlar otomatik gelecektir.
+                </div>
+            </div>
+        `;
+    }
 }
 
-// Form submit edildiğinde author değerlerini JSON array'e çevir
+// Tip değişince alanları güncelle
+const typeSelect = document.getElementById('type');
+if (typeSelect) {
+    typeSelect.addEventListener('change', e => renderDiscountFields(e.target.value));
+    // İlk yüklemede de çiz
+    renderDiscountFields(typeSelect.value);
+}
+
+// --- (KALABİLİR) Form submit'te author değerlerini JSON array'e çevir ---
 document.querySelector('form').addEventListener('submit', function(e) {
     const conditionItems = document.querySelectorAll('.condition-item');
     conditionItems.forEach(function(item) {
         const typeSelect = item.querySelector('select[name*="condition_type"]');
         const valueInput = item.querySelector('input[name*="condition_value"]');
-        
         if (typeSelect && valueInput && typeSelect.value === 'author') {
             const value = valueInput.value.trim();
             if (value.includes(',') && !value.startsWith('[')) {
