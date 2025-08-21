@@ -3,15 +3,18 @@
 namespace App\Services\MyOrder\Services;
 
 use App\Services\MyOrder\Contracts\MyOrderCheckInterface;
-use App\Models\Order;
-
+use App\Repositories\Contracts\Order\OrderRepositoryInterface;
 class MyOrderCheckService implements MyOrderCheckInterface
 {
+    protected $orderRepository;
+
+    public function __construct(OrderRepositoryInterface $orderRepository)
+    {
+        $this->orderRepository = $orderRepository;
+    }
     public function checkOrder($userId, $orderId): array
     {
-        $order = Order::where('id', $orderId)
-            ->where('user_id', $userId)
-            ->first();
+        $order = $this->orderRepository->getUserOrderById($userId, $orderId);
 
         if(!$order){
             return ['success' => false, 'error' => 'Sipariş bulunamadı.'];

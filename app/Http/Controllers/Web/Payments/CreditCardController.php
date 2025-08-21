@@ -17,17 +17,13 @@ class CreditCardController extends Controller
 
     public function storeCreditCard(CreditCardStoreRequest $request)
     {
-        try {
-            $user = auth()->user();
-            $creditCard = $this->creditCardService->storeCreditCard($request, $user);
-            
-            if ($creditCard) {
-                return redirect()->back()->with('success', 'Kredi kartı başarıyla eklendi!');
-            } else {
-                return redirect()->back()->with('error', 'Kredi kartı eklenirken hata oluştu!');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Kredi kartı eklenirken hata oluştu: ' . $e->getMessage());
+        $user = auth()->user();
+        $creditCard = $this->creditCardService->storeCreditCard($request, $user);
+        
+        if ($creditCard) {
+            return redirect()->back()->with('success', 'Kredi kartı başarıyla eklendi!');
+        } else {
+            return redirect()->back()->with('error', 'Kredi kartı eklenirken hata oluştu!');
         }
     }
 }

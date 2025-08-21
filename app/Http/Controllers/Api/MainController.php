@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Services\Search\ElasticSearchProductService;
 use App\Services\MainService;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 
 class MainController extends Controller
 {
@@ -21,13 +23,23 @@ class MainController extends Controller
     protected $elasticSearchTypeService;
     protected $elasticSearchProductService;
     protected $mainService;
+    protected $productRepository;
+    protected $categoryRepository;
     
-    public function __construct(ElasticsearchService $elasticSearch, ElasticSearchTypeService $elasticSearchTypeService, ElasticSearchProductService $elasticSearchProductService, MainService $mainService)
-    {
+    public function __construct(
+        ElasticsearchService $elasticSearch, 
+        ElasticSearchTypeService $elasticSearchTypeService, 
+        ElasticSearchProductService $elasticSearchProductService, 
+        MainService $mainService, 
+        ProductRepositoryInterface $productRepository, 
+        CategoryRepositoryInterface $categoryRepository
+    ) {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
         $this->elasticSearchProductService = $elasticSearchProductService;
         $this->mainService = $mainService;
+        $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public function index(Request $request)

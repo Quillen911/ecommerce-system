@@ -3,24 +3,23 @@
 namespace App\Services\MyOrder\Services;
 
 use App\Services\MyOrder\Contracts\MyOrderInterface;
-
-use App\Models\Order;
+use App\Repositories\Contracts\Order\OrderRepositoryInterface;
 
 class MyOrderService implements MyOrderInterface
 {
+    protected $orderRepository;
+
+    public function __construct(OrderRepositoryInterface $orderRepository)
+    {
+        $this->orderRepository = $orderRepository;
+    }
     public function getOrdersforUser($userId)
     {
-        return Order::with('orderItems.product.category')
-            ->where('user_id', $userId)
-            ->orderByDesc('id')
-            ->get();
+        return $this->orderRepository->getOrdersforUser($userId);
     }
 
     public function getOneOrderforUser($userId, $orderId)
     {
-        return Order::with('orderItems.product.category')
-            ->where('id', $orderId)
-            ->where('user_id', $userId)
-            ->first();
+        return $this->orderRepository->getOneOrderforUser($userId, $orderId);
     }
 }

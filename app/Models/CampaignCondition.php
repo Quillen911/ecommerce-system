@@ -15,6 +15,10 @@ class CampaignCondition extends Model
         'operator',
     ];
 
+    protected $casts = [
+        'condition_value' => 'json',
+    ];
+
     public function campaign()
     {
         return $this->belongsTo(Campaign::class, 'campaign_id');

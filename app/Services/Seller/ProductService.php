@@ -6,92 +6,88 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
-use App\Models\Store;
 use App\Models\Category;
-
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 
 class ProductService
 {
-
-    public function indexProduct($storeId)
+    protected $productRepository;
+    protected $categoryRepository;
+    protected $storeRepository;
+    public function __construct(
+        ProductRepositoryInterface $productRepository, 
+        CategoryRepositoryInterface $categoryRepository, 
+        StoreRepositoryInterface $storeRepository
+    ) {
+        $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
+        $this->storeRepository = $storeRepository;
+    }
+    public function indexProduct($sellerId)
     {
-        $products = Product::with('category')->where('store_id', $storeId)->orderBy('id')->get();
-        return $products;
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+
+        return $this->productRepository->getProductsByStore($store->id);
     }
     
-    public function createProduct(ProductStoreRequest $request)
+    public function createProduct($sellerId, array $request)
     {
-        $seller = auth('seller_web')->user();
-        $store = Store::where('seller_id', $seller->id)->first();
-        $productData = $request->all();
-        $productData['store_id'] = $store->id;
-        $productData['store_name'] = $store->name;
-        $productData['sold_quantity'] = 0;
-        
-        
-        if (isset($productData['list_price'])) {
-            $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
         }
-        
-        if($request->hasFile('images')){
-            $images = [];
-            foreach($request->file('images') as $image){
-                $filename = time() . '.' . $image->getClientOriginalName();
-                $image->storeAs('productsImages', $filename, 'public');
-                $images[] = $filename;
-            }
-            $productData['images'] = $images;
+        $productData = array_merge($request, [
+            'store_id' => $store->id,
+            'store_name' => $store->name,
+            'sold_quantity' => 0,
+        ]);
+        if(isset($request['images'])){
+            $productData['images'] = $request['images'];
         }
-        
-        $products = Product::create($productData);
-        return $products;
+        return $this->productRepository->createProduct($productData);
     }
 
-    public function showProduct($id)
+    public function showProduct($sellerId, $id)
     {
-        $products = Product::find($id);
-        return $products;
-    }
-
-    public function updateProduct(ProductUpdateRequest $request, $id)
-    {
-        $products = Product::findOrFail($id);
-        $updateData = $request->validated();
-        
-        if (isset($updateData['list_price'])) {
-            $updateData['list_price_cents'] = (int)($updateData['list_price'] * 100);
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
         }
-        
-        $products->update($updateData);
-        return $products;
+        return $this->productRepository->getProductByStore($store->id, $id);
     }
 
-    public function deleteProduct($id)
+    public function updateProduct($sellerId, array $request, $id)
     {
-        $products= Product::findOrFail($id);
-        $products->delete();
-        return $products;
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        return $this->productRepository->updateProduct($request, $store->id, $id);
+    }
+
+    public function deleteProduct($sellerId, $id)
+    {
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        return $this->productRepository->deleteProduct($store->id, $id);
     }
     
     public function bulkStoreProduct(Request $request)
     {
-        $products = $request->all();
-        $created = [];
-        
-        foreach ($products as $productData) {
-            
-            if (isset($productData['list_price'])) {
-                $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
-            }
-            
-            $product = Product::create($productData);
-            $created[] = $product;
-        }
-        return $created;
+        return $this->productRepository->bulkCreateProducts($request->all());
     }
     
     public function getCategories()
     {
-        return Category::all();
+        return $this->categoryRepository->all();
     }
 }

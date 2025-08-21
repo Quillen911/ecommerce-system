@@ -4,14 +4,20 @@ namespace App\Services\Order\Services;
 
 use App\Services\Order\Contracts\InventoryInterface;
 use App\Exceptions\InsufficientStockException;
-use App\Models\Product;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 
 class InventoryService implements InventoryInterface
 {
+    protected $productRepository;
+
+    public function __construct(ProductRepositoryInterface $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
     public function checkStock($products): bool
     {
         foreach ($products as $product){
-            $product = Product::find($product->product_id);
+            $product = $this->productRepository->getProductWithCategory($product->product_id);
 
             if(!$product || $product->stock_quantity < $product->quantity){
                 throw new InsufficientStockException(
@@ -25,16 +31,16 @@ class InventoryService implements InventoryInterface
     public function updateInventory($products): void
     {
         foreach ($products as $item) {
-            Product::whereKey($item->product_id)->decrement('stock_quantity', $item->quantity);
-            Product::whereKey($item->product_id)->increment('sold_quantity', $item->quantity);
+            $this->productRepository->decrementStockQuantity($item->product_id, $item->quantity);
+            $this->productRepository->incrementSoldQuantity($item->product_id, $item->quantity);
         }
     }
 
     public function restoreInventory($products): void
     {
         foreach ($products as $item) {
-            Product::whereKey($item->product_id)->increment('stock_quantity', $item->quantity);
-            Product::whereKey($item->product_id)->decrement('sold_quantity', $item->quantity);
+            $this->productRepository->incrementStockQuantity($item->product_id, $item->quantity);
+            $this->productRepository->decrementSoldQuantity($item->product_id, $item->quantity);
         }
     }
 }

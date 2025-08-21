@@ -2,74 +2,96 @@
 
 namespace App\Services\Seller;
 
-use App\Models\Product;
-use App\Models\OrderItem;
 use App\Services\Payments\IyzicoPaymentService;
+use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 
 class SellerOrderService
 {
-    private $iyzicoService;
-    public function __construct(IyzicoPaymentService $iyzicoService)
-    {
+    protected $iyzicoService;
+    protected $orderItemRepository;
+    protected $productRepository;
+    protected $storeRepository;
+    public function __construct(
+        IyzicoPaymentService $iyzicoService, 
+        OrderItemRepositoryInterface $orderItemRepository,
+        ProductRepositoryInterface $productRepository,
+        StoreRepositoryInterface $storeRepository
+    ) {
         $this->iyzicoService = $iyzicoService;
+        $this->orderItemRepository = $orderItemRepository;
+        $this->productRepository = $productRepository;
+        $this->storeRepository = $storeRepository;
     }
 
-    public function getSellerOrders($store)
+    public function getSellerOrders($sellerId)
     {
-        $orderItems = OrderItem::with('product')
-            ->where('store_id', $store->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-        return $orderItems;
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        return $this->orderItemRepository->getOrderItemsBySeller($store->id);
     }
 
-    public function getSellerOneOrder($store, $id)
+    public function getSellerOneOrder($sellerId, $id)
     {
-        $orderItem = OrderItem::with('product')->where('store_id', $store->id)->where('order_id', $id)->first();
-        return $orderItem;
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        return $this->orderItemRepository->getOrderItemBySeller($store->id, $id);
     }
 
-    public function confirmItem($store, $id)
+    public function confirmItem($sellerId, $id)
     {
-        $orderItem = OrderItem::where('store_id', $store->id)->where('id', $id)->first();
-        
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        $orderItem = $this->orderItemRepository->getOrderItemById($store->id, $id);
         if (!$orderItem) {
-            return ['success' => false, 'message' => 'Sipariş bulunamadı'];
+            throw new \Exception('Sipariş bulunamadı');
         }
         if($orderItem->status === 'refunded'){
-            return ['success' => false, 'message' => 'Sipariş iade edildi'];
+            throw new \Exception('Sipariş iade edildi');
         }
         if($orderItem->status !== 'confirmed'){
-            return ['success' => false, 'message' => 'Sipariş durumu uygun değil'];
+            throw new \Exception('Sipariş durumu uygun değil');
         }
         
         $orderItem->status = 'shipped';
         $orderItem->save();
-        return ['success' => true, 'message' => 'Sipariş başarıyla kargoya verildi', 'orderItem' => $orderItem];  
+
+        return $orderItem;
     }
 
-    public function refundSelectedItems($store, $id)
+    public function refundSelectedItems($sellerId, $id)
     {
-        $orderItem = OrderItem::where('id', $id)->where('store_id', $store->id)->first();
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        $orderItem = $this->orderItemRepository->getOrderItemById($store->id, $id);
         if (!$orderItem) {
-            return ['success' => false, 'message' => 'Sipariş bulunamadı'];
+            throw new \Exception('Sipariş bulunamadı');
         }
         
         $refundItem = $this->iyzicoService->refundPayment($orderItem->payment_transaction_id, $orderItem->paid_price);
         
         if($refundItem['success']){
-            Product::whereKey($orderItem->product_id)->increment('stock_quantity', $orderItem->quantity);
+            $this->productRepository->incrementStockQuantity($orderItem->product_id, $orderItem->quantity);
+
             $orderItem->status = 'refunded';
             $orderItem->payment_status = 'refunded';
             $orderItem->refunded_at = now();
             $orderItem->save();
 
-
             $order = $orderItem->order;
             $this->updateOrderStatusAfterRefund($order);
             return ['success' => true, 'message' => 'Sipariş başarıyla iade edildi', 'orderItem' => $orderItem];
         }
-        return ['success' => false, 'message' => 'Sipariş iade edilirken hata oluştu'];
+        throw new \Exception('Sipariş iade edilirken hata oluştu');
     }
 
     private function updateOrderStatusAfterRefund($order)
@@ -82,12 +104,12 @@ class SellerOrderService
         $confirmedItems = $orderItems->where('status', 'confirmed')->count();
 
         if ($refundedItems === $totalItems) {
-            $order->status = 'İade Edildi'; // OrderStatus::FULL_REFUND
+            $order->status = 'İade Edildi'; 
             $order->payment_status = 'refunded';
             $order->refunded_at = now();
             
         } elseif ($refundedItems > 0 && ($completedItems > 0 || $confirmedItems > 0)) {
-            $order->status = 'Kısmi İade'; // OrderStatus::PARTIAL_REFUND
+            $order->status = 'Kısmi İade'; 
             $order->payment_status = 'partial_refunded';
         }
         

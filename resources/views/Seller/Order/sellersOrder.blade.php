@@ -124,7 +124,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @if($item->payment_status->value === 'paid' && $item->status === 'confirmed')
+                                            @if($item->payment_status === 'paid' && $item->status === 'confirmed')
                                                 <div style="display: flex; flex-direction: column; gap: 6px;">
                                                     <form action="{{ route('seller.confirmOrderItem', $item->id) }}" method="POST" style="margin: 0;">
                                                         @csrf
@@ -135,14 +135,14 @@
                                                         <button type="submit" style="background: #dc2626; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; width: 100%;">Stok Yok - İade Et</button>
                                                     </form>
                                                 </div>
-                                            @elseif($item->payment_status->value === 'refunded')
+                                            @elseif($item->payment_status === 'refunded')
                                                 <span class="muted">İade Tarihi: {{ \Carbon\Carbon::parse($item->refunded_at)->format('d.m.Y H:i') ?? 'N/A' }}</span>
                                             @elseif($item->status === 'shipped')
                                                 <span class="muted">Gönderildi</span>
                                             @elseif($item->status === 'canceled')
                                                 <span class="muted">İptal Edildi</span>
                                             @else
-                                                <span class="muted">Durum: {{ $item->status }} - {{ $item->payment_status->value }}</span>
+                                                <span class="muted">Durum: {{ $item->status }} - {{ $item->payment_status }}</span>
                                             @endif
                                         </td>
                                     </tr>
