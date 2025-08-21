@@ -71,5 +71,17 @@ class CampaignSeeder extends Seeder
             'starts_at' => now(),
             'ends_at' => now()->addHours(24),
         ]);
+        Campaign::create([
+            'store_id' => 1,
+            'store_name' => 'i&d',
+            'name' => 'Kişisel Gelişim Kategorisinde 200 TL indirim',
+            'type' => 'fixed',
+            'description' => 'Kişisel Gelişim Kategorisinde 200 TL indirim',
+            'is_active' => true,
+            'usage_limit_for_user' => 1,
+            'usage_limit' => 10,
+            'starts_at' => now(),
+            'ends_at' => now()->addHours(24),
+        ]);
     }
 }

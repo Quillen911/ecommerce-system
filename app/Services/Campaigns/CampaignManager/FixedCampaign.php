@@ -53,8 +53,8 @@ class FixedCampaign extends BaseCampaign
             return ['description' => '', 'discount' => 0];
         }
 
-        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;
-        $discount_amount = $discount_value['amount'] ?? 0;
+        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;   
+        $discount_amount = is_array($discount_value) ? ($discount_value['amount'] ?? 0) : (float)$discount_value;
 
         $eligible_products = $this->productEligible($products);
         
@@ -70,6 +70,14 @@ class FixedCampaign extends BaseCampaign
             $eligible_products = collect($eligible_products)->filter(function($item) use ($category) {
                 return $item->product->category?->category_title == $category;
             });
+        }
+        $total_price = collect($eligible_products)->sum('quantity') * $eligible_products->first()->product->list_price;
+        if($total_price < $discount_amount){
+            return [
+                'description' => $this->campaign->description,
+                'discount' => 0,
+                'campaign_id' => $this->campaign->id
+            ];
         }
         if(collect($eligible_products)->sum('quantity') > 0) {
             return [

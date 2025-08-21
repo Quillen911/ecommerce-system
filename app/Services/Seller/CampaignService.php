@@ -42,7 +42,7 @@ class CampaignService
         $campaign = $this->campaignRepository->createCampaign($campaignData);
         
         $this->createCampaignConditions($campaign, $campaignData['conditions'] ?? []);
-        $this->createCampaignDiscounts($campaign, $campaignData['discounts'] ?? []);
+        $this->createCampaignDiscount($campaign, $campaignData);
 
         return $campaign;
         
@@ -74,20 +74,15 @@ class CampaignService
             throw new \Exception('Kampanya bulunamadı');
         }
         
-
-        
         $updateResult = $this->campaignRepository->updateCampaign($campaignData, $id);
         if(!$updateResult){
             throw new \Exception('Kampanya güncellenemedi');
         }
         
         $conditions = $campaignData['existing_conditions'] ?? $campaignData['conditions'] ?? [];
-        $discounts = $campaignData['existing_discounts'] ?? $campaignData['discounts'] ?? [];
-        
-
         
         $this->updateCampaignConditions($campaign, $conditions);
-        $this->updateCampaignDiscounts($campaign, $discounts);
+        $this->updateCampaignDiscount($campaign, $campaignData);
         
         return $this->campaignRepository->getCampaignByStoreId($store->id, $id);
     }
@@ -117,14 +112,23 @@ class CampaignService
         }
     }
 
-    private function createCampaignDiscounts($campaign, array $discounts)
+    private function createCampaignDiscount($campaign, array $campaignData)
     {
-        foreach ($discounts as $discount) {
-            $campaign->discounts()->create([
-                'discount_type' => $discount['discount_type'],
-                'discount_value' => $discount['discount_value'],
-            ]);
+        // Tek indirim sistemi - tip bazlı işleme
+        $type = $campaignData['type'] ?? null;
+        $discountValue = $campaignData['discount_value'] ?? null;
+        
+        if (!$type || !$discountValue) {
+            return;
         }
+        
+        // discount_value'yu doğru formatta kaydet
+        $formattedValue = $this->formatDiscountValue($discountValue, $type);
+        
+        $campaign->discounts()->create([
+            'discount_type' => $type,
+            'discount_value' => $formattedValue,
+        ]);
     }
     private function updateCampaignConditions($campaign, array $conditions)
     {
@@ -141,19 +145,32 @@ class CampaignService
             }
         }
     }
-    private function updateCampaignDiscounts($campaign, array $discounts)
+    private function updateCampaignDiscount($campaign, array $campaignData)
     {
-        foreach ($discounts as $discountId => $discount) {
-            $existingDiscount = $campaign->discounts()->find($discountId);
-            if ($existingDiscount) {
-                // discount_value'yu doğru formatta kaydet
-                $discountValue = $this->formatDiscountValue($discount['discount_value'], $discount['discount_type']);
-                
-                $existingDiscount->update([
-                    'discount_type' => $discount['discount_type'],
-                    'discount_value' => $discountValue,
-                ]);
-            }
+
+        
+        // Tek indirim sistemi - tip bazlı işleme
+        $type = $campaignData['type'] ?? null;
+        $discountValue = $campaignData['discount_value'] ?? null;
+        
+        if (!$type || !$discountValue) {
+            return;
+        }
+        
+        // Mevcut indirimi bul veya oluştur
+        $existingDiscount = $campaign->discounts()->first();
+        
+        if ($existingDiscount) {
+            // Mevcut indirimi güncelle
+            $formattedValue = $this->formatDiscountValue($discountValue, $type);
+            
+            $existingDiscount->update([
+                'discount_type' => $type,
+                'discount_value' => $formattedValue,
+            ]);
+        } else {
+            // Yeni indirim oluştur
+            $this->createCampaignDiscount($campaign, $campaignData);
         }
     }
     

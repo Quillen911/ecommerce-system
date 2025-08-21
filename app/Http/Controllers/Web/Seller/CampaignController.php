@@ -51,7 +51,7 @@ class CampaignController extends Controller
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
     
-            $campaign = $this->campaignService->createCampaign($seller->id, $request->all());
+            $campaign = $this->campaignService->createCampaign($seller->id, $request->validated());
             
             return redirect()->route('seller.campaign')->with('success', 'Kampanya başarıyla oluşturuldu');
     
@@ -84,34 +84,42 @@ class CampaignController extends Controller
             ]);
         }
         
+
+        
         return view('Seller.Campaign.editCampaign' ,compact('campaigns'));
     }
 
     public function updateCampaign(CampaignUpdateRequest $request, $id)
     {
-        $seller = auth('seller_web')->user();
-        if (!$seller) {
-            return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
-        }
-        
-        $campaignData = $request->all();
-        if (isset($campaignData['data'])) {
-            foreach ($campaignData['data'] as $key => $value) {
-                $campaignData[$key] = $value;
+        try {
+            $seller = auth('seller_web')->user();
+            if (!$seller) {
+                return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
-        }
-        
-        $campaigns = $this->campaignService->updateCampaign($seller->id, $campaignData, $id);
-        
-        if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
-            return response()->json([
-                'success' => true,
-                'message' => 'Kampanya başarıyla güncellendi',
-                'data' => $campaigns
-            ]);
-        }
+            
 
-        return redirect()->route('seller.campaign')->with('success', 'Kampanya başarıyla güncellendi');
+            
+            $campaignData = $request->validated();
+            $campaigns = $this->campaignService->updateCampaign($seller->id, $campaignData, $id);
+            
+            if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Kampanya başarıyla güncellendi',
+                    'data' => $campaigns
+                ]);
+            }
+
+            return redirect()->route('seller.campaign')->with('success', 'Kampanya başarıyla güncellendi');
+            
+        } catch (\Exception $e) {
+            \Log::error('CampaignController - Error updating campaign:', [
+                'error' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
+            
+            return redirect()->route('seller.campaign')->with('error', 'Kampanya güncellenirken bir hata oluştu: ' . $e->getMessage());
+        }
     }
 
     public function deleteCampaign($id)

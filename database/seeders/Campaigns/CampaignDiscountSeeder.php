@@ -40,5 +40,10 @@ class CampaignDiscountSeeder extends Seeder
             'discount_type' => 'x_buy_y_pay',
             'discount_value' => ['x' => 2, 'y' => 1],
         ]);
+        CampaignDiscount::create([
+            'campaign_id' => 6,
+            'discount_type' => 'fixed',
+            'discount_value' => ['amount' => 200],
+        ]);
     }
 }
