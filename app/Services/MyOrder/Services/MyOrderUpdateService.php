@@ -4,11 +4,16 @@ namespace App\Services\MyOrder\Services;
 
 use App\Services\MyOrder\Contracts\MyOrderUpdateInterface;
 use App\Services\Campaigns\CampaignManager\CampaignManager;
-use App\Models\Product;
 use App\Models\Campaign;
-
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 class MyOrderUpdateService implements MyOrderUpdateInterface
 {
+    protected $productRepository;
+
+    public function __construct(ProductRepositoryInterface $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
     public function updateOrderItem($item, $refundedAmount, $refundedQuantity): void
     {
         $newRefundedCents = ($item->refunded_price_cents ?? 0) + (int)($refundedAmount * 100);
@@ -27,8 +32,8 @@ class MyOrderUpdateService implements MyOrderUpdateInterface
     public function updateProductStock($productId, $refundedQuantity): void
     {
         if($refundedQuantity > 0){
-            Product::whereKey($productId)->increment('stock_quantity', $refundedQuantity);
-            Product::whereKey($productId)->decrement('sold_quantity', $refundedQuantity);
+            $this->productRepository->incrementStockQuantity($productId, $refundedQuantity);
+            $this->productRepository->decrementSoldQuantity($productId, $refundedQuantity);
         }
     }
 

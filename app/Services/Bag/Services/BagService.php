@@ -24,13 +24,7 @@ class BagService implements BagInterface
         $bag = Bag::where('bag_user_id', $user->id)->first();
         $bagItems = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
         
-        $bagItems = $bagItems->filter(function($item) use ($bag) {
-            if (!$item->product || $item->product->deleted_at !== null) {
-                $this->destroyBagItem($bag, $item->id);
-                return false;
-            }
-            return true;
-        });
+        $bagItems = $this->checkProductAvailability($bagItems, $bag);
         
         if($bagItems->isEmpty()){
             return ['products' => $bagItems, 'bestCampaign' => null, 'total' => 0, 'cargoPrice' => 0, 'discount' => 0, 'finalPrice' => 0];
@@ -102,5 +96,20 @@ class BagService implements BagInterface
         else{
             return ['error' => 'Ürün bulunamadı!'];
         }
+    }
+    private function checkProductAvailability($bagItems, $bag)
+    {
+        $bagItems = $bagItems->filter(function($item) use ($bag) {
+            if (!$item->product || $item->product->deleted_at !== null) {
+                $this->destroyBagItem($bag, $item->id);
+                return false;
+            }
+            if($item->product->stock_quantity == 0){
+                $this->destroyBagItem($bag, $item->id);
+                return false;
+            }
+            return true;
+        });
+        return $bagItems;
     }
 }

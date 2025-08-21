@@ -16,29 +16,29 @@ class CampaignDiscountSeeder extends Seeder
         CampaignDiscount::create([
             'campaign_id' => 1,
             'discount_type' => 'x_buy_y_pay',
-            'discount_value' => json_encode(['x' => 2, 'y' => 1]),
+            'discount_value' => ['x' => 2, 'y' => 1],
         ]);
 
         CampaignDiscount::create([
             'campaign_id' => 2,
             'discount_type' => 'percentage',
-            'discount_value' => json_encode(['percentage' => 5]),
+            'discount_value' => ['percentage' => 5],
         ]);
 
         CampaignDiscount::create([
             'campaign_id' => 3,
             'discount_type' => 'percentage',
-            'discount_value' => json_encode(['percentage' => 5]),
+            'discount_value' => ['percentage' => 5],
         ]);
         CampaignDiscount::create([
             'campaign_id' => 4,
             'discount_type' => 'percentage',
-            'discount_value' => json_encode(['percentage' => 10]),
+            'discount_value' => ['percentage' => 10],
         ]);
         CampaignDiscount::create([
             'campaign_id' => 5,
             'discount_type' => 'x_buy_y_pay',
-            'discount_value' => json_encode(['x' => 2, 'y' => 1]),
+            'discount_value' => ['x' => 2, 'y' => 1],
         ]);
     }
 }

@@ -27,4 +27,8 @@ class OrderItemRepository extends BaseRepository implements OrderItemRepositoryI
     {
         return $this->model->with(['product'])->where('store_id', $storeId)->where('id', $id)->first();
     }
+    public function getOrderItemByOrderId($productId, $orderId)
+    {
+        return $this->model->where('product_id', $productId)->where('order_id', $orderId)->get();
+    }
 }

@@ -21,58 +21,24 @@ class CreditCardController extends Controller
 
     public function index()
     {
-        $paymentInfo = $this->creditCardService->indexCreditCard();
-        if(!$paymentInfo){
-            return ResponseHelper::notFound('Ödeme bilgileri bulunamadı');
-        }
-        return ResponseHelper::success('Ödeme bilgileri listelendi',$paymentInfo);
+        return $this->creditCardService->indexCreditCard();
     }
 
-    public function store(CreditCardStoreRequest $request){
-        try{
-            $user = auth()->user();
-            if(!$user){
-                return ResponseHelper::error('Kullanıcı bulunamadı');
-            }
-            else{
-            $paymentInfo = $this->creditCardService->storeCreditCard($request, $user);
-            if(!$paymentInfo){
-                return ResponseHelper::error('Ödeme bilgileri oluşturulamadı');
-            }
-            return ResponseHelper::success('Ödeme bilgileri başarıyla oluşturuldu',$paymentInfo);
-            }
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Ödeme bilgileri oluşturulamadı');
-        }
+    public function store(CreditCardStoreRequest $request)
+    {
+        return $this->creditCardService->storeCreditCard($request);
     }
 
     public function show($id){
-        $paymentInfo = $this->creditCardService->showCreditCard($id);
-        if(!$paymentInfo){
-            return ResponseHelper::notFound('Ödeme bilgileri bulunamadı');
-        }
-        return ResponseHelper::success('Ödeme bilgileri detayı',$paymentInfo);
+        return $this->creditCardService->showCreditCard($id);
     }
 
     public function update(CreditCardUpdateRequest $request, $id){
-        try{
-            $paymentInfo = $this->creditCardService->updateCreditCard($request, $id);
-            if(!$paymentInfo){
-                return ResponseHelper::error('Ödeme bilgileri güncellenemedi');
-            }
-            return ResponseHelper::success('Ödeme bilgileri başarıyla güncellendi',$paymentInfo);
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Ödeme bilgileri güncellenemedi');
-        }
+
+        return $this->creditCardService->updateCreditCard($request, $id);
     }
 
     public function destroy($id){
-        $paymentInfo = $this->creditCardService->destroyCreditCard($id);
-        if(!$paymentInfo){
-            return ResponseHelper::error('Ödeme bilgileri silinemedi');
-        }
-        return ResponseHelper::success('Ödeme bilgileri başarıyla silindi',$paymentInfo);
+        return $this->creditCardService->destroyCreditCard($id);
     }
 } 

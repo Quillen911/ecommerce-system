@@ -20,7 +20,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function update(array $data, $id)
     {
-        return $this->findOrFail($id)->update($data);
+        $model = $this->show($id);
+        if($model){
+            return $model->update($data);
+        }
+        return false;
     }
 
     public function delete($id)
@@ -30,12 +34,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     public function show($id)
     {
-        return $this->model->findOrFail($id);
-    }
-
-    public function findOrFail($id)
-    {
-        return $this->model->findOrFail($id);
+        return $this->model->find($id);
     }
 
     public function paginate($perPage = 15)

@@ -5,57 +5,76 @@ namespace App\Services\Seller;
 use App\Services\Payments\IyzicoPaymentService;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 
 class SellerOrderService
 {
     protected $iyzicoService;
     protected $orderItemRepository;
     protected $productRepository;
-
+    protected $storeRepository;
     public function __construct(
         IyzicoPaymentService $iyzicoService, 
         OrderItemRepositoryInterface $orderItemRepository,
-        ProductRepositoryInterface $productRepository
+        ProductRepositoryInterface $productRepository,
+        StoreRepositoryInterface $storeRepository
     ) {
         $this->iyzicoService = $iyzicoService;
         $this->orderItemRepository = $orderItemRepository;
         $this->productRepository = $productRepository;
+        $this->storeRepository = $storeRepository;
     }
 
-    public function getSellerOrders($store)
+    public function getSellerOrders($sellerId)
     {
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
         return $this->orderItemRepository->getOrderItemsBySeller($store->id);
     }
 
-    public function getSellerOneOrder($store, $id)
+    public function getSellerOneOrder($sellerId, $id)
     {
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
         return $this->orderItemRepository->getOrderItemBySeller($store->id, $id);
     }
 
-    public function confirmItem($store, $id)
+    public function confirmItem($sellerId, $id)
     {
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
         $orderItem = $this->orderItemRepository->getOrderItemById($store->id, $id);
-        
         if (!$orderItem) {
-            return ['success' => false, 'message' => 'Sipariş bulunamadı'];
+            throw new \Exception('Sipariş bulunamadı');
         }
         if($orderItem->status === 'refunded'){
-            return ['success' => false, 'message' => 'Sipariş iade edildi'];
+            throw new \Exception('Sipariş iade edildi');
         }
         if($orderItem->status !== 'confirmed'){
-            return ['success' => false, 'message' => 'Sipariş durumu uygun değil'];
+            throw new \Exception('Sipariş durumu uygun değil');
         }
         
         $orderItem->status = 'shipped';
         $orderItem->save();
-        return ['success' => true, 'message' => 'Sipariş başarıyla kargoya verildi', 'orderItem' => $orderItem];  
+
+        return $orderItem;
     }
 
-    public function refundSelectedItems($store, $id)
+    public function refundSelectedItems($sellerId, $id)
     {
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
         $orderItem = $this->orderItemRepository->getOrderItemById($store->id, $id);
         if (!$orderItem) {
-            return ['success' => false, 'message' => 'Sipariş bulunamadı'];
+            throw new \Exception('Sipariş bulunamadı');
         }
         
         $refundItem = $this->iyzicoService->refundPayment($orderItem->payment_transaction_id, $orderItem->paid_price);
@@ -72,7 +91,7 @@ class SellerOrderService
             $this->updateOrderStatusAfterRefund($order);
             return ['success' => true, 'message' => 'Sipariş başarıyla iade edildi', 'orderItem' => $orderItem];
         }
-        return ['success' => false, 'message' => 'Sipariş iade edilirken hata oluştu'];
+        throw new \Exception('Sipariş iade edilirken hata oluştu');
     }
 
     private function updateOrderStatusAfterRefund($order)

@@ -24,7 +24,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     
     public function getProductWithCategory($id)
     {
-        return $this->model->with(['category'])->findOrFail($id);
+        return $this->model->with(['category'])->find($id);
     }
 
     public function getProductsByStore($storeId)
@@ -56,12 +56,12 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model->create($productData);
     }
 
-    public function updateProduct(array $productData, $id)
+    public function updateProduct(array $productData, $storeId, $id)
     {
         if(isset($productData['list_price'])){
             $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
         }
-        return $this->update($productData, $id);
+        return $this->model->where('store_id', $storeId)->find($id)->update($productData);
     }
 
     public function bulkCreateProducts(array $productsData)
@@ -80,11 +80,11 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $created;
     }
 
-    public function deleteProduct($id)
+    public function deleteProduct($storeId, $id)
     {
-        $product = $this->findOrFail($id);
+        $product = $this->model->where('store_id', $storeId)->where('id', $id)->first();
 
-        if($product->images && is_array($product->images)){
+        if($product && $product->images && is_array($product->images)){
             foreach($product->images as $image){
                 Storage::disk('public')->delete('productsImages/' . $image);
             }
@@ -92,15 +92,11 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $product->delete();
     }
 
-    public function findProductById($id)
+    public function getProductByStore($storeId, $id)
     {
-        return $this->findOrFail($id);
+        return $this->model->where('store_id', $storeId)->find($id);
     }
 
-    public function getProductsBySeller($sellerId)
-    {
-        return $this->model->where('seller_id', $sellerId)->get();
-    }
 
     public function incrementStockQuantity($productId, $quantity)
     {
@@ -110,5 +106,15 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     public function decrementStockQuantity($productId, $quantity)
     {
         return $this->model->whereKey($productId)->decrement('stock_quantity', $quantity);
+    }
+
+    public function incrementSoldQuantity($productId, $quantity)
+    {
+        return $this->model->whereKey($productId)->increment('sold_quantity', $quantity);
+    }
+
+    public function decrementSoldQuantity($productId, $quantity)
+    {
+        return $this->model->whereKey($productId)->decrement('sold_quantity', $quantity);
     }
 }

@@ -18,7 +18,7 @@ class CampaignRepository extends BaseRepository implements CampaignRepositoryInt
     }
     public function getCampaignByStoreId($storeId,$id)
     {
-        return $this->model->with(['conditions', 'discounts'])->where('store_id', $storeId)->findOrFail($id);
+        return $this->model->with(['conditions', 'discounts'])->where('store_id', $storeId)->find($id);
     }
     public function createCampaign(array $campaignData)
     {
@@ -26,10 +26,15 @@ class CampaignRepository extends BaseRepository implements CampaignRepositoryInt
     }
     public function updateCampaign(array $campaignData, $id)
     {
-        return $this->model->findOrFail($id)->update($campaignData);
+        $campaign = $this->model->find($id);
+       // dd($campaignData);
+        if($campaign){
+            return $campaign->update($campaignData);
+        }
+        return false;
     }
     public function deleteCampaign($id)
     {
-        return $this->model->findOrFail($id)->delete();
+        return $this->model->find($id)->delete();
     }
 }
