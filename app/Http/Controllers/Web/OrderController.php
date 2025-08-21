@@ -27,6 +27,7 @@ class OrderController extends Controller
 
     public function order()
     {
+
         $user = $this->getUser();
         $bag = $this->bagService->getBag();
         $creditCards = CreditCard::where('user_id', $user->id)->get();
@@ -65,12 +66,7 @@ class OrderController extends Controller
             }
             
         } catch (\Exception $e) {
-            \Log::error('beklenmeyen hata oluştu', [
-                'error' => $e->getMessage(),
-                'user' => $user->id
-            ]);
-            
-            return redirect('order')->with('error', 'Beklenmeyen bir hata oluştu!');
+            return redirect('order')->with('error', $e->getMessage());
         }
     }
 

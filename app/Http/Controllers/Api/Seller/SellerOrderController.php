@@ -3,81 +3,79 @@
 namespace App\Http\Controllers\Api\Seller;
 
 use App\Http\Controllers\Controller;
-use App\Models\OrderItem;
 use App\Helpers\ResponseHelper;
 use App\Services\Seller\SellerOrderService;
-use App\Models\Store;
-use App\Models\Order;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+
 class SellerOrderController extends Controller
 {
     protected $sellerOrderService;
-
-    public function __construct(SellerOrderService $sellerOrderService)
+    protected $storeRepository;
+    public function __construct(SellerOrderService $sellerOrderService, StoreRepositoryInterface $storeRepository)
     {
         $this->sellerOrderService = $sellerOrderService;
+        $this->storeRepository = $storeRepository;
     }
     public function index()
     {
-        $seller = auth('seller')->user();
-        if (!$seller) {
-            return ResponseHelper::error('Unauthorized', 401);
+        try{
+            $seller = auth('seller')->user();
+            if (!$seller) {
+                return ResponseHelper::error('Mağaza bulunamadı');
+            }
+            $orderItems = $this->sellerOrderService->getSellerOrders($seller->id);
+            return ResponseHelper::success('Gelen siparişler başarıyla getirildi', $orderItems);    
         }
-        $store = Store::where('seller_id', $seller->id)->first();
-        if(!$store){
-            return ResponseHelper::error('Lütfen giriş yapınız');
+        catch(\Exception $e){
+            return ResponseHelper::error('Siparişler alınamadı: ' . $e->getMessage());
         }
-        $orderItems = $this->sellerOrderService->getSellerOrders($store);
-        return ResponseHelper::success('Gelen siparişler başarıyla getirildi', $orderItems);    
-            
     }
     public function show($id)
     {
-        $seller = auth('seller')->user();
-        $store = Store::where('seller_id', $seller->id)->first();
-        if(!$store){
-            return ResponseHelper::error('Lütfen giriş yapınız');
+        try{
+            $seller = auth('seller')->user();
+            if (!$seller) {
+                return ResponseHelper::error('Mağaza bulunamadı');
+            }
+            $orderItem = $this->sellerOrderService->getSellerOneOrder($seller->id, $id);
+            return ResponseHelper::success('Sipariş başarıyla getirildi', $orderItem);
         }
-        $orderItem = $this->sellerOrderService->getSellerOneOrder($store, $id);
-        return ResponseHelper::success('Sipariş başarıyla getirildi', $orderItem);
+        catch(\Exception $e){
+            return ResponseHelper::error('Sipariş bulunamadı: ' . $e->getMessage());
+        }
     }
     public function confirmOrderItem($id)
     {
-        $seller = auth('seller')->user();
-        if (!$seller) {
-            return ResponseHelper::error('Unauthorized', 401);
+        try{
+            $seller = auth('seller')->user();
+            if (!$seller) {
+                return ResponseHelper::error('Mağaza bulunamadı');
+            }
+            $orderItem = $this->sellerOrderService->confirmItem($seller->id, $id);
+        
+            if (!$orderItem) {
+                return ResponseHelper::error('Sipariş bulunamadı veya size ait değil');
+            }
+            
+            return ResponseHelper::success('Sipariş başarıyla onaylandı', $orderItem);
         }
-        
-        $store = Store::where('seller_id', $seller->id)->first();
-        if(!$store){
-            return ResponseHelper::error('Lütfen giriş yapınız', 400);
+        catch(\Exception $e){
+            return ResponseHelper::error('Sipariş onaylanamadı: ' . $e->getMessage());
         }
-        
-        $orderItem = $this->sellerOrderService->confirmItem($store, $id);
-        
-        if (!$orderItem) {
-            return ResponseHelper::error('Sipariş bulunamadı veya size ait değil', 404);
-        }
-        
-        return ResponseHelper::success('Sipariş başarıyla onaylandı', $orderItem);
     }
     public function refundOrderItem($id)
     {
-        $seller = auth('seller')->user();
-        if (!$seller) {
-            return ResponseHelper::error('Unauthorized', 401);
+        try{
+            $seller = auth('seller')->user();
+            if (!$seller) {
+                return ResponseHelper::error('Mağaza bulunamadı');
+            }
+            $result = $this->sellerOrderService->refundSelectedItems($seller->id, $id);
+            return ResponseHelper::success('Sipariş başarıyla iade edildi', $result);
         }
-        
-        $store = Store::where('seller_id', $seller->id)->first();
-        if(!$store){
-            return ResponseHelper::error('Lütfen giriş yapınız', 400);
+        catch(\Exception $e){
+            return ResponseHelper::error('Sipariş iade edilemedi: ' . $e->getMessage());
         }
-        
-        $result = $this->sellerOrderService->refundSelectedItems($store, $id);
-        
-        if (!$result['success']) {
-            return ResponseHelper::error($result['message'] ?? 'Sipariş iade edilemedi', 400);
-        }
-        
-        return ResponseHelper::success($result['message'], $result['orderItem']);
     }
+    
 }

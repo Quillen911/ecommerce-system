@@ -16,13 +16,15 @@ class StockService implements StockInterface
       }
       
       $productItem = $bag->bagItems()->where('product_id', $productId)->first();
+      
+      
       $currentQuantity = $productItem ? $productItem->quantity : 0;
       
       if($product->stock_quantity <= $currentQuantity){
          throw new InsufficientStockException(
             'Stokta yeterli ürün yok!', 
             $product, 
-            $currentQuantity + 1, 
+            $currentQuantity +1, 
             $product->stock_quantity
          );
       }

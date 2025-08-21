@@ -10,25 +10,26 @@ use App\Exceptions\OrderCreationException;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Campaign;
-use App\Models\CreditCard;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use App\Repositories\Contracts\CreditCard\CreditCardRepositoryInterface;
 class OrderService implements OrderServiceInterface
 {
     protected $calculationService;
     protected $paymentService;
     protected $inventoryService;
-
+    protected $creditCardRepository;
     public function __construct(
         CalculationInterface $calculationService,
         PaymentInterface $paymentService,
-        InventoryInterface $inventoryService
+        InventoryInterface $inventoryService,
+        CreditCardRepositoryInterface $creditCardRepository
     )
     {
         $this->calculationService = $calculationService;
         $this->paymentService = $paymentService;
         $this->inventoryService = $inventoryService;
+        $this->creditCardRepository = $creditCardRepository;
     }
 
     public function createOrder($user, $products, $campaignManager, $selectedCreditCard): array
@@ -62,7 +63,7 @@ class OrderService implements OrderServiceInterface
                 $this->applyCampaign($discountData['campaign_id'], $campaignManager);
             }
             
-            $creditCard = CreditCard::find($selectedCreditCard);
+            $creditCard = $this->creditCardRepository->getCreditCardById($selectedCreditCard);
             $paymentResult = $this->paymentService->processPayment($order, $creditCard, $finalPrice);
             
             if ($paymentResult['success']) {
@@ -111,7 +112,7 @@ class OrderService implements OrderServiceInterface
 
     protected function createOrderRecord($user, $selectedCreditCard, array $product): Order
     {
-        $creditCard = CreditCard::find($selectedCreditCard);
+        $creditCard = $this->creditCardRepository->getCreditCardById($selectedCreditCard);
 
         return Order::create([
             'bag_user_id' => $user->id,

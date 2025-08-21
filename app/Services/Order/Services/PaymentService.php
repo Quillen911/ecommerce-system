@@ -7,15 +7,17 @@ use App\Services\Payments\IyzicoPaymentService;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\CreditCard;
-
+use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 class PaymentService implements PaymentInterface
 {
 
     protected $iyzicoPaymentService;
+    protected $orderItemRepository;
 
-    public function __construct(IyzicoPaymentService $iyzicoPaymentService)
+    public function __construct(IyzicoPaymentService $iyzicoPaymentService, OrderItemRepositoryInterface $orderItemRepository)
     {
         $this->iyzicoPaymentService = $iyzicoPaymentService;
+        $this->orderItemRepository = $orderItemRepository;
     }
 
     public function processPayment(Order $order, CreditCard $creditCard, float $amount): array
@@ -39,9 +41,7 @@ class PaymentService implements PaymentInterface
 
         if (isset($paymentResult['payment_transaction_id'])) {
             foreach ($paymentResult['payment_transaction_id'] as $itemId => $txId){
-                $orderItems = OrderItem::where('order_id', $order->id)
-                    ->where('product_id', $itemId)
-                    ->get();
+                $orderItems = $this->orderItemRepository->getOrderItemByOrderId($itemId, $order->id);
                 
                 foreach ($orderItems as $orderItem) {
                     $orderItem->update([

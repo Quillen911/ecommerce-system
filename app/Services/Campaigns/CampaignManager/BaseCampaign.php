@@ -26,14 +26,34 @@ abstract class BaseCampaign implements CampaignInterface
     protected function getConditionValue($condition_type)
     {
         $condition = $this->conditions->get($condition_type);
-        $value = $condition ? json_decode($condition->condition_value, true) : null;
-
-        if(is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))){
-            return json_decode($value, true);
+        if (!$condition) {
+            return null;
         }
         
-        if(is_string($value) && strpos($value, '\\u') !== false){
-            $value = json_decode(json_encode($value), true);
+        $value = $condition->condition_value;
+        
+        // Eğer value zaten array ise direkt döndür
+        if (is_array($value)) {
+            return $value;
+        }
+        
+        // Eğer value string ise ve JSON formatında ise decode et
+        if (is_string($value)) {
+            // JSON formatında olup olmadığını kontrol et
+            if (str_starts_with(trim($value), '{') || str_starts_with(trim($value), '[')) {
+                $decoded = json_decode($value, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    return $decoded;
+                }
+            }
+            
+            // Virgülle ayrılmış değerler varsa array'e çevir
+            if (strpos($value, ',') !== false) {
+                return array_map('trim', explode(',', $value));
+            }
+            
+            // Basit string değer ise direkt döndür
+            return $value;
         }
         
         return $value;

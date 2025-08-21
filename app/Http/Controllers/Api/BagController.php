@@ -35,12 +35,12 @@ class BagController extends Controller
             return ResponseHelper::error('Sepetiniz bulunamadı!', 404);
         }
         
-        $products = $this->bagService->getBag();
-        if($products->isEmpty()){
+        $bagData = $this->bagService->getBag();
+        if(empty($bagData['products']) || $bagData['products']->isEmpty()){
             return ResponseHelper::success('Sepetiniz boş!', []);
         }
         
-        return ResponseHelper::success('Sepetiniz', $products);
+        return ResponseHelper::success('Sepetiniz', $bagData);
     }
     public function store(BaseApiRequest $request)
     {

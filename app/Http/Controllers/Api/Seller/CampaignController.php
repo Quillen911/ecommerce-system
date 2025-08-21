@@ -4,85 +4,100 @@ namespace App\Http\Controllers\Api\Seller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Campaign;
 use App\Helpers\ResponseHelper;
 use App\Services\Seller\CampaignService;
 use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
-use App\Models\Store;
+use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 
 class CampaignController extends Controller
 {
     protected $campaignService;
-
-    public function __construct(CampaignService $campaignService)
+    protected $storeRepository;
+    public function __construct(CampaignService $campaignService, StoreRepositoryInterface $storeRepository)
     {
         $this->campaignService = $campaignService;
+        $this->storeRepository = $storeRepository;
     }
 
     public function index()
     {
-        $seller = auth('seller')->user();
-        $store = Store::where('seller_id', $seller->id)->first();
-        $storeId = $store->id;
-        if(!$store){
-            return ResponseHelper::error('Lütfen giriş yapınız');
-        }
+        try {
+            $seller = auth('seller')->user();
+            $campaigns = $this->campaignService->getCampaigns($seller->id);
 
-        $campaigns = $this->campaignService->indexCampaign($storeId);
-        if($campaigns->isEmpty()){
-            return ResponseHelper::notFound('Kampanya bulunamadı');
+            return ResponseHelper::success('Kampanyalar listelendi', $campaigns);
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error('Kampanya listeleme hatası: ' . $e->getMessage());
         }
-        return ResponseHelper::success('Kampanyalar listelendi',$campaigns);
     }
 
     public function store(CampaignStoreRequest $request)
     {
-        try{
-        $campaigns = $this->campaignService->createCampaign($request);
-        if(!$campaigns){
-            return ResponseHelper::error('Kampanya oluşturulamadı');
-        }
-        return ResponseHelper::success('Kampanya başarıyla oluşturuldu',$campaigns);
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Kampanya oluşturulamadı');
+        try {
+            $seller = auth('seller')->user();
+            $campaign = $this->campaignService->createCampaign($seller->id, $request->all());
+            
+            return ResponseHelper::success('Kampanya başarıyla oluşturuldu', $campaign);
+    
+        } catch (\Exception $e) {
+            \Log::error('CampaignController - Error creating campaign:', [
+                'error' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
+            
+            return ResponseHelper::error('Kampanya oluşturulamadı: ' . $e->getMessage());
         }
     }
 
     public function show($id)
     {
-        $campaigns = $this->campaignService->showCampaign($id);
-        if(!$campaigns){
-            return ResponseHelper::notFound('Kampanya bulunamadı');
+        try {
+            $seller = auth('seller')->user();
+            $campaign = $this->campaignService->showCampaign($seller->id, $id);   
+
+            return ResponseHelper::success('Kampanya detayı', $campaign);
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error('Kampanya detayı alınamadı: ' . $e->getMessage());
         }
-        return ResponseHelper::success('Kampanya detayı',$campaigns);
     }
 
     public function update(CampaignUpdateRequest $request, $id)
     {
-        try{
-        $campaigns = $this->campaignService->updateCampaign($request, $id);
-        if(!$campaigns){
-            return ResponseHelper::notFound('Kampanya bulunamadı');
-        }
-        return ResponseHelper::success('Kampanya başarıyla güncellendi',$campaigns);
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Kampanya güncellenemedi');
+        try {
+
+            
+            $seller = auth('seller')->user();
+            
+            // Veriyi düzelt - data içindeki tüm alanları çıkar
+            $campaignData = $request->all();
+            if (isset($campaignData['data'])) {
+                foreach ($campaignData['data'] as $key => $value) {
+                    $campaignData[$key] = $value;
+                }
+            }
+            
+            $campaign = $this->campaignService->updateCampaign($seller->id, $campaignData, $id);
+
+            return ResponseHelper::success('Kampanya başarıyla güncellendi', $campaign);
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error('Kampanya güncellenemedi: ' . $e->getMessage());
         }
     }
     
     public function destroy($id)
     {
-        $campaigns = $this->campaignService->deleteCampaign($id);
-        if(!$campaigns){
-            return ResponseHelper::notFound('Kampanya bulunamadı');
-        }
-        return ResponseHelper::success('Kampanya başarıyla silindi',$campaigns);
-    }
-    
-    
+        try {
+            $seller = auth('seller')->user();
+            $campaign = $this->campaignService->deleteCampaign($seller->id, $id);
 
-    
+            return ResponseHelper::success('Kampanya başarıyla silindi', $campaign);
+
+        } catch (\Exception $e) {
+            return ResponseHelper::error('Kampanya silinemedi: ' . $e->getMessage());
+        }
+    }
 }
