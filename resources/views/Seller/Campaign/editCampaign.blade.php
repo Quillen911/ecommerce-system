@@ -72,7 +72,7 @@
         <div class="header-content">
             <h1>Kampanya Düzenle</h1>
             <div class="header-info">
-                <div class="campaign-name">{{ $campaigns->name }}</div>
+                <div class="campaign-name">{{ is_string($campaigns->name) ? $campaigns->name : '' }}</div>
                 <div class="campaign-id">ID: {{ $campaigns->id }}</div>
             </div>
         </div>
@@ -84,7 +84,7 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label class="form-label" for="name">Kampanya Adı</label>
-                    <input type="text" id="name" name="name" class="form-input" value="{{ old('name', $campaigns->name) }}" placeholder="Kampanya adını girin..." required>
+                    <input type="text" id="name" name="name" class="form-input" value="{{ old('name', is_string($campaigns->name) ? $campaigns->name : '') }}" placeholder="Kampanya adını girin..." required>
                 </div>
                 
                 <div class="form-group">
@@ -98,7 +98,7 @@
                 
                 <div class="form-group full-width">
                     <label class="form-label" for="description">Kampanya Açıklaması</label>
-                    <input type="text" id="description" name="description" class="form-input" value="{{ old('description', $campaigns->description) }}" placeholder="Kampanya hakkında kısa açıklama...">
+                    <input type="text" id="description" name="description" class="form-input" value="{{ old('description', is_string($campaigns->description) ? $campaigns->description : '') }}" placeholder="Kampanya hakkında kısa açıklama...">
                 </div>
                 
                 <div class="form-group">
@@ -116,23 +116,121 @@
                 
                 <div class="form-group">
                     <label class="form-label" for="usage_limit">Toplam Kullanım Limiti</label>
-                    <input type="number" id="usage_limit" name="usage_limit" class="form-input" value="{{ old('usage_limit', $campaigns->usage_limit) }}" placeholder="0" required>
+                    <input type="number" id="usage_limit" name="usage_limit" class="form-input" value="{{ old('usage_limit', is_numeric($campaigns->usage_limit) ? $campaigns->usage_limit : '') }}" placeholder="0" required>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label" for="usage_limit_for_user">Kullanıcı Başına Limit</label>
-                    <input type="number" id="usage_limit_for_user" name="usage_limit_for_user" class="form-input" value="{{ old('usage_limit_for_user', $campaigns->usage_limit_for_user) }}" placeholder="0" required>
+                    <input type="number" id="usage_limit_for_user" name="usage_limit_for_user" class="form-input" value="{{ old('usage_limit_for_user', is_numeric($campaigns->usage_limit_for_user) ? $campaigns->usage_limit_for_user : '') }}" placeholder="0" required>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label" for="starts_at">Başlangıç Tarihi</label>
-                    <input type="date" id="starts_at" name="starts_at" class="form-input" value="{{ old('starts_at', \Carbon\Carbon::parse($campaigns->starts_at)->format('Y-m-d')) }}" required>
+                    <input type="date" id="starts_at" name="starts_at" class="form-input" value="{{ old('starts_at', $campaigns->starts_at ? \Carbon\Carbon::parse($campaigns->starts_at)->format('Y-m-d') : '') }}" required>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label" for="ends_at">Bitiş Tarihi</label>
-                    <input type="date" id="ends_at" name="ends_at" class="form-input" value="{{ old('ends_at', \Carbon\Carbon::parse($campaigns->ends_at)->format('Y-m-d')) }}" required>
+                    <input type="date" id="ends_at" name="ends_at" class="form-input" value="{{ old('ends_at', $campaigns->ends_at ? \Carbon\Carbon::parse($campaigns->ends_at)->format('Y-m-d') : '') }}" required>
                 </div>
+            </div>
+            
+            <!-- Koşullar Bölümü -->
+            <div class="section">
+                <div class="section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Kampanya Koşulları
+                </div>
+                @if($campaigns->conditions && $campaigns->conditions->count() > 0)
+                    @foreach($campaigns->conditions as $index => $condition)
+                        <div class="condition-item">
+                            <div class="condition-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Koşul Tipi</label>
+                                    <select name="existing_conditions[{{ $condition->id }}][condition_type]" class="form-select">
+                                        <option value="author" {{ $condition->condition_type == 'author' ? 'selected' : '' }}>Yazar</option>
+                                        <option value="category" {{ $condition->condition_type == 'category' ? 'selected' : '' }}>Kategori</option>
+                                        <option value="min_bag" {{ $condition->condition_type == 'min_bag' ? 'selected' : '' }}>Min. Sepet Tutarı</option>    
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Değer</label>
+                                    <input type="text" name="existing_conditions[{{ $condition->id }}][condition_value]" class="form-input"
+                                        value="{{ is_array($condition->condition_value) ? implode(', ', $condition->condition_value) : (is_string($condition->condition_value) && str_starts_with($condition->condition_value, '[') ? implode(', ', json_decode($condition->condition_value, true)) : $condition->condition_value) }}" 
+                                        placeholder="Örn: Sabahattin Ali veya Yaşar Kemal, Sabahattin Ali">
+                                    <input type="hidden" name="existing_conditions[{{ $condition->id }}][id]" value="{{ $condition->id }}">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Operatör</label>
+                                    <select name="existing_conditions[{{ $condition->id }}][operator]" class="form-select">
+                                        <option value="=" {{ $condition->operator == '=' ? 'selected' : '' }}>Eşittir (=)</option>
+                                        <option value="!=" {{ $condition->operator == '!=' ? 'selected' : '' }}>Eşit Değil (≠)</option>
+                                        <option value=">" {{ $condition->operator == '>' ? 'selected' : '' }}>Büyüktür (>)</option>
+                                        <option value="<" {{ $condition->operator == '<' ? 'selected' : '' }}>Küçüktür (<)</option>
+                                        <option value=">=" {{ $condition->operator == '>=' ? 'selected' : '' }}>Büyük Eşit (≥)</option>
+                                        <option value="<=" {{ $condition->operator == '<=' ? 'selected' : '' }}>Küçük Eşit (≤)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                        </svg>
+                        <div>Henüz koşul tanımlanmamış</div>
+                    </div>
+                @endif
+            </div>
+            
+            <!-- İndirimler Bölümü -->
+            <div class="section">
+                <div class="section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 11-6.219-8.56"/><circle cx="9" cy="9" r="2"/><path d="M21 21l-6-6"/>
+                    </svg>
+                    Kampanya İndirimleri
+                </div>
+                
+                @if($campaigns->discounts && $campaigns->discounts->count() > 0)
+                    @foreach($campaigns->discounts as $index => $discount)
+                        <div class="discount-item">
+                            <div class="discount-grid">
+                                <div class="form-group">
+                                    <label class="form-label">İndirim Tipi</label>
+                                    <select name="existing_discounts[{{ $discount->id }}][discount_type]" class="form-select">
+                                        <option value="percentage" {{ $discount->discount_type == 'percentage' ? 'selected' : '' }}>Yüzde İndirimi</option>
+                                        <option value="fixed" {{ $discount->discount_type == 'fixed' ? 'selected' : '' }}>Sabit Tutar</option>
+                                        <option value="x_buy_y_pay" {{ $discount->discount_type == 'x_buy_y_pay' ? 'selected' : '' }}>X Al Y Öde</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">İndirim Değeri</label>
+                                    <input type="text" name="existing_discounts[{{ $discount->id }}][discount_value]" class="form-input"
+                                        value="{{ is_array($discount->discount_value) ? json_encode($discount->discount_value) : (is_string($discount->discount_value) ? $discount->discount_value : '') }}" 
+                                        placeholder="Örn: 20 (% için) veya 50 (TL için)">
+                                </div>
+                                
+                                <div style="display:flex;align-items:end;">
+                                    <!-- Boş alan - gelecekte silme butonu eklenebilir -->
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        <div>Henüz indirim tanımlanmamış</div>
+                    </div>
+                @endif
             </div>
             
             <!-- Form Submit -->
@@ -151,103 +249,6 @@
                 </button>
             </div>
         </form>
-    </div>
-    
-    <!-- Koşullar Bölümü -->
-    <div class="section">
-        <div class="section-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
-            </svg>
-            Kampanya Koşulları
-        </div>
-        @if($campaigns->conditions && $campaigns->conditions->count() > 0)
-            @foreach($campaigns->conditions as $index => $condition)
-                <div class="condition-item">
-                    <div class="condition-grid">
-                        <div class="form-group">
-                            <label class="form-label">Koşul Tipi</label>
-                            <select name="existing_conditions[{{ $condition->id }}][condition_type]" class="form-select">
-                                <option value="author" {{ $condition->condition_type == 'author' ? 'selected' : '' }}>Yazar</option>
-                                <option value="category" {{ $condition->condition_type == 'category' ? 'selected' : '' }}>Kategori</option>
-                                <option value="min_bag" {{ $condition->condition_type == 'min_bag' ? 'selected' : '' }}>Min. Sepet Tutarı</option>    
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Değer</label>
-                            <input type="text" name="existing_conditions[{{ $condition->id }}][condition_value]" class="form-input"
-                                value="{{ is_string($condition->condition_value) && str_starts_with($condition->condition_value, '[') ? implode(', ', json_decode($condition->condition_value, true)) : $condition->condition_value }}" 
-                                placeholder="Örn: Sabahattin Ali veya Yaşar Kemal, Sabahattin Ali">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Operatör</label>
-                            <select name="existing_conditions[{{ $condition->id }}][operator]" class="form-select">
-                                <option value="=" {{ $condition->operator == '=' ? 'selected' : '' }}>Eşittir (=)</option>
-                                <option value="!=" {{ $condition->operator == '!=' ? 'selected' : '' }}>Eşit Değil (≠)</option>
-                                <option value=">" {{ $condition->operator == '>' ? 'selected' : '' }}>Büyüktür (>)</option>
-                                <option value="<" {{ $condition->operator == '<' ? 'selected' : '' }}>Küçüktür (<)</option>
-                                <option value=">=" {{ $condition->operator == '>=' ? 'selected' : '' }}>Büyük Eşit (≥)</option>
-                                <option value="<=" {{ $condition->operator == '<=' ? 'selected' : '' }}>Küçük Eşit (≤)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        @else
-            <div class="empty-state">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-                </svg>
-                <div>Henüz koşul tanımlanmamış</div>
-            </div>
-        @endif
-    </div>
-    
-    <!-- İndirimler Bölümü -->
-    <div class="section">
-        <div class="section-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12a9 9 0 11-6.219-8.56"/><circle cx="9" cy="9" r="2"/><path d="M21 21l-6-6"/>
-            </svg>
-            Kampanya İndirimleri
-        </div>
-        
-        @if($campaigns->discounts && $campaigns->discounts->count() > 0)
-            @foreach($campaigns->discounts as $index => $discount)
-                <div class="discount-item">
-                    <div class="discount-grid">
-                        <div class="form-group">
-                            <label class="form-label">İndirim Tipi</label>
-                            <select name="existing_discounts[{{ $discount->id }}][discount_type]" class="form-select">
-                                <option value="percentage" {{ $discount->discount_type == 'percentage' ? 'selected' : '' }}>Yüzde İndirimi</option>
-                                <option value="fixed" {{ $discount->discount_type == 'fixed' ? 'selected' : '' }}>Sabit Tutar</option>
-                                <option value="x_buy_y_pay" {{ $discount->discount_type == 'x_buy_y_pay' ? 'selected' : '' }}>X Al Y Öde</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">İndirim Değeri</label>
-                            <input type="text" name="existing_discounts[{{ $discount->id }}][discount_value]" class="form-input"
-                                value="{{ is_string($discount->discount_value) && str_starts_with($discount->discount_value, '"') ? json_decode($discount->discount_value, true) : $discount->discount_value }}" 
-                                placeholder="Örn: 20 (% için) veya 50 (TL için)">
-                        </div>
-                        
-                        <div style="display:flex;align-items:end;">
-                            <!-- Boş alan - gelecekte silme butonu eklenebilir -->
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        @else
-            <div class="empty-state">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-                </svg>
-                <div>Henüz indirim tanımlanmamış</div>
-            </div>
-        @endif
     </div>
 
     <script>

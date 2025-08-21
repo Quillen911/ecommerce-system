@@ -58,7 +58,7 @@ class PercentageCampaign extends BaseCampaign
 
 
 
-        $discount_value = json_decode($discount_rule->discount_value, true);
+        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;
         $discount_rate = $discount_value['percentage'] / 100 ?? 0;
 
         $eligible_products = $this->productEligible($products);

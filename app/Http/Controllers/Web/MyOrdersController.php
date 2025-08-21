@@ -42,7 +42,9 @@ class MyOrdersController extends Controller{
     public function delete($id, Request $request)
     {
         $user = $this->getUser();
-        // Eski cancelOrder metodu artık yok, refund kullanacağız
+        if(!$user){
+            return redirect()->route('login')->with('error', 'Lütfen giriş yapınız.');
+        }
         $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], new CampaignManager());
         if(!$result['success']){
             return redirect()->back()->with('error', $result['error'] ?? 'Sipariş bulunamadı.');
@@ -53,6 +55,9 @@ class MyOrdersController extends Controller{
     public function refundItems($id, RefundRequest $request)
     {
         $user = $this->getUser();
+        if(!$user){
+            return redirect()->route('login')->with('error', 'Lütfen giriş yapınız.');
+        }
         $raw = (array) $request->input('refund_quantities', []);
 
         $quantities = [];

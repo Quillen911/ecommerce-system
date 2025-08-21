@@ -49,11 +49,7 @@ class ProductController extends Controller
         if(!$seller){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
-        $store = $this->storeRepository->getStoreBySellerId($seller->id);
-        if(!$store){
-            return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
-        }
-        $products = $this->productService->indexProduct($store->id);
+        $products = $this->productService->indexProduct($seller->id);
         $categories = $this->productService->getCategories();
         return view('Seller.Product.product', compact('products', 'categories'));
     }
@@ -66,52 +62,93 @@ class ProductController extends Controller
     public function createProduct(ProductStoreRequest $request) 
     {
         try {
-            $products = $this->productService->createProduct($request);
+            $seller = auth('seller_web')->user();
+            if(!$seller){
+                return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+            }
+            $products = $this->productService->createProduct($seller->id, $request->validated());
+            if(!$products){
+                return redirect()->route('seller.product')->with('error', 'Ürün oluşturulamadı');
+            }
             return redirect()->route('seller.product')->with('success', 'Ürün başarıyla eklendi');
+
         } catch (\Exception $e) {
-            return redirect()->route('seller.product')->with('error', $e->getMessage());
+            return redirect()->route('seller.product')->with('error', 'Ürün oluşturulamadı: ' . $e->getMessage());
         }
     }
 
     public function editProduct($id)
     {
-        $products = $this->productService->showProduct($id);
-        return view('Seller.Product.editProduct', compact('products'));
+        try{
+            $seller = auth('seller_web')->user();
+            if(!$seller){
+                return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+            }
+            $products = $this->productService->showProduct($seller->id, $id);
+            return view('Seller.Product.editProduct', compact('products'));
+        }
+        catch(\Exception $e){
+            return redirect()->route('seller.product')->with('error', 'Ürün bulunamadı: ' . $e->getMessage());
+        }
     }
 
     public function updateProduct(ProductUpdateRequest $request, $id)
     {
-        $products = $this->productService->updateProduct($request, $id);
-        return redirect()->route('seller.product')->with('success', 'Ürün başarıyla güncellendi');
+        try{
+            $seller = auth('seller_web')->user();
+            if(!$seller){
+                return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+            }
+            $products = $this->productService->updateProduct($seller->id, $request->validated(), $id);
+            return redirect()->route('seller.product')->with('success', 'Ürün başarıyla güncellendi');
+        }
+        catch(\Exception $e){
+            return redirect()->route('seller.product')->with('error', 'Ürün güncellenemedi: ' . $e->getMessage());
+        }
     }
 
     public function deleteProduct($id)
     {
-        $products = $this->productService->deleteProduct($id);
-        return redirect()->route('seller.product')->with('success', 'Ürün başarıyla silindi');
+        try{
+            $seller = auth('seller_web')->user();
+            if(!$seller){
+                return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+            }
+            $products = $this->productService->deleteProduct($seller->id, $id);
+            return redirect()->route('seller.product')->with('success', 'Ürün başarıyla silindi');
+        }
+        catch(\Exception $e){
+            return redirect()->route('seller.product')->with('error', 'Ürün silinemedi: ' . $e->getMessage());
+        }
     }
 
     public function searchProduct(Request $request)
     {
-        $seller = auth('seller_web')->user();
-        if(!$seller){
-            return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
-        }
-        $store = $this->storeRepository->getStoreBySellerId($seller->id);
-        if(!$store){
-            return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
-        }
-        $query = $request->input('q', '') ?? '';
-        $filters = $this->elasticSearchTypeService->filterType($request);
-        $filters['store_id'] = $store->id;
-        $sorting = $this->elasticSearchTypeService->sortingType($request);
+        try{
+            $seller = auth('seller_web')->user();
+            if(!$seller){
+                return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+            }
+            $store = $this->storeRepository->getStoreBySellerId($seller->id);
+            if(!$store){
+                return redirect()->route('seller.product')->with('error', 'Mağaza bulunamadı');
+            }
+            $query = $request->input('q', '') ?? '';
+            $filters = $this->elasticSearchTypeService->filterType($request);
+            $filters['store_id'] = $store->id;
+            $sorting = $this->elasticSearchTypeService->sortingType($request);
 
-        $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
-        return view('Seller.Product.product', array_merge($data, [
-            'query' => $query,
-            'categories' => $this->productService->getCategories(),
-            'filters' => $filters,
-            'sorting' => $sorting,
-        ]));
+            $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
+            
+            return view('Seller.Product.product', array_merge($data, [
+                'query' => $query,
+                'categories' => $this->productService->getCategories(),
+                'filters' => $filters,
+                'sorting' => $sorting,
+            ]));
+        }
+        catch(\Exception $e){
+            return redirect()->route('seller.product')->with('error', 'Ürün arama hatası: ' . $e->getMessage());
+        }
     }
 }

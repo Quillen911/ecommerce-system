@@ -12,10 +12,9 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
     public function getProductsByStore($storeId);
 
     public function createProduct(array $productData);
-    public function updateProduct(array $productData, $id);
-    public function deleteProduct($id);
+    public function updateProduct(array $productData, $storeId, $id);
+    public function deleteProduct($storeId, $id);
     public function bulkCreateProducts(array $productsData);
 
-    public function findProductById($id);
-    public function getProductsBySeller($sellerId);
+    public function getProductByStore($storeId, $id);
 }

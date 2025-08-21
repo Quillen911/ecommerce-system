@@ -53,7 +53,7 @@ class FixedCampaign extends BaseCampaign
             return ['description' => '', 'discount' => 0];
         }
 
-        $discount_value = json_decode($discount_rule->discount_value, true);
+        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;
         $discount_amount = $discount_value['amount'] ?? 0;
 
         $eligible_products = $this->productEligible($products);

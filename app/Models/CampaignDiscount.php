@@ -15,6 +15,10 @@ class CampaignDiscount extends Model
         'applies_to',
     ];
 
+    protected $casts = [
+        'discount_value' => 'json',
+    ];
+
     public function campaign()
     {
         return $this->belongsTo(Campaign::class, 'campaign_id');
