@@ -6,20 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Helpers\ResponseHelper;
 use App\Services\Seller\SellerOrderService;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class SellerOrderController extends Controller
 {
     protected $sellerOrderService;
     protected $storeRepository;
-    public function __construct(SellerOrderService $sellerOrderService, StoreRepositoryInterface $storeRepository)
+    protected $authenticationRepository;
+    public function __construct(SellerOrderService $sellerOrderService, StoreRepositoryInterface $storeRepository, AuthenticationRepositoryInterface $authenticationRepository)
     {
         $this->sellerOrderService = $sellerOrderService;
         $this->storeRepository = $storeRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
     public function index()
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if (!$seller) {
                 return ResponseHelper::error('Mağaza bulunamadı');
             }
@@ -33,7 +35,7 @@ class SellerOrderController extends Controller
     public function show($id)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if (!$seller) {
                 return ResponseHelper::error('Mağaza bulunamadı');
             }
@@ -47,7 +49,7 @@ class SellerOrderController extends Controller
     public function confirmOrderItem($id)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if (!$seller) {
                 return ResponseHelper::error('Mağaza bulunamadı');
             }
@@ -66,7 +68,7 @@ class SellerOrderController extends Controller
     public function refundOrderItem($id)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if (!$seller) {
                 return ResponseHelper::error('Mağaza bulunamadı');
             }

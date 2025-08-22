@@ -6,9 +6,13 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthValidation\LoginRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class AuthController extends Controller
 {
+    protected $authenticationRepository;
+    public function __construct(AuthenticationRepositoryInterface $authenticationRepository){
+        $this->authenticationRepository = $authenticationRepository;
+    }
     public function login()
     {
         return view('login');
@@ -20,8 +24,8 @@ class AuthController extends Controller
             'email' => $request->input('email'),
             'password' => $request->input('password'),
         ];
-        if(\Auth::attempt($info)) {
-            $user = \Auth::user();
+        if(\Auth::guard('user_web')->attempt($info)) {
+            $user = \Auth::guard('user_web')->user();
             return redirect()->route('main');
         }
         return view('login', ['error' => 'Email veya şifre yanlış']);
@@ -29,7 +33,7 @@ class AuthController extends Controller
     }
     public function logout()
     {
-        \Auth::logout();
+        \Auth::guard('user_web')->logout();
         return redirect()->route('login');
 
     }

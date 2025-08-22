@@ -8,15 +8,16 @@ use App\Http\Controllers\Controller;
 use App\Traits\UserBagTrait;
 use App\Models\Bag;
 use Illuminate\Support\Facades\Cache;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class BagController extends Controller
 {
     use UserBagTrait;
     protected $bagService;
-
-    public function __construct(BagInterface $bagService)
+    protected $authenticationRepository;
+    public function __construct(BagInterface $bagService, AuthenticationRepositoryInterface $authenticationRepository)
     {
         $this->bagService = $bagService;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function bag(Request $request)
@@ -28,7 +29,7 @@ class BagController extends Controller
 
     public function add(Request $request)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         $bag = Bag::firstOrCreate(['bag_user_id' => $user->id]);
 
         if(!$bag){
@@ -64,7 +65,7 @@ class BagController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         $bag = $this->getUserBag();
 
         if(!$bag){
@@ -90,7 +91,7 @@ class BagController extends Controller
 
     public function delete($id)
     {   
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         $bag = $this->getUserBag();
 
         if(!$bag){

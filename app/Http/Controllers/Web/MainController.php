@@ -13,6 +13,7 @@ use App\Services\MainService;
 use App\Services\Search\ElasticSearchProductService;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 
 class MainController extends Controller
 {
@@ -22,13 +23,16 @@ class MainController extends Controller
     protected $elasticSearchProductService;
     protected $productRepository;
     protected $categoryRepository;
+    protected $authenticationRepository;
+    
     public function __construct(
         ElasticsearchService $elasticSearch, 
         ElasticSearchTypeService $elasticSearchTypeService, 
         MainService $mainService, 
         ElasticSearchProductService $elasticSearchProductService, 
         ProductRepositoryInterface $productRepository, 
-        CategoryRepositoryInterface $categoryRepository
+        CategoryRepositoryInterface $categoryRepository,
+        AuthenticationRepositoryInterface $authenticationRepository
     ) {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
@@ -36,10 +40,15 @@ class MainController extends Controller
         $this->elasticSearchProductService = $elasticSearchProductService;
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function main()
     {
+        $user = $this->authenticationRepository->getUser();
+        if(!$user){
+            return redirect()->route('login');
+        }
         $products = $this->mainService->getProducts();
         $categories = $this->mainService->getCategories();
 

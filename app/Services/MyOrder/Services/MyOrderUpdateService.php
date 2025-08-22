@@ -3,7 +3,7 @@
 namespace App\Services\MyOrder\Services;
 
 use App\Services\MyOrder\Contracts\MyOrderUpdateInterface;
-use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Services\Campaigns\CampaignManager;
 use App\Models\Campaign;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 class MyOrderUpdateService implements MyOrderUpdateInterface

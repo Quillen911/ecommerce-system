@@ -16,7 +16,7 @@ use App\Services\Search\ElasticSearchProductService;
 use App\Services\MainService;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class MainController extends Controller
 {
     protected $elasticSearch;
@@ -25,14 +25,15 @@ class MainController extends Controller
     protected $mainService;
     protected $productRepository;
     protected $categoryRepository;
-    
+    protected $authenticationRepository;
     public function __construct(
         ElasticsearchService $elasticSearch, 
         ElasticSearchTypeService $elasticSearchTypeService, 
         ElasticSearchProductService $elasticSearchProductService, 
         MainService $mainService, 
         ProductRepositoryInterface $productRepository, 
-        CategoryRepositoryInterface $categoryRepository
+        CategoryRepositoryInterface $categoryRepository,
+        AuthenticationRepositoryInterface $authenticationRepository
     ) {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
@@ -40,10 +41,15 @@ class MainController extends Controller
         $this->mainService = $mainService;
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function index(Request $request)
     {
+        $user = $this->authenticationRepository->getUser();
+        if(!$user){
+            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+        }
         $products = $this->mainService->getProducts();
         $categories = $this->mainService->getCategories();
         return ResponseHelper::success('Ürünler', [
@@ -54,6 +60,10 @@ class MainController extends Controller
 
     public function show(Request $request, $id)
     {
+        $user = $this->authenticationRepository->getUser();
+        if(!$user){
+            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+        }
         $product = $this->mainService->getProduct($id);
         if(!$product){
             return ResponseHelper::notFound('Ürün bulunamadı.');

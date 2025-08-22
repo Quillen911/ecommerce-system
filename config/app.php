@@ -164,6 +164,7 @@ return [
         App\Providers\OrderServiceProvider::class,
         App\Providers\MyOrderServiceProvider::class,
         App\Providers\BagServiceProvider::class,
+        App\Providers\CampaignServiceProvider::class,
         /*
         |--------------------------------------------------------------------------
         | Third-Party Service Providers

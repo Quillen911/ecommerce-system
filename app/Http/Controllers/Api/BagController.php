@@ -10,22 +10,23 @@ use App\Models\Category;
 use App\Models\BagItem;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\BaseApiRequest;
-use App\Traits\UserBagTrait;
 use App\Helpers\ResponseHelper;
 use App\Services\Bag\Contracts\BagInterface;
-
+use App\Traits\UserBagTrait;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class BagController extends Controller
 {
     use UserBagTrait;
     protected $bagService;
-
-    public function __construct(BagInterface $bagService)
+    protected $authenticationRepository;
+    public function __construct(BagInterface $bagService, AuthenticationRepositoryInterface $authenticationRepository)
     {
         $this->bagService = $bagService;
+        $this->authenticationRepository = $authenticationRepository;
     }
     public function index()
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
@@ -44,7 +45,7 @@ class BagController extends Controller
     }
     public function store(BaseApiRequest $request)
     {
-        $user = $this->getUser(); 
+        $user = $this->authenticationRepository->getUser(); 
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
@@ -71,7 +72,7 @@ class BagController extends Controller
 
     public function show($id)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
@@ -91,7 +92,7 @@ class BagController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         $bag = $this->getUserBag();
         
         if(!$bag){
@@ -116,7 +117,7 @@ class BagController extends Controller
 
     public function destroy($id)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }

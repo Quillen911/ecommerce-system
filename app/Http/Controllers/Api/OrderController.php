@@ -5,29 +5,36 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
-use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Services\Campaigns\CampaignManager;
 use App\Traits\UserBagTrait;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Helpers\ResponseHelper;
 use App\Models\Order;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class OrderController extends Controller
 {
     use UserBagTrait;
     protected $orderService;
     protected $bagService;
     protected $campaignManager;
-    public function __construct(OrderServiceInterface $orderService, BagInterface $bagService, CampaignManager $campaignManager)
+    protected $authenticationRepository;
+    public function __construct(
+        OrderServiceInterface $orderService, 
+        BagInterface $bagService, 
+        CampaignManager $campaignManager,
+        AuthenticationRepositoryInterface $authenticationRepository
+    )
     {
         $this->orderService = $orderService;
         $this->bagService = $bagService;
         $this->campaignManager = $campaignManager;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function index()
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
@@ -40,7 +47,7 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
@@ -77,7 +84,7 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }

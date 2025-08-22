@@ -1,4 +1,6 @@
 <?php
+use App\Models\User;
+use App\Models\Seller;
 
 return [
 
@@ -36,19 +38,19 @@ return [
     */
 
     'guards' => [
-        'web' => [
+        'user' => [ //api
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
+        'user_web' => [ //web
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'api' => [
-            'driver' => 'sanctum',
-            'provider' => 'users',
-        ],
-        'seller' => [
+        'seller' => [ //api
             'driver' => 'sanctum',
             'provider' => 'sellers',
         ],
-        'seller_web' => [
+        'seller_web' => [ //web
             'driver' => 'session',
             'provider' => 'sellers',
         ],
@@ -74,17 +76,23 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => User::class,
         ],
         'sellers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Seller::class,
+            'model' => Seller::class,
         ],
 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        /*'users' => [
+            'driver' => 'custom',
+            'provider' => CustomUserProvider::class,
+        ],
+        */
     ],
 
     /*

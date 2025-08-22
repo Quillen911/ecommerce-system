@@ -53,7 +53,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             $productData['images'] = $images;
         }
 
-        return $this->model->create($productData);
+        return $this->create($productData);
     }
 
     public function updateProduct(array $productData, $storeId, $id)

@@ -11,6 +11,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Authentication Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\AuthenticationRepositoryInterface::class,
+            \App\Repositories\Eloquent\AuthenticationRepository::class
+        );
+
         // Base Repository
         $this->app->bind(
             \App\Repositories\Contracts\BaseRepositoryInterface::class,
@@ -58,6 +64,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\CreditCard\CreditCardRepositoryInterface::class,
             \App\Repositories\Eloquent\CreditCard\CreditCardRepository::class
         );
+
+        // Campaign Registry
+        $this->app->register(CampaignServiceProvider::class);
+        
 
     }
 
