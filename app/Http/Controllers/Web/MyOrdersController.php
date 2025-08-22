@@ -6,29 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Services\MyOrder\Contracts\MyOrderInterface;
 use App\Services\MyOrder\Contracts\MyOrderRefundInterface;
 use App\Traits\UserBagTrait;
-use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Services\Campaigns\CampaignManager;
 use Illuminate\Http\Request;
 use App\Http\Requests\MyOrders\RefundRequest;
-
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class MyOrdersController extends Controller{
 
     use UserBagTrait;
     protected $myOrderService;
     protected $myOrderRefundService;
-
+    protected $authenticationRepository;
     public function __construct(
         MyOrderInterface $myOrderService,
-        MyOrderRefundInterface $myOrderRefundService
+        MyOrderRefundInterface $myOrderRefundService,
+        AuthenticationRepositoryInterface $authenticationRepository
     )
     {
         $this->myOrderService = $myOrderService;
         $this->myOrderRefundService = $myOrderRefundService;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function myorders()
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return redirect()->route('login')->with('error', 'Lütfen giriş yapınız.');
         }
@@ -41,7 +42,7 @@ class MyOrdersController extends Controller{
 
     public function delete($id, Request $request)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return redirect()->route('login')->with('error', 'Lütfen giriş yapınız.');
         }
@@ -54,7 +55,7 @@ class MyOrdersController extends Controller{
 
     public function refundItems($id, RefundRequest $request)
     {
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return redirect()->route('login')->with('error', 'Lütfen giriş yapınız.');
         }

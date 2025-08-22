@@ -15,7 +15,7 @@ Route::post('/login',[AuthController::class, 'login']);
 Route::post('/seller/login',[AuthController::class, 'sellerLogin']);
 
 
-Route::middleware('auth:sanctum')->group(function(){
+Route::middleware('auth:user')->group(function(){
 
     Route::apiResource('bags', BagController::class)->only(['index','store','show','destroy']);
     Route::apiResource('orders', OrderController::class)->only(['index','store','show']);
@@ -29,14 +29,14 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/search', [MainController::class, 'search']);
     Route::get('/filter', [MainController::class, 'filter']);
     Route::get('/sorting', [MainController::class, 'sorting']);
-    Route::get('/search/autocomplete', [MainController::class, 'autocomplete']);
+    Route::get('/autocomplete', [MainController::class, 'autocomplete']);
 
     
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:sanctum')->group(function(){
+Route::middleware('auth:seller')->group(function(){
 
     Route::post('/seller-logout', [AuthController::class, 'sellerLogout']);
     Route::get('/my-seller', [AuthController::class, 'mySeller']);

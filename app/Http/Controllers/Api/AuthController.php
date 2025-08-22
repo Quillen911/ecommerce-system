@@ -9,9 +9,13 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Helpers\ResponseHelper;
 use App\Models\Seller;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class AuthController extends Controller
 {
+    protected $authenticationRepository;
+    public function __construct(AuthenticationRepositoryInterface $authenticationRepository){
+        $this->authenticationRepository = $authenticationRepository;
+    }
     public function login(LoginRequest $request){
         
         $user = User::where('email', $request->email)->first();
@@ -25,7 +29,7 @@ class AuthController extends Controller
     }
     
     public function me(Request $request){
-        $user = auth('sanctum')->user();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }
@@ -33,7 +37,7 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request){
-        $user = auth('sanctum')->user();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }
@@ -54,7 +58,7 @@ class AuthController extends Controller
     }
 
     public function sellerLogout(Request $request){
-        $seller = auth('seller')->user();
+        $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
             return ResponseHelper::notFound('Seller bulunamadı.');
         }
@@ -65,7 +69,7 @@ class AuthController extends Controller
     }
 
     public function mySeller(Request $request){
-        $seller = auth('seller')->user();
+        $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
             return ResponseHelper::notFound('Seller bulunamadı.');
         }

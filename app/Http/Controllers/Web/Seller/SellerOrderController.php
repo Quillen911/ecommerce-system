@@ -5,20 +5,23 @@ namespace App\Http\Controllers\Web\Seller;
 use App\Http\Controllers\Controller;
 use App\Services\Seller\SellerOrderService;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 
 class SellerOrderController extends Controller
 {
     protected $sellerOrderService;
     protected $storeRepository;
-    public function __construct(SellerOrderService $sellerOrderService, StoreRepositoryInterface $storeRepository)
+    protected $authenticationRepository;
+    public function __construct(SellerOrderService $sellerOrderService, StoreRepositoryInterface $storeRepository, AuthenticationRepositoryInterface $authenticationRepository)
     {
         $this->sellerOrderService = $sellerOrderService;
         $this->storeRepository = $storeRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
     public function sellerOrders()
     {
         try{
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -32,7 +35,7 @@ class SellerOrderController extends Controller
     public function confirmOrderItem($id)
     {
         try{
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -46,7 +49,7 @@ class SellerOrderController extends Controller
     public function refundOrderItem($id)
     {
         try{
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }

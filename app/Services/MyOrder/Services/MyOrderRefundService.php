@@ -7,7 +7,7 @@ use App\Services\MyOrder\Contracts\MyOrderInterface;
 use App\Services\MyOrder\Contracts\MyOrderCalculationInterface;
 use App\Services\MyOrder\Contracts\MyOrderCheckInterface;
 use App\Services\MyOrder\Contracts\MyOrderUpdateInterface;
-use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Services\Campaigns\CampaignManager;
 use App\Services\Payments\IyzicoPaymentService;
 use Illuminate\Support\Facades\DB;
 

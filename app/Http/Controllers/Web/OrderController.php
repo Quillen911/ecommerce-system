@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Web;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
-use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Services\Campaigns\CampaignManager;
 use App\Traits\UserBagTrait;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Models\CreditCard;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 
 class OrderController extends Controller
 {
@@ -18,17 +19,19 @@ class OrderController extends Controller
     protected $orderService;
     protected $bagService;
     protected $campaignManager;
-    public function __construct(OrderServiceInterface  $orderService, BagInterface $bagService, CampaignManager $campaignManager)
+    protected $authenticationRepository;
+    public function __construct(OrderServiceInterface  $orderService, BagInterface $bagService, CampaignManager $campaignManager, AuthenticationRepositoryInterface $authenticationRepository)
     {
         $this->orderService = $orderService;
         $this->bagService = $bagService;
         $this->campaignManager = $campaignManager;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function order()
     {
 
-        $user = $this->getUser();
+        $user = $this->authenticationRepository->getUser();
         $bag = $this->bagService->getBag();
         $creditCards = CreditCard::where('user_id', $user->id)->get();
         
@@ -38,7 +41,7 @@ class OrderController extends Controller
     public function done(Request $request)
     {
         try {
-            $user = $this->getUser();
+            $user = $this->authenticationRepository->getUser();
             $bag = $this->getUserBag();
             
             if(!$bag){

@@ -14,7 +14,7 @@ use App\Services\Search\ElasticSearchProductService;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class ProductController extends Controller
 {
     protected $productService;
@@ -24,7 +24,7 @@ class ProductController extends Controller
     protected $productRepository;
     protected $categoryRepository;
     protected $storeRepository;
-
+    protected $authenticationRepository;
     public function __construct(
         ProductService $productService, 
         ElasticsearchService $elasticSearch, 
@@ -32,7 +32,8 @@ class ProductController extends Controller
         ElasticSearchProductService $elasticSearchProductService,
         ProductRepositoryInterface $productRepository,
         CategoryRepositoryInterface $categoryRepository,
-        StoreRepositoryInterface $storeRepository
+        StoreRepositoryInterface $storeRepository,
+        AuthenticationRepositoryInterface $authenticationRepository
     ) {
         $this->productService = $productService;
         $this->elasticSearch = $elasticSearch;
@@ -41,12 +42,13 @@ class ProductController extends Controller
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
         $this->storeRepository = $storeRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function index()
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             
             $products = $this->productService->indexProduct($seller->id);
             if($products->isEmpty()){
@@ -62,7 +64,7 @@ class ProductController extends Controller
     public function store(ProductStoreRequest $request)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $products = $this->productService->createProduct($seller->id, $request->validated());
             if(!$products){
                 return ResponseHelper::error('Ürün oluşturulamadı');
@@ -76,7 +78,7 @@ class ProductController extends Controller
     public function show($id)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $products = $this->productService->showProduct($seller->id, $id);
             if(!$products){
                 return ResponseHelper::notFound('Ürün bulunamadı');
@@ -90,7 +92,7 @@ class ProductController extends Controller
     public function update(ProductUpdateRequest $request, $id)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $products = $this->productService->updateProduct($seller->id, $request->validated(), $id);
             if(!$products){
                 return ResponseHelper::notFound('Ürün bulunamadı');
@@ -105,7 +107,7 @@ class ProductController extends Controller
     public function destroy($id)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $products = $this->productService->deleteProduct($seller->id, $id);
             if(!$products){
                 return ResponseHelper::notFound('Ürün bulunamadı');
@@ -128,7 +130,7 @@ class ProductController extends Controller
     public function searchProduct(Request $request)
     {
         try{
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return ResponseHelper::error('Mağaza bulunamadı');
             }

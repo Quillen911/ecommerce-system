@@ -1,22 +1,23 @@
 <?php
 
-namespace App\Services\Campaigns\CampaignManager;
+namespace App\Services\Campaigns\Handlers;
 
-class PercentageCampaign extends BaseCampaign
+use App\Services\Campaigns\BaseCampaign;
+
+class FixedCampaign extends BaseCampaign
 {
-
     public function isApplicable(array $products): bool
     {
         if(!$this->isCampaignActive()){
             return false;
         }
-
         $eligibleProducts = $this->productEligible($products);
-        
+
+       
 
         $min_bag = $this->getConditionValue('min_bag');
         if($min_bag){
-            $total = collect($eligibleProducts)->sum(function($item) use ($min_bag){
+            $total = collect($eligibleProducts)->sum(function($item) {
                 return $item->product->list_price * $item->quantity;
             });
             if($total < $min_bag){
@@ -32,7 +33,6 @@ class PercentageCampaign extends BaseCampaign
             if($eligible->sum('quantity') == 0){
                 return false;
             }
-            
         }
 
         $category = $this->getConditionValue('category');
@@ -50,16 +50,13 @@ class PercentageCampaign extends BaseCampaign
 
     public function calculateDiscount(array $products): array 
     {
-
         $discount_rule = $this->getDiscountRule();
         if (!$discount_rule) {
             return ['description' => '', 'discount' => 0];
         }
 
-
-
-        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;
-        $discount_rate = is_array($discount_value) ? ($discount_value['percentage'] / 100 ?? 0) : ((float)$discount_value / 100);
+        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;   
+        $discount_amount = is_array($discount_value) ? ($discount_value['amount'] ?? 0) : (float)$discount_value;
 
         $eligible_products = $this->productEligible($products);
         
@@ -76,20 +73,26 @@ class PercentageCampaign extends BaseCampaign
                 return $item->product->category?->category_title == $category;
             });
         }
-        
-        $eligible_products = collect($eligible_products)->unique('id');
-        
-        $eligible_total = $eligible_products->sum(function($item) {
-            return $item->product->list_price * $item->quantity;
-        });
-        
-        
+        $total_price = collect($eligible_products)->sum('quantity') * $eligible_products->first()->product->list_price;
+        if($total_price < $discount_amount){
+            return [
+                'description' => $this->campaign->description,
+                'discount' => 0,
+                'campaign_id' => $this->campaign->id
+            ];
+        }
+        if(collect($eligible_products)->sum('quantity') > 0) {
+            return [
+                'description' => $this->campaign->description,
+                'discount' => $discount_amount,
+                'campaign_id' => $this->campaign->id
+            ];
+        }
+
         return [
             'description' => $this->campaign->description,
-            'discount' => $eligible_total * $discount_rate,
+            'discount' => 0,
             'campaign_id' => $this->campaign->id,
-            'store_id' => $this->campaign->store_id
         ];
     }
-    
 }

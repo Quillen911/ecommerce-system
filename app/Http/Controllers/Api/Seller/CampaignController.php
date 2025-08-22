@@ -9,21 +9,27 @@ use App\Services\Seller\CampaignService;
 use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class CampaignController extends Controller
 {
     protected $campaignService;
     protected $storeRepository;
-    public function __construct(CampaignService $campaignService, StoreRepositoryInterface $storeRepository)
+    protected $authenticationRepository;
+    public function __construct(
+        CampaignService $campaignService, 
+        StoreRepositoryInterface $storeRepository, 
+        AuthenticationRepositoryInterface $authenticationRepository
+    )
     {
         $this->campaignService = $campaignService;
         $this->storeRepository = $storeRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function index()
     {
         try {
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $campaigns = $this->campaignService->getCampaigns($seller->id);
 
             return ResponseHelper::success('Kampanyalar listelendi', $campaigns);
@@ -36,7 +42,7 @@ class CampaignController extends Controller
     public function store(CampaignStoreRequest $request)
     {
         try {
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $campaign = $this->campaignService->createCampaign($seller->id, $request->all());
             
             return ResponseHelper::success('Kampanya başarıyla oluşturuldu', $campaign);
@@ -54,7 +60,7 @@ class CampaignController extends Controller
     public function show($id)
     {
         try {
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $campaign = $this->campaignService->showCampaign($seller->id, $id);   
 
             return ResponseHelper::success('Kampanya detayı', $campaign);
@@ -69,7 +75,7 @@ class CampaignController extends Controller
         try {
 
             
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             
             // Veriyi düzelt - data içindeki tüm alanları çıkar
             $campaignData = $request->all();
@@ -91,7 +97,7 @@ class CampaignController extends Controller
     public function destroy($id)
     {
         try {
-            $seller = auth('seller')->user();
+            $seller = $this->authenticationRepository->getSeller();
             $campaign = $this->campaignService->deleteCampaign($seller->id, $id);
 
             return ResponseHelper::success('Kampanya başarıyla silindi', $campaign);

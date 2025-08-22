@@ -3,7 +3,7 @@
 namespace App\Services\Bag\Services;
 
 use App\Services\Bag\Contracts\BagCalculationInterface;
-use App\Services\Campaigns\CampaignManager\CampaignManager;
+use App\Services\Campaigns\CampaignManager;
 use App\Models\Campaign;
 use App\Services\Order\Services\CalculationService;
 

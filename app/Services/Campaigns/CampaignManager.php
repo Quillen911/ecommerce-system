@@ -1,18 +1,24 @@
 <?php 
 
-namespace App\Services\Campaigns\CampaignManager;
+namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
 use App\Models\CampaignDiscount;
+use App\Services\Campaigns\CampaignRegistry;
 
 class CampaignManager 
 {
+    private $registry;
+    public function __construct(CampaignRegistry $registry)
+    {
+        $this->registry = $registry;
+    }
     public function getBestCampaigns(array $products, $campaigns)
     {  
         $best = ['discount' => 0, 'description' => '', 'campaign_id' => null];
         foreach ($campaigns as $campaign) {
             $service = $this->createServiceByType($campaign);
-            
+
             if ($service && $service->isApplicable($products)) {
                 $result = $service->calculateDiscount($products);
                 if ($result['discount'] > $best['discount']) {
@@ -29,16 +35,7 @@ class CampaignManager
         if($campaign->is_active == 0 ){
             return null;
         }
-        switch ($campaign->type) {
-            case 'percentage':
-                return new PercentageCampaign($campaign);
-            case 'fixed':
-                return new FixedCampaign($campaign);
-            case 'x_buy_y_pay':
-                return new XBuyYPayCampaign($campaign);
-            default:
-                return null;
-        }
+        return $this->registry->create($campaign->type, $campaign);
     }
 
     public function userEligible(Campaign $campaign)

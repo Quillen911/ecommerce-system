@@ -9,23 +9,25 @@ use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
 use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class CampaignController extends Controller
 {
     protected $campaignService;
     protected $storeRepository;
     protected $campaignRepository;
-
-    public function __construct(CampaignService $campaignService, StoreRepositoryInterface $storeRepository, CampaignRepositoryInterface $campaignRepository)
+    protected $authenticationRepository;
+    public function __construct(CampaignService $campaignService, StoreRepositoryInterface $storeRepository, CampaignRepositoryInterface $campaignRepository, AuthenticationRepositoryInterface $authenticationRepository)
     {
         $this->campaignService = $campaignService;
         $this->storeRepository = $storeRepository;
         $this->campaignRepository = $campaignRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function campaign()
     {
         try {
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if (!$seller) {
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -46,7 +48,7 @@ class CampaignController extends Controller
     public function createCampaign(CampaignStoreRequest $request)
     {
         try {
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if (!$seller) {
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -67,7 +69,7 @@ class CampaignController extends Controller
 
     public function editCampaign($id)
     {
-        $seller = auth('seller_web')->user();
+        $seller = $this->authenticationRepository->getSeller();
         if (!$seller) {
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
@@ -92,7 +94,7 @@ class CampaignController extends Controller
     public function updateCampaign(CampaignUpdateRequest $request, $id)
     {
         try {
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if (!$seller) {
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -124,7 +126,7 @@ class CampaignController extends Controller
 
     public function deleteCampaign($id)
     {
-        $seller = auth('seller_web')->user();
+        $seller = $this->authenticationRepository->getSeller();
         if (!$seller) {
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }

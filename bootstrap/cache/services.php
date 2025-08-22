@@ -38,8 +38,9 @@
     34 => 'App\\Providers\\OrderServiceProvider',
     35 => 'App\\Providers\\MyOrderServiceProvider',
     36 => 'App\\Providers\\BagServiceProvider',
-    37 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
-    38 => 'App\\Providers\\AppServiceProvider',
+    37 => 'App\\Providers\\CampaignServiceProvider',
+    38 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
+    39 => 'App\\Providers\\AppServiceProvider',
   ),
   'eager' => 
   array (
@@ -66,8 +67,9 @@
     20 => 'App\\Providers\\OrderServiceProvider',
     21 => 'App\\Providers\\MyOrderServiceProvider',
     22 => 'App\\Providers\\BagServiceProvider',
-    23 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
-    24 => 'App\\Providers\\AppServiceProvider',
+    23 => 'App\\Providers\\CampaignServiceProvider',
+    24 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
+    25 => 'App\\Providers\\AppServiceProvider',
   ),
   'deferred' => 
   array (

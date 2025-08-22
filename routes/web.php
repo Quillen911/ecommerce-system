@@ -18,7 +18,7 @@ Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin'
 
 
 
-Route::middleware(['auth'])->group(function(){
+Route::middleware(['auth:user_web'])->group(function(){
     Route::get('/main', [MainController::class, 'main'])->name('main');
     Route::get('/search', [MainController::class, 'search'])->name('search');
     Route::get('/filter', [MainController::class, 'filter'])->name('filter');
@@ -57,7 +57,7 @@ Route::middleware(['auth'])->group(function(){
 Route::get('/seller/login',[AuthController::class, 'sellerLogin'])->name('seller.login');  
 Route::post('/seller/postlogin', [AuthController::class,'sellerPostlogin'])->name('seller.postlogin');
 
-Route::middleware(['web', 'seller.auth'])->group(function(){
+Route::middleware(['auth:seller_web'])->group(function(){
     
     Route::prefix('seller')->group(function(){
         Route::get('/',[SellerController::class, 'seller'])->name('seller');  

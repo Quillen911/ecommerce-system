@@ -13,7 +13,8 @@ use App\Services\Search\ElasticSearchProductService;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+    
 class ProductController extends Controller
 {
     protected $productService;
@@ -23,7 +24,7 @@ class ProductController extends Controller
     protected $storeRepository;
     protected $categoryRepository;
     protected $productRepository;
-
+    protected $authenticationRepository;
     public function __construct(
         ProductService $productService, 
         ElasticsearchService $elasticSearch, 
@@ -31,7 +32,8 @@ class ProductController extends Controller
         ElasticSearchProductService $elasticSearchProductService,
         StoreRepositoryInterface $storeRepository,
         CategoryRepositoryInterface $categoryRepository,
-        ProductRepositoryInterface $productRepository
+        ProductRepositoryInterface $productRepository,
+        AuthenticationRepositoryInterface $authenticationRepository
     )
     {
         $this->productService = $productService;
@@ -41,11 +43,12 @@ class ProductController extends Controller
         $this->storeRepository = $storeRepository;
         $this->categoryRepository = $categoryRepository;
         $this->productRepository = $productRepository;
+        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function product()
     {
-        $seller = auth('seller_web')->user();
+        $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
             return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
         }
@@ -62,7 +65,7 @@ class ProductController extends Controller
     public function createProduct(ProductStoreRequest $request) 
     {
         try {
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -80,7 +83,7 @@ class ProductController extends Controller
     public function editProduct($id)
     {
         try{
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -95,7 +98,7 @@ class ProductController extends Controller
     public function updateProduct(ProductUpdateRequest $request, $id)
     {
         try{
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -110,7 +113,7 @@ class ProductController extends Controller
     public function deleteProduct($id)
     {
         try{
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
@@ -125,7 +128,7 @@ class ProductController extends Controller
     public function searchProduct(Request $request)
     {
         try{
-            $seller = auth('seller_web')->user();
+            $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }

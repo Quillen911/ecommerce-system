@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Services\Campaigns\CampaignManager;
+namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
 use App\Models\CampaignCondition;
 use App\Models\CampaignDiscount;
 use App\Models\Store;
+use App\Services\Campaigns\CampaignInterface;
 
 abstract class BaseCampaign implements CampaignInterface
 {
@@ -59,6 +60,12 @@ abstract class BaseCampaign implements CampaignInterface
         return $value;
     }
 
+    public function setCampaign(Campaign $campaign): void
+    {
+        $this->campaign = $campaign;
+        $this->loadConditions();
+    }
+
     protected function isCampaignActive(): bool
     {
         if($this->campaign->starts_at > now() || $this->campaign->ends_at < now()){
@@ -76,7 +83,7 @@ abstract class BaseCampaign implements CampaignInterface
     protected function productEligible($products): array
     {
         $storeIds = collect($products)->pluck('store_id')->toArray();
-        
+    
         $eligibleProducts = [];
         foreach($products as $product){
             if($product->store_id == $this->campaign->store_id){
