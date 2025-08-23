@@ -9,6 +9,7 @@ use App\Services\Bag\Services\BagService;
 use App\Services\Bag\Services\BagCalculationService;
 use App\Services\Bag\Services\StockService;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Eloquent\Bag\BagRepository;
 
 class BagServiceProvider extends ServiceProvider
 {
