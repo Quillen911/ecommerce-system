@@ -27,7 +27,6 @@ class BagService implements BagInterface
     public function getBag()
     {
         $user = $this->authenticationRepository->getUser();
-        dd($user);
         if(!$user){
             throw new \Exception('Kullanıcı bulunamadı!');
         }

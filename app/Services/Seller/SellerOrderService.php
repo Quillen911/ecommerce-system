@@ -81,11 +81,14 @@ class SellerOrderService
         
         if($refundItem['success']){
             $this->productRepository->incrementStockQuantity($orderItem->product_id, $orderItem->quantity);
-
-            $orderItem->status = 'refunded';
-            $orderItem->payment_status = 'refunded';
-            $orderItem->refunded_at = now();
-            $orderItem->save();
+            $orderItem->update([
+                'status' => 'Satıcı İade Etti',
+                'payment_status' => 'refunded',
+                'refunded_price_cents' => $orderItem->paid_price_cents,
+                'refunded_price' => $orderItem->paid_price,
+                'refunded_quantity' => $orderItem->quantity,
+                'refunded_at' => now(),
+            ]);
 
             $order = $orderItem->order;
             $this->updateOrderStatusAfterRefund($order);

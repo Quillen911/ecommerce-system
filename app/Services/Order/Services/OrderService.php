@@ -107,12 +107,6 @@ class OrderService implements OrderServiceInterface
     protected function processPayment($order, $selectedCreditCard, $finalPrice): array
     {
         $creditCard = $this->creditCardRepository->getCreditCardById($selectedCreditCard);
-        Log::info('CVV Debug', [
-            'cvv' => $creditCard->cvv,
-            'cvv_type' => gettype($creditCard->cvv),
-            'card_number' => $creditCard->card_number,
-            'card_holder' => $creditCard->card_holder_name
-        ]);
         $paymentResult = $this->paymentService->processPayment($order, $creditCard, $finalPrice);
         
         if ($paymentResult['success']) {

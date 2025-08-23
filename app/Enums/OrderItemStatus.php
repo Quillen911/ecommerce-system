@@ -10,6 +10,7 @@ enum OrderItemStatus: string
     case DELIVERED = 'delivered';
     case REFUNDED = 'refunded';
     case CUSTOMER_RETURNED = 'Müşteri İade Etti';
+    case SELLER_RETURNED = 'Satıcı İade Etti';
     case FAILED = 'Başarısız Ödeme';
 
     public function label(): string
@@ -21,6 +22,7 @@ enum OrderItemStatus: string
             self::DELIVERED => 'Teslim Edildi',
             self::REFUNDED => 'İade Edildi',
             self::CUSTOMER_RETURNED => 'Müşteri İade Etti',
+            self::SELLER_RETURNED => 'Satıcı İade Etti',
             self::FAILED => 'Başarısız Ödeme',
         };
     }
@@ -34,6 +36,7 @@ enum OrderItemStatus: string
             self::DELIVERED => 'success',
             self::REFUNDED => 'danger',
             self::CUSTOMER_RETURNED => 'danger',
+            self::SELLER_RETURNED => 'danger',
             self::FAILED => 'danger',
         };
     }

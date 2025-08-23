@@ -26,7 +26,7 @@ return new class extends Migration
             $table->decimal('paid_price', 10, 2)->default(0);
             $table->bigInteger('paid_price_cents')->default(0);
             $table->string('payment_transaction_id')->nullable();
-            $table->enum('status', ['pending','confirmed','shipped','delivered','refunded','Müşteri İade Etti','Başarısız Ödeme']);
+            $table->enum('status', ['pending','confirmed','shipped','delivered','refunded','Müşteri İade Etti','Satıcı İade Etti','Başarısız Ödeme']);
             $table->decimal('refunded_price', 10, 2)->default(0);
             $table->bigInteger('refunded_price_cents')->default(0);
             $table->enum('payment_status', ['paid','partial_refunded','refunded','failed','canceled']);

@@ -6,15 +6,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Campaigns\CampaignManager;
-use App\Traits\UserBagTrait;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Helpers\ResponseHelper;
 use App\Models\Order;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use App\Models\Bag;
 class OrderController extends Controller
 {
-    use UserBagTrait;
     protected $orderService;
     protected $bagService;
     protected $campaignManager;
@@ -51,7 +50,7 @@ class OrderController extends Controller
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
-        $bag = $this->getUserBag();
+        $bag = Bag::where('bag_user_id', $user->id)->first();
 
         if(!$bag){
             return ResponseHelper::error('Sepetiniz bulunamadı!');
