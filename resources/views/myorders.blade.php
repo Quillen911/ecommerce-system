@@ -237,8 +237,6 @@
                                             // İade edilebilir mi kontrol et
                                             $eligible = ($item->payment_status !== 'refunded') && $remainingUnits > 0 && $remainingRefundedPrice > 0;
                                             
-                                            // Debug bilgisi (geliştirme sırasında kullanılabilir)
-                                            // echo "<!-- Debug: Original: $originalQuantity, Paid: $paidPrice, Refunded: $refundedPrice, Remaining: $remainingRefundedPrice, Unit: $unitPrice, RemainingUnits: $remainingUnits -->";
                                         @endphp
 
                                             @if($eligible)
@@ -250,7 +248,7 @@
                                                 </div>
                                                 <div class="refund-info">İade edilebilir: {{ $remainingUnits }} adet</div>
                                             @else
-                                                @if($item->payment_status === 'refunded')
+                                                @if($item->payment_status->value === 'refunded')
                                                     <span class="muted">Tamamen iade edildi</span>
                                                 @elseif($refundedPrice > 0 && $remainingUnits == 0)
                                                     <span class="muted">Tamamen iade edildi ({{ $originalQuantity }}/{{ $originalQuantity }})</span>

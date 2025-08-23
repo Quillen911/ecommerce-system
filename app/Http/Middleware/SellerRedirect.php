@@ -6,9 +6,16 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 
 class SellerRedirect
 {
+    protected $authenticationRepository;
+
+    public function __construct(AuthenticationRepositoryInterface $authenticationRepository)
+    {
+        $this->authenticationRepository = $authenticationRepository;
+    }
     /**
      * Handle an incoming request.
      *
@@ -16,10 +23,13 @@ class SellerRedirect
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::guard('seller_web')->check()) {
-            return redirect()->route('seller.login');
+        if (request()->is('seller/*') || request()->is('seller')) {
+            if (!request()->is('seller/login')) {
+                if (!$this->authenticationRepository->isSellerLoggedIn()) {
+                    return redirect()->route('seller.login');
+                }
+            }
         }
-
         return $next($request);
     }
 }

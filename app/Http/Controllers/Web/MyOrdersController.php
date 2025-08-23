@@ -5,14 +5,12 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Services\MyOrder\Contracts\MyOrderInterface;
 use App\Services\MyOrder\Contracts\MyOrderRefundInterface;
-use App\Traits\UserBagTrait;
 use App\Services\Campaigns\CampaignManager;
 use Illuminate\Http\Request;
 use App\Http\Requests\MyOrders\RefundRequest;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 class MyOrdersController extends Controller{
 
-    use UserBagTrait;
     protected $myOrderService;
     protected $myOrderRefundService;
     protected $authenticationRepository;
