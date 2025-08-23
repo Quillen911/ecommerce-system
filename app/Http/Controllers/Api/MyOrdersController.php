@@ -17,15 +17,19 @@ class MyOrdersController extends Controller
     protected $myOrderService;
     protected $myOrderRefundService;
     protected $authenticationRepository;
+    protected $campaignManager;
+    
     public function __construct(
         MyOrderInterface $myOrderService,
         MyOrderRefundInterface $myOrderRefundService,
-        AuthenticationRepositoryInterface $authenticationRepository
+        AuthenticationRepositoryInterface $authenticationRepository,
+        CampaignManager $campaignManager
     )
     {
         $this->myOrderService = $myOrderService;
         $this->myOrderRefundService = $myOrderRefundService;
         $this->authenticationRepository = $authenticationRepository;
+        $this->campaignManager = $campaignManager;
     }
 
     public function index()
@@ -61,7 +65,7 @@ class MyOrdersController extends Controller
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
         }
         
-        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], new CampaignManager());
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], $this->campaignManager);
         if(!$result['success']){
             return ResponseHelper::notFound($result['error'] ?? 'Sipariş bulunamadı.');
         }
@@ -86,7 +90,7 @@ class MyOrdersController extends Controller
         if (empty($quantities)) {
             return ResponseHelper::error('İade edilecek ürün seçiniz.');
         }
-        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, $quantities, $this->campaignManager);
         if ($result['success'] ?? false) {
             return ResponseHelper::success('Seçilen ürünler için kısmi iade yapıldı.', $result);
         }

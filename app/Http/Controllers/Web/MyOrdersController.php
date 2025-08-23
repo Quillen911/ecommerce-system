@@ -16,15 +16,19 @@ class MyOrdersController extends Controller{
     protected $myOrderService;
     protected $myOrderRefundService;
     protected $authenticationRepository;
+    protected $campaignManager;
+    
     public function __construct(
         MyOrderInterface $myOrderService,
         MyOrderRefundInterface $myOrderRefundService,
-        AuthenticationRepositoryInterface $authenticationRepository
+        AuthenticationRepositoryInterface $authenticationRepository,
+        CampaignManager $campaignManager
     )
     {
         $this->myOrderService = $myOrderService;
         $this->myOrderRefundService = $myOrderRefundService;
         $this->authenticationRepository = $authenticationRepository;
+        $this->campaignManager = $campaignManager;
     }
 
     public function myorders()
@@ -46,7 +50,7 @@ class MyOrdersController extends Controller{
         if(!$user){
             return redirect()->route('login')->with('error', 'Lütfen giriş yapınız.');
         }
-        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], new CampaignManager());
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], $this->campaignManager);
         if(!$result['success']){
             return redirect()->back()->with('error', $result['error'] ?? 'Sipariş bulunamadı.');
         }
@@ -71,7 +75,7 @@ class MyOrdersController extends Controller{
         if (count($quantities) === 0) {
             return redirect()->route('myorders')->with('error', 'İade adedi giriniz.');
         }
-        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, $quantities, new CampaignManager());
+        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, $quantities, $this->campaignManager);
         return ($result['success'] ?? false)
           ? redirect()->route('myorders')->with('success', $result['message'] ?? 'Kısmi iade yapıldı.')
           : redirect()->route('myorders')->with('error', $result['error'] ?? 'İade işlemi başarısız.');

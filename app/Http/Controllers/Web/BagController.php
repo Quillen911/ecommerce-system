@@ -5,40 +5,26 @@ namespace App\Http\Controllers\Web;
 use App\Services\Bag\Contracts\BagInterface;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Traits\UserBagTrait;
-use App\Models\Bag;
 use Illuminate\Support\Facades\Cache;
-use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+
 class BagController extends Controller
 {
-    use UserBagTrait;
+
     protected $bagService;
-    protected $authenticationRepository;
-    public function __construct(BagInterface $bagService, AuthenticationRepositoryInterface $authenticationRepository)
+    public function __construct(BagInterface $bagService)
     {
         $this->bagService = $bagService;
-        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function bag(Request $request)
     {
         $bag = $this->bagService->getBag();
-        
         return view('bag', $bag);
     }
 
     public function add(Request $request)
     {
-        $user = $this->authenticationRepository->getUser();
-        $bag = Bag::firstOrCreate(['bag_user_id' => $user->id]);
-
-        if(!$bag){
-            if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Sepetiniz bulunamadı!']);
-            }
-            return redirect()->route('main')->with('error', 'Sepetiniz bulunamadı!');
-        }
-        $productItem = $this->bagService->addToBag($bag, $request->product_id);
+        $productItem = $this->bagService->addToBag($request->product_id);
 
         if (is_array($productItem) && isset($productItem['error'])) {
             if ($request->ajax()) {
@@ -65,20 +51,13 @@ class BagController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = $this->authenticationRepository->getUser();
-        $bag = $this->getUserBag();
-
-        if(!$bag){
-            return redirect()->route('bag')->with('error', 'Sepet bulunamadı!');
-        }
-
         $quantity = $request->input('quantity');
         
         if($quantity < 1){
             return redirect()->route('bag')->with('error', 'Ürün adedi 1\'den az olamaz!');
         }
 
-        $bagItem = $this->bagService->updateBagItem($bag, $id, $quantity);
+        $bagItem = $this->bagService->updateBagItem($id, $quantity);
 
         if(isset($bagItem['error'])){
             return redirect()->route('bag')->with('error', $bagItem['error']);
@@ -91,14 +70,7 @@ class BagController extends Controller
 
     public function delete($id)
     {   
-        $user = $this->authenticationRepository->getUser();
-        $bag = $this->getUserBag();
-
-        if(!$bag){
-            return redirect()->route('bag')->with('error', 'Sepet bulunamadı!');
-        }
-        
-        $result = $this->bagService->destroyBagItem($bag, $id);
+        $result = $this->bagService->destroyBagItem($id);
 
         if(isset($result['success']) && !$result['success']){
             return redirect()->route('bag')->with('error', $result['message']);

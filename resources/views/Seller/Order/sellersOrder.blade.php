@@ -111,20 +111,20 @@
                             <td>{{ number_format(($item->product?->list_price ?? 0) * $item->quantity, 2) }} TL</td>
                                         <td>{{ number_format($item->paid_price, 2) }} TL</td>
                                         <td>
-                                            @if($item->payment_status === 'refunded')
+                                            @if($item->payment_status->value === 'refunded')
                                                 <span class="status-badge status-canceled">İade Edildi</span>
-                                            @elseif($item->payment_status === 'paid' && $item->status === 'confirmed')
+                                            @elseif($item->payment_status->value === 'paid' && $item->status->value === 'confirmed')
                                                 <span class="status-badge status-confirmed">Sipariş Onaylandı</span>
-                                            @elseif($item->status === 'shipped')
+                                            @elseif($item->status->value === 'shipped')
                                                 <span class="status-badge status-completed">Gönderildi</span>
-                                            @elseif($item->status === 'canceled')
+                                            @elseif($item->status->value === 'canceled')
                                                 <span class="status-badge status-canceled">Satıcı İptal Etti</span>
                                             @else
-                                                <span class="status-badge">{{ $item->status }}</span>
+                                                <span class="status-badge">{{ $item->status->value }}</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if($item->payment_status === 'paid' && $item->status === 'confirmed')
+                                            @if($item->payment_status->value === 'paid' && $item->status->value === 'confirmed')
                                                 <div style="display: flex; flex-direction: column; gap: 6px;">
                                                     <form action="{{ route('seller.confirmOrderItem', $item->id) }}" method="POST" style="margin: 0;">
                                                         @csrf
@@ -135,14 +135,14 @@
                                                         <button type="submit" style="background: #dc2626; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; width: 100%;">Stok Yok - İade Et</button>
                                                     </form>
                                                 </div>
-                                            @elseif($item->payment_status === 'refunded')
+                                            @elseif($item->payment_status->value === 'refunded')
                                                 <span class="muted">İade Tarihi: {{ \Carbon\Carbon::parse($item->refunded_at)->format('d.m.Y H:i') ?? 'N/A' }}</span>
-                                            @elseif($item->status === 'shipped')
+                                            @elseif($item->status->value === 'shipped')
                                                 <span class="muted">Gönderildi</span>
-                                            @elseif($item->status === 'canceled')
+                                            @elseif($item->status->value === 'canceled')
                                                 <span class="muted">İptal Edildi</span>
                                             @else
-                                                <span class="muted">Durum: {{ $item->status }} - {{ $item->payment_status }}</span>
+                                                <span class="muted">Durum: {{ $item->status->value }} - {{ $item->payment_status->value }}</span>
                                             @endif
                                         </td>
                                     </tr>

@@ -23,6 +23,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\BaseRepository::class
         );
 
+        // Bag Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\Bag\BagRepositoryInterface::class,
+            \App\Repositories\Eloquent\Bag\BagRepository::class
+        );
+
         // Product Repository
         $this->app->bind(
             \App\Repositories\Contracts\Product\ProductRepositoryInterface::class,

@@ -5,8 +5,8 @@ namespace App\Services\Bag\Contracts;
 interface BagInterface
 {
     public function getBag();
-    public function addToBag($bag, $productId);
-    public function showBagItem($bag, $bagItemId);
-    public function updateBagItem($bag, $bagItemId, $quantity);
-    public function destroyBagItem($bag, $bagItemId);
+    public function addToBag($productId);
+    public function showBagItem($bagItemId);
+    public function updateBagItem($bagItemId, $quantity);
+    public function destroyBagItem($bagItemId);
 }

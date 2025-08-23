@@ -82,6 +82,6 @@ class AuthenticationRepository implements AuthenticationRepositoryInterface
      */
     private function isApiRequest(): bool
     {
-        return request()->is('api/*') || request()->expectsJson();
+        return request()->is('api/*');
     }
 }
