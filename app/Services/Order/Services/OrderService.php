@@ -12,9 +12,10 @@ use App\Exceptions\OrderCreationException;
 use App\Models\Campaign;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use App\Traits\GetUser;
 class OrderService implements OrderServiceInterface
 {
+    use GetUser;
     protected $calculationService;
     protected $paymentService;
     protected $inventoryService;
@@ -41,7 +42,6 @@ class OrderService implements OrderServiceInterface
         DB::beginTransaction();
         
         try {
-            
             $this->inventoryService->checkStock($products);
             
             $orderData = $this->calculateOrderData($products, $campaignManager);
@@ -131,8 +131,8 @@ class OrderService implements OrderServiceInterface
         }
     }
     
-    public function getOrder($userId, $orderId)
+    public function getOrder($user, $orderId)
     {
-        return $this->orderCreationService->getOrder($userId, $orderId);
+        return $this->orderCreationService->getOrder($user->id, $orderId);
     }
 }

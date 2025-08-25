@@ -6,5 +6,5 @@ use App\Services\Campaigns\CampaignManager;
 
 interface MyOrderRefundInterface
 {
-    public function refundSelectedItems($userId, $orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager): array;
+    public function refundSelectedItems($orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager): array;
 }

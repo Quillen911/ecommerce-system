@@ -4,6 +4,6 @@ namespace App\Services\MyOrder\Contracts;
 
 interface MyOrderInterface
 {
-    public function getOrdersforUser($userId);
-    public function getOneOrderforUser($userId, $orderId);
+    public function getOrdersforUser();
+    public function getOneOrderforUser($orderId);
 }

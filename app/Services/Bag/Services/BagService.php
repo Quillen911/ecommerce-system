@@ -8,9 +8,10 @@ use App\Models\Bag;
 use App\Models\Campaign;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
-
+use App\Traits\GetUser;
 class BagService implements BagInterface
 {
+    use GetUser;
     protected $authenticationRepository;
     protected $stockService;
     protected $bagCalculationService;
@@ -26,10 +27,7 @@ class BagService implements BagInterface
 
     public function getBag()
     {
-        $user = $this->authenticationRepository->getUser();
-        if(!$user){
-            throw new \Exception('Kullanıcı bulunamadı!');
-        }
+        $user = $this->getUser();
         $bag = $this->bagRepository->getBag($user);
         $bagItems = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
         
@@ -58,10 +56,7 @@ class BagService implements BagInterface
     public function addToBag($productId)
     {
         try {
-            $user = $this->authenticationRepository->getUser();
-            if(!$user){
-                return ['error' => 'Kullanıcı bulunamadı!'];
-            }
+            $user = $this->getUser();
             $bag = $this->bagRepository->createBag($user);
             if(!$bag){
                 return ['error' => 'Sepet bulunamadı!'];
@@ -79,13 +74,14 @@ class BagService implements BagInterface
     
     public function showBagItem($bagItemId)
     {
-        $user = $this->authenticationRepository->getUser();
+        $user = $this->getUser();
         $bag = $this->bagRepository->getBag($user);
         return $bag->bagItems()->where('id', $bagItemId)->first();
     }
 
     public function updateBagItem($bagItemId, $quantity)
     {
+        $user = $this->getUser();
         $bagItem = $this->showBagItem($bagItemId);
         if($bagItem){
             $bagItem->quantity = $quantity;
@@ -99,6 +95,7 @@ class BagService implements BagInterface
 
     public function destroyBagItem($bagItemId)
     {
+        $user = $this->getUser();
         $bagItem = $this->showBagItem($bagItemId);
         if($bagItem){
             $product = $bagItem->product;
