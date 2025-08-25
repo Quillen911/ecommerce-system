@@ -59,6 +59,7 @@ class XBuyYPayCampaign extends BaseCampaign
         $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;
         $x = $discount_value['x'] ?? 0;
         $y = $discount_value['y'] ?? 0;
+
         $eligible_products = $this->productEligible($products);
 
         $eligible_total = collect($eligible_products)->sum(function($item) {
@@ -107,6 +108,7 @@ class XBuyYPayCampaign extends BaseCampaign
             $total_discount = $free_products->sum(function($item) {
                 return $item['price'] * $item['quantity'];
             });
+            
             $perProductDiscount = $free_products->map(function($item) {
                 return [
                     'product' => $item['product'],
@@ -121,16 +123,16 @@ class XBuyYPayCampaign extends BaseCampaign
                 'discount' => $total_discount,
                 'per_product_discount' => $perProductDiscount,
                 'campaign_id' => $this->campaign->id,
-                'eligible_products' => $free_products->pluck('product.id')->toArray()
+                'eligible_products' => collect($free_products->pluck('product.id'))
             ];
         }
 
         return [
             'description' => $this->campaign->description,
             'discount' => 0,
-            'per_product_discount' => [],
+            'per_product_discount' => collect(),
             'campaign_id' => $this->campaign->id,
-            'eligible_products' => [],
+            'eligible_products' => collect(),
             'eligible_total' => 0
         ];
     }

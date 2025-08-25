@@ -26,30 +26,18 @@ class CalculationService implements CalculationInterface
     {
         $bestCampaign = $campaignManager->getBestCampaigns($products->all(), $campaigns);
         
-
-
         return [
             'eligible_total' => $bestCampaign['eligible_total'] ?? 0,
             'discount' => $bestCampaign['discount'] ?? 0,
             'campaign_id' => $bestCampaign['campaign_id'] ?? null,
             'description' => $bestCampaign['description'] ?? null,
-            'eligible_products' => $bestCampaign['eligible_products'] ?? [],
-            'per_product_discount' => $bestCampaign['per_product_discount'] ?? [],
+            'eligible_products' => $bestCampaign['eligible_products'] ?? collect(),
+            'per_product_discount' => $bestCampaign['per_product_discount'] ?? collect(),
         ];
     }
 
     public function calculateCargoPrice(float $total): float
     {
         return $total >= $this->cargoThreshold ? 0 : $this->cargoPrice;
-    }
-
-    public function calculateDiscountRate(float $total, float $discount): float
-    {
-        if ($total <= 0) {
-            return 1.0;
-        }
-        
-        // İndirim oranını hesapla: (toplam - indirim) / toplam
-        return max(0.0, min(1.0, ($total - $discount) / $total));
     }
 }

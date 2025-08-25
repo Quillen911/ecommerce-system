@@ -9,6 +9,7 @@ use App\Services\Order\Contracts\OrderCreationInterface;
 use App\Repositories\Contracts\Order\OrderRepositoryInterface;
 use App\Repositories\Contracts\CreditCard\CreditCardRepositoryInterface;
 use App\Services\Campaigns\CampaignManager;
+use Illuminate\Support\Collection;
 
 class OrderCreationService implements OrderCreationInterface
 {
@@ -50,27 +51,20 @@ class OrderCreationService implements OrderCreationInterface
         ]);
     }
 
-    public function createOrderItems(Order $order, $products, float $discountRate, $eligible_products, $perProductDiscount): void
+    public function createOrderItems(Order $order, $products, $eligible_products, $perProductDiscount): void
     {
         foreach ($products as $product) {
             $paidPrice = $product->product->list_price * $product->quantity;
             $discountAmount = 0;
             
-
-            
             if($eligible_products && $this->isProductEligible($product, $eligible_products)){
-                if (is_array($perProductDiscount) || $perProductDiscount instanceof \Illuminate\Support\Collection) {
-                    $discountItems = is_array($perProductDiscount) ? $perProductDiscount : $perProductDiscount->toArray();
-                    foreach ($discountItems as $discountItem) {
-                        if (isset($discountItem['product']) && $discountItem['product']->id === $product->product_id) {
-                            $discountAmount = $discountItem['discount'];
-                            $paidPrice = round($product->product->list_price * $product->quantity - $discountAmount, 2);
-                            break;
-                        }
-                    }
-                } else {
-                    $paidPrice = round($product->product->list_price * $product->quantity * $discountRate, 2);
-                    $discountAmount = ($product->product->list_price * $product->quantity) - $paidPrice;
+                $discountItem = $perProductDiscount->first(function($item) use ($product) {
+                    return $item['product']->id === $product->product_id;
+                });
+                
+                if ($discountItem) {
+                    $discountAmount = $discountItem['discount'];
+                    $paidPrice = round($product->product->list_price * $product->quantity - $discountAmount, 2);
                 }
             }
             
@@ -119,16 +113,9 @@ class OrderCreationService implements OrderCreationInterface
             return false;
         }
         
-        // Eğer Collection ise (PercentageCampaign için)
-        if ($eligible_products instanceof \Illuminate\Support\Collection) {
-            return $eligible_products->contains($product);
-        }
-        
-        // Eğer Array ise (XBuyYPayCampaign için) - artık sadece product ID'leri
-        if (is_array($eligible_products)) {
-            return in_array($product->product_id, $eligible_products);
-        }
-        
-        return false;
+        // eligible_products içinde BagItem objeleri var, product_id'lerini kontrol et
+        return $eligible_products->contains(function($item) use ($product) {
+            return $item->product_id === $product->product_id;
+        });
     }
 }

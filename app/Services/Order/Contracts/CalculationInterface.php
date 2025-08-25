@@ -9,6 +9,4 @@ interface CalculationInterface
     public function calculateDiscount($products, $campaigns, $campaignManager): array;
     
     public function calculateCargoPrice(float $total): float;
-    
-    public function calculateDiscountRate(float $total, float $eligible_total): float;
 }
