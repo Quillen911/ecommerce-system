@@ -7,10 +7,10 @@ use App\Services\Search\ElasticsearchService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Jobs\IndexProductToElasticsearch;
 use App\Jobs\DeleteProductToElasticsearch;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Product extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
 
     protected $table = 'products';
 
