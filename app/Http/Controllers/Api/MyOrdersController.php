@@ -32,11 +32,7 @@ class MyOrdersController extends Controller
 
     public function index()
     {
-        $user = $this->authenticationRepository->getUser();
-        if(!$user){
-            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
-        }
-        $orders = $this->myOrderService->getOrdersforUser($user->id);
+        $orders = $this->myOrderService->getOrdersforUser();
         if($orders->isEmpty()){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
@@ -45,11 +41,7 @@ class MyOrdersController extends Controller
     
     public function show($id)
     {
-        $user = $this->authenticationRepository->getUser();
-        if(!$user){
-            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
-        }
-        $order = $this->myOrderService->getOneOrderforUser($user->id, $id);
+        $order = $this->myOrderService->getOneOrderforUser($id);
         if(!$order){
             return ResponseHelper::notFound('Sipariş bulunamadı.');
         }
@@ -58,12 +50,7 @@ class MyOrdersController extends Controller
 
     public function destroy($id, Request $request)
     {
-        $user = $this->authenticationRepository->getUser();
-        if(!$user){
-            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
-        }
-        
-        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, [], $this->campaignManager);
+        $result = $this->myOrderRefundService->refundSelectedItems($id, [], $this->campaignManager);
         if(!$result['success']){
             return ResponseHelper::notFound($result['error'] ?? 'Sipariş bulunamadı.');
         }
@@ -72,10 +59,6 @@ class MyOrdersController extends Controller
 
     public function refundItems($id, RefundRequest $request)
     {
-        $user = $this->authenticationRepository->getUser();
-        if(!$user){
-            return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
-        }
         $raw = (array) $request->input('refund_quantities', []);
 
         $quantities = [];
@@ -88,7 +71,7 @@ class MyOrdersController extends Controller
         if (empty($quantities)) {
             return ResponseHelper::error('İade edilecek ürün seçiniz.');
         }
-        $result = $this->myOrderRefundService->refundSelectedItems($user->id, $id, $quantities, $this->campaignManager);
+        $result = $this->myOrderRefundService->refundSelectedItems($id, $quantities, $this->campaignManager);
         if ($result['success'] ?? false) {
             return ResponseHelper::success('Seçilen ürünler için kısmi iade yapıldı.', $result);
         }

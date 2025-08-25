@@ -6,5 +6,5 @@ interface OrderServiceInterface
 {
     public function createOrder($user, $products, $campaignManager, $selectedCreditCard): array;
     
-    public function getOrder($userId, $orderId);
+    public function getOrder($user, $orderId);
 }

@@ -11,10 +11,10 @@ use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Models\CreditCard;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Models\Bag;
-
+use App\Traits\GetUser;
 class OrderController extends Controller
 {
-
+    use GetUser;
     protected $orderService;
     protected $bagService;
     protected $campaignManager;
@@ -29,9 +29,8 @@ class OrderController extends Controller
 
     public function order()
     {
-
-        $user = $this->authenticationRepository->getUser();
         $bag = $this->bagService->getBag();
+        $user = $this->getUser();
         $creditCards = CreditCard::where('user_id', $user->id)->get();
         
         return view('order', array_merge($bag, ['creditCards' => $creditCards]));
@@ -40,13 +39,9 @@ class OrderController extends Controller
     public function done(Request $request)
     {
         try {
-            $user = $this->authenticationRepository->getUser();
+            $user = $this->getUser();
             $bag = Bag::where('bag_user_id', $user->id)->first();
-            
-            if(!$bag){
-                return redirect('main')->with('error', 'Sepetiniz bulunamadı!');
-            }
-            
+
             $selectedCreditCard = $request->input('credit_card_id');
             if(!$selectedCreditCard){
                 return redirect('order')->with('error', 'Lütfen bir kredi kartı seçiniz!');

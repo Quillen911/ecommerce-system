@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers\Web;
 
-use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Services\MainService;
 use App\Services\Search\ElasticSearchProductService;
-use App\Repositories\Contracts\Product\ProductRepositoryInterface;
-use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
-use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 
 class MainController extends Controller
 {
@@ -21,34 +15,21 @@ class MainController extends Controller
     protected $elasticSearchTypeService;
     protected $mainService;
     protected $elasticSearchProductService;
-    protected $productRepository;
-    protected $categoryRepository;
-    protected $authenticationRepository;
     
     public function __construct(
         ElasticsearchService $elasticSearch, 
         ElasticSearchTypeService $elasticSearchTypeService, 
         MainService $mainService, 
         ElasticSearchProductService $elasticSearchProductService, 
-        ProductRepositoryInterface $productRepository, 
-        CategoryRepositoryInterface $categoryRepository,
-        AuthenticationRepositoryInterface $authenticationRepository
     ) {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
         $this->mainService = $mainService;
         $this->elasticSearchProductService = $elasticSearchProductService;
-        $this->productRepository = $productRepository;
-        $this->categoryRepository = $categoryRepository;
-        $this->authenticationRepository = $authenticationRepository;
     }
 
     public function main()
     {
-        $user = $this->authenticationRepository->getUser();
-        if(!$user){
-            return redirect()->route('login');
-        }
         $products = $this->mainService->getProducts();
         $categories = $this->mainService->getCategories();
 

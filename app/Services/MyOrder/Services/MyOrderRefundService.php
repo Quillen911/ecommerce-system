@@ -10,20 +10,22 @@ use App\Services\MyOrder\Contracts\MyOrderUpdateInterface;
 use App\Services\Campaigns\CampaignManager;
 use App\Services\Payments\IyzicoPaymentService;
 use Illuminate\Support\Facades\DB;
+use App\Traits\GetUser;
 
 class MyOrderRefundService implements MyOrderRefundInterface
 {
-
+    use GetUser;
     public function __construct(
         private IyzicoPaymentService $iyzicoService,
         private MyOrderCalculationInterface $MyOrderCalculationService,
         private MyOrderCheckInterface $MyOrderCheckService,
         private MyOrderUpdateInterface $MyOrderUpdateService,
-    ) {}
+    ) {
+    }
 
-    public function refundSelectedItems($userId, $orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager): array
+    public function refundSelectedItems($orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager): array
     {
-        $checkOrder = $this->MyOrderCheckService->checkOrder($userId, $orderId);
+        $checkOrder = $this->MyOrderCheckService->checkOrder($orderId);
         if(!$checkOrder['success']){
             return $checkOrder;
         }
