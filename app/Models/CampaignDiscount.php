@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class CampaignDiscount extends Model
 {
+    use HasFactory;
     protected $table = 'campaign_discounts';
 
     protected $fillable = [
