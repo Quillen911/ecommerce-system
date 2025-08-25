@@ -73,19 +73,38 @@ class FixedCampaign extends BaseCampaign
                 return $item->product->category?->category_title == $category;
             });
         }
-        $total_price = collect($eligible_products)->sum('quantity') * $eligible_products->first()->product->list_price;
+        $total_price = collect($eligible_products)->sum(function($item) {
+            return $item->product->list_price * $item->quantity;
+        });
+        
+        $perProductDiscount = $eligible_products->map(function($item) use ($discount_amount, $eligible_products) {
+            $discount_per_product = $discount_amount / $eligible_products->count();
+            return [
+                'product' => $item->product,
+                'quantity' => $item->quantity,
+                'discount' => $discount_per_product
+            ];
+        });
         if($total_price < $discount_amount){
             return [
                 'description' => $this->campaign->description,
                 'discount' => 0,
-                'campaign_id' => $this->campaign->id
+                'campaign_id' => $this->campaign->id,
+                'eligible_products' => $eligible_products,
+                'eligible_total' => $total_price,
+                'per_product_discount' => $perProductDiscount,
+                'store_id' => $this->campaign->store_id
             ];
         }
         if(collect($eligible_products)->sum('quantity') > 0) {
             return [
                 'description' => $this->campaign->description,
                 'discount' => $discount_amount,
-                'campaign_id' => $this->campaign->id
+                'campaign_id' => $this->campaign->id,
+                'eligible_products' => $eligible_products,
+                'eligible_total' => $total_price,
+                'per_product_discount' => $perProductDiscount,
+                'store_id' => $this->campaign->store_id
             ];
         }
 
@@ -93,6 +112,10 @@ class FixedCampaign extends BaseCampaign
             'description' => $this->campaign->description,
             'discount' => 0,
             'campaign_id' => $this->campaign->id,
+            'eligible_products' => $eligible_products,
+            'eligible_total' => $total_price,
+            'per_product_discount' =>[],
+            'store_id' => $this->campaign->store_id
         ];
     }
 }

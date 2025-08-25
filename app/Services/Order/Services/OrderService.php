@@ -47,8 +47,7 @@ class OrderService implements OrderServiceInterface
             $orderData = $this->calculateOrderData($products, $campaignManager);
 
             $order = $this->orderCreationService->createOrderRecord($user, $selectedCreditCard, $orderData);
-            
-            $this->orderCreationService->createOrderItems($order, $products, $orderData['discount_rate']);
+            $this->orderCreationService->createOrderItems($order, $products, $orderData['discount_rate'], $orderData['eligible_products'], $orderData['per_product_discount']);
             
             if ($orderData['campaign_id'] && $orderData['discount'] > 0) {
                 $this->orderCreationService->applyCampaign($orderData['campaign_id'], $campaignManager);
@@ -87,11 +86,15 @@ class OrderService implements OrderServiceInterface
     public function calculateOrderData($products, $campaignManager): array
     {
         $campaigns = Campaign::where('is_active', 1)->get();
+        $discountData = $this->calculationService->calculateDiscount($products, $campaigns, $campaignManager);
         $total = $this->calculationService->calculateTotal($products);
         $cargoPrice = $this->calculationService->calculateCargoPrice($total);
-        $discountData = $this->calculationService->calculateDiscount($products, $campaigns, $campaignManager);
+        $eligible_products = $discountData['eligible_products'] ?? [];
         $finalPrice = $total + $cargoPrice - $discountData['discount'];
-        $discountRate = $this->calculationService->calculateDiscountRate($total, $finalPrice);
+        $discountRate = $this->calculationService->calculateDiscountRate($total, $discountData['discount']);
+        
+        // Kampanya servisinden gelen per_product_discount'ı kullan
+        $perProductDiscount = $discountData['per_product_discount'] ?? [];
 
         return [
             'total' => $total,
@@ -100,7 +103,9 @@ class OrderService implements OrderServiceInterface
             'campaign_id' => $discountData['campaign_id'],
             'campaign_info' => $discountData['description'],
             'final_price' => $finalPrice,
-            'discount_rate' => $discountRate
+            'discount_rate' => $discountRate,
+            'eligible_products' => $eligible_products,
+            'per_product_discount' => $perProductDiscount
         ];
     }
 

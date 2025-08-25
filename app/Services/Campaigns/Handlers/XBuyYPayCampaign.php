@@ -60,6 +60,10 @@ class XBuyYPayCampaign extends BaseCampaign
         $x = $discount_value['x'] ?? 0;
         $y = $discount_value['y'] ?? 0;
         $eligible_products = $this->productEligible($products);
+
+        $eligible_total = collect($eligible_products)->sum(function($item) {
+            return $item->product->list_price * $item->quantity;
+        });
         
         $author = $this->getConditionValue('author');
         if($author){
@@ -103,18 +107,31 @@ class XBuyYPayCampaign extends BaseCampaign
             $total_discount = $free_products->sum(function($item) {
                 return $item['price'] * $item['quantity'];
             });
+            $perProductDiscount = $free_products->map(function($item) {
+                return [
+                    'product' => $item['product'],
+                    'quantity' => $item['quantity'],
+                    'discount' => $item['price'] * $item['quantity']
+                ];
+            });
 
             return [
+                'eligible_total' => $eligible_total,
                 'description' => $this->campaign->description,
                 'discount' => $total_discount,
-                'campaign_id' => $this->campaign->id
+                'per_product_discount' => $perProductDiscount,
+                'campaign_id' => $this->campaign->id,
+                'eligible_products' => $free_products->pluck('product.id')->toArray()
             ];
         }
 
         return [
             'description' => $this->campaign->description,
             'discount' => 0,
-            'campaign_id' => $this->campaign->id
+            'per_product_discount' => [],
+            'campaign_id' => $this->campaign->id,
+            'eligible_products' => [],
+            'eligible_total' => 0
         ];
     }
 }
