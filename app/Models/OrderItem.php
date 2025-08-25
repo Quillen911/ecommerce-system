@@ -25,6 +25,8 @@ class OrderItem extends Model
         'refunded_quantity',
         'list_price',
         'list_price_cents',
+        'discount_price',
+        'discount_price_cents',
         'paid_price',
         'paid_price_cents',
         'payment_transaction_id',
@@ -40,6 +42,8 @@ class OrderItem extends Model
     protected $casts = [
         'list_price' => 'float',
         'list_price_cents' => 'integer',
+        'discount_price' => 'float',
+        'discount_price_cents' => 'integer',
         'paid_price' => 'float',
         'paid_price_cents' => 'integer',
         'refunded_price' => 'float',

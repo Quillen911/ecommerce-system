@@ -106,7 +106,7 @@ class IyzicoPaymentService implements PaymentInterface
                 $basketItem->setName($item->product->title);
                 $basketItem->setCategory1($item->product->category?->category_title ?? 'Genel');
                 $basketItem->setItemType(BasketItemType::PHYSICAL);
-                $linePrice = round($item->product->list_price * $item->quantity, 4);
+                $linePrice = round((float)($item->paid_price), 4);
                 $basketItem->setPrice(number_format($linePrice, 4, '.', ''));
                 $basketItems[] = $basketItem;
 

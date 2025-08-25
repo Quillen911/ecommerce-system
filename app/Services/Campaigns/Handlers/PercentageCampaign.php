@@ -83,10 +83,22 @@ class PercentageCampaign extends BaseCampaign
         $eligible_total = $eligible_products->sum(function($item) {
             return $item->product->list_price * $item->quantity;
         });
-        
+        $discount = $eligible_total * $discount_rate;
+        $perProductDiscount = $eligible_products->map(function($item) use ($discount_rate) {
+            return [
+                'product' => $item->product,
+                'quantity' => $item->quantity,
+                'discount' => $item->product->list_price * $item->quantity * $discount_rate
+            ];
+        });
+        //dd($eligible_total, $discount_rate, $eligible_products, $eligible_total * $discount_rate);
+        //dd($perProductDiscount, $eligible_total*$discount_rate);
         return [
+            'eligible_products' => $eligible_products,
+            'eligible_total' => $eligible_total,
             'description' => $this->campaign->description,
             'discount' => $eligible_total * $discount_rate,
+            'per_product_discount' => $perProductDiscount,
             'campaign_id' => $this->campaign->id,
             'store_id' => $this->campaign->store_id
         ];

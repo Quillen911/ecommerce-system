@@ -42,34 +42,53 @@ class MyOrderRefundService implements MyOrderRefundInterface
     {
         $refundResults = [];
         
+        // İade edilebilir ürünleri filtrele
+        $refundableCalculations = array_filter($calculations, fn($calc) => $calc['canRefund']);
+        
+        if(empty($refundableCalculations)){
+            return array_map(fn($calc) => [
+                'success' => false,
+                'error' => 'İade edilebilir adet kalmamış'
+            ], $calculations);
+        }
+        
+        // İlk ürünün transaction ID'sini kullan (hepsi aynı olmalı)
+        $firstCalculation = reset($refundableCalculations);
+        $paymentTransactionId = $firstCalculation['item']->payment_transaction_id;
+        
+        // Toplam iade tutarını hesapla
+        $totalRefundAmount = array_sum(array_column($refundableCalculations, 'priceToRefund'));
+        
+        // Tek seferde iade yap
+        $refund = $this->iyzicoService->refundPayment($paymentTransactionId, $totalRefundAmount);
+        
+        if($refund['success']){
+            // Tüm ürünleri güncelle
+            DB::transaction(function() use ($refundableCalculations) {
+                foreach($refundableCalculations as $calculation){
+                    $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
+                    $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);
+                }
+            });
+        }
+        
+        // Sonuçları hazırla
         foreach($calculations as $calculation){
             if(!$calculation['canRefund']){
                 $refundResults[] = [
                     'success' => false,
                     'error' => 'İade edilebilir adet kalmamış'
                 ];
-                continue;
+            } else {
+                $refundResults[] = [
+                    'success' => $refund['success'],
+                    'error' => $refund['error'] ?? null,
+                    'refundedAmount' => $calculation['priceToRefund'],
+                    'refundedQuantity' => $calculation['itemsToRefund']
+                ];
             }
-
-            $refund = $this->iyzicoService->refundPayment(
-                $calculation['item']->payment_transaction_id, 
-                $calculation['priceToRefund'] 
-            );
-
-            if($refund['success']){
-                DB::transaction(function() use ($calculation) {
-                    $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
-                    $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);
-                });
-            }
-
-            $refundResults[] = [
-                'success' => $refund['success'],
-                'error' => $refund['error'] ?? null,
-                'refundedAmount' => $calculation['priceToRefund'],
-                'refundedQuantity' => $calculation['itemsToRefund']
-            ];
         }
+        
         return $refundResults;
     }
 }

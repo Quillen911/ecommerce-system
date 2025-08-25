@@ -10,5 +10,5 @@ interface CalculationInterface
     
     public function calculateCargoPrice(float $total): float;
     
-    public function calculateDiscountRate(float $total, float $finalPrice): float;
+    public function calculateDiscountRate(float $total, float $eligible_total): float;
 }

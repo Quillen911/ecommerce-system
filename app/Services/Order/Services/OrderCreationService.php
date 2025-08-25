@@ -50,11 +50,30 @@ class OrderCreationService implements OrderCreationInterface
         ]);
     }
 
-    public function createOrderItems(Order $order, $products, float $discountRate): void
+    public function createOrderItems(Order $order, $products, float $discountRate, $eligible_products, $perProductDiscount): void
     {
         foreach ($products as $product) {
-            $paidPrice = round($product->product->list_price * $product->quantity * $discountRate, 2);
+            $paidPrice = $product->product->list_price * $product->quantity;
+            $discountAmount = 0;
+            
 
+            
+            if($eligible_products && $this->isProductEligible($product, $eligible_products)){
+                if (is_array($perProductDiscount) || $perProductDiscount instanceof \Illuminate\Support\Collection) {
+                    $discountItems = is_array($perProductDiscount) ? $perProductDiscount : $perProductDiscount->toArray();
+                    foreach ($discountItems as $discountItem) {
+                        if (isset($discountItem['product']) && $discountItem['product']->id === $product->product_id) {
+                            $discountAmount = $discountItem['discount'];
+                            $paidPrice = round($product->product->list_price * $product->quantity - $discountAmount, 2);
+                            break;
+                        }
+                    }
+                } else {
+                    $paidPrice = round($product->product->list_price * $product->quantity * $discountRate, 2);
+                    $discountAmount = ($product->product->list_price * $product->quantity) - $paidPrice;
+                }
+            }
+            
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $product->product_id,
@@ -64,6 +83,8 @@ class OrderCreationService implements OrderCreationInterface
                 'refunded_quantity' => 0,
                 'list_price' => $product->product->list_price,
                 'list_price_cents' => (int)($product->product->list_price * 100),
+                'discount_price' => $discountAmount,
+                'discount_price_cents' => (int)($discountAmount * 100),
                 'paid_price' => $paidPrice,
                 'paid_price_cents' => (int)($paidPrice * 100),
                 'payment_transaction_id' => "",
@@ -92,4 +113,22 @@ class OrderCreationService implements OrderCreationInterface
         return $this->orderRepository->getUserOrderById($userId, $orderId);
     }
     
+    private function isProductEligible($product, $eligible_products): bool
+    {
+        if (empty($eligible_products)) {
+            return false;
+        }
+        
+        // Eğer Collection ise (PercentageCampaign için)
+        if ($eligible_products instanceof \Illuminate\Support\Collection) {
+            return $eligible_products->contains($product);
+        }
+        
+        // Eğer Array ise (XBuyYPayCampaign için) - artık sadece product ID'leri
+        if (is_array($eligible_products)) {
+            return in_array($product->product_id, $eligible_products);
+        }
+        
+        return false;
+    }
 }

@@ -34,15 +34,23 @@ class MyOrderCalculationService implements MyOrderCalculationInterface
         $refundedCents = $item->refunded_price_cents ?? 0;
         $remainingCents = max(0, $paidCents - $refundedCents);
         
-        $unitPaidCents = $item->quantity > 0 ? intdiv($paidCents, $item->quantity) : 0;
+        // Kampanya kapsamındaki ürünler için indirim tutarını da hesaba kat
+        $discountCents = $item->discount_price_cents ?? 0;
+        $totalDiscountCents = $discountCents * $item->quantity;
         
-        $maxItemsByPrice = $unitPaidCents > 0 ? intdiv($remainingCents, $unitPaidCents) : 0;
+        // İade edilecek tutar: ödenen tutar - daha önce iade edilen tutar
+        $refundableCents = $remainingCents;
+        
         $availableQuantity = $item->quantity - ($item->refunded_quantity ?? 0);
         
-        $itemsToRefund = min($requestedQuantity, $maxItemsByPrice, $availableQuantity);
+        $itemsToRefund = min($requestedQuantity, $availableQuantity);
+        
+        // Birim fiyatı hesapla: toplam ödenen / toplam adet
+        $unitPaidCents = $item->quantity > 0 ? round($paidCents / $item->quantity) : 0;
         $priceToRefundCents = $itemsToRefund * $unitPaidCents;
             
         $canRefund = $itemsToRefund > 0 && $priceToRefundCents > 0;
+    
         
         return [
             'itemsToRefund' => $itemsToRefund,
