@@ -6,6 +6,7 @@ use App\Services\Payments\IyzicoPaymentService;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use App\Services\Shipping\Contracts\ShippingServiceInterface;
 
 class SellerOrderService
 {
@@ -13,16 +14,19 @@ class SellerOrderService
     protected $orderItemRepository;
     protected $productRepository;
     protected $storeRepository;
+    protected $shippingService;
     public function __construct(
         IyzicoPaymentService $iyzicoService, 
         OrderItemRepositoryInterface $orderItemRepository,
         ProductRepositoryInterface $productRepository,
-        StoreRepositoryInterface $storeRepository
+        StoreRepositoryInterface $storeRepository,
+        ShippingServiceInterface $shippingService
     ) {
         $this->iyzicoService = $iyzicoService;
         $this->orderItemRepository = $orderItemRepository;
         $this->productRepository = $productRepository;
         $this->storeRepository = $storeRepository;
+        $this->shippingService = $shippingService;
     }
 
     public function getSellerOrders($sellerId)
@@ -56,13 +60,33 @@ class SellerOrderService
         if($orderItem->status === 'refunded'){
             throw new \Exception('Sipariş iade edildi');
         }
-        if($orderItem->status !== 'confirmed'){
-            throw new \Exception('Sipariş durumu uygun değil');
+        if ($orderItem->shippingItem) {
+            throw new \Exception('Bu ürün için zaten kargo oluşturulmuş.');
         }
-        
+
+        $order = $orderItem->order;
+        $user = $order->user;
+
+        $payload = [
+            'order_item_id' => $orderItem->id,
+            'username' => $user->username,
+            'phone' => $user->phone,
+            'email' => $user->email,
+            'address' => $user->address,
+            'city' => $user->city,
+            'district' => $user->district,
+            'product_title' => $orderItem->product_title,
+            'quantity' => $orderItem->quantity,
+        ];
+
+        $result = $this->shippingService->createShipment($payload);
+
+        if(!($result['success'])){
+            throw new \Exception('Kargo oluşturulamadı: '.($result['error'] ?? 'bilinmeyen hata'));
+        }
         $orderItem->status = 'shipped';
         $orderItem->save();
-
+        $this->createShippingItem($orderItem, $result);
         return $orderItem;
     }
 
@@ -119,4 +143,15 @@ class SellerOrderService
         $order->save();
     }
 
+    private function createShippingItem($orderItem, $result)
+    {
+        $orderItem->shippingItem()->create([
+            'order_item_id' => $orderItem->id,
+            'tracking_number' => $result['tracking_number'] ?? null,
+            'shipping_company' => $result['shipping_company'] ?? null,
+            'shipping_status' => $result['shipping_status'] ?? null,
+            'estimated_delivery_date' => $result['estimated_delivery_date'] ?? null,
+            'shipping_notes' => $result['shipping_notes'] ?? null,
+        ]);
+    }
 }

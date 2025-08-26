@@ -13,6 +13,8 @@ use App\Services\Order\Contracts\OrderServiceInterface;
 use App\Services\Order\Services\OrderService;
 use App\Services\Order\Contracts\OrderCreationInterface;
 use App\Services\Order\Services\OrderCreationService;
+use App\Services\Shipping\Contracts\ShippingServiceInterface;
+use App\Services\Shipping\Services\MNGService;
 
 class OrderServiceProvider extends ServiceProvider
 {
@@ -23,7 +25,7 @@ class OrderServiceProvider extends ServiceProvider
         $this->app->bind(CalculationInterface::class, CalculationService::class);
         $this->app->bind(PaymentInterface::class, PaymentService::class);
         $this->app->bind(InventoryInterface::class, InventoryService::class);
-        
+        $this->app->bind(ShippingServiceInterface::class, MNGService::class);
 
         $this->app->singleton(OrderService::class);
     }
