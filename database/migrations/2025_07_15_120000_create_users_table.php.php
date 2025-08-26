@@ -13,6 +13,11 @@ return new class extends Migration
             $table->string('username');
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('district')->nullable();
+            $table->string('postal_code')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
