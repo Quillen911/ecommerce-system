@@ -34,7 +34,17 @@ class Product extends Model
     ];
 
     public function getFirstImageAttribute() {
-        return '/storage/productsImages/' . $this->images[0];
+        if (!$this->images || !is_array($this->images) || empty($this->images)) {
+            return '/images/no-image.png';
+        }
+        
+        $firstImage = $this->images[0];
+        
+        if (is_object($firstImage) || is_array($firstImage) || empty($firstImage)) {
+            return '/images/no-image.png';
+        }
+        
+        return '/storage/productsImages/' . $firstImage;
     }
     public function category(){
         return $this->belongsTo(Category::class, 'category_id');

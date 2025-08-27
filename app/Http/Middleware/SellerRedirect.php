@@ -16,13 +16,10 @@ class SellerRedirect
     {
         $this->authenticationRepository = $authenticationRepository;
     }
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next): Response
+    
+    public function handle(Request $request, Closure $next)
     {
+        
         if (request()->is('seller/*') || request()->is('seller')) {
             if (!request()->is('seller/login')) {
                 if (!$this->authenticationRepository->isSellerLoggedIn()) {
@@ -30,6 +27,7 @@ class SellerRedirect
                 }
             }
         }
+        
         return $next($request);
     }
 }

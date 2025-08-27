@@ -149,7 +149,7 @@ class SellerOrderService
             'order_item_id' => $orderItem->id,
             'tracking_number' => $result['tracking_number'] ?? null,
             'shipping_company' => $result['shipping_company'] ?? null,
-            'shipping_status' => $result['shipping_status'] ?? null,
+            'shipping_status' => $result['shipping_status'] ?? 'pending',
             'estimated_delivery_date' => $result['estimated_delivery_date'] ?? null,
             'shipping_notes' => $result['shipping_notes'] ?? null,
         ]);

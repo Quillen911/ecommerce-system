@@ -61,6 +61,20 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         if(isset($productData['list_price'])){
             $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
         }
+        if(isset($productData['images']) && is_array($productData['images'])){
+            $images = [];
+            foreach($productData['images'] as $image){
+                if ($image instanceof \Illuminate\Http\UploadedFile) {
+                    $filename = time() . '_' . $image->getClientOriginalName();
+                    $image->storeAs('productsImages', $filename, 'public');
+                    $images[] = $filename;
+                } else {
+                    $images[] = $image;
+                }
+            }
+            $productData['images'] = $images;
+        }
+        
         return $this->model->where('store_id', $storeId)->find($id)->update($productData);
     }
 
@@ -86,7 +100,13 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
 
         if($product && $product->images && is_array($product->images)){
             foreach($product->images as $image){
-                Storage::disk('public')->delete('productsImages/' . $image);
+                if(is_array($image)){
+                    foreach($image as $img){
+                        Storage::disk('public')->delete('productsImages/' . $img);
+                    }
+                }else{
+                    Storage::disk('public')->delete('productsImages/' . $image);
+                }
             }
         }
         return $product->delete();

@@ -41,10 +41,10 @@ return [
     ],
 
     'mng' => [
-        'client_secret' => env('MNG_API_SECRET', '02bd71bd745a02437fc5d2fb011b62d3'),
-        'client_id' => env('MNG_CLIENT_ID', '82e7844b0d5f4797adfa36fc32585a3d'),
-        'endpoint' => env('MNG_API_BASE', 'https://testapi.mngkargo.com.tr/mngapi/api'),
-        'test_mode' => env('MNG_TEST_MODE', true)
+        'api_base' => env('MNG_TEST_API_BASE', 'https://testapi.mngkargo.com.tr/mngapi/api'),
+        'secret_key' => env('MNG_TEST_SECRET_KEY'),
+        'api_key' => env('MNG_TEST_API_KEY'),
+        'test_mode' => env('MNG_TEST_MODE', true), // Default olarak test modu aktif
     ],
 
     'slack' => [
