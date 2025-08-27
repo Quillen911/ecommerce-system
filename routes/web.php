@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\Seller\ProductController;
 use App\Http\Controllers\Web\Payments\CreditCardController;
 use App\Http\Controllers\Web\Seller\SellerController;
 use App\Http\Controllers\Web\Seller\SellerOrderController;
+use App\Http\Middleware\SellerRedirect;
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
 Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
@@ -54,10 +55,10 @@ Route::middleware(['auth:user_web'])->group(function(){
 
 
 //Seller
-Route::get('/seller/login',[AuthController::class, 'sellerLogin'])->name('seller.login');  
+Route::get('/seller/login',[AuthController::class, 'sellerLogin'])->name('seller.login'); 
 Route::post('/seller/postlogin', [AuthController::class,'sellerPostlogin'])->name('seller.postlogin');
 
-Route::middleware(['auth:seller_web'])->group(function(){
+Route::middleware(['auth:seller_web',])->middleware(SellerRedirect::class)->group(function(){
     
     Route::prefix('seller')->group(function(){
         Route::get('/',[SellerController::class, 'seller'])->name('seller');  
