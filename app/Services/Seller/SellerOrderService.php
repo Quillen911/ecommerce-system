@@ -7,6 +7,8 @@ use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 use App\Services\Shipping\Contracts\ShippingServiceInterface;
+use App\Jobs\ShippedOrderItemNotification;
+use App\Jobs\RefundOrderItemNotification;
 
 class SellerOrderService
 {
@@ -86,7 +88,11 @@ class SellerOrderService
         }
         $orderItem->status = 'shipped';
         $orderItem->save();
-        $this->createShippingItem($orderItem, $result);
+
+        $shippingItem = $this->createShippingItem($orderItem, $result);
+
+        ShippedOrderItemNotification::dispatch($orderItem, $user)->onQueue('notifications');
+
         return $orderItem;
     }
 
@@ -115,7 +121,9 @@ class SellerOrderService
             ]);
 
             $order = $orderItem->order;
+            $user = $order->user;
             $this->updateOrderStatusAfterRefund($order);
+            RefundOrderItemNotification::dispatch($orderItem, $user, $orderItem->quantity)->onQueue('notifications');
             return ['success' => true, 'message' => 'Sipariş başarıyla iade edildi', 'orderItem' => $orderItem];
         }
         throw new \Exception('Sipariş iade edilirken hata oluştu');
@@ -145,7 +153,7 @@ class SellerOrderService
 
     private function createShippingItem($orderItem, $result)
     {
-        $orderItem->shippingItem()->create([
+        $shippingItem = $orderItem->shippingItem()->create([
             'order_item_id' => $orderItem->id,
             'tracking_number' => $result['tracking_number'] ?? null,
             'shipping_company' => $result['shipping_company'] ?? null,
@@ -153,5 +161,6 @@ class SellerOrderService
             'estimated_delivery_date' => $result['estimated_delivery_date'] ?? null,
             'shipping_notes' => $result['shipping_notes'] ?? null,
         ]);
+        return $shippingItem;
     }
 }

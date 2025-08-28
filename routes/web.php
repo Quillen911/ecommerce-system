@@ -13,6 +13,8 @@ use App\Http\Controllers\Web\Payments\CreditCardController;
 use App\Http\Controllers\Web\Seller\SellerController;
 use App\Http\Controllers\Web\Seller\SellerOrderController;
 use App\Http\Middleware\SellerRedirect;
+use App\Http\Controllers\DevelopmentController;
+use App\Http\Middleware\DevelopmentOnly;
  
 Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
 Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
@@ -94,3 +96,7 @@ Route::middleware(['auth:seller_web',])->middleware(SellerRedirect::class)->grou
     });
 });
 
+Route::middleware(DevelopmentOnly::class)->prefix('dev')->name('development.')->group(function() {
+    Route::get('/fake-sms', [DevelopmentController::class, 'showFakeSms'])->name('fake-sms');
+    Route::delete('/fake-sms', [DevelopmentController::class, 'clearFakeSms'])->name('fake-sms.clear');
+});

@@ -69,7 +69,7 @@ return [
             'user' => env('RABBITMQ_USER', 'guest'),
             'password' => env('RABBITMQ_PASSWORD', 'guest'),
             'vhost' => env('RABBITMQ_VHOST', '/'),
-            'queue' => env('RABBITMQ_QUEUE', 'default'),
+            'queue' => env('RABBITMQ_QUEUE', 'fast'),
             'options' => [
                 'exchange' => [
                     'name' => env('RABBITMQ_EXCHANGE_NAME', 'application-x'),

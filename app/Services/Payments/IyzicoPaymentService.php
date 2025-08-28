@@ -116,8 +116,8 @@ class IyzicoPaymentService implements PaymentInterface
 
             $request->setBasketItems($basketItems);
             $request->setPrice(number_format($totalBasketPrice, 4, '.', ''));
-            $request->setPaidPrice(number_format($amount, 4, '.', ''));
-
+            $request->setPaidPrice(number_format(floor($amount * 100) / 100, 2, '.', ''));
+            
             $payment = Payment::create($request, $this->options);
 
             if ($payment->getStatus() === 'success') {

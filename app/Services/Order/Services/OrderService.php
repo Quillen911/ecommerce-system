@@ -10,9 +10,12 @@ use App\Services\Order\Contracts\PaymentInterface;
 use App\Services\Order\Contracts\InventoryInterface;
 use App\Exceptions\OrderCreationException;
 use App\Models\Campaign;
+use App\Notifications\OrderCreated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\GetUser;
+use App\Jobs\SendOrderNotification;
+
 class OrderService implements OrderServiceInterface
 {
     use GetUser;
@@ -45,21 +48,23 @@ class OrderService implements OrderServiceInterface
             $this->inventoryService->checkStock($products);
             
             $orderData = $this->calculateOrderData($products, $campaignManager);
-
+            
             $order = $this->orderCreationService->createOrderRecord($user, $selectedCreditCard, $orderData);
             $this->orderCreationService->createOrderItems($order, $products, $orderData['eligible_products'], $orderData['per_product_discount']);
             
             if ($orderData['campaign_id'] && $orderData['discount'] > 0) {
                 $this->orderCreationService->applyCampaign($orderData['campaign_id'], $campaignManager);
             }
-            
+
             $paymentResult = $this->processPayment($order, $selectedCreditCard, $orderData['final_price']);
             
             
             if ($paymentResult['success']) {
                 $this->inventoryService->updateInventory($products);
-                DB::commit();
                 
+                DB::commit();
+
+                SendOrderNotification::dispatch($order, $user)->onQueue('notifications');
                 return [
                     'success' => true,
                     'order_id' => $order->id,
