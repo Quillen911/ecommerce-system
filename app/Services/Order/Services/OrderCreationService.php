@@ -113,9 +113,19 @@ class OrderCreationService implements OrderCreationInterface
             return false;
         }
         
-        // eligible_products içinde BagItem objeleri var, product_id'lerini kontrol et
+        // eligible_products integer ID'ler veya objeler içerebilir
         return $eligible_products->contains(function($item) use ($product) {
-            return $item->product_id === $product->product_id;
+            // Eğer item bir integer ise (product ID)
+            if (is_int($item) || is_string($item)) {
+                return $item == $product->product_id;
+            }
+            
+            // Eğer item bir obje ise (BagItem)
+            if (is_object($item) && isset($item->product_id)) {
+                return $item->product_id === $product->product_id;
+            }
+            
+            return false;
         });
     }
 }

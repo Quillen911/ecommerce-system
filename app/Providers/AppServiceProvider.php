@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Services\SmsService;
+use App\Channels\SmsChannel;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -73,8 +75,15 @@ class AppServiceProvider extends ServiceProvider
 
         // Campaign Registry
         $this->app->register(CampaignServiceProvider::class);
-        
 
+        $this->app->singleton(SmsService::class);
+    
+        // SMS channel'ı kaydet
+        $this->app->make('Illuminate\Notifications\ChannelManager')
+            ->extend('sms', function ($app) {
+                return new SmsChannel($app->make(SmsService::class));
+            });
+            
     }
 
     /**

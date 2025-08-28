@@ -54,7 +54,7 @@ services:
     depends_on:
       - postgres
       - redis
-    command: php artisan queue:work --tries=3 --sleep=3 --timeout=60
+    command: php artisan queue:work --tries=3 --sleep=3 --timeout=30 --max-jobs=100
     networks:
       - order-api-network
 

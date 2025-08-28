@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             'postal_code' => '10001',
         ]);
         User::firstOrCreate([
-            'email' => 'hecksoft00@gmail.com',
+            'email' => 'danisismail001@gmail.com',
         ], [
             'username' => 'İsmaill',
             'password' => Hash::make('ismail'),

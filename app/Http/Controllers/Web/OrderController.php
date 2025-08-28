@@ -53,10 +53,9 @@ class OrderController extends Controller
             }
             
             $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard);
-            
             if($result['success']){
                 $bag->bagItems()->delete();
-                Cache::flush();
+                Cache::tags(['bag', 'products'])->flush();
                 return redirect('main')->with('success', 'Siparişiniz başarıyla oluşturuldu!');
             } else {
                 return redirect('order')->with('error', $result['error']);

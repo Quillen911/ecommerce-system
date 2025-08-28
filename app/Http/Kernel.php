@@ -27,6 +27,14 @@ class Kernel extends HttpKernel
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
+
+        'dev' => [
+            \App\Http\Middleware\DevelopmentOnly::class,
+        ],
+    ];
+
+    protected $routeMiddleware = [
+        'DevelopmentOnly' => \App\Http\Middleware\DevelopmentOnly::class,
     ];
 
     protected $commands = [

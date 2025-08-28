@@ -11,6 +11,7 @@ use App\Services\Campaigns\CampaignManager;
 use App\Services\Payments\IyzicoPaymentService;
 use Illuminate\Support\Facades\DB;
 use App\Traits\GetUser;
+use App\Jobs\RefundOrderItemNotification;
 
 class MyOrderRefundService implements MyOrderRefundInterface
 {
@@ -63,6 +64,8 @@ class MyOrderRefundService implements MyOrderRefundInterface
                     $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
                     $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);
                 });
+                DB::commit();
+                RefundOrderItemNotification::dispatch($calculation['item'], $calculation['item']->order->user, $calculation['itemsToRefund'])->onQueue('notifications');
             }
 
             $refundResults[] = [

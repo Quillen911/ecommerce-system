@@ -64,6 +64,6 @@ class OrderItem extends Model
     }
     public function shippingItem()
     {
-        return $this->hasOne(ShippingItems::class);
+        return $this->hasOne(ShippingItems::class, 'order_item_id');
     }
 }

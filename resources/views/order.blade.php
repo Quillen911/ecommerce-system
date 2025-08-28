@@ -7,113 +7,178 @@
     <title>Siparişini Tamamla</title>
     <style>
         :root{
-            --bg:#1B1B1F; --text:#EDEDED; --muted:#A0A0A0; --line:#333338;
-            --accent:#404046; --success:#00C6AE; --warn:#ed8936; --danger:#FF6B6B;
-            --card:#232327; --shadow:rgba(0,0,0,0.3); --hover:rgba(0,198,174,0.1);
-            --primary:#00C6AE; --secondary:#14F1D9; --gray-50:#2A2A2F; --gray-100:#333338;
-            --hover-accent:#505056; --price-color:#4A90E2;
+            --bg:#0a0a0b; --surface:#111113; --card:#1a1a1d; --elevated:#202023;
+            --text:#ffffff; --text-secondary:#a1a1aa; --text-muted:#71717a;
+            --border:#27272a; --border-light:#3f3f46; --accent:#6366f1; --accent-hover:#5855eb;
+            --success:#10b981; --success-light:#d1fae5; --warn:#f59e0b; --danger:#ef4444;
+            --gradient-primary:linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-success:linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --shadow-sm:0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow:0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg:0 10px 15px -3px rgba(0, 0, 0, 0.1); --shadow-xl:0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius:8px; --radius-lg:12px; --radius-xl:16px;
         }
         *{box-sizing:border-box}
-        html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-size:14px}
-        body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;letter-spacing:-0.025em;line-height:1.6;-webkit-font-smoothing:antialiased}
-        .shell{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-size:15px}
+        body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+             letter-spacing:-0.01em;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+        .shell{max-width:1400px;margin:0 auto;padding:32px 24px 100px}
         
         /* Header */
-        .page-header{background:var(--card);border-bottom:1px solid var(--line);padding:20px 0;margin:-24px -20px 24px;box-shadow:0 4px 20px var(--shadow)}
-        .header-content{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
-        h1{font-size:24px;font-weight:600;letter-spacing:-0.01em;margin:0;color:var(--text)}
-        .header-subtitle{font-size:14px;color:var(--muted);font-weight:500}
+        .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:24px 0;margin:-32px -24px 40px;
+                     backdrop-filter:blur(8px);position:sticky;top:0;z-index:50}
+        .header-content{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+        h1{font-size:28px;font-weight:700;letter-spacing:-0.02em;margin:0;color:var(--text);
+           background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .header-subtitle{font-size:15px;color:var(--text-secondary);font-weight:500;margin-top:4px}
         
-        /* Toolbar */
-        .toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 20px;background:var(--card);padding:16px 20px;border-radius:8px;box-shadow:0 1px 3px var(--shadow);border:1px solid var(--line)}
-        .nav-section{display:flex;gap:6px;align-items:center}
+        /* Navigation */
+        .nav-toolbar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+                     padding:20px 24px;margin-bottom:32px;box-shadow:var(--shadow-sm)}
+        .nav-section{display:flex;gap:12px;align-items:center}
         
         /* Cards */
-        .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;box-shadow:0 1px 3px var(--shadow)}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+              padding:24px;box-shadow:var(--shadow);transition:all 0.2s ease}
+        .card:hover{border-color:var(--border-light);box-shadow:var(--shadow-lg)}
+        .card-header{margin-bottom:20px}
+        .card-title{font-size:18px;font-weight:600;color:var(--text);margin:0 0 4px 0}
+        .card-subtitle{font-size:14px;color:var(--text-muted);margin:0}
         
         /* Buttons */
-        .btn{border:1px solid var(--accent);background:var(--accent);color:#EDEDED;padding:10px 16px;border-radius:8px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;font-size:12px;font-weight:600;transition:all .2s ease;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-        .btn:hover{background:var(--hover-accent);border-color:var(--hover-accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(64,64,70,0.4)}
-        .btn.outline{background:transparent;color:var(--accent);border-color:var(--accent)}
-        .btn.outline:hover{background:var(--accent);color:#EDEDED}
-        .btn.success{background:var(--success);border-color:var(--success)}
-        .btn.success:hover{background:#00B894;box-shadow:0 4px 12px rgba(0,198,174,0.4)}
+        .btn{background:var(--accent);color:white;border:none;padding:12px 20px;border-radius:var(--radius);
+             cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s ease;text-decoration:none;
+             display:inline-flex;align-items:center;gap:8px;letter-spacing:-0.01em}
+        .btn:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+        .btn.outline{background:transparent;color:var(--accent);border:1px solid var(--border-light)}
+        .btn.outline:hover{background:var(--accent);color:white;border-color:var(--accent)}
+        .btn.success{background:var(--success)}
+        .btn.success:hover{background:#059669;box-shadow:0 4px 12px rgba(16,185,129,0.3)}
+        .btn.ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border)}
+        .btn.ghost:hover{background:var(--elevated);color:var(--text)}
         
         /* Table */
-        .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--gray-50)}
-        table{width:100%;border-collapse:collapse;min-width:720px}
-        thead th{
-            font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:1.4px;
-            background:var(--card);border-bottom:1px solid var(--line);padding:16px 12px;text-align:left
-        }
-        tbody td{padding:16px 12px;border-bottom:1px solid var(--line);font-size:14px;color:var(--text)}
-        tbody tr:hover{background:var(--gray-50)}
+        .table-container{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+                         overflow:hidden;box-shadow:var(--shadow);margin-bottom:32px}
+        .table-wrap{overflow:auto}
+        table{width:100%;border-collapse:collapse;min-width:800px}
+        thead th{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;
+                 background:var(--elevated);border-bottom:1px solid var(--border);padding:16px 20px;text-align:left}
+        tbody td{padding:20px;border-bottom:1px solid var(--border);font-size:15px;color:var(--text)}
+        tbody tr:hover{background:var(--elevated)}
         tbody tr:last-child td{border-bottom:none}
+        .product-cell{display:flex;align-items:center;gap:12px;font-weight:500}
         
         /* Campaign */
-        .campaign{background:linear-gradient(135deg, rgba(0,198,174,0.1) 0%, rgba(20,241,217,0.05) 100%);border:1px solid var(--success);border-radius:12px;padding:20px;margin:20px 0;box-shadow:0 4px 12px rgba(0,198,174,0.1)}
-        .campaign-title{font-size:16px;font-weight:600;color:var(--success);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-        .campaign-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-        .campaign-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,198,174,0.2)}
-        .campaign-item:last-child{border-bottom:none}
-        .campaign-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
-        .campaign-value{font-weight:600;color:var(--text)}
-        #countdown{color:var(--warn);font-weight:600}
+        .campaign{background:linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.05) 100%);
+                  border:1px solid var(--success);border-radius:var(--radius-xl);padding:28px;margin:32px 0;
+                  box-shadow:0 8px 25px rgba(16,185,129,0.1);position:relative;overflow:hidden}
+        .campaign::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+                          background:var(--gradient-success)}
+        .campaign-title{font-size:18px;font-weight:700;color:var(--success);margin-bottom:20px;
+                        display:flex;align-items:center;gap:10px}
+        .campaign-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+        .campaign-item{background:rgba(16,185,129,0.05);border-radius:var(--radius);padding:16px;
+                       border:1px solid rgba(16,185,129,0.1)}
+        .campaign-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;
+                        letter-spacing:0.5px;margin-bottom:4px}
+        .campaign-value{font-weight:600;color:var(--text);font-size:15px}
+        #countdown{color:var(--warn);font-weight:700;font-size:16px}
         
         /* Summary */
-        .summary{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-top:24px;box-shadow:0 4px 12px var(--shadow)}
-        .summary-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:16px;text-align:center}
-        .summary-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
-        .summary-row:last-child{border-bottom:none;font-weight:700;font-size:18px;color:var(--success)}
+        .summary{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);
+                 padding:32px;margin:32px 0;box-shadow:var(--shadow-lg);position:relative}
+        .summary::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+                         background:var(--gradient-primary)}
+        .summary-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:24px;text-align:center}
+        .summary-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;
+                     border-bottom:1px solid var(--border);font-size:15px}
+        .summary-row:last-child{border-bottom:none;font-weight:700;font-size:20px;color:var(--success);
+                                background:var(--elevated);margin:16px -32px -32px;padding:24px 32px;
+                                border-radius:0 0 var(--radius-xl) var(--radius-xl)}
         
         /* Credit Cards */
-        .cards{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px}
-        @media (max-width:860px){.cards{grid-template-columns:1fr}}
-        .credit-card-item{
-            background:var(--card);border:1px solid var(--line);padding:16px;border-radius:12px;display:flex;gap:12px;align-items:center;
-            transition:all .2s ease;cursor:pointer
-        }
-        .credit-card-item:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 4px 12px rgba(64,64,70,0.2)}
-        .credit-card-item input[type="radio"]{margin:0}
-        .credit-card-item label{cursor:pointer;flex:1}
-        .muted{color:var(--muted);font-size:12px}
+        .payment-section{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px}
+        @media (max-width:1024px){.payment-section{grid-template-columns:1fr;gap:24px}}
+        
+        .payment-methods{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);
+                         padding:28px;box-shadow:var(--shadow);position:relative}
+        .payment-methods::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+                                 background:var(--gradient-primary)}
+        .section-title{font-size:18px;font-weight:700;color:var(--text);margin:0 0 24px 0}
+        
+        .credit-card-item{background:var(--elevated);border:1px solid var(--border);padding:20px;
+                          border-radius:var(--radius-lg);display:flex;gap:16px;align-items:center;
+                          transition:all 0.2s ease;cursor:pointer;margin-bottom:16px;position:relative}
+        .credit-card-item:hover{border-color:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+        .credit-card-item:last-child{margin-bottom:0}
+        .credit-card-item.selected{border-color:var(--accent);background:rgba(99,102,241,0.05)}
+        .credit-card-item input[type="radio"]{margin:0;accent-color:var(--accent)}
+        .credit-card-item label{cursor:pointer;flex:1;font-weight:500}
+        .card-info{color:var(--text-secondary);font-size:13px;margin-top:4px}
+        .muted{color:var(--text-muted);font-size:13px}
         
         /* Form */
-        .new-card form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .new-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);
+                  padding:28px;box-shadow:var(--shadow);position:relative}
+        .new-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+                          background:var(--gradient-success)}
+        .new-card form{display:grid;grid-template-columns:1fr 1fr;gap:20px}
         .new-card .full{grid-column:1 / -1}
-        .field{display:flex;flex-direction:column;gap:6px}
-        .field label{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
-        .field input,.field select{
-            padding:12px;border:1px solid var(--line);border-radius:8px;outline:none;background:var(--bg);color:var(--text);-webkit-appearance:none;-moz-appearance:none;appearance:none
-        }
-        .field select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23EDEDED' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 8px center;background-repeat:no-repeat;background-size:16px}
-        .field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(64,64,70,0.1)}
-        .field input:hover,.field select:hover{border-color:var(--accent)}
+        .field{display:flex;flex-direction:column;gap:8px}
+        .field label{font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:4px}
+        .field input,.field select{padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);
+                                   outline:none;background:var(--elevated);color:var(--text);font-size:14px;
+                                   transition:all 0.2s ease;-webkit-appearance:none;-moz-appearance:none;appearance:none}
+        .field select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                      background-position:right 12px center;background-repeat:no-repeat;background-size:16px}
+        .field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.1)}
+        .field input:hover,.field select:hover{border-color:var(--border-light)}
         
         /* Actions */
-        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
-        .toggle-btn{margin-top:12px;display:inline-block;cursor:pointer;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent)}
-        .toggle-btn:hover{text-decoration:underline}
+        .actions{display:flex;gap:16px;flex-wrap:wrap;margin-top:24px}
+        .toggle-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;
+                    background:transparent;border:1px solid var(--border);border-radius:var(--radius);
+                    color:var(--accent);cursor:pointer;font-size:14px;font-weight:500;
+                    transition:all 0.2s ease;text-decoration:none}
+        .toggle-btn:hover{background:var(--elevated);border-color:var(--accent)}
         .hidden{display:none}
         
         /* Notices */
-        .notice{padding:12px 16px;border:1px solid var(--line);margin:0 0 20px;border-radius:8px;display:flex;align-items:center;gap:8px}
-        .notice.success{color:var(--success);background:rgba(0,198,174,0.1);border-color:var(--success)}
-        .notice.error{color:var(--danger);background:rgba(255,107,107,0.1);border-color:var(--danger)}
+        .notice{padding:16px 20px;border:1px solid var(--border);margin:0 0 24px;border-radius:var(--radius-lg);
+                display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500}
+        .notice.success{color:var(--success);background:rgba(16,185,129,0.1);border-color:var(--success)}
+        .notice.error{color:var(--danger);background:rgba(239,68,68,0.1);border-color:var(--danger)}
         
         /* Empty State */
-        .empty-state{text-align:center;padding:64px 32px;background:var(--card);border-radius:20px;border:2px dashed var(--line);margin:32px 0}
-        .empty-state svg{margin-bottom:16px;opacity:0.5}
-        .empty-state h3{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
-        .empty-state p{color:var(--muted);margin-bottom:0}
+        .empty-state{text-align:center;padding:80px 40px;background:var(--card);border-radius:var(--radius-xl);
+                     border:2px dashed var(--border);margin:40px 0;box-shadow:var(--shadow)}
+        .empty-state svg{margin-bottom:20px;opacity:0.4}
+        .empty-state h3{font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px}
+        .empty-state p{color:var(--text-muted);margin-bottom:0;font-size:15px}
+        
+        /* Checkout Button */
+        .checkout-section{margin-top:40px;text-align:center}
+        .checkout-btn{background:var(--gradient-primary);color:white;border:none;padding:16px 32px;
+                      border-radius:var(--radius-lg);font-size:16px;font-weight:600;cursor:pointer;
+                      transition:all 0.2s ease;box-shadow:var(--shadow-lg);width:100%;max-width:500px}
+        .checkout-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-xl)}
         
         /* Responsive */
         @media (max-width:768px){
-            .shell{padding:24px 16px 60px}
-            .page-header{margin:-24px -16px 24px;padding:32px 0}
-            .toolbar{padding:16px 20px;flex-direction:column;align-items:stretch}
+            .shell{padding:24px 16px 80px}
+            .page-header{margin:-24px -16px 32px;padding:24px 0}
+            .header-content{padding:0 16px}
+            h1{font-size:24px}
+            .nav-toolbar{padding:16px 20px;margin-bottom:24px}
             .nav-section{justify-content:center}
             .campaign-info{grid-template-columns:1fr}
+            .payment-section{grid-template-columns:1fr;gap:20px}
+            .new-card form{grid-template-columns:1fr;gap:16px}
+            .summary{padding:24px;margin:24px 0}
+            .summary-row:last-child{margin:12px -24px -24px;padding:20px 24px}
+            .table-container{margin-bottom:24px}
+            thead th{padding:12px 16px;font-size:11px}
+            tbody td{padding:16px;font-size:14px}
         }
     </style>
 </head>
@@ -128,10 +193,10 @@
 </div>
 
 <div class="shell">
-    <div class="toolbar">
+    <div class="nav-toolbar">
         <div class="nav-section">
-            <a href="/bag" class="btn outline">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="/bag" class="btn ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
                 </svg>
                 Sepete Dön
@@ -173,27 +238,40 @@
         </div>
     @else
     
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ürün Adı</th> <th>Mağaza</th> <th>Kategori Adı</th><th>Yazar</th><th>Ürün Sayısı</th><th>Fiyat</th><th>Toplam Fiyat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($products as $p)
+        <div class="table-container">
+            <div class="table-wrap">
+                <table>
+                    <thead>
                         <tr>
-                            <td>{{$p->product?->title ?? 'Ürün bilgisi yok'}}</td>
-                            <td>{{$p->product?->store?->name ?? 'Mağaza bilgisi yok'}}</td>
-                            <td>{{$p->product->category?->category_title}}</td>
-                            <td>{{$p->product?->author ?? 'Yazar bilgisi yok'}}</td>
-                            <td>{{$p->quantity}}</td>
-                            <td>{{ number_format($p->product?->list_price ?? 0,2) }} TL</td>
-                            <td>{{ number_format(($p->product?->list_price ?? 0) * $p->quantity,2) }} TL</td>
+                            <th>Ürün Bilgileri</th>
+                            <th>Mağaza</th>
+                            <th>Kategori</th>
+                            <th>Yazar</th>
+                            <th>Miktar</th>
+                            <th>Birim Fiyat</th>
+                            <th>Toplam</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($products as $p)
+                            <tr>
+                                <td class="product-cell">
+                                    <div>
+                                        <div style="font-weight:600;margin-bottom:2px;">{{$p->product?->title ?? 'Ürün bilgisi yok'}}</div>
+                                        <div style="color:var(--text-muted);font-size:13px;">ID: {{$p->product?->id ?? 'N/A'}}</div>
+                                    </div>
+                                </td>
+                                <td>{{$p->product?->store?->name ?? 'Mağaza bilgisi yok'}}</td>
+                                <td>{{$p->product->category?->category_title ?? 'Kategori yok'}}</td>
+                                <td>{{$p->product?->author ?? 'Yazar bilgisi yok'}}</td>
+                                <td><span style="background:var(--elevated);padding:4px 8px;border-radius:4px;font-weight:500;">{{$p->quantity}} adet</span></td>
+                                <td style="font-weight:600;">{{ number_format($p->product?->list_price ?? 0,2) }} TL</td>
+                                <td style="font-weight:700;color:var(--success);">{{ number_format(($p->product?->list_price ?? 0) * $p->quantity,2) }} TL</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         @if(isset($bestCampaign['discount']) && $bestCampaign['discount'])
@@ -277,35 +355,47 @@
             @endif
             <div class="summary-row">
                 <span>Genel Toplam</span>
-                <span>{{ number_format($finalPrice,2) }} TL</span>
+                <span>{{ number_format(floor($finalPrice * 100) / 100,2) }} TL</span>
             </div>
         </div>
     @endif
 
-    <div class="cards">
-        <div>
-            <h3>Kredi Kartı Seçin</h3>
+    <div class="payment-section">
+        <div class="payment-methods">
+            <h3 class="section-title">Ödeme Yöntemi</h3>
             @if($creditCards->count() > 0)
                 @foreach($creditCards as $card)
                     <div class="credit-card-item">
                         <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}" autocomplete="off">
                         <label for="card_{{ $card->id }}">
-                            <strong>{{ $card->name }}</strong><br>
-                            <span class="muted">**** **** **** {{ substr($card->card_number, -4) }}</span><br>
-                            <span class="muted">{{ $card->card_holder_name }}</span><br>
-                            <span class="muted">{{ $card->expire_month }}/{{ $card->expire_year }}</span>
+                            <div>
+                                <div style="font-weight:600;margin-bottom:4px;">{{ $card->name }}</div>
+                                <div class="card-info">**** **** **** {{ substr($card->card_number, -4) }}</div>
+                                <div class="card-info">{{ $card->card_holder_name }}</div>
+                                <div class="card-info">{{ $card->expire_month }}/{{ $card->expire_year }}</div>
+                            </div>
                         </label>
                     </div>
                 @endforeach
             @else
-                <p class="muted">Henüz kayıtlı kredi kartınız yok.</p>
+                <div style="padding:20px;text-align:center;color:var(--text-muted);background:var(--elevated);border-radius:var(--radius);border:1px solid var(--border);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;opacity:0.5;">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    <p>Henüz kayıtlı kredi kartınız yok.</p>
+                </div>
             @endif
 
-            <div class="toggle-btn" id="toggleCardForm">+ Yeni Kart Ekle</div>
+            <div class="toggle-btn" id="toggleCardForm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Yeni Kart Ekle
+            </div>
         </div>
 
         <div class="new-card hidden" id="cardForm">
-            <h4>Yeni Kart Ekle</h4>
+            <h3 class="section-title">Yeni Kart Ekle</h3>
             <form action="{{ route('payments.storeCreditCard') }}" method="POST" autocomplete="off">
                 @csrf
                 <div class="field"><label for="card_name">Kart Adı</label><input type="text" id="card_name" name="name" autocomplete="off" required></div>
@@ -333,26 +423,50 @@
                 <div class="field full"><label for="card_holder_name">Kart Sahibi</label><input type="text" id="card_holder_name" name="card_holder_name" autocomplete="off" required></div>
                 <div class="field full"><label for="is_active"><input type="checkbox" id="is_active" name="is_active" value="1" checked autocomplete="off"> Kaydet</label></div>
                 <div class="actions">
-                    <button type="submit" class="btn" >Kaydet</button>
+                    <button type="submit" class="btn success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+                        </svg>
+                        Kartı Kaydet
+                    </button>
                     <button type="button" class="btn outline" id="cancelCardForm">İptal</button>
                 </div>
             </form>
         </div>
     </div>
+    
     @if($creditCards->count() > 0)
-        <form action="{{route('done')}}" method="POST" style="margin-top:26px;">
-            @csrf
-            <input type="hidden" name="credit_card_id" id="credit_card_id">
-            <button type="submit" class="btn" style="width:100%;max-width:420px;" onclick="return validateCardSelection()">Siparişi Tamamla</button>
-        </form>
+        <div class="checkout-section">
+            <form action="{{route('done')}}" method="POST">
+                @csrf
+                <input type="hidden" name="credit_card_id" id="credit_card_id">
+                <button type="submit" class="checkout-btn" onclick="return validateCardSelection()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Siparişi Tamamla
+                </button>
+            </form>
+        </div>
     @else
-        <div class="notice error">Lütfen bir kredi kartı seçiniz veya yeni bir kart ekleyiniz.</div>
+        <div class="notice error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            Lütfen bir kredi kartı seçiniz veya yeni bir kart ekleyiniz.
+        </div>
     @endif
 </div>
 
 <script>
+    // Card selection handling with visual feedback
     document.querySelectorAll('input[name="credit_card_id"]').forEach(radio=>{
-        radio.addEventListener('change',()=>document.getElementById('credit_card_id').value=radio.value);
+        radio.addEventListener('change',()=>{
+            document.getElementById('credit_card_id').value=radio.value;
+            // Update visual selection
+            document.querySelectorAll('.credit-card-item').forEach(item => item.classList.remove('selected'));
+            radio.closest('.credit-card-item').classList.add('selected');
+        });
     });
     const toggleBtn = document.getElementById('toggleCardForm');
     const cardForm = document.getElementById('cardForm');

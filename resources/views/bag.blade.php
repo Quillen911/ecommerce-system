@@ -288,7 +288,7 @@
             @endif
             <div class="summary-row">
                 <span>Genel Toplam</span>
-                <span>{{ number_format($finalPrice,2) }} TL</span>
+                <span>{{ number_format(floor($finalPrice * 100) / 100,2) }} TL</span>
             </div>
         </div>
     @endif
