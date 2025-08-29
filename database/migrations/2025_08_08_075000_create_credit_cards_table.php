@@ -13,13 +13,14 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('name');
-            $table->string('card_number');
-            $table->string('cvv');
+            $table->string('last_four_digits', 4);              
             $table->string('expire_year');
             $table->string('expire_month');
             $table->string('card_type');
             $table->string('card_holder_name');
             $table->boolean('is_active')->default(true);
+            $table->text('iyzico_card_token')->nullable();       
+            $table->text('iyzico_card_user_key')->nullable();    
             $table->timestamps();
             $table->softDeletes();
             

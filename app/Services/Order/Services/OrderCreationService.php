@@ -22,15 +22,15 @@ class OrderCreationService implements OrderCreationInterface
         $this->orderRepository = $orderRepository;
     }
 
-    public function createOrderRecord(User $user, int $selectedCreditCard, array $orderData): Order
+    public function createOrderRecord(User $user, ?int $selectedCreditCard, array $orderData): Order
     {
-        $creditCard = $this->creditCardRepository->getCreditCardById($selectedCreditCard);
+        $creditCard = $selectedCreditCard ? $this->creditCardRepository->getCreditCardById($selectedCreditCard) : null;
 
         return Order::create([
             'bag_user_id' => $user->id,
             'user_id' => $user->id,
             'credit_card_id' => $selectedCreditCard,
-            'card_holder_name' => $creditCard->card_holder_name,
+            'card_holder_name' => $creditCard?->card_holder_name ?? 'Yeni Kart',
             'order_price' => $orderData['total'],
             'order_price_cents' => (int)($orderData['total'] * 100),
             'cargo_price' => $orderData['cargo_price'],
@@ -39,8 +39,8 @@ class OrderCreationService implements OrderCreationInterface
             'discount_cents' => (int)($orderData['discount'] * 100),
             'campaign_id' => $orderData['campaign_id'],
             'campaign_info' => $orderData['campaign_info'],
-            'campaign_price' => $orderData['total'] + $orderData['cargo_price'] - $orderData['discount'],
-            'campaign_price_cents' => (int)(($orderData['total'] + $orderData['cargo_price'] - $orderData['discount']) * 100),
+            'campaign_price' => $orderData['final_price'],
+            'campaign_price_cents' => (int)($orderData['final_price'] * 100),
             'paid_price' => 0,
             'paid_price_cents' => 0,
             'currency' => 'TRY',

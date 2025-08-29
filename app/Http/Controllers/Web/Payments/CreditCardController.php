@@ -17,13 +17,20 @@ class CreditCardController extends Controller
 
     public function storeCreditCard(CreditCardStoreRequest $request)
     {
-        $user = auth()->user();
-        $creditCard = $this->creditCardService->storeCreditCard($request, $user);
+        $result = $this->creditCardService->storeCreditCard($request);
         
-        if ($creditCard) {
-            return redirect()->back()->with('success', 'Kredi kartı başarıyla eklendi!');
-        } else {
-            return redirect()->back()->with('error', 'Kredi kartı eklenirken hata oluştu!');
+        // Service JsonResponse döndürüyor, data'sını alalım
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            $data = $result->getData(true);
+            
+            if ($data['success'] ?? false) {
+                return redirect()->back()->with('success', 'Kredi kartı başarıyla eklendi!');
+            } else {
+                return redirect()->back()->with('error', $data['message'] ?? 'Kredi kartı eklenirken hata oluştu!');
+            }
         }
+        
+        // Fallback
+        return redirect()->back()->with('error', 'Kredi kartı eklenirken hata oluştu!');
     }
 }

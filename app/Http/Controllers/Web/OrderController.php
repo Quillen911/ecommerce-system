@@ -44,7 +44,52 @@ class OrderController extends Controller
 
             $selectedCreditCard = $request->input('credit_card_id');
             if(!$selectedCreditCard){
-                return redirect('order')->with('error', 'Lütfen bir kredi kartı seçiniz!');
+                return redirect('order')->with('error', 'Lütfen bir ödeme yöntemi seçiniz!');
+            }
+            
+            $tempCardData = null;
+            $saveNewCard = false;
+            
+            if ($selectedCreditCard === 'new_card') {
+                // Yeni kart ile ödeme
+                $request->validate([
+                    'new_card_holder_name' => 'required|string|max:255',
+                    'new_card_name' => 'required|string|max:255',
+                    'new_card_number' => 'required|string|size:16',
+                    'new_expire_month' => 'required|string|size:2',
+                    'new_expire_year' => 'required|string|size:4',
+                    'new_cvv' => 'required|string|size:3'
+                ]);
+                
+                $tempCardData = [
+                    'card_holder_name' => $request->new_card_holder_name,
+                    'card_name' => $request->new_card_name,
+                    'card_number' => $request->new_card_number,
+                    'expire_month' => $request->new_expire_month,
+                    'expire_year' => $request->new_expire_year,
+                    'cvv' => $request->new_cvv
+                ];
+                
+                $saveNewCard = $request->boolean('save_new_card');
+                
+            } else {
+                // Mevcut kart ile ödeme
+                $creditCard = CreditCard::find($selectedCreditCard);
+                if (!$creditCard) {
+                    return redirect('order')->with('error', 'Seçilen kart bulunamadı!');
+                }
+                
+                if (!$creditCard->iyzico_card_token) {
+                    // Token yok - CVV gerekli
+                    $request->validate([
+                        'existing_cvv' => 'required|string|size:3'
+                    ]);
+                    
+                    $tempCardData = [
+                        'card_number' => null, // Mevcut karttan alınacak
+                        'cvv' => $request->existing_cvv
+                    ];
+                }
             }
             
             $products = $bag->bagItems()->with('product.category')->get();
@@ -52,7 +97,7 @@ class OrderController extends Controller
                 return redirect('main')->with('error', 'Sepetiniz boş!');
             }
             
-            $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard);
+            $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard, $tempCardData, $saveNewCard);
             if($result['success']){
                 $bag->bagItems()->delete();
                 Cache::tags(['bag', 'products'])->flush();

@@ -102,4 +102,6 @@ Route::middleware(['auth:seller_web',])->middleware(SellerRedirect::class)->grou
 Route::middleware(DevelopmentOnly::class)->prefix('dev')->name('development.')->group(function() {
     Route::get('/fake-sms', [DevelopmentController::class, 'showFakeSms'])->name('fake-sms');
     Route::delete('/fake-sms', [DevelopmentController::class, 'clearFakeSms'])->name('fake-sms.clear');
+    
+
 });

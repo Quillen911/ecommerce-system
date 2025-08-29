@@ -15,13 +15,21 @@ class CreditCard extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'card_number',
-        'cvv',
+        'last_four_digits',      
         'expire_year',
         'expire_month',
         'card_type',
         'card_holder_name',
         'is_active',
+        'iyzico_card_token',     
+        'iyzico_card_user_key',  
+    ];
+
+    protected $hidden = ['iyzico_card_token', 'iyzico_card_user_key'];
+
+    protected $casts = [
+        'iyzico_card_token' => 'encrypted',
+        'iyzico_card_user_key' => 'encrypted'
     ];
 
     public function user()
