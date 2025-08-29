@@ -76,6 +76,12 @@ class MainController extends Controller
     {
         $query = $request->input('q', '') ?? '';
         $data = $this->elasticSearchProductService->autocomplete($query);
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
         return view('main', array_merge($data, [
             'query' => $query,
             'categories' => $this->mainService->getCategories()

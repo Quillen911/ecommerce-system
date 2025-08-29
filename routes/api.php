@@ -51,6 +51,7 @@ Route::middleware('auth:seller')->group(function(){
         Route::apiResource('order', SellerOrderController::class)->only(['index','show']);
         Route::post('orderitem/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem']);
         Route::post('orderitem/{id}/refund', [SellerOrderController::class, 'refundOrderItem']);
+
     });
     
 });

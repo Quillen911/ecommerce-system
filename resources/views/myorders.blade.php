@@ -201,6 +201,7 @@
                                     <th>Birim Fiyat</th>
                                     <th>Toplam</th>
                                     <th>İade Adedi</th>
+                                    <th>Durum</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -237,6 +238,9 @@
                                             // İade edilebilir mi kontrol et
                                             $eligible = ($item->payment_status !== 'refunded') && $remainingUnits > 0 && $remainingRefundedPrice > 0;
                                             
+                                        
+                                            
+                                            
                                         @endphp
 
                                             @if($eligible)
@@ -259,6 +263,7 @@
                                                 @endif
                                             @endif
                                         </td>
+                                        <td>{{ $item->payment_status->label() }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
