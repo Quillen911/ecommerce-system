@@ -10,6 +10,7 @@ use App\Services\Order\Contracts\PaymentInterface;
 use App\Services\Order\Contracts\InventoryInterface;
 use App\Exceptions\OrderCreationException;
 use App\Models\Campaign;
+use App\Models\CreditCard;
 use App\Notifications\OrderCreated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -49,7 +50,6 @@ class OrderService implements OrderServiceInterface
             
             $orderData = $this->calculateOrderData($products, $campaignManager);
             
-            // Yeni kart için geçici ID kullan
             $creditCardIdForOrder = $selectedCreditCard === 'new_card' ? null : $selectedCreditCard;
             
             $order = $this->orderCreationService->createOrderRecord($user, $creditCardIdForOrder, $orderData);
@@ -117,10 +117,10 @@ class OrderService implements OrderServiceInterface
     protected function processPayment($order, $selectedCreditCard, $finalPrice, $tempCardData = null, $saveNewCard = false): array
     {
         if ($selectedCreditCard === 'new_card') {
-            // Yeni kart ile ödeme - önce kartı oluştur
+            
             $paymentResult = $this->processNewCardPayment($order, $tempCardData, $finalPrice, $saveNewCard);
         } else {
-            // Mevcut kart ile ödeme
+            
             $creditCard = $this->creditCardRepository->getCreditCardById($selectedCreditCard);
             $paymentResult = $this->paymentService->processPayment($order, $creditCard, $finalPrice, $tempCardData);
         }
@@ -135,8 +135,8 @@ class OrderService implements OrderServiceInterface
     protected function processNewCardPayment($order, $tempCardData, $finalPrice, $saveNewCard): array
     {
         try {
-            // Geçici kart oluştur (sadece ödeme için)
-            $tempCard = new \App\Models\CreditCard([
+            
+            $tempCard = new CreditCard([
                 'user_id' => $order->user_id,
                 'name' => $tempCardData['card_name'],
                 'last_four_digits' => substr($tempCardData['card_number'], -4),
@@ -147,14 +147,14 @@ class OrderService implements OrderServiceInterface
                 'is_active' => true
             ]);
             
-            // Ödemeyi işle
+            
             $paymentResult = $this->paymentService->processPayment($order, $tempCard, $finalPrice, [
                 'card_number' => $tempCardData['card_number'],
                 'cvv' => $tempCardData['cvv']
             ]);
             
             if ($paymentResult['success'] && $saveNewCard) {
-                // Ödeme başarılı ve kart kaydedilmek isteniyor
+                
                 $savedCard = $this->creditCardRepository->createCreditCard([
                     'user_id' => $order->user_id,
                     'name' => $tempCardData['card_name'],
@@ -168,7 +168,7 @@ class OrderService implements OrderServiceInterface
                     'iyzico_card_user_key' => $paymentResult['card_user_key'] ?? null
                 ]);
                 
-                // Order'ı kaydedilen kart ile güncelleyelim
+                
                 $order->update([
                     'credit_card_id' => $savedCard->id,
                     'card_holder_name' => $savedCard->card_holder_name

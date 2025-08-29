@@ -14,5 +14,6 @@ interface PaymentInterface
     //public function cancelPayment(string $paymentId): array;
     
     public function refundPayment(string $paymentTransactionId, float $amount): array;
-
+    
+    public function createCardToken(array $cardData, $userId): array;
 }

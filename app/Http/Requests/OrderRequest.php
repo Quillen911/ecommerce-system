@@ -16,17 +16,47 @@ class OrderRequest extends FormRequest
     
     public function rules(): array
     {
-        return [
-            'credit_card_id' => 'required|exists:credit_cards,id',
+        $rules = [
+            'credit_card_id' => 'required',
         ];
+
+        if ($this->input('credit_card_id') === 'new_card') {
+            $rules = array_merge($rules, [
+                'new_card_holder_name' => 'required|string|max:255',
+                'new_card_name' => 'required|string|max:255',
+                'new_card_number' => 'required|string|size:16',
+                'new_expire_month' => 'required|string|size:2',
+                'new_expire_year' => 'required|string|size:4',
+                'new_cvv' => 'required|string|size:3',
+                'save_new_card' => 'sometimes|boolean'
+            ]);
+        } else {
+            $rules['existing_cvv'] = 'sometimes|string|size:3';
+        }
+
+        return $rules;
     }
+
     public function messages(): array
     {
         return [
-            'credit_card_id.required' => 'Kredi kartı seçiniz.',
-            'credit_card_id.exists' => 'Kredi kartı bulunamadı.',
+            'credit_card_id.required' => 'Lütfen bir ödeme yöntemi seçiniz.',
+            
+            'new_card_holder_name.required' => 'Kart sahibi adı gereklidir.',
+            'new_card_name.required' => 'Kart ismi gereklidir.',
+            'new_card_number.required' => 'Kart numarası gereklidir.',
+            'new_card_number.size' => 'Kart numarası 16 haneli olmalıdır.',
+            'new_expire_month.required' => 'Son kullanma ayı gereklidir.',
+            'new_expire_month.size' => 'Son kullanma ayı 2 haneli olmalıdır.',
+            'new_expire_year.required' => 'Son kullanma yılı gereklidir.',
+            'new_expire_year.size' => 'Son kullanma yılı 4 haneli olmalıdır.',
+            'new_cvv.required' => 'CVV kodu gereklidir.',
+            'new_cvv.size' => 'CVV kodu 3 haneli olmalıdır.',
+            
+            'existing_cvv.size' => 'CVV kodu 3 haneli olmalıdır.',
         ];
     }
+
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([

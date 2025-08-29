@@ -100,13 +100,14 @@ class IyzicoPaymentService implements PaymentInterface
             $request->setInstallment(1);
 
             if ($creditCard->iyzico_card_token && $creditCard->iyzico_card_user_key) {
-                // Kayıtlı kart token'ı ile ödeme
+
                 $paymentCard = new PaymentCard();
                 $paymentCard->setCardToken($creditCard->iyzico_card_token);
                 $paymentCard->setCardUserKey($creditCard->iyzico_card_user_key);
                 $request->setPaymentCard($paymentCard);
+                
             } else {
-                // İlk kez ödeme - geçici kart bilgileri ile
+
                 if (!$tempCardData || !isset($tempCardData['card_number']) || !isset($tempCardData['cvv'])) {
                     throw new \Exception('İlk ödeme için kart numarası ve CVV gerekli.');
                 }
@@ -182,9 +183,9 @@ class IyzicoPaymentService implements PaymentInterface
 
             if ($payment->getStatus() === 'success') {
                 
-                // Başarılı ödeme sonrası gerçek token'ı kaydet (eğer yoksa)
+                
                 if (!$creditCard->iyzico_card_token && $tempCardData) {
-                    // İyzico CardManagement API ile gerçek token oluştur
+                    
                     $tokenData = [
                         'card_holder_name' => $creditCard->card_holder_name,
                         'card_number' => $tempCardData['card_number'],
@@ -228,7 +229,7 @@ class IyzicoPaymentService implements PaymentInterface
                     'message' => 'Ödeme başarılı',
                 ];
                 
-                // Eğer token oluşturulduysa onu da döndür
+                
                 if (isset($tokenResult) && $tokenResult['success']) {
                     $response['card_token'] = $tokenResult['card_token'];
                     $response['card_user_key'] = $tokenResult['card_user_key'];
@@ -379,12 +380,12 @@ class IyzicoPaymentService implements PaymentInterface
             '5015' => 'Kart bilgileri eksik veya hatalı.',
         ];
         
-        // Eğer hata kodu için özel çeviri varsa onu kullan
+        
         if (isset($translations[$errorCode])) {
             return $translations[$errorCode];
         }
         
-        // Genel hata mesajları için çeviri
+        
         $generalTranslations = [
             'Invalid card information' => 'Kart bilgileri hatalı',
             'Card number is invalid' => 'Kart numarası geçersiz',
@@ -403,7 +404,7 @@ class IyzicoPaymentService implements PaymentInterface
             }
         }
         
-        // Eğer çeviri bulunamazsa orijinal mesajı döndür
+        
         return $errorMessage ?: 'Kart bilgileri hatalı. Lütfen bilgilerinizi kontrol ediniz.';
     }
 }

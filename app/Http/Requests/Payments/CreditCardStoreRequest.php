@@ -17,12 +17,10 @@ class CreditCardStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'card_number' => 'required|string|max:255',
-            'cvv' => 'required|string|max:255',
             'expire_year' => 'required|string|max:255',
             'expire_month' => 'required|string|max:255',
             'card_type' => 'required|string|max:255',
             'card_holder_name' => 'required|string|max:255',
-            'is_active' => 'required|boolean',
         ];
     }
     public function messages()
@@ -30,12 +28,10 @@ class CreditCardStoreRequest extends FormRequest
         return [
             'name.required' => 'Ad alanı gereklidir.',
             'card_number.required' => 'Kart numarası alanı gereklidir.',
-            'cvv.required' => 'CVV alanı gereklidir.',
             'expire_year.required' => 'Son kullanma yılı alanı gereklidir.',
             'expire_month.required' => 'Son kullanma ayı alanı gereklidir.',
             'card_type.required' => 'Kart tipi alanı gereklidir.',
             'card_holder_name.required' => 'Kart sahibi adı alanı gereklidir.',
-            'is_active.required' => 'Aktif alanı gereklidir.',
         ];
     }
 }
