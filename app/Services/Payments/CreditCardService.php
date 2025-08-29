@@ -6,17 +6,22 @@ use App\Http\Requests\Payments\CreditCardStoreRequest;
 use App\Http\Requests\Payments\CreditCardUpdateRequest;
 use App\Repositories\Contracts\CreditCard\CreditCardRepositoryInterface;
 use App\Helpers\ResponseHelper;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use App\Services\Payments\IyzicoPaymentService;
 class CreditCardService
 {
     protected $creditCardRepository;
-    public function __construct(CreditCardRepositoryInterface $creditCardRepository)
+    protected $authenticationRepository;
+    protected $iyzicoService;
+    public function __construct(CreditCardRepositoryInterface $creditCardRepository, AuthenticationRepositoryInterface $authenticationRepository, IyzicoPaymentService $iyzicoService)
     {
         $this->creditCardRepository = $creditCardRepository;
+        $this->authenticationRepository = $authenticationRepository;
+        $this->iyzicoService = $iyzicoService;
     }
     public function indexCreditCard()
     {
-        $user = auth()->user();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı');
         }
@@ -29,14 +34,12 @@ class CreditCardService
 
     public function storeCreditCard(CreditCardStoreRequest $request)
     {
-        $user = auth()->user();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı');
         }
         
         try {
-            // İyzico CardManagement API ile gerçek token oluştur
-            $iyzicoService = new IyzicoPaymentService();
             $tokenData = [
                 'card_holder_name' => $request->card_holder_name,
                 'card_number' => $request->card_number,
@@ -48,7 +51,7 @@ class CreditCardService
             
             \Log::info('İyzico token oluşturma başlıyor', ['user_id' => $user->id, 'card_alias' => $request->name]);
             
-            $tokenResult = $iyzicoService->createCardToken($tokenData, $user->id);
+            $tokenResult = $this->iyzicoService->createCardToken($tokenData, $user->id);
             
             \Log::info('İyzico token sonucu', $tokenResult);
             
@@ -83,7 +86,7 @@ class CreditCardService
     public function showCreditCard($id)
     {
         
-        $user = auth()->user();
+        $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı');
         }
@@ -98,7 +101,7 @@ class CreditCardService
     public function updateCreditCard(CreditCardUpdateRequest $request, $id)
     {
         try{
-            $user = auth()->user();
+            $user = $this->authenticationRepository->getUser();
             if(!$user){
                 return ResponseHelper::error('Kullanıcı bulunamadı');
             }
@@ -117,7 +120,7 @@ class CreditCardService
     public function destroyCreditCard($id)
     {
         try{
-            $user = auth()->user();
+            $user = $this->authenticationRepository->getUser();
             if(!$user){
                 return ResponseHelper::error('Kullanıcı bulunamadı');
             }
