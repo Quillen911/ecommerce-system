@@ -20,9 +20,9 @@ class PaymentService implements PaymentInterface
         $this->orderItemRepository = $orderItemRepository;
     }
 
-    public function processPayment(Order $order, CreditCard $creditCard, float $amount): array
+    public function processPayment(Order $order, CreditCard $creditCard, float $amount, array $tempCardData = null): array
     {
-        return $this->iyzicoPaymentService->processPayment($order, $creditCard, $amount);
+        return $this->iyzicoPaymentService->processPayment($order, $creditCard, $amount, $tempCardData);
     }
 
     public function handlePaymentSuccess(Order $order, array $paymentResult): void

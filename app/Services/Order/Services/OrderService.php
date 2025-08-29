@@ -40,7 +40,7 @@ class OrderService implements OrderServiceInterface
         $this->orderCreationService = $orderCreationService;
     }
 
-    public function createOrder($user, $products, $campaignManager, $selectedCreditCard): array
+    public function createOrder($user, $products, $campaignManager, $selectedCreditCard, $tempCardData = null, $saveNewCard = false): array
     {
         DB::beginTransaction();
         
@@ -49,14 +49,17 @@ class OrderService implements OrderServiceInterface
             
             $orderData = $this->calculateOrderData($products, $campaignManager);
             
-            $order = $this->orderCreationService->createOrderRecord($user, $selectedCreditCard, $orderData);
+            // Yeni kart için geçici ID kullan
+            $creditCardIdForOrder = $selectedCreditCard === 'new_card' ? null : $selectedCreditCard;
+            
+            $order = $this->orderCreationService->createOrderRecord($user, $creditCardIdForOrder, $orderData);
             $this->orderCreationService->createOrderItems($order, $products, $orderData['eligible_products'], $orderData['per_product_discount']);
             
             if ($orderData['campaign_id'] && $orderData['discount'] > 0) {
                 $this->orderCreationService->applyCampaign($orderData['campaign_id'], $campaignManager);
             }
 
-            $paymentResult = $this->processPayment($order, $selectedCreditCard, $orderData['final_price']);
+            $paymentResult = $this->processPayment($order, $selectedCreditCard, $orderData['final_price'], $tempCardData, $saveNewCard);
             
             
             if ($paymentResult['success']) {
@@ -111,16 +114,91 @@ class OrderService implements OrderServiceInterface
         ];
     }
 
-    protected function processPayment($order, $selectedCreditCard, $finalPrice): array
+    protected function processPayment($order, $selectedCreditCard, $finalPrice, $tempCardData = null, $saveNewCard = false): array
     {
-        $creditCard = $this->creditCardRepository->getCreditCardById($selectedCreditCard);
-        $paymentResult = $this->paymentService->processPayment($order, $creditCard, $finalPrice);
+        if ($selectedCreditCard === 'new_card') {
+            // Yeni kart ile ödeme - önce kartı oluştur
+            $paymentResult = $this->processNewCardPayment($order, $tempCardData, $finalPrice, $saveNewCard);
+        } else {
+            // Mevcut kart ile ödeme
+            $creditCard = $this->creditCardRepository->getCreditCardById($selectedCreditCard);
+            $paymentResult = $this->paymentService->processPayment($order, $creditCard, $finalPrice, $tempCardData);
+        }
         
         if ($paymentResult['success']) {
             $this->paymentService->handlePaymentSuccess($order, $paymentResult);
         }
         
         return $paymentResult;
+    }
+    
+    protected function processNewCardPayment($order, $tempCardData, $finalPrice, $saveNewCard): array
+    {
+        try {
+            // Geçici kart oluştur (sadece ödeme için)
+            $tempCard = new \App\Models\CreditCard([
+                'user_id' => $order->user_id,
+                'name' => $tempCardData['card_name'],
+                'last_four_digits' => substr($tempCardData['card_number'], -4),
+                'expire_year' => $tempCardData['expire_year'],
+                'expire_month' => $tempCardData['expire_month'],
+                'card_type' => $this->detectCardType($tempCardData['card_number']),
+                'card_holder_name' => $tempCardData['card_holder_name'],
+                'is_active' => true
+            ]);
+            
+            // Ödemeyi işle
+            $paymentResult = $this->paymentService->processPayment($order, $tempCard, $finalPrice, [
+                'card_number' => $tempCardData['card_number'],
+                'cvv' => $tempCardData['cvv']
+            ]);
+            
+            if ($paymentResult['success'] && $saveNewCard) {
+                // Ödeme başarılı ve kart kaydedilmek isteniyor
+                $savedCard = $this->creditCardRepository->createCreditCard([
+                    'user_id' => $order->user_id,
+                    'name' => $tempCardData['card_name'],
+                    'last_four_digits' => substr($tempCardData['card_number'], -4),
+                    'expire_year' => $tempCardData['expire_year'],
+                    'expire_month' => $tempCardData['expire_month'],
+                    'card_type' => $this->detectCardType($tempCardData['card_number']),
+                    'card_holder_name' => $tempCardData['card_holder_name'],
+                    'is_active' => true,
+                    'iyzico_card_token' => $paymentResult['card_token'] ?? null,
+                    'iyzico_card_user_key' => $paymentResult['card_user_key'] ?? null
+                ]);
+                
+                // Order'ı kaydedilen kart ile güncelleyelim
+                $order->update([
+                    'credit_card_id' => $savedCard->id,
+                    'card_holder_name' => $savedCard->card_holder_name
+                ]);
+                
+                \Log::info('Yeni kart kaydedildi ve order güncellendi', [
+                    'card_id' => $savedCard->id, 
+                    'order_id' => $order->id,
+                    'user_id' => $order->user_id
+                ]);
+            }
+            
+            return $paymentResult;
+            
+        } catch (\Exception $e) {
+            \Log::error('Yeni kart ile ödeme hatası: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Ödeme işlemi başarısız oldu: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    protected function detectCardType($cardNumber): string
+    {
+        $firstDigit = substr($cardNumber, 0, 1);
+        if ($firstDigit === '4') return 'Visa';
+        if ($firstDigit === '5') return 'Mastercard';
+        if ($firstDigit === '3') return 'American Express';
+        return 'Diğer';
     }
 
     protected function handleOrderCreationError(\Exception $e, $user, $order = null): void

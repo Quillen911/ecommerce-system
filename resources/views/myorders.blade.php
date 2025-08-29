@@ -382,7 +382,7 @@
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">Ödenecek Tutar</span>
-                                <span class="summary-value">{{ number_format(floor($order->campaign_price * 100) / 100 ,2) }} TL</span>
+                                <span class="summary-value">{{ number_format(floor($order->paid_price * 100) / 100 ,2) }} TL</span>
                             </div>
                         </div>
                     </div>

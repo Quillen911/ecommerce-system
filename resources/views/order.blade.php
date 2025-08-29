@@ -363,84 +363,175 @@
     <div class="payment-section">
         <div class="payment-methods">
             <h3 class="section-title">Ödeme Yöntemi</h3>
+            
             @if($creditCards->count() > 0)
-                @foreach($creditCards as $card)
-                    <div class="credit-card-item">
-                        <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}" autocomplete="off">
-                        <label for="card_{{ $card->id }}">
-                            <div>
-                                <div style="font-weight:600;margin-bottom:4px;">{{ $card->name }}</div>
-                                <div class="card-info">**** **** **** {{ substr($card->card_number, -4) }}</div>
-                                <div class="card-info">{{ $card->card_holder_name }}</div>
-                                <div class="card-info">{{ $card->expire_month }}/{{ $card->expire_year }}</div>
-                            </div>
-                        </label>
+                <!-- Kayıtlı kartlar varsa önce onları göster -->
+                <div style="margin-bottom:16px;">
+                    <div style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">
+                        <strong>Kayıtlı Kartlarım</strong>
                     </div>
-                @endforeach
-            @else
-                <div style="padding:20px;text-align:center;color:var(--text-muted);background:var(--elevated);border-radius:var(--radius);border:1px solid var(--border);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;opacity:0.5;">
+                    @foreach($creditCards as $card)
+                        <div class="credit-card-item">
+                            <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}" autocomplete="off">
+                            <label for="card_{{ $card->id }}">
+                                <div>
+                                    <div style="font-weight:600;margin-bottom:4px;">{{ $card->name }}</div>
+                                    <div class="card-info">**** **** **** {{ $card->last_four_digits }}</div>
+                                    <div class="card-info">{{ $card->card_holder_name }}</div>
+                                    <div class="card-info">{{ $card->expire_month }}/{{ $card->expire_year }}</div>
+                                    @if($card->iyzico_card_token)
+                                        <div class="card-info" style="color:var(--success);font-size:12px;">✓ Güvenli kart</div>
+                                    @endif
+                                </div>
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <!-- Yeni kart seçeneği (gizli) -->
+                <div class="credit-card-item" id="new-card-option" style="display:none;">
+                    <input type="radio" name="credit_card_id" value="new_card" id="card_new" autocomplete="off">
+                    <label for="card_new">
+                        <div>
+                            <div style="font-weight:600;margin-bottom:4px;color:var(--accent);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px;">
+                                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                                </svg>
+                                Yeni Kart ile Ödeme
+                            </div>
+                            <div class="card-info">Yeni kredi kartı bilgileri ile ödeme yapın</div>
+                            <div class="card-info" style="color:var(--accent);font-size:12px;">✓ Kartınızı kaydetme seçeneği sunulacaktır</div>
+                        </div>
+                    </label>
+                </div>
+                
+                <!-- Başka kart ile ödeme butonu -->
+                <button type="button" class="btn outline" id="useNewCardBtn" style="width:100%;margin-top:12px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
                     </svg>
-                    <p>Henüz kayıtlı kredi kartınız yok.</p>
+                    Başka Kart ile Ödeme Yapmak İstiyorum
+                </button>
+                
+            @else
+                <!-- Kayıtlı kart yoksa direkt yeni kart seçeneği göster -->
+                <div class="credit-card-item" style="border: 2px solid var(--accent); background: rgba(99,102,241,0.05);">
+                    <input type="radio" name="credit_card_id" value="new_card" id="card_new" autocomplete="off" checked>
+                    <label for="card_new">
+                        <div>
+                            <div style="font-weight:600;margin-bottom:4px;color:var(--accent);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px;">
+                                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                                </svg>
+                                Yeni Kart ile Ödeme
+                            </div>
+                            <div class="card-info">Kredi kartı bilgilerinizi girerek ödeme yapın</div>
+                            <div class="card-info" style="color:var(--accent);font-size:12px;">✓ Kartınızı kaydetme seçeneği sunulacaktır</div>
+                        </div>
+                    </label>
                 </div>
             @endif
 
-            <div class="toggle-btn" id="toggleCardForm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                Yeni Kart Ekle
-            </div>
-        </div>
-
-        <div class="new-card hidden" id="cardForm">
-            <h3 class="section-title">Yeni Kart Ekle</h3>
-            <form action="{{ route('payments.storeCreditCard') }}" method="POST" autocomplete="off">
-                @csrf
-                <div class="field"><label for="card_name">Kart Adı</label><input type="text" id="card_name" name="name" autocomplete="off" required></div>
-                <div class="field"><label for="card_number">Kart Numarası</label><input type="text" id="card_number" name="card_number" autocomplete="off" required maxlength="16" inputmode="numeric"></div>
-                <div class="field"><label for="cvv">CVV</label><input type="password" id="cvv" name="cvv" autocomplete="off" required maxlength="3" inputmode="numeric"></div>
-                <div class="field"><label for="expire_month">Ay</label>
-                    <select id="expire_month" name="expire_month" autocomplete="off" required>
-                        @for($i=1;$i<=12;$i++)
-                            <option value="{{ str_pad($i,2,'0',STR_PAD_LEFT) }}">{{ str_pad($i,2,'0',STR_PAD_LEFT) }}</option>
-                        @endfor
-                    </select>
-                </div>
-                <div class="field"><label for="expire_year">Yıl</label>
-                    <select id="expire_year" name="expire_year" autocomplete="off" required>
-                        @for($i=date('Y');$i<=date('Y')+10;$i++)
-                            <option value="{{ $i }}">{{ $i }}</option>
-                        @endfor
-                    </select>
-                </div>
-                <div class="field"><label for="card_type">Kart Tipi</label>
-                    <select id="card_type" name="card_type" autocomplete="off" required>
-                        <option value="visa">Visa</option><option value="mastercard">Mastercard</option><option value="amex">Amex</option>
-                    </select>
-                </div>
-                <div class="field full"><label for="card_holder_name">Kart Sahibi</label><input type="text" id="card_holder_name" name="card_holder_name" autocomplete="off" required></div>
-                <div class="field full"><label for="is_active"><input type="checkbox" id="is_active" name="is_active" value="1" checked autocomplete="off"> Kaydet</label></div>
-                <div class="actions">
-                    <button type="submit" class="btn success">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
-                        </svg>
-                        Kartı Kaydet
-                    </button>
-                    <button type="button" class="btn outline" id="cancelCardForm">İptal</button>
-                </div>
-            </form>
         </div>
     </div>
     
-    @if($creditCards->count() > 0)
-        <div class="checkout-section">
-            <form action="{{route('done')}}" method="POST">
-                @csrf
-                <input type="hidden" name="credit_card_id" id="credit_card_id">
-                <button type="submit" class="checkout-btn" onclick="return validateCardSelection()">
+    <div class="checkout-section">
+        <form action="{{route('done')}}" method="POST" id="payment-form">
+            @csrf
+            <input type="hidden" name="credit_card_id" id="credit_card_id">
+                
+                <!-- Yeni kart bilgileri formu -->
+                <div id="new-card-form" style="display:none;" class="new-card" style="margin-bottom:20px;">
+                    <h3 class="section-title">💳 Yeni Kart Bilgileri</h3>
+                    
+                    <!-- Kart bilgileri -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px;">
+                        <div class="field">
+                            <label for="new_card_holder_name">Kart Sahibi Adı</label>
+                            <input type="text" id="new_card_holder_name" name="new_card_holder_name" autocomplete="off" placeholder="AHMET YILMAZ">
+                        </div>
+                        <div class="field">
+                            <label for="new_card_name">Kartınız için isim</label>
+                            <input type="text" id="new_card_name" name="new_card_name" autocomplete="off" placeholder="Ana Kartım">
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid;grid-template-columns:1fr 100px 100px 150px;gap:20px;margin-top:16px;">
+                        <div class="field">
+                            <label for="new_card_number">Kart Numarası</label>
+                            <input type="text" id="new_card_number" name="new_card_number" autocomplete="off" maxlength="16" inputmode="numeric" placeholder="1234567890123456">
+                        </div>
+                        <div class="field">
+                            <label for="new_expire_month">Ay</label>
+                            <select id="new_expire_month" name="new_expire_month" autocomplete="off">
+                                <option value="">Ay</option>
+                                @for($i = 1; $i <= 12; $i++)
+                                    <option value="{{ sprintf('%02d', $i) }}">{{ sprintf('%02d', $i) }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="new_expire_year">Yıl</label>
+                            <select id="new_expire_year" name="new_expire_year" autocomplete="off">
+                                <option value="">Yıl</option>
+                                @for($i = date('Y'); $i <= date('Y') + 15; $i++)
+                                    <option value="{{ $i }}">{{ $i }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="new_cvv">CVV</label>
+                            <input type="password" id="new_cvv" name="new_cvv" autocomplete="off" maxlength="3" inputmode="numeric" placeholder="123">
+                        </div>
+                    </div>
+                    
+                    <!-- Kart kaydetme seçeneği -->
+                    <div class="field full" style="margin-top:20px;">
+                        <label for="save_new_card" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:16px;background:rgba(34,197,94,0.05);border-radius:var(--radius);border:2px solid rgba(34,197,94,0.2);transition:all 0.2s ease;">
+                            <input type="checkbox" id="save_new_card" name="save_new_card" value="1" checked autocomplete="off" style="width:20px;height:20px;accent-color:#10b981;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;border:2px solid #10b981;border-radius:4px;background:white;position:relative;">
+                            <style>
+                                #save_new_card:checked::before {
+                                    content: '✓';
+                                    position: absolute;
+                                    top: 50%;
+                                    left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    color: #10b981;
+                                    font-weight: bold;
+                                    font-size: 14px;
+                                }
+                                #save_new_card:checked {
+                                    background: #f0fdf4;
+                                    border-color: #10b981;
+                                }
+                            </style>
+                            <div>
+                                <div style="font-weight:600;color:var(--success);margin-bottom:4px;">Bu kartı kayıtlı kartlarıma ekle</div>
+                                <div style="font-size:13px;color:var(--text-muted);">Sonraki ödemelerinizde tek tıkla ödeme yapabilirsiniz</div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:12px;margin-top:16px;font-size:13px;color:var(--text-secondary);">
+                        🔒 <strong>Güvenlik:</strong> Kart bilgileriniz İyzico güvenlik standartlarıyla korunur. Sadece güvenli token bilgileri saklanır.
+                    </div>
+                </div>
+                
+                <!-- Mevcut kartlar için CVV -->
+                <div id="existing-card-cvv" style="display:none;" class="new-card" style="margin-bottom:20px;">
+                    <h3 class="section-title">🔐 Güvenlik Kodu</h3>
+                    <div style="display:grid;grid-template-columns:150px;gap:20px;margin-top:16px;">
+                        <div class="field">
+                            <label for="existing_cvv">CVV</label>
+                            <input type="password" id="existing_cvv" name="existing_cvv" autocomplete="off" maxlength="3" inputmode="numeric" placeholder="123">
+                        </div>
+                    </div>
+                    <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:12px;margin-top:12px;font-size:13px;color:var(--text-secondary);">
+                        ⚡ Güvenlik amacıyla CVV kodunuzu tekrar giriniz.
+                    </div>
+                </div>
+                
+                <button type="submit" class="checkout-btn" onclick="return validatePaymentForm()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
                     </svg>
@@ -448,14 +539,6 @@
                 </button>
             </form>
         </div>
-    @else
-        <div class="notice error">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
-            Lütfen bir kredi kartı seçiniz veya yeni bir kart ekleyiniz.
-        </div>
-    @endif
 </div>
 
 <script>
@@ -466,66 +549,250 @@
             // Update visual selection
             document.querySelectorAll('.credit-card-item').forEach(item => item.classList.remove('selected'));
             radio.closest('.credit-card-item').classList.add('selected');
+            
+            // Form gösterme mantığı
+            handleCardSelection(radio.value);
         });
     });
-    const toggleBtn = document.getElementById('toggleCardForm');
-    const cardForm = document.getElementById('cardForm');
-    const cancelBtn = document.getElementById('cancelCardForm');
-    toggleBtn?.addEventListener('click',()=>{
-        cardForm.classList.remove('hidden');
-        toggleBtn.style.display='none';
+    
+    // "Başka kart ile ödeme" butonu
+    document.getElementById('useNewCardBtn')?.addEventListener('click', function() {
+        // Yeni kart seçeneğini göster
+        const newCardOption = document.getElementById('new-card-option');
+        if (newCardOption) {
+            newCardOption.style.display = 'block';
+            
+            // Yeni kartı seç
+            const newCardRadio = document.getElementById('card_new');
+            if (newCardRadio) {
+                newCardRadio.checked = true;
+                newCardRadio.dispatchEvent(new Event('change'));
+            }
+            
+            // Butonu gizle
+            this.style.display = 'none';
+            
+            // Geri dön butonu ekle
+            const backBtn = document.createElement('button');
+            backBtn.type = 'button';
+            backBtn.className = 'btn ghost';
+            backBtn.style.width = '100%';
+            backBtn.style.marginTop = '12px';
+            backBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                </svg>
+                Kayıtlı Kartlarıma Geri Dön
+            `;
+            backBtn.id = 'backToSavedCards';
+            this.parentNode.appendChild(backBtn);
+            
+            // Geri dön butonuna event listener
+            backBtn.addEventListener('click', function() {
+                // Yeni kart seçeneğini gizle
+                newCardOption.style.display = 'none';
+                
+                // İlk kayıtlı kartı seç
+                const firstCard = document.querySelector('input[name="credit_card_id"]:not(#card_new)');
+                if (firstCard) {
+                    firstCard.checked = true;
+                    firstCard.dispatchEvent(new Event('change'));
+                }
+                
+                // Butonları düzenle
+                document.getElementById('useNewCardBtn').style.display = 'block';
+                this.remove();
+            });
+        }
     });
-    cancelBtn?.addEventListener('click',()=>{
-        cardForm.classList.add('hidden');
-        toggleBtn.style.display='inline-block';
+    
+    // Kart seçimi işleme
+    function handleCardSelection(cardValue) {
+        const newCardForm = document.getElementById('new-card-form');
+        const existingCardCvv = document.getElementById('existing-card-cvv');
+        
+        // Tüm formları gizle
+        newCardForm.style.display = 'none';
+        existingCardCvv.style.display = 'none';
+        
+        // Form alanlarını temizle
+        clearFormValidation();
+        
+        if (cardValue === 'new_card') {
+            // Yeni kart seçildi
+            newCardForm.style.display = 'block';
+            setNewCardValidation();
+            console.log('Yeni kart formu gösteriliyor');
+        } else {
+            // Mevcut kart seçildi
+            checkExistingCard(cardValue);
+        }
+    }
+    
+    // Mevcut kartın token durumunu kontrol et
+    function checkExistingCard(cardId) {
+        try {
+            const cards = @json($creditCards->keyBy('id'));
+            const selectedCard = cards[cardId];
+            const existingCardCvv = document.getElementById('existing-card-cvv');
+
+            console.log('Seçili kart:', selectedCard);
+            console.log('Token durumu:', selectedCard?.iyzico_card_token);
+
+            if (selectedCard && !selectedCard.iyzico_card_token) {
+                // Token yok - CVV iste
+                existingCardCvv.style.display = 'block';
+                document.getElementById('existing_cvv').required = true;
+                console.log('Token yok - CVV isteniyor');
+            } else {
+                // Token var - CVV gerekmez
+                existingCardCvv.style.display = 'none';
+                document.getElementById('existing_cvv').required = false;
+                console.log('Token var - CVV gerekmiyor');
+            }
+        } catch (error) {
+            console.error('Kart kontrolü hatası:', error);
+        }
+    }
+    
+    // Form validasyon temizleme
+    function clearFormValidation() {
+        // Yeni kart alanları
+        document.getElementById('new_card_holder_name').required = false;
+        document.getElementById('new_card_name').required = false;
+        document.getElementById('new_card_number').required = false;
+        document.getElementById('new_expire_month').required = false;
+        document.getElementById('new_expire_year').required = false;
+        document.getElementById('new_cvv').required = false;
+        
+        // Mevcut kart alanları
+        document.getElementById('existing_cvv').required = false;
+    }
+    
+    // Yeni kart validasyonu ayarla
+    function setNewCardValidation() {
+        document.getElementById('new_card_holder_name').required = true;
+        document.getElementById('new_card_name').required = true;
+        document.getElementById('new_card_number').required = true;
+        document.getElementById('new_expire_month').required = true;
+        document.getElementById('new_expire_year').required = true;
+        document.getElementById('new_cvv').required = true;
+    }
+    
+    // Kart kaydetme checkbox'ını kontrol et
+    document.getElementById('save_new_card')?.addEventListener('change', function() {
+        console.log('Kart kaydetme checkbox değişti:', this.checked);
+        const label = this.closest('label');
+        
+        if (this.checked) {
+            label.style.borderColor = 'rgba(34,197,94,0.4)';
+            label.style.background = 'rgba(34,197,94,0.08)';
+        } else {
+            label.style.borderColor = 'rgba(34,197,94,0.2)';
+            label.style.background = 'rgba(34,197,94,0.05)';
+        }
     });
 
-    function validateCardSelection() {
+
+    function validatePaymentForm() {
         const selectedCard = document.getElementById('credit_card_id').value;
         if (!selectedCard) {
-            alert('Lütfen bir kredi kartı seçiniz!');
+            alert('Lütfen bir ödeme yöntemi seçiniz!');
             return false;
         }
+        
+        if (selectedCard === 'new_card') {
+            // Yeni kart validasyonu
+            const fields = [
+                {id: 'new_card_holder_name', name: 'Kart sahibi adı'},
+                {id: 'new_card_name', name: 'Kart ismi'},
+                {id: 'new_card_number', name: 'Kart numarası', length: 16},
+                {id: 'new_expire_month', name: 'Son kullanma ayı'},
+                {id: 'new_expire_year', name: 'Son kullanma yılı'},
+                {id: 'new_cvv', name: 'CVV kodu', length: 3}
+            ];
+            
+            for (let field of fields) {
+                const element = document.getElementById(field.id);
+                const value = element.value.trim();
+                
+                if (!value) {
+                    alert(`Lütfen ${field.name} giriniz!`);
+                    element.focus();
+                    return false;
+                }
+                
+                if (field.length && value.length !== field.length) {
+                    alert(`${field.name} ${field.length} haneli olmalıdır!`);
+                    element.focus();
+                    return false;
+                }
+            }
+        } else {
+            // Mevcut kart validasyonu
+            const existingCvvDiv = document.getElementById('existing-card-cvv');
+            if (existingCvvDiv && existingCvvDiv.style.display !== 'none') {
+                const cvv = document.getElementById('existing_cvv').value;
+                
+                if (!cvv || cvv.length !== 3) {
+                    alert('Lütfen 3 haneli CVV kodunu giriniz!');
+                    document.getElementById('existing_cvv').focus();
+                    return false;
+                }
+            }
+        }
+        
         return true;
     }
 
-    // Kart numarası formatlaması
+    // Kart numarası formatlaması (yeni kart ekleme formu)
     document.querySelector('input[name="card_number"]')?.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 16) value = value.substr(0, 16);
         e.target.value = value;
     });
 
-    // CVV formatlaması
+    // CVV formatlaması (yeni kart ekleme formu)
     document.querySelector('input[name="cvv"]')?.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 3) value = value.substr(0, 3);
         e.target.value = value;
     });
+    
+    // Ödeme formu kart numarası formatlaması
+    document.getElementById('payment_card_number')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 16) value = value.substr(0, 16);
+        e.target.value = value;
+    });
 
-    // Form gönderilmeden önce validasyon
-    document.querySelector('form[action="{{ route("payments.storeCreditCard") }}"]')?.addEventListener('submit', function(e) {
-        const cardNumber = this.querySelector('input[name="card_number"]').value;
-        const cvv = this.querySelector('input[name="cvv"]').value;
-        const cardHolder = this.querySelector('input[name="card_holder_name"]').value;
-        
-        if (cardNumber.length !== 16) {
-            e.preventDefault();
-            alert('Kart numarası 16 haneli olmalıdır!');
-            return false;
-        }
-        
-        if (cvv.length !== 3) {
-            e.preventDefault();
-            alert('CVV kodu 3 haneli olmalıdır!');
-            return false;
-        }
-        
-        if (!cardHolder.trim()) {
-            e.preventDefault();
-            alert('Kart sahibi adı gerekli!');
-            return false;
-        }
+    // Ödeme formu CVV formatlaması
+    document.getElementById('payment_cvv')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 3) value = value.substr(0, 3);
+        e.target.value = value;
+    });
+
+
+
+    // Sayfa yüklendikten sonra otomatik seçimler
+    window.addEventListener('DOMContentLoaded', function() {
+        @if($creditCards->count() > 0)
+            // Kayıtlı kart varsa ilk kartı seç
+            const firstCard = document.querySelector('input[name="credit_card_id"]:not(#card_new)');
+            if (firstCard) {
+                firstCard.checked = true;
+                firstCard.dispatchEvent(new Event('change'));
+            }
+        @else
+            // Kayıtlı kart yoksa yeni kart otomatik seçili ve form göster
+            const newCardRadio = document.getElementById('card_new');
+            if (newCardRadio) {
+                newCardRadio.checked = true;
+                document.getElementById('credit_card_id').value = 'new_card';
+                handleCardSelection('new_card');
+            }
+        @endif
     });
 </script>
 </body>

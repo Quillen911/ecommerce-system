@@ -27,6 +27,10 @@ use Iyzipay\Request\CreatePaymentRequest;
 use Iyzipay\Request\CreateCancelRequest;
 use Iyzipay\Request\CreateRefundRequest;
 
+use Iyzipay\Model\Card;
+use Iyzipay\Model\CardInformation;
+use Iyzipay\Request\CreateCardRequest;
+
 class IyzicoPaymentService implements PaymentInterface
 {
     private Options $options;
@@ -39,7 +43,51 @@ class IyzicoPaymentService implements PaymentInterface
         $this->options->setBaseUrl(config('services.iyzico.base_url'));
     }
 
-    public function processPayment(Order $order, CreditCard $creditCard, float $amount): array
+
+    public function createCardToken(array $cardData, $userId): array
+    {
+        try {
+            $request = new CreateCardRequest();
+            $request->setLocale(Locale::TR);
+            $request->setConversationId('card_' . $userId . '_' . time());
+            $request->setEmail($cardData['email'] ?? 'test@test.com');
+            $request->setExternalId((string) $userId);
+
+            $cardInformation = new CardInformation();
+            $cardInformation->setCardAlias($cardData['card_alias'] ?? 'Kredi Kartım');
+            $cardInformation->setCardHolderName($cardData['card_holder_name']);
+            $cardInformation->setCardNumber($cardData['card_number']);
+            $cardInformation->setExpireMonth($cardData['expire_month']);
+            $cardInformation->setExpireYear($cardData['expire_year']);
+            $request->setCard($cardInformation);
+
+            $card = Card::create($request, $this->options);
+
+            if ($card->getStatus() === 'success') {
+                return [
+                    'success' => true,
+                    'card_token' => $card->getCardToken(),
+                    'card_user_key' => $card->getCardUserKey(),
+                    'message' => 'Kart başarıyla kaydedildi'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => $card->getErrorMessage(),
+                    'error_code' => $card->getErrorCode()
+                ];
+            }
+
+        } catch (\Exception $e) {
+            Log::error('İyzico kart token oluşturma hatası: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Kart token oluşturulurken hata oluştu: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function processPayment(Order $order, CreditCard $creditCard, float $amount, array $tempCardData = null): array
     {
         try{
             $request = new CreatePaymentRequest();
@@ -51,14 +99,26 @@ class IyzicoPaymentService implements PaymentInterface
             $request->setPaymentGroup(PaymentGroup::PRODUCT);
             $request->setInstallment(1);
 
-            $paymentCard = new PaymentCard();
-
-            $paymentCard->setCardHolderName($creditCard->card_holder_name);
-            $paymentCard->setCardNumber($creditCard->card_number);
-            $paymentCard->setExpireMonth($creditCard->expire_month);
-            $paymentCard->setExpireYear($creditCard->expire_year);
-            $paymentCard->setCvc($creditCard->cvv);
-            $request->setPaymentCard($paymentCard);
+            if ($creditCard->iyzico_card_token && $creditCard->iyzico_card_user_key) {
+                // Kayıtlı kart token'ı ile ödeme
+                $paymentCard = new PaymentCard();
+                $paymentCard->setCardToken($creditCard->iyzico_card_token);
+                $paymentCard->setCardUserKey($creditCard->iyzico_card_user_key);
+                $request->setPaymentCard($paymentCard);
+            } else {
+                // İlk kez ödeme - geçici kart bilgileri ile
+                if (!$tempCardData || !isset($tempCardData['card_number']) || !isset($tempCardData['cvv'])) {
+                    throw new \Exception('İlk ödeme için kart numarası ve CVV gerekli.');
+                }
+                
+                $paymentCard = new PaymentCard();
+                $paymentCard->setCardHolderName($creditCard->card_holder_name);
+                $paymentCard->setCardNumber($tempCardData['card_number']);
+                $paymentCard->setExpireMonth($creditCard->expire_month);
+                $paymentCard->setExpireYear($creditCard->expire_year);
+                $paymentCard->setCvc($tempCardData['cvv']);
+                $request->setPaymentCard($paymentCard);
+            }
 
             $buyer = new Buyer();
 
@@ -116,16 +176,48 @@ class IyzicoPaymentService implements PaymentInterface
 
             $request->setBasketItems($basketItems);
             $request->setPrice(number_format($totalBasketPrice, 4, '.', ''));
-            $request->setPaidPrice(number_format(floor($amount * 100) / 100, 2, '.', ''));
+            $request->setPaidPrice(number_format($amount, 4, '.', ''));
             
             $payment = Payment::create($request, $this->options);
 
             if ($payment->getStatus() === 'success') {
+                
+                // Başarılı ödeme sonrası gerçek token'ı kaydet (eğer yoksa)
+                if (!$creditCard->iyzico_card_token && $tempCardData) {
+                    // İyzico CardManagement API ile gerçek token oluştur
+                    $tokenData = [
+                        'card_holder_name' => $creditCard->card_holder_name,
+                        'card_number' => $tempCardData['card_number'],
+                        'expire_month' => $creditCard->expire_month,
+                        'expire_year' => $creditCard->expire_year,
+                        'card_alias' => $creditCard->name,
+                        'email' => $order->user->email ?? 'test@test.com'
+                    ];
+                    
+                    $tokenResult = $this->createCardToken($tokenData, $order->user_id);
+                    
+                    if ($tokenResult['success']) {
+                        $creditCard->update([
+                            'iyzico_card_token' => $tokenResult['card_token'],
+                            'iyzico_card_user_key' => $tokenResult['card_user_key']
+                        ]);
+                        Log::info('İyzico kart token başarıyla kaydedildi', [
+                            'credit_card_id' => $creditCard->id,
+                            'user_id' => $order->user_id
+                        ]);
+                    } else {
+                        Log::error('İyzico kart token kaydetme hatası', [
+                            'credit_card_id' => $creditCard->id,
+                            'error' => $tokenResult['error']
+                        ]);
+                    }
+                }
+                
                 $itemsTxMap = [];
                 foreach ($payment->getPaymentItems() as $pItem) {
                     $itemsTxMap[$pItem->getItemId()] = $pItem->getPaymentTransactionId();
                 }
-                return [
+                $response = [
                     'success' => true,
                     'payment_id' => (int) $payment->getPaymentId(),
                     'conversation_id' => $request->getConversationId(),
@@ -135,6 +227,14 @@ class IyzicoPaymentService implements PaymentInterface
                     'payment_transaction_id' => $itemsTxMap, 
                     'message' => 'Ödeme başarılı',
                 ];
+                
+                // Eğer token oluşturulduysa onu da döndür
+                if (isset($tokenResult) && $tokenResult['success']) {
+                    $response['card_token'] = $tokenResult['card_token'];
+                    $response['card_user_key'] = $tokenResult['card_user_key'];
+                }
+                
+                return $response;
             } else {
                 $errorMessage = $this->translateErrorMessage($payment->getErrorMessage(), $payment->getErrorCode());
                 return [

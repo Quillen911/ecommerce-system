@@ -16,35 +16,32 @@ class CreditCardSeeder extends Seeder
         CreditCard::create([
             'user_id' => 1,
             'name' => 'İsmail Danış',
-            'card_number' => '5528790000000008',
+            'last_four_digits' => '0008', //  5528790000000008
             'expire_month' => '12',
             'expire_year' => '2030',
             'card_type' => 'Mastercard',
             'card_holder_name' => 'Geçerli Kart',
-            'cvv' => '123',
             'is_active' => 1,
         ]);
         CreditCard::create([
             'user_id' => 1,
-            'name' => 'İsmail Danış',
-            'card_number' => '1111111111111111',
+            'name' => 'İsmail Danış Test',
+            'last_four_digits' => '1111',
             'expire_month' => '12',
             'expire_year' => '2030',
             'card_type' => 'Visa',
-            'card_holder_name' => 'Geçersiz Kart',
-            'cvv' => '123',
+            'card_holder_name' => 'Test Kart',
             'is_active' => 1,
         ]);
 
         CreditCard::create([
             'user_id' => 2,
             'name' => 'İsmail Danış',
-            'card_number' => '5528790000000008',
+            'last_four_digits' => '0008',
             'expire_month' => '12',
             'expire_year' => '2030',
             'card_type' => 'Mastercard',
             'card_holder_name' => 'Geçerli Kart',
-            'cvv' => '123',
             'is_active' => 1,
         ]);
     }

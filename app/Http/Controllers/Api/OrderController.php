@@ -12,6 +12,7 @@ use App\Helpers\ResponseHelper;
 use App\Models\Order;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Models\Bag;
+use App\Models\CreditCard;
 class OrderController extends Controller
 {
     protected $orderService;
@@ -65,7 +66,23 @@ class OrderController extends Controller
         if($products->isEmpty()){
             return ResponseHelper::notFound('Sepetiniz boş!');
         }
-        $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard);
+        // İlk ödeme için kart bilgilerini kontrol et
+        $tempCardData = null;
+        $creditCard = CreditCard::find($selectedCreditCard);
+        if ($creditCard && !$creditCard->iyzico_card_token) {
+            // İlk ödeme - kart bilgileri gerekli
+            $request->validate([
+                'card_number' => 'required|string|size:16',
+                'cvv' => 'required|string|size:3'
+            ]);
+            
+            $tempCardData = [
+                'card_number' => $request->card_number,
+                'cvv' => $request->cvv
+            ];
+        }
+        
+        $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard, $tempCardData);
         if($result instanceof \Exception){
             return ResponseHelper::error($result->getMessage());
         }
