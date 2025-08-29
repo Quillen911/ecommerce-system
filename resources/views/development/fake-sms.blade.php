@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sms</title>
 </head>
 <body>
 <div class="container">
@@ -11,7 +11,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>Fake SMS Logları</h4>
+                    <h4>Kargolam için Fake SMS Logları</h4>
                     <div>
                         <span class="badge bg-primary">{{ $smsCount ?? 0 }} SMS</span>
                         @if($smsCount > 0)

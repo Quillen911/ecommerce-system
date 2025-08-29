@@ -91,7 +91,7 @@ class ElasticsearchService
                             'query' => $query,
                             'fields' => ['title^2', 'author', 'store_name^2'],
                             'fuzziness' => 'AUTO'
-                        ]
+                        ],
                     ];
                 } else {
                     $searchQuery['match_all'] = new \stdClass();
@@ -223,17 +223,35 @@ class ElasticsearchService
                                     ]
                                 ],
                                 [
+                                    'prefix' => [
+                                        'author.keyword' => strtolower($query)
+                                    ]
+                                ],
+                                [
+                                    'match_phrase_prefix' => [
+                                        'author.keyword' => strtolower($query)
+                                    ]
+                                ],
+
+                                [
                                     'match' => [
-                                        'title' => [
-                                            'query' => $query,
-                                            'fuzziness' => 'AUTO',
-                                        ]                                            
+                                        'category_title.keyword' => strtolower($query)
+                                    ]
+                                ],
+                                [
+                                    'multi_match' => [
+                                        'query' => $query,
+                                        'fields' => ['title^3', 'author^2', 'category_title^2'],
+                                        'fuzziness' => 'AUTO'
                                     ]
                                 ]
                             ]
                         ]
                     ],
-                    'size' => 7
+                    'size' => 7,
+                    '_source' => [
+                        'id', 'title', 'author', 'images', 'list_price', 'store_name', 'category_title'
+                    ]
                 ]
             ];
             $response = $this->client->search($params);

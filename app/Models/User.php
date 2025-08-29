@@ -27,6 +27,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    protected $casts = [
+        'password' => 'encrypted',
+    ];
+
     public function creditCard()
     {
         return $this->hasMany(CreditCard::class);

@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->string('email')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->string('iyzico_api_key')->nullable();
+            $table->string('iyzico_secret_key')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

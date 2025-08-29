@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\Seller\ProductController;
 use App\Http\Controllers\Web\Payments\CreditCardController;
 use App\Http\Controllers\Web\Seller\SellerController;
 use App\Http\Controllers\Web\Seller\SellerOrderController;
+use App\Http\Controllers\Web\Seller\SellerSettingsController;
 use App\Http\Middleware\SellerRedirect;
 use App\Http\Controllers\DevelopmentController;
 use App\Http\Middleware\DevelopmentOnly;
@@ -92,6 +93,8 @@ Route::middleware(['auth:seller_web',])->middleware(SellerRedirect::class)->grou
             Route::post('orders/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem'])->name('seller.confirmOrderItem');
             Route::post('orders/{id}/refund', [SellerOrderController::class, 'refundOrderItem'])->name('seller.refundOrderItem');
         }); 
+
+        Route::resource('/settings', SellerSettingsController::class);
 
     });
 });

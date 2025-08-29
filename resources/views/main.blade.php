@@ -242,6 +242,226 @@
             from{transform:rotate(0deg)}
             to{transform:rotate(360deg)}
         }
+        
+        /* Otomatik Tamamlama Stilleri */
+        .autocomplete-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--line);
+            transition: background-color 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background: var(--accent);
+            color: #EDEDED;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-product-image {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            background: var(--gray-50);
+        }
+
+        .autocomplete-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .autocomplete-product-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .autocomplete-product-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: inherit;
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .autocomplete-product-author {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .autocomplete-product-store {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .autocomplete-product-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--price-color);
+            flex-shrink: 0;
+        }
+
+        .search-group {
+            position: relative;
+        }
+
+        /* Loading animasyonu */
+        .autocomplete-loading {
+            padding: 16px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .autocomplete-loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--line);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        /* Otomatik Tamamlama Stilleri */
+    .autocomplete-container {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .autocomplete-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--line);
+        transition: background-color 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .autocomplete-item:hover,
+    .autocomplete-item.selected {
+        background: var(--accent);
+        color: #EDEDED;
+    }
+
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+
+    .autocomplete-product-image {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--gray-50);
+    }
+
+    .autocomplete-product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .autocomplete-product-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .autocomplete-product-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: inherit;
+        margin-bottom: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .autocomplete-product-author {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 2px;
+    }
+
+    .autocomplete-product-store {
+        font-size: 12px;
+        color: var(--primary);
+        font-weight: 500;
+    }
+
+    .autocomplete-product-price {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--price-color);
+        flex-shrink: 0;
+    }
+
+    .search-group {
+        position: relative;
+    }
+
+    /* Loading animasyonu */
+    .autocomplete-loading {
+        padding: 16px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .autocomplete-loading::after {
+        content: '';
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--line);
+        border-radius: 50%;
+        border-top-color: var(--primary);
+        animation: spin 1s linear infinite;
+        margin-left: 8px;
+    }
     </style>
 </head>
 <body>
@@ -288,7 +508,7 @@
             <div class="search-group">
                 <div class="field" style="flex:1">
                     <label for="q">Ürün Ara</label>
-                    <input id="q" type="text" name="q" placeholder="Ürün adı, Mağaza adı, yazar..." value="{{ $query ?? request('q') }}">
+                    <input id="q" type="text" name="q" placeholder="Ürün adı, Mağaza adı, yazar..." value="{{ $query ?? request('q') }}" autocomplete="off">
                     <input type="hidden" name="page" value="1">
                     <input type="hidden" name="size" value="12">
                 </div>
@@ -620,6 +840,440 @@
             }
         }, 5000);
     }
+
+    // Otomatik Tamamlama Sistemi
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('q');
+        const searchGroup = document.querySelector('.search-group');
+        
+        if (!searchInput || !searchGroup) return;
+        
+        // Otomatik tamamlama container'ı oluştur
+        const autocompleteContainer = document.createElement('div');
+        autocompleteContainer.className = 'autocomplete-container';
+        searchGroup.appendChild(autocompleteContainer);
+        
+        let debounceTimer;
+        let selectedIndex = -1;
+        let suggestions = [];
+        let isLoading = false;
+        
+        // Debounce fonksiyonu
+        function debounce(func, delay) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(func, delay);
+        }
+        
+        // Otomatik tamamlama verilerini getir
+        async function fetchAutocomplete(query) {
+            if (query.length < 2) {
+                hideAutocomplete();
+                return;
+            }
+            
+            isLoading = true;
+            showLoadingState();
+            
+            try {
+                // Web route kullanıyoruz (/search/autocomplete)
+                const response = await fetch(`/search/autocomplete?q=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.products && data.data.products.length > 0) {
+                    suggestions = data.data.products;
+                    showAutocomplete();
+                } else {
+                    showNoResults();
+                }
+            } catch (error) {
+                console.error('Otomatik tamamlama hatası:', error);
+                showError(error.message);
+            } finally {
+                isLoading = false;
+            }
+        }
+        
+        // Loading durumunu göster
+        function showLoadingState() {
+            autocompleteContainer.innerHTML = '<div class="autocomplete-loading">Aranıyor...</div>';
+            autocompleteContainer.style.display = 'block';
+        }
+        
+        // Sonuç bulunamadı mesajı
+        function showNoResults() {
+            autocompleteContainer.innerHTML = '<div class="autocomplete-loading">Sonuç bulunamadı</div>';
+            autocompleteContainer.style.display = 'block';
+        }
+        
+        // Hata mesajı
+        function showError(message = 'Bir hata oluştu') {
+            autocompleteContainer.innerHTML = `<div class="autocomplete-loading">${message}</div>`;
+            autocompleteContainer.style.display = 'block';
+        }
+        
+        // Otomatik tamamlama listesini göster
+        function showAutocomplete() {
+            autocompleteContainer.innerHTML = '';
+            
+            suggestions.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                
+                const imageUrl = product.images && product.images.length > 0 
+                    ? `/storage/productsImages/${product.images[0]}`
+                    : '';
+                
+                item.innerHTML = `
+                    <div class="autocomplete-product-image">
+                        ${imageUrl ? `<img src="${imageUrl}" alt="${product.title}" onerror="this.style.display='none'">` : ''}
+                    </div>
+                    <div class="autocomplete-product-info">
+                        <div class="autocomplete-product-title">
+                            ${highlightQuery(product.title, searchInput.value)}
+                        </div>
+                        <div class="autocomplete-product-author">${product.author || ''}</div>
+                        <div class="autocomplete-product-store">${product.store_name || ''}</div>
+                    </div>
+                    <div class="autocomplete-product-price">
+                        ${parseFloat(product.list_price || 0).toFixed(2)} TL
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    selectSuggestion(product);
+                });
+                
+                item.addEventListener('mouseenter', () => {
+                    selectedIndex = index;
+                    updateSelection();
+                });
+                
+                autocompleteContainer.appendChild(item);
+            });
+            
+            autocompleteContainer.style.display = 'block';
+            selectedIndex = -1;
+        }
+        
+        // Otomatik tamamlama listesini gizle
+        function hideAutocomplete() {
+            autocompleteContainer.style.display = 'none';
+            selectedIndex = -1;
+        }
+        
+        // Seçili öğeyi vurgula
+        function updateSelection() {
+            const items = autocompleteContainer.querySelectorAll('.autocomplete-item');
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+        
+        // Öneriyi seç
+        function selectSuggestion(product) {
+            searchInput.value = product.title;
+            hideAutocomplete();
+            
+            // Arama formunu otomatik gönder
+            const form = searchInput.closest('form');
+            if (form) {
+                form.submit();
+            }
+        }
+        
+        // Arama terimini vurgula
+        function highlightQuery(text, query) {
+            if (!query || !text) return text;
+            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<mark style="background: var(--primary); color: white; padding: 1px 2px; border-radius: 2px;">$1</mark>');
+        }
+        
+        // Input event listener
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            debounce(() => fetchAutocomplete(query), 300);
+        });
+        
+        // Klavye navigasyonu
+        searchInput.addEventListener('keydown', function(e) {
+            if (autocompleteContainer.style.display === 'none') return;
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+                    updateSelection();
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection();
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                        selectSuggestion(suggestions[selectedIndex]);
+                    } else {
+                        // Form gönder
+                        const form = this.closest('form');
+                        if (form) form.submit();
+                    }
+                    break;
+                    
+                case 'Escape':
+                    hideAutocomplete();
+                    break;
+            }
+        });
+        
+        // Dışarı tıklandığında gizle
+        document.addEventListener('click', function(e) {
+            if (!searchGroup.contains(e.target)) {
+                hideAutocomplete();
+            }
+        });
+        
+        // Focus olduğunda mevcut değer varsa önerileri göster
+        searchInput.addEventListener('focus', function() {
+            const query = this.value.trim();
+            if (query.length >= 2) {
+                fetchAutocomplete(query);
+            }
+        });
+    });
+    // Otomatik Tamamlama Sistemi
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('q');
+    const searchGroup = document.querySelector('.search-group');
+    
+    if (!searchInput || !searchGroup) return;
+    
+    // Otomatik tamamlama container'ı oluştur
+    const autocompleteContainer = document.createElement('div');
+    autocompleteContainer.className = 'autocomplete-container';
+    searchGroup.appendChild(autocompleteContainer);
+    
+    let debounceTimer;
+    let selectedIndex = -1;
+    let suggestions = [];
+    let isLoading = false;
+    
+    // Debounce fonksiyonu
+    function debounce(func, delay) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(func, delay);
+    }
+    
+    // Otomatik tamamlama verilerini getir
+    async function fetchAutocomplete(query) {
+        if (query.length < 2) {
+            hideAutocomplete();
+            return;
+        }
+        
+        isLoading = true;
+        showLoadingState();
+        
+        try {
+            // Web route kullanıyoruz (/search/autocomplete)
+            const response = await fetch(`/search/autocomplete?q=${encodeURIComponent(query)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.data && data.data.products && data.data.products.length > 0) {
+                suggestions = data.data.products;
+                showAutocomplete();
+            } else {
+                showNoResults();
+            }
+        } catch (error) {
+            console.error('Otomatik tamamlama hatası:', error);
+            showError();
+        } finally {
+            isLoading = false;
+        }
+    }
+    
+    // Loading durumunu göster
+    function showLoadingState() {
+        autocompleteContainer.innerHTML = '<div class="autocomplete-loading">Aranıyor...</div>';
+        autocompleteContainer.style.display = 'block';
+    }
+    
+    // Sonuç bulunamadı mesajı
+    function showNoResults() {
+        autocompleteContainer.innerHTML = '<div class="autocomplete-loading">Sonuç bulunamadı</div>';
+        autocompleteContainer.style.display = 'block';
+    }
+    
+    // Hata mesajı
+    function showError() {
+        autocompleteContainer.innerHTML = '<div class="autocomplete-loading">Bir hata oluştu</div>';
+        autocompleteContainer.style.display = 'block';
+    }
+    
+    // Otomatik tamamlama listesini göster
+    function showAutocomplete() {
+        autocompleteContainer.innerHTML = '';
+        
+        suggestions.forEach((product, index) => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            
+            const imageUrl = product.images && product.images.length > 0 
+                ? `/storage/productsImages/${product.images[0]}`
+                : '';
+            
+            item.innerHTML = `
+                <div class="autocomplete-product-image">
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${product.title}" onerror="this.style.display='none'">` : ''}
+                </div>
+                <div class="autocomplete-product-info">
+                    <div class="autocomplete-product-title">
+                        ${highlightQuery(product.title, searchInput.value)}
+                    </div>
+                    <div class="autocomplete-product-author">${product.author || ''}</div>
+                    <div class="autocomplete-product-store">${product.store_name || ''}</div>
+                </div>
+                <div class="autocomplete-product-price">
+                    ${parseFloat(product.list_price || 0).toFixed(2)} TL
+                </div>
+            `;
+            
+            item.addEventListener('click', () => {
+                selectSuggestion(product);
+            });
+            
+            item.addEventListener('mouseenter', () => {
+                selectedIndex = index;
+                updateSelection();
+            });
+            
+            autocompleteContainer.appendChild(item);
+        });
+        
+        autocompleteContainer.style.display = 'block';
+        selectedIndex = -1;
+    }
+    
+    // Otomatik tamamlama listesini gizle
+    function hideAutocomplete() {
+        autocompleteContainer.style.display = 'none';
+        selectedIndex = -1;
+    }
+    
+    // Seçili öğeyi vurgula
+    function updateSelection() {
+        const items = autocompleteContainer.querySelectorAll('.autocomplete-item');
+        items.forEach((item, index) => {
+            if (index === selectedIndex) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+    
+    // Öneriyi seç
+    function selectSuggestion(product) {
+        searchInput.value = product.title;
+        hideAutocomplete();
+        
+        // Arama formunu otomatik gönder
+        const form = searchInput.closest('form');
+        if (form) {
+            form.submit();
+        }
+    }
+    
+    // Arama terimini vurgula
+    function highlightQuery(text, query) {
+        if (!query || !text) return text;
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark style="background: var(--primary); color: white; padding: 1px 2px; border-radius: 2px;">$1</mark>');
+    }
+    
+    // Input event listener
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        debounce(() => fetchAutocomplete(query), 300);
+    });
+    
+    // Klavye navigasyonu
+    searchInput.addEventListener('keydown', function(e) {
+        if (autocompleteContainer.style.display === 'none') return;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+                updateSelection();
+                break;
+                
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection();
+                break;
+                
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                    selectSuggestion(suggestions[selectedIndex]);
+                } else {
+                    // Form gönder
+                    const form = this.closest('form');
+                    if (form) form.submit();
+                }
+                break;
+                
+            case 'Escape':
+                hideAutocomplete();
+                break;
+        }
+    });
+    
+    // Dışarı tıklandığında gizle
+    document.addEventListener('click', function(e) {
+        if (!searchGroup.contains(e.target)) {
+            hideAutocomplete();
+        }
+    });
+    
+    // Focus olduğunda mevcut değer varsa önerileri göster
+    searchInput.addEventListener('focus', function() {
+        const query = this.value.trim();
+        if (query.length >= 2) {
+            fetchAutocomplete(query);
+        }
+    });
+});
 </script>
 </body>
 </html>

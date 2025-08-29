@@ -29,6 +29,7 @@
     <a href="{{ route('seller.product') }}" class="btn">Ürünler</a>
     <a href="{{ route('seller.campaign') }}" class="btn outline">Kampanyalar</a>
     <a href="{{ route('seller.order') }}" class="btn outline">Siparişler</a>
+    <a href="{{ route('seller.settings') }}" class="btn outline">Ayarlar</a>
     <form action="{{ route('seller.logout') }}" method="POST" style="display:inline-block;margin:0">
       @csrf
       <button type="submit" class="btn danger">Çıkış Yap</button>

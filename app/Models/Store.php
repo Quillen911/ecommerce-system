@@ -17,8 +17,14 @@ class Store extends Model
         'image', 
         'description', 
         'email', 
-        'is_active'];
-
+        'is_active',
+        'iyzico_api_key',
+        'iyzico_secret_key',
+    ];
+    protected $casts = [
+        'iyzico_api_key' => 'encrypted',
+        'iyzico_secret_key' => 'encrypted',
+    ];
     public function seller()
     {
         return $this->belongsTo(Seller::class, 'seller_id');
