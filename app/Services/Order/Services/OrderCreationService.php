@@ -10,7 +10,6 @@ use App\Repositories\Contracts\Order\OrderRepositoryInterface;
 use App\Repositories\Contracts\CreditCard\CreditCardRepositoryInterface;
 use App\Services\Campaigns\CampaignManager;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class OrderCreationService implements OrderCreationInterface
 {
@@ -77,26 +76,13 @@ class OrderCreationService implements OrderCreationInterface
                     if($diffApplied == false){
                         $diff = (int)round($calculatedPrice) - $paidPriceCents;
                     }
-                    Log::info('Diff item', [
-                        'calculatedPrice' => $calculatedPrice,
-                        'paidPriceCents' => $paidPriceCents,
-                        'diff' => $diff,
-                    ]);
+                    
                     if($diff > 0){
                         $paidPriceCents = $paidPriceCents + $diff;
                         $diff = 0;
                         $diffApplied = true;
-                        Log::info('Diff item', [
-                            'diff' => $diff,
-                        ]);
                     }
                 }
-                Log::info('Order item creation values', [
-                    'paidPrice' => $paidPriceCents / 100,
-                    'paidPrice1' => $paidPriceCents,
-                    'discountAmount' => $discountAmount,
-                    'diff' => $diff,
-                ]);
                 
                 OrderItem::create([
                     'order_id' => $order->id,

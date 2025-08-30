@@ -41,16 +41,6 @@ class MyOrderCalculationService implements MyOrderCalculationInterface
         $priceToRefundCents = min($itemsToRefund * $unitPaidCents, $remainingCents);
         $priceToRefundCents = $availableQuantity == 1 ? $remainingCents : $priceToRefundCents;
 
-        Log::info('Refund calculation values', [
-            'paidCents' => $paidCents, 
-            'refundedCents' => $refundedCents,
-            'remainingCents' => $remainingCents,
-            'availableQuantity' => $availableQuantity,
-            'itemsToRefund' => $itemsToRefund,
-            'unitPaidCents' => $unitPaidCents,
-            'priceToRefundCents' => $priceToRefundCents
-        ]);
-      //  dd($paidCents, $refundedCents, $remainingCents, $availableQuantity, $itemsToRefund, $unitPaidCents, $priceToRefundCents);
         return [
             'itemsToRefund' => $itemsToRefund,
             'priceToRefundCents' => $priceToRefundCents,
