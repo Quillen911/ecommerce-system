@@ -4,6 +4,7 @@ namespace App\Services\Payments;
 
 use App\Models\Order;
 use App\Models\CreditCard;
+use App\Models\Store;
 use Illuminate\Support\Facades\Log;
 //Iyzipay kütüphanesi
 use Iyzipay\Options;
@@ -15,7 +16,7 @@ use Iyzipay\Model\BasketItem;
 use Iyzipay\Model\PaymentCard;
 use Iyzipay\Model\PaymentGroup;
 use Iyzipay\Model\BasketItemType;
-
+use Iyzipay\Model\SubMerchant;
 use Iyzipay\Model\Payment;
 use Iyzipay\Model\Cancel;
 use Iyzipay\Model\Refund;
@@ -26,6 +27,7 @@ use Iyzipay\Request\RetrieveCheckoutFormRequest;
 use Iyzipay\Request\CreatePaymentRequest;
 use Iyzipay\Request\CreateCancelRequest;
 use Iyzipay\Request\CreateRefundRequest;
+use Iyzipay\Request\CreateSubMerchantRequest;
 
 use Iyzipay\Model\Card;
 use Iyzipay\Model\CardInformation;
@@ -161,6 +163,13 @@ class IyzicoPaymentService implements PaymentInterface
             $totalBasketPrice = 0.0;
 
             foreach ($order->orderItems as $item) {
+                /*$product = $item->product;
+                $store = $product->store;
+
+                if (!$store->sub_merchant_key) {
+                    throw new \Exception('Mağaza alt üye iş yeri oluşturulmamış');
+                }*/
+
                 $basketItem = new BasketItem();
                 
                 $basketItem->setId((string) $item->product_id);
@@ -169,6 +178,10 @@ class IyzicoPaymentService implements PaymentInterface
                 $basketItem->setItemType(BasketItemType::PHYSICAL);
                 $linePrice = round((float)($item->paid_price), 4);
                 $basketItem->setPrice(number_format($linePrice, 4, '.', ''));
+
+               // $basketItem->setSubMerchantKey($store->sub_merchant_key);
+                //$basketItem->setSubMerchantPrice(number_format($linePrice, 2, '.', ''));
+
                 $basketItems[] = $basketItem;
 
                 $totalBasketPrice += $linePrice;
@@ -287,41 +300,6 @@ class IyzicoPaymentService implements PaymentInterface
         }
     }
 
-
-    /*public function cancelPayment(string $paymentId): array
-    {
-        try {
-
-            $request = new CreateCancelRequest();
-            $ip = request()->ip() ?? '127.0.0.1';
-            $request->setIp($ip);
-            $request->setConversationId($paymentId);
-            $request->setPaymentId($paymentId);
-            $request->setLocale(Locale::TR);
-        //  $request->setReason(RefundReason::OTHER);
-        //  $request->setDescription("customer requested for default sample");
-
-        $cancel = Cancel::create($request, $this->options);
-
-        if ($cancel->getStatus() === 'success') {
-            return [
-                'success' => true,
-                'message' => 'Ödeme iptal edildi'
-            ];
-        } else {
-            return [
-                'success' => false,
-                'error' => $cancel->getErrorMessage()
-                ];
-            }
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'error' => 'Ödeme iptal edilirken hata oluştu: ' . $e->getMessage()
-            ];
-        }
-    }*/
-
     public function refundPayment(string $paymentTransactionId, float $amount): array
     {
         try {
@@ -334,7 +312,7 @@ class IyzicoPaymentService implements PaymentInterface
             $request->setConversationId($paymentTransactionId);
             $request->setPaymentTransactionId($paymentTransactionId);
             
-            $request->setPrice(number_format($amount, 4, '.', ''));
+            $request->setPrice(number_format($amount, 2, '.', ''));
             $request->setCurrency(Currency::TL);
         //  $request->setReason(RefundReason::OTHER);
         //  $request->setDescription("customer requested for default sample");
@@ -359,6 +337,7 @@ class IyzicoPaymentService implements PaymentInterface
             ];
         }
     }
+
     
     private function translateErrorMessage(string $errorMessage, string $errorCode): string
     {
@@ -407,4 +386,90 @@ class IyzicoPaymentService implements PaymentInterface
         
         return $errorMessage ?: 'Kart bilgileri hatalı. Lütfen bilgilerinizi kontrol ediniz.';
     }
+
+    /* public function createSubMerchantForStore($store): array
+    {
+        try{
+        $request = new CreateSubMerchantRequest();
+        $request->setLocale(Locale::TR);
+        $request->setConversationId((string) $store->id . '_' . time());
+        $request->setSubMerchantExternalId((string) $store->id);
+        $request->setSubMerchantType("PRIVATE_COMPANY");
+
+        $request->setAddress($store->address ?? "Adres Belirtilmedi");
+        $request->setTaxOffice($store->tax_office ?? "Kadıköy");
+        $request->setTaxNumber($store->tax_number ?? "1111111111"); 
+        $companyTitle = $store->name ?: "Mağaza_" . $store->id;
+        if (strlen($companyTitle) < 3) {
+            $companyTitle = "Mağaza_" . $store->id;
+        }
+        $request->setLegalCompanyTitle($companyTitle);
+        $request->setEmail($store->email ?? "test@test.com");
+        $request->setGsmNumber($store->phone ?? "+905350000000");
+        $request->setName($store->seller_name ?? "İyzico Test Satıcı");
+        $request->setIban($store->iban ?? "TR180006200119000006672315");
+
+        if ($store->identity_number) {
+            $request->setIdentityNumber($store->identity_number);
+        }
+
+        $subMerchant = SubMerchant::create($request, $this->options);
+
+        if ($subMerchant->getStatus() === 'success') {
+            $store->update([
+                'sub_merchant_key' => $subMerchant->getSubMerchantKey()
+            ]);
+            return [
+                'success' => true,
+                'sub_merchant_key' => $subMerchant->getSubMerchantKey(),
+                'message' => 'Alt üye iş yeri başarıyla oluşturuldu'
+            ];
+        } 
+        return [
+            'success' => false,
+            'error' => $subMerchant->getErrorMessage(),
+            'error_code' => $subMerchant->getErrorCode()
+        ];
+        }catch(\Exception $e){
+            return [
+                'success' => false,
+                'error' => 'Alt üye iş yeri oluşturulurken hata oluştu: ' . $e->getMessage()
+            ];
+        }
+
+    }*/
+
+    /*public function cancelPayment(string $paymentId): array
+    {
+        try {
+
+            $request = new CreateCancelRequest();
+            $ip = request()->ip() ?? '127.0.0.1';
+            $request->setIp($ip);
+            $request->setConversationId($paymentId);
+            $request->setPaymentId($paymentId);
+            $request->setLocale(Locale::TR);
+        //  $request->setReason(RefundReason::OTHER);
+        //  $request->setDescription("customer requested for default sample");
+
+        $cancel = Cancel::create($request, $this->options);
+
+        if ($cancel->getStatus() === 'success') {
+            return [
+                'success' => true,
+                'message' => 'Ödeme iptal edildi'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error' => $cancel->getErrorMessage()
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Ödeme iptal edilirken hata oluştu: ' . $e->getMessage()
+            ];
+        }
+    }*/
 }

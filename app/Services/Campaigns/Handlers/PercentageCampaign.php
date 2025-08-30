@@ -89,7 +89,7 @@ class PercentageCampaign extends BaseCampaign
             return [
                 'product' => $item->product,
                 'quantity' => $item->quantity,
-                'discount' => $item->product->list_price * $item->quantity * $discount_rate
+                'discount' => ($item->product->list_price * $item->quantity * $discount_rate) 
             ];
         });
 

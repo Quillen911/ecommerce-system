@@ -12,6 +12,7 @@ use App\Services\Payments\IyzicoPaymentService;
 use Illuminate\Support\Facades\DB;
 use App\Traits\GetUser;
 use App\Jobs\RefundOrderItemNotification;
+use Illuminate\Support\Facades\Log;
 
 class MyOrderRefundService implements MyOrderRefundInterface
 {
@@ -35,7 +36,7 @@ class MyOrderRefundService implements MyOrderRefundInterface
             return $checkItems;
         }
         $calculations = $this->MyOrderCalculationService->calculateRefundableItems($checkItems['items'], $refundQuantitiesByItemId);
-
+        
         $refundResults = $this->processRefunds($calculations);
 
         return $this->MyOrderUpdateService->updateOrderStatus($checkOrder['order'], $refundResults, $campaignManager);
@@ -53,21 +54,29 @@ class MyOrderRefundService implements MyOrderRefundInterface
                 ];
                 continue;
             }
-
+            Log::info('Refund calculation values', [
+                'priceToRefund' => $calculation['priceToRefund'],
+                'priceToRefundCents' => $calculation['priceToRefundCents']
+            ]);
             $refund = $this->iyzicoService->refundPayment(
                 $calculation['item']->payment_transaction_id, 
-                $calculation['priceToRefund'] 
+                $calculation['priceToRefundCents'] / 100
             );
 
             if($refund['success']){
                 DB::transaction(function() use ($calculation) {
                     $this->MyOrderUpdateService->updateProductStock($calculation['item']->product_id, $calculation['itemsToRefund']);
-                    $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefund'], $calculation['itemsToRefund']);
+                    $this->MyOrderUpdateService->updateOrderItem($calculation['item'], $calculation['priceToRefundCents'], $calculation['itemsToRefund']);
                 });
                 DB::commit();
-                RefundOrderItemNotification::dispatch($calculation['item'], $calculation['item']->order->user, $calculation['itemsToRefund'])->onQueue('notifications');
+                RefundOrderItemNotification::dispatch($calculation['item'], $calculation['item']->order->user, $calculation['itemsToRefund'], $calculation['priceToRefund'])->onQueue('notifications');
             }
-
+            Log::info('Refund calculation values', [
+                'success' => $refund['success'],
+                'error' => $refund['error'] ?? null,
+                'refundedAmount' => $calculation['priceToRefund'],
+                'refundedQuantity' => $calculation['itemsToRefund']
+            ]);
             $refundResults[] = [
                 'success' => $refund['success'],
                 'error' => $refund['error'] ?? null,

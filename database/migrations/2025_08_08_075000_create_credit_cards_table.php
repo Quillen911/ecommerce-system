@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('name');
-            $table->string('last_four_digits', 4);              
+            $table->string('last_four_digits', 4); //5528790000000008             
             $table->string('expire_year');
             $table->string('expire_month');
             $table->string('card_type');

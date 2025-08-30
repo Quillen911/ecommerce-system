@@ -20,8 +20,11 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->string('email')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->string('iyzico_api_key')->nullable();
-            $table->string('iyzico_secret_key')->nullable();
+            $table->string('sub_merchant_key')->nullable();
+            $table->string('iban')->nullable();
+            $table->string('tax_number')->nullable();
+            $table->string('tax_office')->nullable();
+            $table->string('identity_number')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
