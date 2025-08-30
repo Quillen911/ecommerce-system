@@ -12,7 +12,6 @@ use App\Services\Payments\IyzicoPaymentService;
 use Illuminate\Support\Facades\DB;
 use App\Traits\GetUser;
 use App\Jobs\RefundOrderItemNotification;
-use Illuminate\Support\Facades\Log;
 
 class MyOrderRefundService implements MyOrderRefundInterface
 {
@@ -54,10 +53,6 @@ class MyOrderRefundService implements MyOrderRefundInterface
                 ];
                 continue;
             }
-            Log::info('Refund calculation values', [
-                'priceToRefund' => $calculation['priceToRefund'],
-                'priceToRefundCents' => $calculation['priceToRefundCents']
-            ]);
             $refund = $this->iyzicoService->refundPayment(
                 $calculation['item']->payment_transaction_id, 
                 $calculation['priceToRefundCents'] / 100
@@ -71,12 +66,6 @@ class MyOrderRefundService implements MyOrderRefundInterface
                 DB::commit();
                 RefundOrderItemNotification::dispatch($calculation['item'], $calculation['item']->order->user, $calculation['itemsToRefund'], $calculation['priceToRefund'])->onQueue('notifications');
             }
-            Log::info('Refund calculation values', [
-                'success' => $refund['success'],
-                'error' => $refund['error'] ?? null,
-                'refundedAmount' => $calculation['priceToRefund'],
-                'refundedQuantity' => $calculation['itemsToRefund']
-            ]);
             $refundResults[] = [
                 'success' => $refund['success'],
                 'error' => $refund['error'] ?? null,
