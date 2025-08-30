@@ -12,14 +12,16 @@ class OrderItemRefunded extends Notification implements ShouldQueue
     use Queueable;
 
     protected $orderItem;
+    protected $price;
     protected $quantity;
     /**
      * Create a new notification instance.
      */
-    public function __construct(OrderItem $orderItem, $quantity) 
+    public function __construct(OrderItem $orderItem, $quantity, $price) 
     {
         $this->orderItem = $orderItem;
         $this->quantity = $quantity;
+        $this->price = $price;
     }
 
     /**
@@ -44,7 +46,7 @@ class OrderItemRefunded extends Notification implements ShouldQueue
             ->line('📦 Sipariş Numarası: #' . $this->orderItem->order_id)
             ->line('📦 Ürün Adı: ' . $this->orderItem->product_title)
             ->line('📦 İade Edilen Adet: ' . $this->quantity)
-            ->line('📦 İade Edilen Tutar: ₺' . number_format(floor($this->orderItem->paid_price *100 )/100, 2))
+            ->line('📦 İade Edilen Tutar: ₺' . number_format(floor($this->price *100 )/100, 2))
             ->action('Siparişimi Takip Et', 'http://localhost:8000/myorders')
             ->line('Herhangi bir sorunuz olursa bizimle iletişime geçmekten çekinmeyin.')
             ->line('Müşteri Destek: quillen048@gmail.com')

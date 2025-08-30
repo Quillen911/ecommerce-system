@@ -94,7 +94,7 @@ Route::middleware(['auth:seller_web',])->middleware(SellerRedirect::class)->grou
             Route::post('orders/{id}/refund', [SellerOrderController::class, 'refundOrderItem'])->name('seller.refundOrderItem');
         }); 
 
-        Route::resource('/settings', SellerSettingsController::class);
+        Route::resource('/settings', SellerSettingsController::class)->only(['index', 'store']);
 
     });
 });

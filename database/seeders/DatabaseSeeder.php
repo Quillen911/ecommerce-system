@@ -25,7 +25,6 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\Campaigns\CampaignSeeder::class,
             \Database\Seeders\Campaigns\CampaignConditionSeeder::class,
             \Database\Seeders\Campaigns\CampaignDiscountSeeder::class,
-            \Database\Seeders\CreditCard\CreditCardSeeder::class,
         ]);
     }
 }

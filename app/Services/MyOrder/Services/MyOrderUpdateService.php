@@ -14,9 +14,9 @@ class MyOrderUpdateService implements MyOrderUpdateInterface
     {
         $this->productRepository = $productRepository;
     }
-    public function updateOrderItem($item, $refundedAmount, $refundedQuantity): void
+    public function updateOrderItem($item, int $refundedAmountCents, int $refundedQuantity): void
     {
-        $newRefundedCents = ($item->refunded_price_cents ?? 0) + (int)($refundedAmount * 100);
+        $newRefundedCents = ($item->refunded_price_cents ?? 0) + $refundedAmountCents;
         $fullyRefunded = $newRefundedCents >= $item->paid_price_cents;
 
         $item->update([

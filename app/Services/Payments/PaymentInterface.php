@@ -4,7 +4,7 @@ namespace App\Services\Payments;
 
 use App\Models\Order;
 use App\Models\CreditCard;
-
+use App\Models\Store;
 interface PaymentInterface 
 {
     public function processPayment(Order $order, CreditCard $creditCard, float $amount, array $tempCardData = null): array;
@@ -16,4 +16,6 @@ interface PaymentInterface
     public function refundPayment(string $paymentTransactionId, float $amount): array;
     
     public function createCardToken(array $cardData, $userId): array;
+
+   // public function createSubMerchantForStore(Store $store): array;
 }

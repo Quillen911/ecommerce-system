@@ -18,12 +18,14 @@ class Store extends Model
         'description', 
         'email', 
         'is_active',
-        'iyzico_api_key',
-        'iyzico_secret_key',
+        'sub_merchant_key',
+        'iban',
+        'tax_number',
+        'tax_office',
+        'identity_number',
     ];
     protected $casts = [
-        'iyzico_api_key' => 'encrypted',
-        'iyzico_secret_key' => 'encrypted',
+        'sub_merchant_key' => 'encrypted',
     ];
     public function seller()
     {
