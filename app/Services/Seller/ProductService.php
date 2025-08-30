@@ -48,10 +48,14 @@ class ProductService
             'store_name' => $store->name,
             'sold_quantity' => 0,
         ]);
-        if(isset($request['images'])){
-            $productData['images'] = $request['images'];
+        
+        $product = $this->productRepository->createProduct($productData);
+        
+        if (!$product) {
+            throw new \Exception('Ürün oluşturulamadı');
         }
-        return $this->productRepository->createProduct($productData);
+        
+        return $product;
     }
 
     public function showProduct($sellerId, $id)
@@ -60,7 +64,14 @@ class ProductService
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
-        return $this->productRepository->getProductByStore($store->id, $id);
+        
+        $product = $this->productRepository->getProductByStore($store->id, $id);
+        
+        if (!$product) {
+            throw new \Exception('Ürün bulunamadı');
+        }
+        
+        return $product;
     }
 
     public function updateProduct($sellerId, array $request, $id)
@@ -69,7 +80,14 @@ class ProductService
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
-        return $this->productRepository->updateProduct($request, $store->id, $id);
+        
+        $result = $this->productRepository->updateProduct($request, $store->id, $id);
+        
+        if (!$result) {
+            throw new \Exception('Ürün güncellenemedi');
+        }
+        
+        return $result;
     }
 
     public function deleteProduct($sellerId, $id)
@@ -78,12 +96,132 @@ class ProductService
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
-        return $this->productRepository->deleteProduct($store->id, $id);
+
+        $result = $this->productRepository->deleteProduct($store->id, $id);
+        
+        if (!$result) {
+            throw new \Exception('Ürün silinemedi');
+        }
+        
+        return $result;
     }
     
-    public function bulkStoreProduct(Request $request)
+    public function bulkStoreProduct(Request $request, $sellerId)
     {
-        return $this->productRepository->bulkCreateProducts($request->all());
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        
+        $productsData = $request->input('products', []);
+        $productsFiles = $request->file('products', []);
+        
+        if (empty($productsData)) {
+            throw new \Exception('En az bir ürün eklemelisiniz');
+        }
+        
+        $processedProducts = [];
+        foreach ($productsData as $index => $productData) {
+            if (isset($productsFiles[$index]['images'])) {
+                $productData['images'] = $productsFiles[$index]['images'];
+            }
+            
+            $processedProducts[] = array_merge($productData, [
+                'store_id' => $store->id,
+                'store_name' => $store->name,
+                'sold_quantity' => 0,
+            ]);
+        }
+        
+        $products = $this->productRepository->bulkCreateProducts($processedProducts);
+        
+        if (empty($products)) {
+            throw new \Exception('Ürünler oluşturulamadı');
+        }
+        
+        return $products;
+    }
+
+    public function bulkStoreProductApi(array $productsData, $sellerId)
+    {
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if(!$store){
+            throw new \Exception('Mağaza bulunamadı');
+        }
+        
+        if (empty($productsData)) {
+            throw new \Exception('En az bir ürün eklemelisiniz');
+        }
+        
+        $processedProducts = [];
+        foreach ($productsData as $productData) {
+            // API'den gelen base64 resimleri işle
+            if (isset($productData['images']) && is_array($productData['images'])) {
+                $processedImages = [];
+                foreach ($productData['images'] as $imageData) {
+                    if (is_string($imageData) && strpos($imageData, 'data:image') === 0) {
+                        // Base64 resim verisi
+                        $processedImages[] = $this->processBase64Image($imageData);
+                    } else {
+                        // Normal resim dosyası
+                        $processedImages[] = $imageData;
+                    }
+                }
+                $productData['images'] = $processedImages;
+            }
+            
+            $processedProducts[] = array_merge($productData, [
+                'store_id' => $store->id,
+                'store_name' => $store->name,
+                'sold_quantity' => 0,
+            ]);
+        }
+        
+        $products = $this->productRepository->bulkCreateProducts($processedProducts);
+        
+        if (empty($products)) {
+            throw new \Exception('Ürünler oluşturulamadı');
+        }
+        
+        return $products;
+    }
+
+    private function processBase64Image($base64String)
+    {
+        // Base64 string'i parçala
+        $parts = explode(',', $base64String);
+        if (count($parts) !== 2) {
+            throw new \Exception('Geçersiz base64 resim formatı');
+        }
+        
+        $header = $parts[0];
+        $base64Data = $parts[1];
+        
+        // Header'dan dosya uzantısını al
+        if (preg_match('/data:image\/(\w+);base64/', $header, $matches)) {
+            $extension = $matches[1];
+        } else {
+            $extension = 'jpg'; // Varsayılan
+        }
+        
+        // Base64 verisini decode et
+        $imageData = base64_decode($base64Data);
+        if ($imageData === false) {
+            throw new \Exception('Base64 decode hatası');
+        }
+        
+        // Resim boyutunu kontrol et (2MB limit)
+        if (strlen($imageData) > 2 * 1024 * 1024) {
+            throw new \Exception('Resim boyutu 2MB\'dan büyük olamaz');
+        }
+        
+        // Dosya adını oluştur
+        $filename = time() . '_' . uniqid() . '.' . $extension;
+        
+        // Resmi storage'a kaydet
+        \Storage::disk('public')->put('productsImages/' . $filename, $imageData);
+        
+        return $filename;
     }
     
     public function getCategories()

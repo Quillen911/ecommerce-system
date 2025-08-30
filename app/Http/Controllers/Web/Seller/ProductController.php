@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
+use App\Http\Requests\Seller\Product\BulkProductStoreRequest;
 use App\Services\Seller\ProductService;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
@@ -69,14 +70,34 @@ class ProductController extends Controller
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
-            $products = $this->productService->createProduct($seller->id, $request->validated());
-            if(!$products){
-                return redirect()->route('seller.product')->with('error', 'Ürün oluşturulamadı');
-            }
+            
+            $this->productService->createProduct($seller->id, $request->validated());
             return redirect()->route('seller.product')->with('success', 'Ürün başarıyla eklendi');
 
         } catch (\Exception $e) {
             return redirect()->route('seller.product')->with('error', 'Ürün oluşturulamadı: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkStoreProduct()
+    {
+        return view('Seller.Product.bulkStoreProduct');
+    }
+
+    public function bulkCreateProduct(BulkProductStoreRequest $request)
+    {
+        try {
+            $seller = $this->authenticationRepository->getSeller();
+            if(!$seller){
+                return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
+            }
+            
+            $products = $this->productService->bulkStoreProduct($request, $seller->id);
+            
+            return redirect()->route('seller.product')->with('success', count($products) . ' ürün başarıyla eklendi');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Ürünler oluşturulamadı: ' . $e->getMessage());
         }
     }
 
@@ -102,7 +123,7 @@ class ProductController extends Controller
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
-            $products = $this->productService->updateProduct($seller->id, $request->validated(), $id);
+            $this->productService->updateProduct($seller->id, $request->validated(), $id);
             return redirect()->route('seller.product')->with('success', 'Ürün başarıyla güncellendi');
         }
         catch(\Exception $e){
@@ -117,7 +138,7 @@ class ProductController extends Controller
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
             }
-            $products = $this->productService->deleteProduct($seller->id, $id);
+            $this->productService->deleteProduct($seller->id, $id);
             return redirect()->route('seller.product')->with('success', 'Ürün başarıyla silindi');
         }
         catch(\Exception $e){

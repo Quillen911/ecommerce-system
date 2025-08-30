@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\Seller\Product\ProductStoreRequest;
 use App\Http\Requests\Seller\Product\ProductUpdateRequest;
+use App\Http\Requests\Seller\Product\BulkProductStoreApiRequest;
 use App\Services\Seller\ProductService;
 use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
@@ -51,9 +52,6 @@ class ProductController extends Controller
             $seller = $this->authenticationRepository->getSeller();
             
             $products = $this->productService->indexProduct($seller->id);
-            if($products->isEmpty()){
-                return ResponseHelper::notFound('Ürün bulunamadı');
-            }
 
             return ResponseHelper::success('Ürünler başarıyla listelendi', $products);
         }
@@ -65,12 +63,10 @@ class ProductController extends Controller
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $products = $this->productService->createProduct($seller->id, $request->validated());
-            if(!$products){
-                return ResponseHelper::error('Ürün oluşturulamadı');
-            }
-            return ResponseHelper::success('Ürün başarıyla oluşturuldu', $products);
-            }
+            $product = $this->productService->createProduct($seller->id, $request->validated());
+            
+            return ResponseHelper::success('Ürün başarıyla oluşturuldu', $product);
+        }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün oluşturulamadı: ' . $e->getMessage());
         }
@@ -79,11 +75,9 @@ class ProductController extends Controller
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $products = $this->productService->showProduct($seller->id, $id);
-            if(!$products){
-                return ResponseHelper::notFound('Ürün bulunamadı');
-            }
-            return ResponseHelper::success('Ürün başarıyla listelendi', $products);
+            $product = $this->productService->showProduct($seller->id, $id);
+            
+            return ResponseHelper::success('Ürün başarıyla listelendi', $product);
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün bulunamadı: ' . $e->getMessage());
@@ -93,13 +87,10 @@ class ProductController extends Controller
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $products = $this->productService->updateProduct($seller->id, $request->validated(), $id);
-            if(!$products){
-                return ResponseHelper::notFound('Ürün bulunamadı');
-            }
-            return ResponseHelper::success('Product updated successfully', $products);
-            }
-
+            $this->productService->updateProduct($seller->id, $request->validated(), $id);
+            
+            return ResponseHelper::success('Product updated successfully');
+        }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün güncellenemedi: ' . $e->getMessage());
         }
@@ -108,23 +99,26 @@ class ProductController extends Controller
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $products = $this->productService->deleteProduct($seller->id, $id);
-            if(!$products){
-                return ResponseHelper::notFound('Ürün bulunamadı');
-            }
-            return ResponseHelper::success('Ürün başarıyla silindi', $products);
+            $this->productService->deleteProduct($seller->id, $id);
+            
+            return ResponseHelper::success('Ürün başarıyla silindi');
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün silinemedi: ' . $e->getMessage());
         }
     }
-    public function bulkStore(Request $request)
+    public function bulkStore(BulkProductStoreApiRequest $request)
     {
-        $products = $this->productService->bulkStoreProduct($request);
-        if(!$products){
-            return ResponseHelper::error('Ürünler oluşturulamadı');
+        try {
+            $seller = $this->authenticationRepository->getSeller();
+            $productsData = $request->validated()['products'];
+            
+            $products = $this->productService->bulkStoreProductApi($productsData, $seller->id);
+            
+            return ResponseHelper::success('Ürünler başarıyla oluşturuldu', $products);
+        } catch(\Exception $e){
+            return ResponseHelper::error('Ürünler oluşturulamadı: ' . $e->getMessage());
         }
-        return ResponseHelper::success('Ürünler başarıyla oluşturuldu', $products);
     }
 
     public function searchProduct(Request $request)

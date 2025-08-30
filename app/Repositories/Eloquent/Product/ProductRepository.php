@@ -87,6 +87,21 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
             }
             
+            // Resim işleme
+            if (isset($productData['images']) && is_array($productData['images'])) {
+                $images = [];
+                foreach($productData['images'] as $image){
+                    if ($image instanceof \Illuminate\Http\UploadedFile) {
+                        $filename = time() . '_' . $image->getClientOriginalName();
+                        $image->storeAs('productsImages', $filename, 'public');
+                        $images[] = $filename;
+                    } else {
+                        $images[] = $image;
+                    }
+                }
+                $productData['images'] = $images;
+            }
+            
             $product = $this->create($productData);
             $created[] = $product;
         }

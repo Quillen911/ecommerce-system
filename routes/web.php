@@ -82,6 +82,8 @@ Route::middleware(['auth:seller_web',])->middleware(SellerRedirect::class)->grou
             Route::get('/',[ProductController::class, 'product'])->name('seller.product'); 
             Route::get('/storeProduct',[ProductController::class, 'storeProduct'])->name('seller.storeProduct'); 
             Route::post('/createProduct',[ProductController::class, 'createProduct'])->name('seller.createProduct'); 
+            Route::get('/bulkStoreProduct',[ProductController::class, 'bulkStoreProduct'])->name('seller.bulkStoreProduct'); 
+            Route::post('/bulkCreateProduct',[ProductController::class, 'bulkCreateProduct'])->name('seller.bulkCreateProduct'); 
             Route::get('/editProduct/{id}',[ProductController::class, 'editProduct'])->name('seller.editProduct');
             Route::post('/updateProduct/{id}',[ProductController::class, 'updateProduct'])->name('seller.updateProduct');
             Route::delete('/deleteProduct/{id}',[ProductController::class, 'deleteProduct'])->name('seller.deleteProduct');
