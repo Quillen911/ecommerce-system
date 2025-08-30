@@ -5,17 +5,40 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\AuthValidation\LoginRequest;
+use App\Http\Requests\AuthValidation\RegisterRequest;
+use App\Http\Requests\AuthValidation\UpdateProfileRequest;
 use Illuminate\Support\Facades\Hash; 
 use App\Models\User;
 use App\Helpers\ResponseHelper;
 use App\Models\Seller;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use App\Services\Auth\UserRegistrationService;
+use App\Services\Auth\ProfileService;
 class AuthController extends Controller
 {
     protected $authenticationRepository;
-    public function __construct(AuthenticationRepositoryInterface $authenticationRepository){
+    protected $userRegistrationService;
+    protected $profileService;
+
+    public function __construct(
+        AuthenticationRepositoryInterface $authenticationRepository,
+        UserRegistrationService $userRegistrationService,
+        ProfileService $profileService
+    ){
         $this->authenticationRepository = $authenticationRepository;
+        $this->userRegistrationService = $userRegistrationService;
+        $this->profileService = $profileService;
     }
+    /**
+     * Kullanıcı kayıt işlemi
+     */
+    public function register(RegisterRequest $request){
+        return $this->userRegistrationService->registerUser($request->validated());
+    }
+
+    /**
+     * Kullanıcı giriş işlemi
+     */
     public function login(LoginRequest $request){
         
         $user = User::where('email', $request->email)->first();
@@ -28,12 +51,51 @@ class AuthController extends Controller
         return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'user' =>$user]);
     }
     
+    /**
+     * Mevcut kullanıcı bilgilerini getir
+     */
     public function me(Request $request){
         $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }
         return ResponseHelper::success('Kullanıcı Bilgileri', $user);
+    }
+
+    /**
+     * Kullanıcı profil bilgilerini getir
+     */
+    public function profile(Request $request){
+        $user = $this->authenticationRepository->getUser();
+        if(!$user){
+            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+        }
+        
+        $result = $this->profileService->getUserProfile($user->id);
+        
+        if ($result['success']) {
+            return ResponseHelper::success($result['message'], $result['data']);
+        } else {
+            return ResponseHelper::error($result['message'], 400, $result['errors'] ?? []);
+        }
+    }
+
+    /**
+     * Kullanıcı profil bilgilerini güncelle
+     */
+    public function updateProfile(UpdateProfileRequest $request){
+        $user = $this->authenticationRepository->getUser();
+        if(!$user){
+            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+        }
+        
+        $result = $this->profileService->updateUserProfile($user->id, $request->validated());
+        
+        if ($result['success']) {
+            return ResponseHelper::success($result['message'], $result['data']);
+        } else {
+            return ResponseHelper::error($result['message'], 400, $result['errors'] ?? []);
+        }
     }
 
     public function logout(Request $request){

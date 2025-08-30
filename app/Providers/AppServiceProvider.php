@@ -73,6 +73,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\CreditCard\CreditCardRepository::class
         );
 
+        // User Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\UserRepositoryInterface::class,
+            \App\Repositories\Eloquent\UserRepository::class
+        );
+
         // Campaign Registry
         $this->app->register(CampaignServiceProvider::class);
 

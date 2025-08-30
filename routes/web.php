@@ -16,9 +16,20 @@ use App\Http\Controllers\Web\Seller\SellerSettingsController;
 use App\Http\Middleware\SellerRedirect;
 use App\Http\Controllers\DevelopmentController;
 use App\Http\Middleware\DevelopmentOnly;
+use App\Http\Middleware\LoginRateLimit;
+use App\Http\Middleware\RegisterRateLimit;
  
-Route::get('/login', [AuthController::class, 'login'])->name('login');                                                           
-Route::post('/postlogin', [AuthController::class,'postlogin'])->name('postlogin');
+
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
+
+Route::middleware('guest:user_web')->group(function() {
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/postlogin', [AuthController::class,'postlogin'])->middleware(LoginRateLimit::class)->name('postlogin');
+    Route::get('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/register', [AuthController::class, 'postRegister'])->middleware(RegisterRateLimit::class)->name('postregister');
+});
 
 
 
@@ -49,6 +60,8 @@ Route::middleware(['auth:user_web'])->group(function(){
         Route::post('/{id}/refund', [MyOrdersController::class, 'refundItems'])->name('myorders.refundItems');
     });
 
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+    Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
     Route::prefix('payments')->group(function(){

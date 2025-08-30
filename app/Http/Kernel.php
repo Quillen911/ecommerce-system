@@ -35,6 +35,9 @@ class Kernel extends HttpKernel
 
     protected $routeMiddleware = [
         'DevelopmentOnly' => \App\Http\Middleware\DevelopmentOnly::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'register.limit' => \App\Http\Middleware\RegisterRateLimit::class,
+        'login.limit' => \App\Http\Middleware\LoginRateLimit::class,
     ];
 
     protected $commands = [
