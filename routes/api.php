@@ -11,8 +11,9 @@ use App\Http\Controllers\Api\Seller\ProductController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 
-Route::post('/login',[AuthController::class, 'login']);
-Route::post('/seller/login',[AuthController::class, 'sellerLogin']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/seller/login', [AuthController::class, 'sellerLogin']);
 
 
 Route::middleware('auth:user')->group(function(){
@@ -33,6 +34,8 @@ Route::middleware('auth:user')->group(function(){
 
     
     Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 

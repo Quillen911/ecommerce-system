@@ -468,7 +468,7 @@
 <div class="page-header">
     <div class="header-content">
         <div>
-            <h1>Kitap Mağazası</h1>
+            <h1>Omnia</h1>
             <div class="header-subtitle">Hoş geldiniz, {{ auth()->user()->username }}</div>
         </div>
         <div class="nav-section">
@@ -483,6 +483,13 @@
                     <path d="M3 3h18v18H3zM8 7h8M8 11h8M8 15h5"/>
                 </svg>
                 Siparişlerim
+            </a>
+            <a href="{{ route('profile') }}" class="btn outline" style="color:rgb(255, 255, 255);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Hesabım
             </a>
             <form action="{{ route('logout') }}" method="POST" style="display:inline">
                 @csrf
