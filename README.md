@@ -274,9 +274,4 @@ docker-compose exec app php artisan migrate:fresh --seed
 - SQL injection koruması
 - XSS koruması
 - Secure authentication
-<<<<<<< HEAD
 - API token authentication
-=======
-- API token authentication
-
->>>>>>> 2636d0fd86fdd2f8388cfeaa7decf856bf4ebb43
