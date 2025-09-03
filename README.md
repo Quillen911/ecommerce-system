@@ -276,18 +276,3 @@ docker-compose exec app php artisan migrate:fresh --seed
 - Secure authentication
 - API token authentication
 
-## Lisans
-
-MIT License
-
-## Katkıda Bulunma
-
-1. Fork yapın
-2. Feature branch oluşturun
-3. Commit yapın
-4. Push yapın
-5. Pull Request oluşturun
-
-## Destek
-
-Sorunlar için GitHub Issues kullanın.
