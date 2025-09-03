@@ -40,7 +40,7 @@ Modern Laravel tabanlı e-ticaret platformu. Kullanıcılar ve satıcılar için
 
 1. **Projeyi klonlayın**
 ```bash
-git clone <repository-url>
+git clone https://github.com/Quillen911/E-Commerce-System
 ```
 
 2. **Environment dosyasını ayarlayın**
