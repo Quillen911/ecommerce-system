@@ -131,6 +131,14 @@
             background: var(--danger);
         }
 
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
         /* Cart Items */
         .cart-items {
             display: flex;
@@ -250,7 +258,6 @@
             border: 1px solid var(--success);
             border-radius: 12px;
             padding: 20px;
-            margin: 20px 0;
         }
         .campaign-title {
             font-size: 16px;
@@ -286,13 +293,21 @@
             color: var(--text);
         }
 
+        /* Right Sidebar */
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 20px;
+        }
+
         /* Summary */
         .summary {
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 12px;
             padding: 24px;
-            margin-top: 24px;
         }
         .summary-title {
             font-size: 18px;
@@ -373,6 +388,16 @@
             }
             .header-subtitle {
                 font-size: 13px;
+            }
+
+            /* Mobile Layout */
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .right-sidebar {
+                position: static;
+                order: -1;
             }
 
             /* Toolbar */
@@ -457,7 +482,6 @@
             /* Campaign */
             .campaign {
                 padding: 16px;
-                margin: 16px 0;
             }
             .campaign-title {
                 font-size: 15px;
@@ -480,7 +504,6 @@
             /* Summary */
             .summary {
                 padding: 20px;
-                margin-top: 20px;
             }
             .summary-title {
                 font-size: 16px;
@@ -567,11 +590,6 @@
                 ← Alışverişe Devam
             </a>
         </div>
-        <div class="nav-section">
-            <a href="{{ route('order') }}" class="btn success">
-                Sipariş Oluştur →
-            </a>
-        </div>
     </div>
 
     @if(session('success'))
@@ -596,77 +614,93 @@
             </a>
         </div>
     @else
-        <div class="cart-items">
-            @foreach($products as $p)
-                <div class="cart-item" data-item-id="{{ $p->id }}">
-                    <div class="product-image">
-                        <img src="{{ $p->product?->first_image ?? '/images/no-image.png' }}" alt="{{ $p->product?->title ?? 'Ürün' }}">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-title">{{ $p->product?->title ?? 'Ürün bilgisi yok' }}</div>
-                        <div class="product-author">{{ $p->product?->author ?? 'Yazar bilgisi yok' }}</div>
-                        <div class="product-store">{{ $p->product?->store?->name ?? 'Mağaza bilgisi yok' }}</div>
-                        <div class="product-category">{{ $p->product->category?->category_title }}</div>
-                    </div>
-                    <div class="quantity-price">
-                        <div class="quantity">
-                            <button class="quantity-btn" onclick="updateQuantity({{ $p->id }}, -1)">-</button>
-                            <span class="quantity-number">{{ $p->quantity }}</span>
-                            <button class="quantity-btn" onclick="updateQuantity({{ $p->id }}, 1)">+</button>
+        <div class="main-layout">
+            <!-- Sol Taraf - Ürünler -->
+            <div class="cart-items">
+                @foreach($products as $p)
+                    <div class="cart-item" data-item-id="{{ $p->id }}">
+                        <div class="product-image">
+                            <img src="{{ $p->product?->first_image ?? '/images/no-image.png' }}" alt="{{ $p->product?->title ?? 'Ürün' }}">
                         </div>
-                        <div class="price">{{ number_format($p->product?->list_price ?? 0,2) }} TL</div>
-                        <div class="total-price">{{ number_format(($p->product?->list_price ?? 0) * $p->quantity,2) }} TL</div>
-    
-                    <form action="{{ route('bag.delete', $p->id) }}" method="POST" style="margin:0">
-                        @csrf
-                        @method('DELETE')
-                        
-                        <button type="submit" class="btn danger" style="padding:6px 12px;font-size:10px">
-                            🗑️ Kaldır
-                        </button>
-                        </form>
+                        <div class="product-info">
+                            <div class="product-title">{{ $p->product?->title ?? 'Ürün bilgisi yok' }}</div>
+                            <div class="product-author">{{ $p->product?->author ?? 'Yazar bilgisi yok' }}</div>
+                            <div class="product-store">{{ $p->product?->store?->name ?? 'Mağaza bilgisi yok' }}</div>
+                            <div class="product-category">{{ $p->product->category?->category_title }}</div>
+                        </div>
+                        <div class="quantity-price">
+                            <div class="quantity">
+                                <button class="quantity-btn" onclick="updateQuantity({{ $p->id }}, -1)">-</button>
+                                <span class="quantity-number">{{ $p->quantity }}</span>
+                                <button class="quantity-btn" onclick="updateQuantity({{ $p->id }}, 1)">+</button>
+                            </div>
+                            <div class="price">{{ number_format($p->product?->list_price ?? 0,2) }} TL</div>
+                            <div class="total-price">{{ number_format(($p->product?->list_price ?? 0) * $p->quantity,2) }} TL</div>
+        
+                        <form action="{{ route('bag.delete', $p->id) }}" method="POST" style="margin:0">
+                            @csrf
+                            @method('DELETE')
+                            
+                            <button type="submit" class="btn danger" style="padding:6px 12px;font-size:10px">
+                                🗑️ Kaldır
+                            </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            @endforeach
-        </div>
+                @endforeach
+            </div>
 
-        @if(isset($bestCampaign['discount']) && $bestCampaign['discount'])
-            <div class="campaign">
-                <div class="campaign-title">
-                    ⭐ Aktif Kampanya
-                </div>
-                <div class="campaign-info">
-                    <div class="campaign-item">
-                        <span class="campaign-label">Kampanya</span>
-                        <span class="campaign-value">{{ $bestCampaign['description'] }}</span>
+            <!-- Sağ Taraf - Sipariş Özeti -->
+            <div class="right-sidebar">
+                @if(isset($bestCampaign['discount']) && $bestCampaign['discount'])
+                    <div class="campaign">
+                        <div class="campaign-title">
+                            ⭐ Aktif Kampanya
+                        </div>
+                        <div class="campaign-info">
+                            @if(isset($bestCampaign['store_name']) && $bestCampaign['store_name'])
+                                <div class="campaign-item">
+                                    <span class="campaign-label">Mağaza</span>
+                                    <span class="campaign-value">{{ $bestCampaign['store_name'] }}</span>
+                                </div>
+                            @endif
+                            <div class="campaign-item">
+                                <span class="campaign-label">Kampanya</span>
+                                <span class="campaign-value">{{ $bestCampaign['description'] }}</span>
+                            </div>
+                            <div class="campaign-item">
+                                <span class="campaign-label">İndirim</span>
+                                <span class="campaign-value">{{ number_format($bestCampaign['discount'],2) }} TL</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="campaign-item">
-                        <span class="campaign-label">İndirim</span>
-                        <span class="campaign-value">{{ number_format($bestCampaign['discount'],2) }} TL</span>
-                    </div>
-                </div>
-            </div>
-        @endif
+                @endif
 
-        <div class="summary">
-            <div class="summary-title">Sepet Özeti</div>
-            <div class="summary-row">
-                <span>Ürün Toplamı</span>
-                <span>{{ number_format($total,2) }} TL</span>
-            </div>
-            <div class="summary-row">
-                <span>Kargo</span>
-                <span>{{ $cargoPrice == 0 ? "200 TL üzeri ücretsiz" : number_format($cargoPrice,2)." TL" }}</span>
-            </div>
-            @if($discount > 0)
-                <div class="summary-row">
-                    <span>İndirim</span>
-                    <span>-{{ number_format($discount,2) }} TL</span>
+                <div class="summary">
+                    <div class="summary-title">Sepet Özeti</div>
+                    <div class="summary-row">
+                        <span>Ürün Toplamı</span>
+                        <span>{{ number_format($total,2) }} TL</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Kargo</span>
+                        <span>{{ $cargoPrice == 0 ? "200 TL üzeri ücretsiz" : number_format($cargoPrice,2)." TL" }}</span>
+                    </div>
+                    @if($discount > 0)
+                        <div class="summary-row">
+                            <span>İndirim</span>
+                            <span>-{{ number_format($discount,2) }} TL</span>
+                        </div>
+                    @endif
+                    <div class="summary-row">
+                        <span>Genel Toplam</span>
+                        <span>{{ number_format(floor($finalPrice * 100) / 100,2) }} TL</span>
+                    </div>
                 </div>
-            @endif
-            <div class="summary-row">
-                <span>Genel Toplam</span>
-                <span>{{ number_format(floor($finalPrice * 100) / 100,2) }} TL</span>
+
+                <a href="{{ route('order') }}" class="btn success" style="width:100%;justify-content:center;padding:16px;font-size:14px">
+                    Sipariş Oluştur →
+                </a>
             </div>
         </div>
     @endif

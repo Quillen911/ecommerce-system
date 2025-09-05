@@ -15,7 +15,7 @@ class CampaignManager
     }
     public function getBestCampaigns(array $products, $campaigns)
     {  
-        $best = ['discount' => 0, 'description' => '', 'campaign_id' => null];
+        $best = ['discount' => 0, 'description' => '', 'campaign_id' => null, 'store_name' => null];
         foreach ($campaigns as $campaign) {
             $service = $this->createServiceByType($campaign);
 
@@ -24,6 +24,7 @@ class CampaignManager
                 if ($result['discount'] > $best['discount']) {
                     $best = $result;
                     $best['campaign_id'] = $campaign->id;
+                    $best['store_name'] = $campaign->store_name;
                 }
             }
         }
