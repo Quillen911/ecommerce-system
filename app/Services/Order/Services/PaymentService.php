@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\CreditCard;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
+
 class PaymentService implements PaymentInterface
 {
 
@@ -27,12 +28,12 @@ class PaymentService implements PaymentInterface
 
     public function handlePaymentSuccess(Order $order, array $paymentResult): void
     {
-        $paidPrice = $paymentResult['paid_price'] ?? 0;
-        $paidPriceCents = (int)round($paidPrice * 100);
+
+        $paidPrice = floor($paymentResult['paid_price'] * 100) / 100;
         
         $order->update([
             'paid_price'      => $paidPrice,
-            'paid_price_cents' => $paidPriceCents,
+            'paid_price_cents' => $paidPrice * 100,
             'currency'        => $paymentResult['currency'] ?? 'TRY',
             'payment_id'      => $paymentResult['payment_id'] ?? null,
             'conversation_id' => $paymentResult['conversation_id'] ?? null,
