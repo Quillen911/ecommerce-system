@@ -189,8 +189,8 @@ class IyzicoPaymentService implements PaymentInterface
             }
 
             $request->setBasketItems($basketItems);
-            $request->setPrice(number_format($totalBasketPrice, 4, '.', ''));
-            $request->setPaidPrice(number_format($amount, 4, '.', ''));
+            $request->setPrice(number_format($totalBasketPrice, 2, '.', ''));
+            $request->setPaidPrice(number_format($amount, 2, '.', ''));
             
             $payment = Payment::create($request, $this->options);
 
@@ -247,7 +247,7 @@ class IyzicoPaymentService implements PaymentInterface
                     $response['card_token'] = $tokenResult['card_token'];
                     $response['card_user_key'] = $tokenResult['card_user_key'];
                 }
-                
+                Log::info('Ödeme işlemi başarılı', $response);
                 return $response;
             } else {
                 $errorMessage = $this->translateErrorMessage($payment->getErrorMessage(), $payment->getErrorCode());
