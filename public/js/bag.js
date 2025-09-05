@@ -12,7 +12,6 @@ function updateQuantity(itemId, change) {
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + change;
     
-    // Miktar 0'dan küçükse ürünü sil
     if (newQuantity < 1) {
         if (confirm('Bu ürünü sepetten tamamen silmek istediğinizden emin misiniz?')) {
             deleteItem(itemId, token);
@@ -20,10 +19,8 @@ function updateQuantity(itemId, change) {
         return;
     }
     
-    // Yükleme göstergesi
     quantityElement.textContent = '...';
     
-    // Form oluştur ve gönder
     submitQuantityUpdate(itemId, newQuantity, token);
 }
 

@@ -5,107 +5,417 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Siparişlerim</title>
     <style>
-        :root{
-            --bg:#1B1B1F; --text:#EDEDED; --muted:#A0A0A0; --line:#333338;
-            --accent:#404046; --success:#00C6AE; --warn:#ed8936; --danger:#FF6B6B;
-            --card:#232327; --shadow:rgba(0,0,0,0.3); --hover:rgba(0,198,174,0.1);
-            --primary:#00C6AE; --secondary:#14F1D9; --gray-50:#2A2A2F; --gray-100:#333338;
-            --hover-accent:#505056; --price-color:#4A90E2;
+        :root {
+            --bg: #0A0A0A;
+            --text: #FFFFFF;
+            --muted: #CCCCCC;
+            --line: #333333;
+            --accent: #404040;
+            --success: #00E6B8;
+            --danger: #FF5555;
+            --card: #1F1F1F;
+            --primary: #00E6B8;
+            --warn: #FFB84D;
+            --shadow: rgba(0,0,0,0.3);
+            --hover: rgba(0,230,184,0.1);
+            --secondary: #00E6B8;
+            --gray-50: #2A2A2A;
+            --gray-100: #333333;
+            --hover-accent: #505050;
+            --price-color: #00E6B8;
         }
-        *{box-sizing:border-box}
-        html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-size:14px}
-        body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;letter-spacing:-0.025em;line-height:1.6;-webkit-font-smoothing:antialiased}
-        .shell{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
-        
-        /* Header */
-        .page-header{background:var(--card);border-bottom:1px solid var(--line);padding:20px 0;margin:-24px -20px 24px;box-shadow:0 4px 20px var(--shadow)}
-        .header-content{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
-        h1{font-size:24px;font-weight:600;letter-spacing:-0.01em;margin:0;color:var(--text)}
-        .header-subtitle{font-size:14px;color:var(--muted);font-weight:500}
-        
-        /* Toolbar */
-        .toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 20px;background:var(--card);padding:16px 20px;border-radius:8px;box-shadow:0 1px 3px var(--shadow);border:1px solid var(--line)}
-        .nav-section{display:flex;gap:6px;align-items:center}
-        
-        /* Cards */
-        .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;box-shadow:0 1px 3px var(--shadow)}
-        
-        /* Buttons */
-        .btn{border:1px solid var(--accent);background:var(--accent);color:#EDEDED;padding:10px 16px;border-radius:8px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;font-size:12px;font-weight:600;transition:all .2s ease;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-        .btn:hover{background:var(--hover-accent);border-color:var(--hover-accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(64,64,70,0.4)}
-        .btn.outline{background:transparent;color:var(--accent);border-color:var(--accent)}
-        .btn.outline:hover{background:var(--accent);color:#EDEDED}
-        .btn.success{background:var(--success);border-color:var(--success)}
-        .btn.success:hover{background:#00B894;box-shadow:0 4px 12px rgba(0,198,174,0.4)}
-        .btn.danger{background:var(--danger);border-color:var(--danger)}
-        .btn.danger:hover{background:#FF5252;box-shadow:0 4px 12px rgba(255,107,107,0.4)}
-        
-        /* Order Cards */
-        .order-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-top:20px;box-shadow:0 1px 3px var(--shadow);transition:all .2s ease}
-        .order-card:hover{border-color:var(--accent);box-shadow:0 4px 12px rgba(64,64,70,0.2)}
-        
-        /* Table */
-        .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
-        table{width:100%;border-collapse:collapse;min-width:720px}
-        thead th{
-            font-size:13px;color:var(--text);font-weight:600;text-transform:none;letter-spacing:0.5px;
-            background:var(--gray-50);border-bottom:2px solid var(--accent);padding:16px 12px;text-align:left
+        * { box-sizing: border-box }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
         }
-        tbody td{padding:16px 12px;border-bottom:1px solid var(--line);font-size:14px;color:var(--text);font-weight:500}
-        tbody tr:hover{background:var(--gray-50)}
-        tbody tr:last-child td{border-bottom:none}
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+        }
+        .shell {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+        }
         
-        /* Order Summary */
-        .order-summary{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-top:20px;box-shadow:0 2px 8px var(--shadow)}
-        .summary-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--accent)}
-        .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
-        .summary-item{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
-        .summary-item:last-child{border-bottom:none;font-weight:700;font-size:18px;color:var(--success);padding-top:20px;border-top:2px solid var(--success)}
-        .summary-label{font-size:14px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0.2px}
-        .summary-value{font-weight:600;color:var(--text);font-size:15px}
+        .page-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--line);
+            padding: 20px 0;
+            margin: -24px -20px 24px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text);
+        }
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 500;
+        }
         
-        /* Campaign Styles */
-        .campaign-item{background:linear-gradient(135deg, rgba(0,198,174,0.05) 0%, rgba(20,241,217,0.02) 100%);border-radius:8px;padding:12px 16px;margin:4px 0;border:1px solid rgba(0,198,174,0.2)}
-        .campaign-item .summary-label{color:var(--success);font-weight:600;display:flex;align-items:center}
-        .campaign-value{color:var(--success);font-weight:700}
-        .discount-item{background:linear-gradient(135deg, rgba(255,107,107,0.05) 0%, rgba(255,82,82,0.02) 100%);border-radius:8px;padding:12px 16px;margin:4px 0;border:1px solid rgba(255,107,107,0.2)}
-        .discount-value{color:var(--danger);font-weight:700}
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 0 0 20px;
+            background: var(--card);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px var(--shadow);
+            border: 1px solid var(--line);
+        }
+        .nav-section {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
         
-        /* Refund Controls */
-        .refund-actions{display:none;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
-        .order-card.select-mode .refund-actions{display:flex}
-        .refund-col{text-align:center}
-        .order-card:not(.select-mode) .refund-checkbox{display:none}
-        .order-card:not(.select-mode) .select-all{display:none}
-        .qty-box{display:inline-flex;align-items:center;gap:8px;background:var(--card);padding:12px;border-radius:8px;border:1px solid var(--line)}
-        .qty-btn{width:36px;height:36px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease;font-size:18px;font-weight:600}
-        .qty-btn:hover{background:var(--accent);border-color:var(--accent)}
-        .refund-qty{width:70px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);text-align:center;font-size:15px;font-weight:600}
-        .order-card:not(.select-mode) .qty-box{display:none}
-        .refund-info{font-size:13px;color:var(--muted);margin-top:8px;font-weight:500}
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
         
-        /* Actions */
-        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+        .btn {
+            border: 1px solid var(--accent);
+            background: var(--accent);
+            color: var(--text);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all .2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background: var(--hover-accent);
+            border-color: var(--hover-accent);
+            transform: translateY(-1px);
+        }
+        .btn.outline {
+            background: transparent;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .btn.outline:hover {
+            background: var(--accent);
+            color: var(--text);
+        }
+        .btn.success {
+            background: var(--success);
+            border-color: var(--success);
+        }
+        .btn.success:hover {
+            background: var(--primary);
+        }
+        .btn.danger {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+        .btn.danger:hover {
+            background: var(--danger);
+        }
         
-        /* Notices */
-        .notice{padding:12px 16px;border:1px solid var(--line);margin:0 0 20px;border-radius:8px;display:flex;align-items:center;gap:8px}
-        .notice.success{color:var(--success);background:rgba(0,198,174,0.1);border-color:var(--success)}
-        .notice.error{color:var(--danger);background:rgba(255,107,107,0.1);border-color:var(--danger)}
+        .refund-form {
+            margin: 0;
+        }
         
-        /* Empty State */
-        .empty-state{text-align:center;padding:64px 32px;background:var(--card);border-radius:20px;border:2px dashed var(--line);margin:32px 0}
-        .empty-state svg{margin-bottom:16px;opacity:0.5}
-        .empty-state h3{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
-        .empty-state p{color:var(--muted);margin-bottom:0}
+        .order-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px var(--shadow);
+            transition: all .2s ease;
+        }
+        .order-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(64,64,70,0.2);
+        }
         
-        /* Responsive */
-        @media (max-width:768px){
-            .shell{padding:24px 16px 60px}
-            .page-header{margin:-24px -16px 24px;padding:32px 0}
-            .toolbar{padding:16px 20px;flex-direction:column;align-items:stretch}
-            .nav-section{justify-content:center}
-            .summary-grid{grid-template-columns:1fr}
-            .qty-box{flex-direction:column;gap:4px}
+        .table-wrap {
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--card);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+        thead th {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: 0.5px;
+            background: var(--gray-50);
+            border-bottom: 2px solid var(--accent);
+            padding: 16px 12px;
+            text-align: left;
+        }
+        tbody td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 500;
+        }
+        tbody tr:hover {
+            background: var(--gray-50);
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .order-summary {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        .summary-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .summary-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--success);
+            padding-top: 20px;
+            border-top: 2px solid var(--success);
+        }
+        .summary-label {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0.2px;
+        }
+        .summary-value {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 15px;
+        }
+        
+        .campaign-item {
+            background: linear-gradient(135deg, rgba(0,230,184,0.05) 0%, rgba(0,230,184,0.02) 100%);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 4px 0;
+            border: 1px solid rgba(0,230,184,0.2);
+        }
+        .campaign-item .summary-label {
+            color: var(--success);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        .campaign-value {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .discount-item {
+            background: linear-gradient(135deg, rgba(255,85,85,0.05) 0%, rgba(255,85,85,0.02) 100%);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 4px 0;
+            border: 1px solid rgba(255,85,85,0.2);
+        }
+        .discount-value {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        
+        .refund-actions {
+            display: none;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+        }
+        .order-card.select-mode .refund-actions {
+            display: flex;
+        }
+        .refund-col {
+            text-align: center;
+        }
+        .order-card:not(.select-mode) .refund-checkbox {
+            display: none;
+        }
+        .order-card:not(.select-mode) .select-all {
+            display: none;
+        }
+        .qty-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+        }
+        .qty-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s ease;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .qty-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .refund-qty {
+            width: 70px;
+            padding: 10px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--text);
+            text-align: center;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .order-card:not(.select-mode) .qty-box {
+            display: none;
+        }
+        .refund-info {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+        }
+        
+        .notice {
+            padding: 12px 16px;
+            border: 1px solid var(--line);
+            margin: 0 0 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .notice.success {
+            color: var(--success);
+            background: rgba(0,230,184,0.1);
+            border-color: var(--success);
+        }
+        .notice.error {
+            color: var(--danger);
+            background: rgba(255,85,85,0.1);
+            border-color: var(--danger);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 64px 32px;
+            background: var(--card);
+            border-radius: 20px;
+            border: 2px dashed var(--line);
+            margin: 32px 0;
+        }
+        .empty-state svg {
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .empty-state p {
+            color: var(--muted);
+            margin-bottom: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .shell {
+                padding: 24px 16px 60px;
+            }
+            .page-header {
+                margin: -24px -16px 24px;
+                padding: 32px 0;
+            }
+            .toolbar {
+                padding: 16px 20px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-section {
+                justify-content: center;
+            }
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            .qty-box {
+                flex-direction: column;
+                gap: 4px;
+            }
         }
     </style>
 </head>
@@ -185,10 +495,9 @@
             @foreach($orders as $order)
 
                 <div class="order-card">
-                    <form action="{{ route('myorders.refundItems', $order->id) }}" method="POST" class="refund-form" style="margin:0;">
+                    <form action="{{ route('myorders.refundItems', $order->id) }}" method="POST" class="refund-form">
                         @csrf
                         <div class="table-wrap">
-                        @php /* Satır bazlı hesap kullanılacak, global oran yok */ @endphp
                         <table>
                             <thead>
                                 <tr>
@@ -471,63 +780,6 @@
             @endforeach
         @endif
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.order-card').forEach(function(card){
-                const toggleBtn = card.querySelector('.toggle-refund');
-                const cancelBtn = card.querySelector('.cancel-select');
-                const selectAll = card.querySelector('.select-all');
-                const refundForm = card.querySelector('.refund-form');
-                const qtyInputs = card.querySelectorAll('.refund-qty');
-                if(toggleBtn){
-                    toggleBtn.addEventListener('click', function(){
-                        card.classList.add('select-mode');
-                    });
-                }
-                if(cancelBtn){
-                    cancelBtn.addEventListener('click', function(){
-                        card.classList.remove('select-mode');
-                        qtyInputs.forEach(inp => inp.value = 0);
-                        if(selectAll){ selectAll.checked = false; }
-                    });
-                }
-                if(selectAll){
-                    selectAll.addEventListener('change', function(){
-                        const fillMax = !!this.checked;
-                        qtyInputs.forEach(function(inp){
-                            inp.value = fillMax ? (inp.dataset.max || inp.max || 0) : 0;
-                        });
-                    });
-                }
-                // plus/minus buttons
-                card.querySelectorAll('.qty-box').forEach(function(box){
-                    const dec = box.querySelector('.qty-btn.dec');
-                    const inc = box.querySelector('.qty-btn.inc');
-                    const inp = box.querySelector('.refund-qty');
-                    const getMax = () => parseInt(inp.dataset.max || inp.max || '0', 10) || 0;
-                    const clamp = v => Math.max(0, Math.min(getMax(), v|0));
-                    if(dec){ dec.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) - 1); }); }
-                    if(inc){ inc.addEventListener('click', ()=>{ inp.value = clamp((parseInt(inp.value||'0',10)||0) + 1); }); }
-                });
-                if(refundForm){
-                    refundForm.addEventListener('submit', function(e){
-                        const anyPositive = Array.from(qtyInputs).some(inp => (parseInt(inp.value||'0',10)||0) > 0);
-                        if(!anyPositive){
-                            e.preventDefault();
-                            alert('Lütfen iade adedi giriniz.');
-                            return;
-                        }
-                        
-                        // Sıfır değerli input'ları form'dan kaldır
-                        qtyInputs.forEach(function(inp) {
-                            if (parseInt(inp.value || '0', 10) === 0) {
-                                inp.disabled = true;
-                            }
-                        });
-                    });
-                }
-            });
-        });
-    </script>
+<script src="{{ asset('js/myorders.js') }}"></script>
     </body>
     </html>
