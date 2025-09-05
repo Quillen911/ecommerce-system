@@ -83,30 +83,30 @@ class OrderCreationService implements OrderCreationInterface
                         $diffApplied = true;
                     }
                 }
-                
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->product_id,
-                    'product_title' => $product->product->title,
-                    'product_category_title' => $product->product->category->category_title,
-                    'quantity' => $product->quantity,
-                    'refunded_quantity' => 0,
-                    'list_price' => $product->product->list_price,
-                    'list_price_cents' => (int)($product->product->list_price * 100),
-                    'discount_price' => $discountAmountCents / 100,
-                    'discount_price_cents' => (int)$discountAmountCents,
-                    'paid_price' => $paidPriceCents / 100,
-                    'paid_price_cents' => (int)$paidPriceCents,
-                    'payment_transaction_id' => "",
-                    'refunded_price' => 0,
-                    'refunded_price_cents' => 0,
-                    'payment_status' => 'failed',
-                    'refunded_at' => null,
-                    'store_id' => $product->product->store_id,
-                    'store_name' => $product->product->store_name,
-                    'status' => 'Başarısız Ödeme',
-                ]);
             }
+            
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $product->product_id,
+                'product_title' => $product->product->title,
+                'product_category_title' => $product->product->category->category_title,
+                'quantity' => $product->quantity,
+                'refunded_quantity' => 0,
+                'list_price' => $product->product->list_price,
+                'list_price_cents' => (int)($product->product->list_price * 100),
+                'discount_price' => $discountAmountCents / 100,
+                'discount_price_cents' => (int)$discountAmountCents,
+                'paid_price' => $paidPriceCents / 100,
+                'paid_price_cents' => (int)$paidPriceCents,
+                'payment_transaction_id' => "",
+                'refunded_price' => 0,
+                'refunded_price_cents' => 0,
+                'payment_status' => 'failed',
+                'refunded_at' => null,
+                'store_id' => $product->product->store_id,
+                'store_name' => $product->product->store_name,
+                'status' => 'Başarısız Ödeme',
+            ]);
         }
     }
     
