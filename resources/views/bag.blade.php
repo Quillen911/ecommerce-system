@@ -292,6 +292,20 @@
             font-weight: 600;
             color: var(--text);
         }
+        .campaign-notice {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 6px;
+            text-align: center;
+        }
+        .campaign-notice small {
+            color: var(--success);
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
 
         /* Right Sidebar */
         .right-sidebar {
@@ -500,6 +514,13 @@
             .campaign-value {
                 font-size: 13px;
             }
+            .campaign-notice {
+                margin-top: 10px;
+                padding: 6px 10px;
+            }
+            .campaign-notice small {
+                font-size: 10px;
+            }
 
             /* Summary */
             .summary {
@@ -672,6 +693,9 @@
                                 <span class="campaign-label">İndirim</span>
                                 <span class="campaign-value">{{ number_format($bestCampaign['discount'],2) }} TL</span>
                             </div>
+                        </div>
+                        <div class="campaign-notice">
+                            <small>ℹ️ Bu kampanya sadece {{ $bestCampaign['store_name'] ?? 'bu mağazanın' }} ürünlerine geçerlidir</small>
                         </div>
                     </div>
                 @endif

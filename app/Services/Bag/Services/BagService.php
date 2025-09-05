@@ -98,16 +98,8 @@ class BagService implements BagInterface
         $user = $this->getUser();
         $bagItem = $this->showBagItem($bagItemId);
         if($bagItem){
-            $product = $bagItem->product;
-            if($bagItem->quantity > 1){
-                $bagItem->quantity -= 1;
-                $bagItem->save();
-                return $bagItem;
-            }
-            else{
-                $bagItem->delete();
-                return $bagItem;
-            }
+            $bagItem->delete();
+            return ['success' => true, 'message' => 'Ürün sepetten kaldırıldı.'];
         }
         else{
             return ['error' => 'Ürün bulunamadı!'];
@@ -117,11 +109,11 @@ class BagService implements BagInterface
     {
         $bagItems = $bagItems->filter(function($item) use ($bag) {
             if (!$item->product || $item->product->deleted_at !== null) {
-                $this->destroyBagItem($item->id);
+                $item->delete();
                 return false;
             }
             if($item->product->stock_quantity == 0){
-                $this->destroyBagItem($item->id);
+                $item->delete();
                 return false;
             }
             return true;
