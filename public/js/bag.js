@@ -1,10 +1,13 @@
 /**
  * Sepet Sayfası JavaScript Fonksiyonları
- * Miktar güncelleme ve form işlemleri
+ * Optimized ama okunabilir versiyon
  */
 
+// CSRF token'ı cache'le
+let csrfToken;
+
 function updateQuantity(itemId, change) {
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const token = csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     const quantityElement = document.querySelector(`[data-item-id="${itemId}"] .quantity-number`);
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + change;
@@ -76,15 +79,10 @@ function submitQuantityUpdate(itemId, newQuantity, token) {
  * Sayfa yüklendiğinde çalışacak fonksiyonlar
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // CSRF token kontrolü
-    const token = document.querySelector('meta[name="csrf-token"]');
-    if (!token) {
-        console.warn('CSRF token bulunamadı');
-    }
+    // CSRF token'ı cache'le
+    csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     
-    // Sepet boşsa özel işlemler
-    const emptyState = document.querySelector('.empty-state');
-    if (emptyState) {
-        console.log('Sepet boş');
+    if (!csrfToken) {
+        console.warn('CSRF token bulunamadı');
     }
 });
