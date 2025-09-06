@@ -78,6 +78,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\UserRepositoryInterface::class,
             \App\Repositories\Eloquent\UserRepository::class
         );
+        // Addresses Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\User\AddressesRepositoryInterface::class,
+            \App\Repositories\Eloquent\User\AddressesRepository::class
+        );
 
         // Campaign Registry
         $this->app->register(CampaignServiceProvider::class);

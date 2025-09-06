@@ -12,7 +12,8 @@ use App\Helpers\ResponseHelper;
 use App\Models\Order;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Models\Bag;
-use App\Models\CreditCard;
+use App\Models\CreditCard; 
+use App\Http\Requests\OrderRequest;
 class OrderController extends Controller
 {
     protected $orderService;
@@ -45,7 +46,7 @@ class OrderController extends Controller
         return ResponseHelper::success('Siparişler', $orders);
     }
 
-    public function store(Request $request)
+    public function store(OrderRequest $request)
     {
         $user = $this->authenticationRepository->getUser();
         if(!$user){

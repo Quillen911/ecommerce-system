@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Seller\CampaignController;
 use App\Http\Controllers\Api\Seller\ProductController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
+use App\Http\Controllers\Api\User\AddressesController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -32,10 +33,14 @@ Route::middleware('auth:user')->group(function(){
     Route::get('/sorting', [MainController::class, 'sorting']);
     Route::get('/autocomplete', [MainController::class, 'autocomplete']);
 
-    
     Route::get('/me', [AuthController::class, 'me']);
-    Route::get('/profile', [AuthController::class, 'profile']);
-    Route::put('/profile', [AuthController::class, 'updateProfile']);
+
+    Route::prefix('account')->group(function(){
+        Route::apiResource('addresses', AddressesController::class);
+    
+        Route::get('/profile', [AuthController::class, 'profile']);
+        Route::put('/profile', [AuthController::class, 'updateProfile']);
+    });
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 

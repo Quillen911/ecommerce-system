@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    const cardHolderName = document.getElementById('card_holder_name');
+    const cardHolderName = document.getElementById('new_card_holder_name');
     if (cardHolderName) {
         cardHolderName.addEventListener('input', function(e) {
             if (e.target.value.trim().length > 0) {
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    const cardName = document.getElementById('card_name');
+    const cardName = document.getElementById('new_card_name');
     if (cardName) {
         cardName.addEventListener('input', function(e) {
             if (e.target.value.trim().length > 0) {

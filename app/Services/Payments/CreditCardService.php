@@ -73,7 +73,7 @@ class CreditCardService
                 'iyzico_card_user_key' => $tokenResult['card_user_key']
             ];
             
-            $creditCard = $this->creditCardRepository->createCreditCard($data);
+            $creditCard = $this->creditCardRepository->createCreditCard($data, $user->id);
             if(!$creditCard){
                 return ResponseHelper::error('Kredi kartı oluşturulamadı');
             }
@@ -106,7 +106,7 @@ class CreditCardService
                 return ResponseHelper::error('Kullanıcı bulunamadı');
             }
             $data = $request->all();
-            $creditCard = $this->creditCardRepository->updateCreditCard($data, $user->id, $id);
+            $creditCard = $this->creditCardRepository->updateCreditCard($data, $id, $user->id);
             
             if(!$creditCard){
                 return ResponseHelper::error('Kredi kartı güncellenemedi');

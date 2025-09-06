@@ -43,7 +43,7 @@ class PaymentService implements PaymentInterface
 
         if (isset($paymentResult['payment_transaction_id'])) {
             foreach ($paymentResult['payment_transaction_id'] as $itemId => $txId){
-                $orderItems = $this->orderItemRepository->getOrderItemByOrderId($itemId, $order->id);
+                $orderItems = $this->orderItemRepository->getOrderItemByOrderId($itemId, $order->id, $order->user_id);
                 
                 foreach ($orderItems as $orderItem) {
                     $orderItem->update([

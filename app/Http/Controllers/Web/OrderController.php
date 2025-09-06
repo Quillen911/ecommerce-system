@@ -44,6 +44,7 @@ class OrderController extends Controller
             $bag = Bag::where('bag_user_id', $user->id)->first();
 
             $selectedCreditCard = $request->input('credit_card_id');
+            
             if(!$selectedCreditCard){
                 return redirect('order')->with('error', 'Lütfen bir ödeme yöntemi seçiniz!');
             }

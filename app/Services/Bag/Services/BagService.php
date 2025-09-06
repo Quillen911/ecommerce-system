@@ -4,11 +4,10 @@ namespace App\Services\Bag\Services;
 
 use App\Services\Bag\Contracts\BagInterface;
 use App\Exceptions\InsufficientStockException;
-use App\Models\Bag;
-use App\Models\Campaign;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
 use App\Traits\GetUser;
+
 class BagService implements BagInterface
 {
     use GetUser;
@@ -17,7 +16,12 @@ class BagService implements BagInterface
     protected $bagCalculationService;
     protected $bagRepository;
 
-    public function __construct(StockService $stockService, BagCalculationService $bagCalculationService, AuthenticationRepositoryInterface $authenticationRepository, BagRepositoryInterface $bagRepository)
+    public function __construct(
+        StockService $stockService, 
+        BagCalculationService $bagCalculationService, 
+        AuthenticationRepositoryInterface $authenticationRepository, 
+        BagRepositoryInterface $bagRepository
+    )
     {
         $this->authenticationRepository = $authenticationRepository;
         $this->stockService = $stockService;
@@ -76,7 +80,12 @@ class BagService implements BagInterface
     {
         $user = $this->getUser();
         $bag = $this->bagRepository->getBag($user);
-        return $bag->bagItems()->where('id', $bagItemId)->first();
+        if(!$bag){
+            return null;
+        }
+        return $bag->bagItems()->where('id', $bagItemId)
+                            ->where('bag_id', $bag->id)
+                            ->first();
     }
 
     public function updateBagItem($bagItemId, $quantity)
