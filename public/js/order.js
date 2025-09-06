@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('expire_month').value = month;
                     document.getElementById('expire_year').value = year;
                 }
+
             }
         });
     }
@@ -411,3 +412,4 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
