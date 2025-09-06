@@ -21,17 +21,20 @@ class CreditCardRepository extends BaseRepository implements CreditCardRepositor
     {
         return $this->model->where('user_id', $userId)->orderBy('id')->get();
     }
-    public function createCreditCard(array $data)
+    public function createCreditCard(array $data, $userId)
     {
+        $data['user_id'] = $userId;
         return $this->create($data);
     }
     public function getCreditCardByUserId($userId, $id)
     {
         return $this->model->where('user_id', $userId)->find($id);
     }
-    public function updateCreditCard(array $data, $id)
+    public function updateCreditCard(array $data, $id, $userId)
     {
-        return $this->update($data, $id);
+        return $this->model->where('id', $id)
+                        ->where('user_id', $userId)
+                        ->update($data);
     }
     public function deleteCreditCard($userId, $id)
     {

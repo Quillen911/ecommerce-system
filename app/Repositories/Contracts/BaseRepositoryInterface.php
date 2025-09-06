@@ -2,11 +2,7 @@
 
 namespace App\Repositories\Contracts;
 
-/**
- * @deprecated Bu interface artık kullanılmıyor. 
- * RepositoryInterface kullanın.
- */
-interface BaseRepositoryInterface extends RepositoryInterface
+interface BaseRepositoryInterface extends ReadRepositoryInterface, WriteRepositoryInterface
 {
-    // Geriye uyumluluk için RepositoryInterface'i extend eder
+    // Geriye uyumluluk için ReadRepositoryInterface ve WriteRepositoryInterface'i extend eder
 }
