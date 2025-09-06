@@ -6,21 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use App\Models\UserAddress;
 
 class User extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;
 
     protected $fillable = [
-        'username', 
+        'first_name', 
+        'last_name',
+        'username',
         'email',
         'password',
         'phone',
-        'address',
-        'city',
-        'district',
-        'postal_code',
     ];
 
     protected $hidden = [
@@ -31,5 +29,9 @@ class User extends Authenticatable
     public function creditCard()
     {
         return $this->hasMany(CreditCard::class);
+    }
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
     }
 }

@@ -13,24 +13,20 @@ class UserSeeder extends Seeder
         User::firstOrCreate([
             'email' => 'hecksoft0@gmail.com',
         ], [
+            'first_name' => 'İsmail',
+            'last_name' => 'Danış',
             'username' => 'İsmail',
             'password' => Hash::make('ismail'),
             'phone' => '5555555555',
-            'address' => '123 Main St',
-            'city' => 'New York',
-            'district' => 'Manhattan',
-            'postal_code' => '10001',
         ]);
         User::firstOrCreate([
             'email' => 'danisismail001@gmail.com',
         ], [
+            'first_name' => 'İsmaill',
+            'last_name' => 'Danış',
             'username' => 'İsmaill',
             'password' => Hash::make('ismail'),
             'phone' => '5555555556',
-            'address' => '123 Main St',
-            'city' => 'California',
-            'district' => 'Los Angeles',
-            'postal_code' => '90001',
         ]);
     }
 } 

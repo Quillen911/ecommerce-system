@@ -14,20 +14,22 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'first_name' => 'required|string|min:3|max:100',
+            'last_name' => 'required|string|min:3|max:100',
             'username' => 'required|string|min:3|max:50|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8|confirmed',
             'phone' => 'nullable|string|regex:/^[0-9+\-\s()]+$/|max:20',
-            'address' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:100',
-            'district' => 'nullable|string|max:100',
-            'postal_code' => 'nullable|string|max:10',
         ];
     }
 
     public function messages(): array
     {
         return [
+            'first_name.required' => 'Ad zorunludur.',
+            'first_name.max' => 'Ad en fazla 100 karakter olabilir.',
+            'last_name.required' => 'Soyad zorunludur.',
+            'last_name.max' => 'Soyad en fazla 100 karakter olabilir.',
             'username.required' => 'Kullanıcı adı zorunludur.',
             'username.min' => 'Kullanıcı adı en az 3 karakter olmalıdır.',
             'username.max' => 'Kullanıcı adı en fazla 50 karakter olabilir.',
@@ -40,10 +42,6 @@ class RegisterRequest extends FormRequest
             'password.confirmed' => 'Şifre onayı eşleşmiyor.',
             'phone.regex' => 'Geçerli bir telefon numarası giriniz.',
             'phone.max' => 'Telefon numarası en fazla 20 karakter olabilir.',
-            'address.max' => 'Adres en fazla 255 karakter olabilir.',
-            'city.max' => 'Şehir adı en fazla 100 karakter olabilir.',
-            'district.max' => 'İlçe adı en fazla 100 karakter olabilir.',
-            'postal_code.max' => 'Posta kodu en fazla 10 karakter olabilir.',
         ];
     }
 }
