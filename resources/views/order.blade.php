@@ -1064,7 +1064,7 @@
                     <div class="step-label">Ödeme</div>
                 </li>
             </ul>
-                                    </div>
+        </div>
 
         <div class="main-layout">
             <!-- Sol Taraf - Adımlar -->
@@ -1074,7 +1074,7 @@
                     <div class="step-title">
                         <div class="step-number">1</div>
                         Adres Seçimi
-        </div>
+                    </div>
 
                     <!-- Mevcut Adres -->
                     <div class="address-item selected">
@@ -1083,7 +1083,7 @@
                             {{ auth()->user()->username ?? 'Kullanıcı' }}<br>
                             {{ auth()->user()->address ?? 'Adres bilgisi yok' }}<br>
                             {{ auth()->user()->district ?? '' }} {{ auth()->user()->city ?? '' }} {{ auth()->user()->postal_code ?? '' }}
-                </div>
+                        </div>
                     </div>
                     
                     <div class="step-navigation">
@@ -1092,19 +1092,20 @@
                             Kargo ile Devam Et →
                         </button>
                     </div>
-                        </div>
+
+                </div>
 
                 <!-- Step 2: Shipping -->
                 <div class="step-content" id="step-2" style="display: none;">
                     <div class="step-title">
                         <div class="step-number">2</div>
                         Kargo Seçimi
-                        </div>
+                    </div>
                     
                     <div class="shipping-option selected">
                         <div class="shipping-title">🚚 Ücretsiz Kargo</div>
                         <div class="shipping-details">1-3 iş günü içerisinde kargoya verilir / Ücretsiz</div>
-                        </div>
+                    </div>
                     
                     <div class="step-navigation">
                         <button type="button" class="btn-back" onclick="prevStep(1)">
@@ -1113,8 +1114,8 @@
                         <button type="button" class="btn-next" onclick="nextStep(3)">
                             Ödeme ile Devam Et →
                         </button>
+                    </div>
                 </div>
-            </div>
 
                 <!-- Step 3: Payment -->
                 <div class="step-content" id="step-3" style="display: none;">
@@ -1124,12 +1125,12 @@
                     <div class="step-title">
                         <div class="step-number">3</div>
                         Ödeme Yöntemi
-            </div>
+                    </div>
                     
                     <div class="payment-option selected">
                         <div class="payment-title">💳 Kredi Kartı</div>
                         <div class="payment-details">Güvenli ödeme ile</div>
-            </div>
+                    </div>
                     
                     <!-- Kredi Kartı Formu -->
                     <div id="credit-card-form" style="margin-top: 20px;">
@@ -1138,13 +1139,13 @@
                                 <label>Kart Numarası</label>
                                 <input type="text" name="new_card_number" id="card_number" placeholder="Kart Numarası" maxlength="19">
                                 <div class="field-error" id="card_number_error"></div>
-                    </div>
+                            </div>
                             <div class="field">
                                 <label>Kart Üzerindeki İsim</label>
                                 <input type="text" name="new_card_holder_name" id="card_holder_name" placeholder="AHMET YILMAZ">
                                 <div class="field-error" id="card_holder_name_error"></div>
                                 <input type="hidden" name="new_card_name" value="Yeni Kart">
-                                </div>
+                            </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 16px; margin-bottom: 16px;">
                             <div class="field">
@@ -1153,7 +1154,7 @@
                                 <input type="hidden" name="new_expire_month" id="expire_month">
                                 <input type="hidden" name="new_expire_year" id="expire_year">
                                 <div class="field-error" id="expire_date_error"></div>
-                </div>
+                            </div>
                             <div class="field">
                                 <label>CVC</label>
                                 <input type="password" name="new_cvv" id="cvc" placeholder="123" maxlength="3">
@@ -1161,9 +1162,9 @@
                             </div>
                             <div style="display: flex; align-items: end; position: relative;">
                                 <button type="button" class="cvc-help-btn" title="Kartınızın arkasındaki 3 haneli güvenlik kodu">?</button>
+                            </div>
                         </div>
-                        </div>
-                </div>
+                    </div>
                 
                     
                     <div class="step-navigation">
@@ -1177,9 +1178,9 @@
                     
                         <div style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--muted);">
                             Ödemeler güvenli ve şifrelidir.
-                            </div>
-                    </form>
                         </div>
+                    </form>
+                </div>
 
             </div>
 
@@ -1211,11 +1212,11 @@
                     <div class="summary-row">
                         <span>Ara Toplam</span>
                         <span>₺{{ number_format($total,2) }}</span>
-                        </div>
+                    </div>
                     <div class="summary-row">
                         <span>Teslimat / Kargo</span>
                         <span>{{ $cargoPrice == 0 ? "Ücretsiz" : "₺".number_format($cargoPrice,2) }}</span>
-                        </div>
+                    </div>
                     @if($discount > 0)
                         <div class="summary-row discount-row">
                             <span>İndirim</span>
@@ -1225,7 +1226,7 @@
                     <div class="summary-row total-row">
                         <span>Toplam</span>
                         <span>₺{{ number_format(floor($finalPrice * 100) / 100,2) }}</span>
-                        </div>
+                    </div>
                     <div class="tax-info">
                         Vergi ₺{{ number_format(floor($finalPrice * 100) / 100 * 0.01,2) }}
                     </div>
@@ -1235,32 +1236,31 @@
                     <div class="campaign">
                         <div class="campaign-title">
                             ⭐ Aktif Kampanya
-                    </div>
+                        </div>
                         <div class="campaign-info">
                             <div class="campaign-item">
                                 <span class="campaign-label">Kampanya</span>
                                 <span class="campaign-value">{{ $bestCampaign['description'] }}</span>
-                </div>
+                            </div>
                             <div class="campaign-item">
                                 <span class="campaign-label">İndirim</span>
                                 <span class="campaign-value">{{ number_format($bestCampaign['discount'],2) }} TL</span>
-                        </div>
+                            </div>
                             @if(isset($bestCampaign['store_name']) && $bestCampaign['store_name'])
                                 <div class="campaign-item">
                                     <span class="campaign-label">Mağaza</span>
                                     <span class="campaign-value">{{ $bestCampaign['store_name'] }}</span>
-                    </div>
+                                </div>
                             @endif
+                        </div>
                     </div>
-                </div>
                 @endif
-        </div>
+            </div>
         </div>
     @endif
 </div>
 
 <script>
-    // Credit cards data'yı global olarak ayarla
     window.creditCardsData = @json($creditCards->keyBy('id'));
 </script>
 <script src="{{ asset('js/order.js') }}"></script>
