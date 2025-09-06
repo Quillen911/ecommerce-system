@@ -128,62 +128,9 @@
                             >
                         </div>
 
-                        <div>
-                            <label for="city" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-city mr-2"></i>Şehir
-                            </label>
-                            <input 
-                                type="text" 
-                                id="city"
-                                name="city" 
-                                value="{{ old('city', $user->city) }}"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="İstanbul"
-                            >
-                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <label for="district" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-map-marker-alt mr-2"></i>İlçe
-                            </label>
-                            <input 
-                                type="text" 
-                                id="district"
-                                name="district" 
-                                value="{{ old('district', $user->district) }}"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Kadıköy"
-                            >
-                        </div>
-
-                        <div>
-                            <label for="postal_code" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-mail-bulk mr-2"></i>Posta Kodu
-                            </label>
-                            <input 
-                                type="text" 
-                                id="postal_code"
-                                name="postal_code" 
-                                value="{{ old('postal_code', $user->postal_code) }}"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="34710"
-                            >
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-home mr-2"></i>Adres
-                        </label>
-                        <textarea 
-                            id="address"
-                            name="address" 
-                            rows="3"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Tam adres bilginiz"
-                        >{{ old('address', $user->address) }}</textarea>
                     </div>
                 </div>
 
