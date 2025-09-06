@@ -60,9 +60,13 @@ Route::middleware(['auth:user_web'])->group(function(){
         Route::post('/{id}/refund', [MyOrdersController::class, 'refundItems'])->name('myorders.refundItems');
     });
 
-    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
-    Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
-    Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
+    Route::prefix('account')->group(function(){
+        Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+        Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
+
+        //Route::resource('/adresses', [AddressController::class, 'adresses'])->name('adresses');
+        Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
+    });
 
     Route::prefix('payments')->group(function(){
         Route::post('/storeCreditCard', [CreditCardController::class, 'storeCreditCard'])->name('payments.storeCreditCard');

@@ -87,6 +87,13 @@ function validateCreditCardForm() {
         isValid = false;
     }
     
+    const cardName = document.getElementById('card_name');
+    const cardNameError = document.getElementById('card_name_error');
+    if (!cardName.value.trim()) {
+        showFieldError(cardName, cardNameError, 'Kart ismi girin');
+        isValid = false;
+    }
+    
     return isValid;
 }
 
@@ -194,6 +201,77 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    const cardName = document.getElementById('card_name');
+    if (cardName) {
+        cardName.addEventListener('input', function(e) {
+            if (e.target.value.trim().length > 0) {
+                clearFieldError(cardName);
+            }
+        });
+    }
+    
+    const saveNewCard = document.getElementById('save_new_card');
+    const saveNewCardToggle = document.getElementById('save_new_card_toggle');
+    
+    if (saveNewCard) {
+        saveNewCard.addEventListener('change', function() {
+            const label = this.closest('.save-card-label');
+            if (this.checked) {
+                label.style.borderColor = 'rgba(0, 212, 170, 0.4)';
+                label.style.background = 'rgba(0, 212, 170, 0.08)';
+            } else {
+                label.style.borderColor = 'rgba(0, 212, 170, 0.2)';
+                label.style.background = 'rgba(0, 212, 170, 0.05)';
+            }
+        });
+    }
+    
+    if (saveNewCardToggle) {
+        saveNewCardToggle.addEventListener('change', function() {
+            const label = this.closest('.save-card-label');
+            if (this.checked) {
+                label.style.borderColor = 'rgba(0, 212, 170, 0.4)';
+                label.style.background = 'rgba(0, 212, 170, 0.08)';
+            } else {
+                label.style.borderColor = 'rgba(0, 212, 170, 0.2)';
+                label.style.background = 'rgba(0, 212, 170, 0.05)';
+            }
+        });
+    }
+    
+    // Yeni kart toggle functionality
+    const newCardToggle = document.getElementById('new_card');
+    if (newCardToggle) {
+        newCardToggle.addEventListener('change', function() {
+            const newCardForm = document.getElementById('new-card-form');
+            const creditCardItems = document.querySelectorAll('.credit-card-item');
+            
+            if (this.checked) {
+                // Yeni kart formunu göster
+                newCardForm.style.display = 'block';
+                // Kayıtlı kartları gizle
+                creditCardItems.forEach(item => {
+                    item.style.display = 'none';
+                });
+                // Credit card ID'yi new_card olarak ayarla
+                document.getElementById('credit_card_id').value = 'new_card';
+            } else {
+                // Yeni kart formunu gizle
+                newCardForm.style.display = 'none';
+                // Kayıtlı kartları göster
+                creditCardItems.forEach(item => {
+                    item.style.display = 'block';
+                });
+                // İlk kayıtlı kartı seç
+                const firstCard = document.querySelector('input[name="credit_card_id"]:not([value="new_card"])');
+                if (firstCard) {
+                    firstCard.checked = true;
+                    document.getElementById('credit_card_id').value = firstCard.value;
+                }
+            }
+        });
+    }
 });
 
 function clearFieldError(input) {
@@ -211,6 +289,16 @@ document.querySelectorAll('input[name="credit_card_id"]').forEach(radio => {
         
         document.querySelectorAll('.credit-card-item').forEach(item => item.classList.remove('selected'));
         radio.closest('.credit-card-item').classList.add('selected');
+        
+        // Yeni kart toggle'ını kapat
+        const newCardToggle = document.getElementById('new_card');
+        if (newCardToggle && radio.value !== 'new_card') {
+            newCardToggle.checked = false;
+            const newCardForm = document.getElementById('new-card-form');
+            if (newCardForm) {
+                newCardForm.style.display = 'none';
+            }
+        }
         
         handleCardSelection(radio.value);
     });

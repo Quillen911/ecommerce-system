@@ -629,6 +629,63 @@
             display: block;
         }
 
+        .save-card-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 16px;
+            background: rgba(0, 212, 170, 0.05);
+            border-radius: 8px;
+            border: 2px solid rgba(0, 212, 170, 0.2);
+            transition: all 0.2s ease;
+        }
+        .save-card-label:hover {
+            border-color: rgba(0, 212, 170, 0.4);
+            background: rgba(0, 212, 170, 0.08);
+        }
+        #save_new_card {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+        .save-card-title {
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 4px;
+        }
+        .save-card-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .new-card-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 16px;
+            background: rgba(0, 212, 170, 0.05);
+            border-radius: 8px;
+            border: 2px solid rgba(0, 212, 170, 0.2);
+            transition: all 0.2s ease;
+        }
+        .new-card-toggle:hover {
+            border-color: rgba(0, 212, 170, 0.4);
+            background: rgba(0, 212, 170, 0.08);
+        }
+        .new-card-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+        .toggle-text {
+            font-weight: 600;
+            color: var(--success);
+        }
+
         .step-navigation {
             display: flex;
             justify-content: space-between;
@@ -1121,12 +1178,105 @@
                 <div class="step-content" id="step-3" style="display: none;">
                     <form id="order-form" action="{{ route('done') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="credit_card_id" value="new_card">
+                        <input type="hidden" name="credit_card_id" id="credit_card_id" value="">
                     <div class="step-title">
                         <div class="step-number">3</div>
                         Ödeme Yöntemi
                     </div>
-                    
+
+                    @if($creditCards->count() > 0)
+                        <div class="payment-option selected">
+                            <div class="payment-title">
+                                <strong>Kayıtlı Kredi Kartlarım</strong>
+                            </div>
+                            @foreach($creditCards as $card)
+                                <div class="credit-card-item">
+                                    <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}" autocomplete="off">
+                                    <label for="card_{{ $card->id }}">
+                                        <div>
+                                            <div style="font-weight:600;margin-bottom:4px;">{{ $card->name }}</div>
+                                            <div class="card-info">**** **** **** {{ $card->last_four_digits }}</div>
+                                            <div class="card-info">{{ $card->card_holder_name }}</div>
+                                            <div class="card-info">{{ $card->expire_month }}/{{ $card->expire_year }}</div>
+                                            @if($card->iyzico_card_token)
+                                                <div class="card-info" style="color:var(--success);font-size:12px;">✓ Güvenli kart</div>
+                                            @endif
+                                        </div>
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label class="new-card-toggle">
+                                <input type="checkbox" id="new_card" name="new_card" value="1" autocomplete="off">
+                                <span class="checkmark"></span>
+                                <span class="toggle-text">Yeni Kart ile Devam Et</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Yeni Kart Formu (Gizli) -->
+                        <div id="new-card-form" style="display: none; margin-top: 20px;">
+                            <div class="payment-option selected">
+                                <div class="payment-title">💳 Yeni Kredi Kartı</div>
+                                <div class="payment-details">Güvenli ödeme ile</div>
+                            </div>
+                            
+                            <div id="credit-card-form" style="margin-top: 20px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                    <div class="field">
+                                        <label>Kart Numarası</label>
+                                        <input type="text" name="new_card_number" id="card_number" placeholder="Kart Numarası" maxlength="19">
+                                        <div class="field-error" id="card_number_error"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label>Kart Üzerindeki İsim (Kart Sahibi)</label>
+                                        <input type="text" name="new_card_holder_name" id="card_holder_name" placeholder="AHMET YILMAZ">
+                                        <div class="field-error" id="card_holder_name_error"></div>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 16px; margin-bottom: 16px;">
+                                    <div class="field">
+                                        <label>Ay / Yıl</label>
+                                        <input type="text" name="new_expire_date" id="expire_date" placeholder="MM/YY" data-month-field="new_expire_month" data-year-field="new_expire_year">
+                                        <input type="hidden" name="new_expire_month" id="expire_month">
+                                        <input type="hidden" name="new_expire_year" id="expire_year">
+                                        <div class="field-error" id="expire_date_error"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label>CVC</label>
+                                        <input type="password" name="new_cvv" id="cvc" placeholder="123" maxlength="3">
+                                        <div class="field-error" id="cvc_error"></div>
+                                    </div>
+                                    <div style="display: flex; align-items: end; position: relative;">
+                                        <button type="button" class="cvc-help-btn" title="Kartınızın arkasındaki 3 haneli güvenlik kodu">?</button>
+                                    </div>
+                                    <div class="field full">
+                                        <label>Kartınız için isim</label>
+                                        <input type="text" name="new_card_name" id="card_name" placeholder="Yeni Kart">
+                                        <div class="field-error" id="card_name_error"></div>
+                                    </div>
+                                    <div class="field full" style="margin-top:20px;">
+                                        <label class="save-card-label">
+                                            <input type="checkbox" id="save_new_card_toggle" name="save_new_card" value="1" checked autocomplete="off">
+                                            <div class="save-card-text">
+                                                <div class="save-card-title">Bu kartı kayıtlı kartlarıma ekle</div>
+                                                <div class="save-card-subtitle">Sonraki ödemelerinizde tek tıkla ödeme yapabilirsiniz</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-navigation">
+                            <button type="button" class="btn-back" onclick="prevStep(2)">
+                                ← Kargoya Geri Dön
+                            </button>
+                            <button type="submit" class="btn-next complete-order-btn">
+                                ✓ Siparişi Tamamla
+                            </button>
+                        </div>
+                    @else
+                      
                     <div class="payment-option selected">
                         <div class="payment-title">💳 Kredi Kartı</div>
                         <div class="payment-details">Güvenli ödeme ile</div>
@@ -1141,10 +1291,9 @@
                                 <div class="field-error" id="card_number_error"></div>
                             </div>
                             <div class="field">
-                                <label>Kart Üzerindeki İsim</label>
+                                <label>Kart Üzerindeki İsim (Kart Sahibi)</label>
                                 <input type="text" name="new_card_holder_name" id="card_holder_name" placeholder="AHMET YILMAZ">
                                 <div class="field-error" id="card_holder_name_error"></div>
-                                <input type="hidden" name="new_card_name" value="Yeni Kart">
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 16px; margin-bottom: 16px;">
@@ -1163,6 +1312,20 @@
                             <div style="display: flex; align-items: end; position: relative;">
                                 <button type="button" class="cvc-help-btn" title="Kartınızın arkasındaki 3 haneli güvenlik kodu">?</button>
                             </div>
+                            <div class="field full">
+                                <label>Kartınız için isim</label>
+                                <input type="text" name="new_card_name" id="card_name" placeholder="Yeni Kart">
+                                <div class="field-error" id="card_name_error"></div>
+                            </div>
+                            <div class="field full" style="margin-top:20px;">
+                                <label class="save-card-label">
+                                    <input type="checkbox" id="save_new_card" name="save_new_card" value="1" checked autocomplete="off">
+                                    <div class="save-card-text">
+                                        <div class="save-card-title">Bu kartı kayıtlı kartlarıma ekle</div>
+                                        <div class="save-card-subtitle">Sonraki ödemelerinizde tek tıkla ödeme yapabilirsiniz</div>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 
@@ -1180,10 +1343,10 @@
                             Ödemeler güvenli ve şifrelidir.
                         </div>
                     </form>
+                    @endif
                 </div>
-
             </div>
-
+            
             <!-- Sağ Taraf - Ürünler, Fiyat Özeti ve Kampanya -->
             <div class="right-column">
                 <!-- Ürün Listesi -->
