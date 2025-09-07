@@ -166,7 +166,7 @@ class OrderService implements OrderServiceInterface
                     'is_active' => true,
                     'iyzico_card_token' => $paymentResult['card_token'] ?? null,
                     'iyzico_card_user_key' => $paymentResult['card_user_key'] ?? null
-                ]);
+                ], $order->user_id);
                 
                 
                 $order->update([
