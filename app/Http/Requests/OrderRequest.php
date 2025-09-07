@@ -31,7 +31,14 @@ class OrderRequest extends FormRequest
                 'save_new_card' => 'sometimes|boolean'
             ]);
         } else {
-            $rules['existing_cvv'] = 'sometimes|string|size:3';
+            // Check if the selected card requires CVV
+            $creditCardId = $this->input('credit_card_id');
+            if ($creditCardId && $creditCardId !== 'new_card') {
+                $creditCard = \App\Models\CreditCard::find($creditCardId);
+                if ($creditCard && !$creditCard->iyzico_card_token) {
+                    $rules['existing_cvv'] = 'required|string|size:3';
+                }
+            }
         }
 
         return $rules;
@@ -53,6 +60,7 @@ class OrderRequest extends FormRequest
             'new_cvv.required' => 'CVV kodu gereklidir.',
             'new_cvv.size' => 'CVV kodu 3 haneli olmalıdır.',
             
+            'existing_cvv.required' => 'CVV kodu gereklidir.',
             'existing_cvv.size' => 'CVV kodu 3 haneli olmalıdır.',
         ];
     }
