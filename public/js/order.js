@@ -43,7 +43,7 @@ function validateCurrentStep() {
     } else if (currentStep === 2) {
         return true;
     } else if (currentStep === 3) {
-        return validateCreditCardForm();
+        return validatePaymentForm();
     }
     return true;
 }
@@ -121,17 +121,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Expire date'i kontrol et ve ayır
-            const expireDateInput = document.getElementById('expire_date');
-            if (expireDateInput && expireDateInput.value) {
-                const parts = expireDateInput.value.split('/');
-                if (parts.length === 2) {
-                    const month = parts[0].padStart(2, '0');
-                    const year = '20' + parts[1];
-                    document.getElementById('expire_month').value = month;
-                    document.getElementById('expire_year').value = year;
+            // Expire date'i kontrol et ve ayır (sadece yeni kart için)
+            const selectedCard = document.getElementById('credit_card_id').value;
+            if (selectedCard === 'new_card') {
+                const expireDateInput = document.getElementById('expire_date');
+                if (expireDateInput && expireDateInput.value) {
+                    const parts = expireDateInput.value.split('/');
+                    if (parts.length === 2) {
+                        const month = parts[0].padStart(2, '0');
+                        const year = '20' + parts[1];
+                        document.getElementById('expire_month').value = month;
+                        document.getElementById('expire_year').value = year;
+                    }
                 }
-
             }
         });
     }
@@ -476,6 +478,10 @@ document.getElementById('existing_cvv')?.addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length > 3) value = value.substr(0, 3);
     e.target.value = value;
+    
+    if (value.length > 0) {
+        clearFieldError(e.target);
+    }
 });
 
 window.addEventListener('DOMContentLoaded', function() {

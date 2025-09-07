@@ -1206,6 +1206,22 @@
                                 </div>
                             @endforeach
                         </div>
+                        
+                        <!-- Existing Card CVV (Hidden by default) -->
+                        <div id="existing-card-cvv" style="display: none; margin-top: 20px;">
+                            <div class="payment-option selected">
+                                <div class="payment-title">🔒 Güvenlik Kodu</div>
+                                <div class="payment-details">Kartınızın arkasındaki 3 haneli güvenlik kodunu girin</div>
+                            </div>
+                            <div style="margin-top: 16px;">
+                                <div class="field">
+                                    <label>CVC</label>
+                                    <input type="password" name="existing_cvv" id="existing_cvv" placeholder="123" maxlength="3">
+                                    <div class="field-error" id="existing_cvv_error"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div style="margin-bottom: 16px;">
                             <label class="new-card-toggle">
                                 <input type="checkbox" id="new_card" name="new_card" value="1" autocomplete="off">
