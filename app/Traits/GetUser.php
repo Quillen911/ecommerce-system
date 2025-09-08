@@ -1,18 +1,19 @@
 <?php
 
 namespace App\Traits;
-   
+
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use Illuminate\Auth\AuthenticationException;
 
 trait GetUser
 {
-    protected $authenticationRepository;
-    
     public function getUser()
     {
         $user = $this->authenticationRepository->getUser();
-        if(!$user){
-            throw new \Exception('Kullanıcı bulunamadı.');
+        if (!$user) {
+            throw new AuthenticationException('Kullanıcı bulunamadı.');
         }
+
         return $user;
     }
 }

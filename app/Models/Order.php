@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Enums\PaymentStatus;
 use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\UserAddress;
 class Order extends Model
 {
     use SoftDeletes, HasFactory;
@@ -15,6 +16,8 @@ class Order extends Model
     protected $fillable = [
         'bag_user_id',
         'user_id',
+        'user_shipping_address_id',
+        'user_billing_address_id',
         'credit_card_id',
         'card_holder_name',
         'order_price', 
@@ -39,6 +42,8 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'user_shipping_address_id' => 'integer',
+        'user_billing_address_id' => 'integer',
         'order_price_cents' => 'integer',
         'cargo_price_cents' => 'integer',
         'discount_cents' => 'integer',
@@ -65,5 +70,13 @@ class Order extends Model
     public function campaign()
     {
         return $this->belongsTo(Campaign::class, 'campaign_id');
+    }
+    public function shippingAddress()
+    {
+        return $this->belongsTo(UserAddress::class, 'user_shipping_address_id');
+    }
+    public function billingAddress()
+    {
+        return $this->belongsTo(UserAddress::class, 'user_billing_address_id');
     }
 }

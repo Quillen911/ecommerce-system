@@ -141,23 +141,21 @@ class IyzicoPaymentService implements PaymentInterface
 
             $shippingAddress = new Address();
 
-            $shippingAddress->setContactName('Test User');
-            $shippingAddress->setCity('Istanbul');
-            $shippingAddress->setCountry('Turkey');
-            $shippingAddress->setAddress('Test Mahallesi Test Sokak');
-            $shippingAddress->setZipCode('34732');
+            $shippingAddress->setContactName($order->shippingAddress->first_name);
+            $shippingAddress->setCity($order->shippingAddress->city);
+            $shippingAddress->setCountry($order->shippingAddress->country);
+            $shippingAddress->setAddress($order->shippingAddress->address_line_1);
+            $shippingAddress->setZipCode($order->shippingAddress->postal_code);
             $request->setShippingAddress($shippingAddress);
 
             $billingAddress = new Address();
             
-            $billingAddress->setContactName('Test User');
-            $billingAddress->setCity('Istanbul');
-            $billingAddress->setCountry('Turkey');
-            $billingAddress->setAddress('Test Mahallesi Test Sokak');
-            $billingAddress->setZipCode('34732');
+            $billingAddress->setContactName($order->billingAddress->first_name);
+            $billingAddress->setCity($order->billingAddress->city);
+            $billingAddress->setCountry($order->billingAddress->country);
+            $billingAddress->setAddress($order->billingAddress->address_line_1);
+            $billingAddress->setZipCode($order->billingAddress->postal_code);
             $request->setBillingAddress($billingAddress);
-
-
 
             $basketItems = array();
             $totalBasketPrice = 0.0;

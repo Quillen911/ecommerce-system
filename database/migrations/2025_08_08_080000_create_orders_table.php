@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('bag_user_id');
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_shipping_address_id')->nullable();
+            $table->unsignedBigInteger('user_billing_address_id')->nullable();
             $table->unsignedBigInteger('credit_card_id')->nullable();
             $table->string('card_holder_name')->nullable();
             $table->unsignedBigInteger('campaign_id')->nullable();
@@ -43,6 +45,8 @@ return new class extends Migration
             $table->foreign('campaign_id')->references('id')->on('campaigns')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('credit_card_id')->references('id')->on('credit_cards')->onDelete('cascade');
+            $table->foreign('user_shipping_address_id')->references('id')->on('user_addresses')->onDelete('cascade');
+            $table->foreign('user_billing_address_id')->references('id')->on('user_addresses')->onDelete('cascade');
         });
     }
 

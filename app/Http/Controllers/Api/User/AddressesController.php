@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\ResponseHelper;
-
 use App\Services\User\AddressesService;
 use App\Http\Requests\User\AddressesStoreRequest;
 use App\Http\Requests\User\AddressesUpdateRequest;
+use App\Helpers\ResponseHelper;
 
 class AddressesController extends Controller
 {
@@ -20,26 +19,32 @@ class AddressesController extends Controller
 
     public function index()
     {
-        return $this->addressesService->indexAddresses();
+        $addresses = $this->addressesService->indexAddresses();
+        return ResponseHelper::success('Adresler başarıyla getirildi', $addresses);
     }
 
     public function store(AddressesStoreRequest $request)
     {
-        return $this->addressesService->storeAddresses($request->validated());
+        $address = $this->addressesService->storeAddresses($request->validated());
+        return ResponseHelper::success('Adres başarıyla oluşturuldu', $address);
     }
 
     public function show($id)
     {
-        return $this->addressesService->showAddresses($id);
+        $addressData = $this->addressesService->showAddresses($id);
+        return ResponseHelper::success('Adres başarıyla getirildi', $addressData);
     }
     
     public function update(AddressesUpdateRequest $request, $id)
     {
-        return $this->addressesService->updateAddresses($request->validated(), $id);
+        $address = $this->addressesService->updateAddresses($request->validated(), $id);
+        return ResponseHelper::success('Adres başarıyla güncellendi', $address);
     }
 
     public function destroy($id)
     {
-        return $this->addressesService->destroyAddresses($id);
+        $address = $this->addressesService->destroyAddresses($id);
+        return ResponseHelper::success('Adres başarıyla silindi', $address);
     }
+    
 }

@@ -22,13 +22,15 @@ class OrderCreationService implements OrderCreationInterface
         $this->orderRepository = $orderRepository;
     }
 
-    public function createOrderRecord(User $user, ?int $selectedCreditCard, array $orderData): Order
+    public function createOrderRecord(User $user, ?int $selectedCreditCard, array $orderData, $selectedShippingAddress, $selectedBillingAddress): Order
     {
         $creditCard = $selectedCreditCard ? $this->creditCardRepository->getCreditCardById($selectedCreditCard) : null;
 
         return Order::create([
             'bag_user_id' => $user->id,
             'user_id' => $user->id,
+            'user_shipping_address_id' => $selectedShippingAddress,
+            'user_billing_address_id' => $selectedBillingAddress,
             'credit_card_id' => $selectedCreditCard,
             'card_holder_name' => $creditCard?->card_holder_name ?? 'Yeni Kart',
             'order_price' => round($orderData['total'], 2),

@@ -18,6 +18,8 @@ class OrderRequest extends FormRequest
     {
         $rules = [
             'credit_card_id' => 'required',
+            'shipping_address_id' => 'required|exists:user_addresses,id',
+            'billing_address_id' => 'required|exists:user_addresses,id',
         ];
 
         if ($this->input('credit_card_id') === 'new_card') {
@@ -48,7 +50,8 @@ class OrderRequest extends FormRequest
     {
         return [
             'credit_card_id.required' => 'Lütfen bir ödeme yöntemi seçiniz.',
-            
+            'shipping_address_id.required' => 'Lütfen bir teslimat adresi seçiniz.',
+            'billing_address_id.required' => 'Lütfen bir fatura adresi seçiniz.',
             'new_card_holder_name.required' => 'Kart sahibi adı gereklidir.',
             'new_card_name.required' => 'Kart ismi gereklidir.',
             'new_card_number.required' => 'Kart numarası gereklidir.',
