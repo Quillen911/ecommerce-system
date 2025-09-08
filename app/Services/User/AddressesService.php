@@ -5,6 +5,7 @@ namespace App\Services\User;
 use App\Repositories\Contracts\User\AddressesRepositoryInterface;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Traits\GetUser;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AddressesService
 {
@@ -20,31 +21,47 @@ class AddressesService
 
     public function indexAddresses()
     {
-        $userId = $this->getUser();
-        return $this->addressesRepository->getAddressesByUserId($userId->id);
+        $user = $this->getUser();
+        $addresses = $this->addressesRepository->getAddressesByUserId($user->id);
+        if($addresses->isEmpty()){
+            throw new ModelNotFoundException('Adres bulunamadı.');
+        }
+        return $addresses;
     }
 
     public function storeAddresses(array $data)
     {
-        $userId = $this->getUser();
-        return $this->addressesRepository->createAddress($data, $userId->id);
+        $user = $this->getUser();
+        return $this->addressesRepository->createAddress($data, $user->id);
     }
 
     public function showAddresses($id)
     {
-        $userId = $this->getUser();
-        return $this->addressesRepository->getAddressById($id, $userId->id);
+        $user = $this->getUser();
+        $address = $this->addressesRepository->getAddressById($id, $user->id);
+        if(!$address){
+            throw new ModelNotFoundException('Adres bulunamadı.');
+        }
+        return $address;
     }
 
     public function updateAddresses(array $data, $id)
     {
-        $userId = $this->getUser();
-        return $this->addressesRepository->updateAddress($data, $id, $userId->id);
+        $user = $this->getUser();
+        $address = $this->addressesRepository->updateAddress($data, $id, $user->id);
+        if(!$address){
+            throw new ModelNotFoundException('Adres bulunamadı.');
+        }
+        return $address;
     }
     public function destroyAddresses($id)
     {
-        $userId = $this->getUser();
-        return $this->addressesRepository->deleteAddress($id, $userId->id);
+        $user = $this->getUser();
+        $address = $this->addressesRepository->deleteAddress($id, $user->id);
+        if(!$address){
+            throw new ModelNotFoundException('Adres bulunamadı.');
+        }
+        return true;
     }
 }
 

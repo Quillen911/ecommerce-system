@@ -41,7 +41,7 @@ class OrderService implements OrderServiceInterface
         $this->orderCreationService = $orderCreationService;
     }
 
-    public function createOrder($user, $products, $campaignManager, $selectedCreditCard, $tempCardData = null, $saveNewCard = false): array
+    public function createOrder($user, $products, $campaignManager, $selectedCreditCard, $tempCardData = null, $saveNewCard = false, $selectedShippingAddress = null, $selectedBillingAddress = null): array
     {
         DB::beginTransaction();
         
@@ -52,7 +52,7 @@ class OrderService implements OrderServiceInterface
             
             $creditCardIdForOrder = $selectedCreditCard === 'new_card' ? null : $selectedCreditCard;
             
-            $order = $this->orderCreationService->createOrderRecord($user, $creditCardIdForOrder, $orderData);
+            $order = $this->orderCreationService->createOrderRecord($user, $creditCardIdForOrder, $orderData, $selectedShippingAddress, $selectedBillingAddress);
             $this->orderCreationService->createOrderItems($order, $products, $orderData['eligible_products'], $orderData['per_product_discount']);
             
             if ($orderData['campaign_id'] && $orderData['discount'] > 0) {

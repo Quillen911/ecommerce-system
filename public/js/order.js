@@ -39,7 +39,15 @@ function updateStepProgress() {
 
 function validateCurrentStep() {
     if (currentStep === 1) {
-        return true;
+        const shippingAddress = document.querySelector('input[name="shipping_address_id"]:checked');
+        const billingAddress = document.querySelector('input[name="billing_address_id"]:checked');
+        
+        if (!shippingAddress || !billingAddress) {
+            alert('Lütfen teslimat ve fatura adreslerini seçiniz!');
+            return false;
+        }
+        document.getElementById('shipping_address_id').value = shippingAddress.value;
+        document.getElementById('billing_address_id').value = billingAddress.value;
     } else if (currentStep === 2) {
         return true;
     } else if (currentStep === 3) {
@@ -123,6 +131,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Expire date'i kontrol et ve ayır (sadece yeni kart için)
             const selectedCard = document.getElementById('credit_card_id').value;
+            const shippingAddress = document.getElementById('shipping_address_id').value;
+            const billingAddress = document.getElementById('billing_address_id').value;
+            if (!shippingAddress || !billingAddress) {
+                e.preventDefault();
+                alert('Lütfen teslimat ve fatura adreslerini seçiniz!');
+                return false;
+            }
             if (selectedCard === 'new_card') {
                 const expireDateInput = document.getElementById('expire_date');
                 if (expireDateInput && expireDateInput.value) {
@@ -345,6 +360,18 @@ document.getElementById('useNewCardBtn')?.addEventListener('click', function() {
     }
 });
 
+document.querySelectorAll('input[name="shipping_address_id"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('shipping_address_id').value = this.value;
+    });
+});
+
+document.querySelectorAll('input[name="billing_address_id"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('billing_address_id').value = this.value;
+    });
+});
+
 function handleCardSelection(cardValue) {
     const newCardForm = document.getElementById('new-card-form');
     const existingCardCvv = document.getElementById('existing-card-cvv');
@@ -415,6 +442,13 @@ document.getElementById('save_new_card')?.addEventListener('change', function() 
 
 function validatePaymentForm() {
     const selectedCard = document.getElementById('credit_card_id').value;
+    const shippingAddress = document.getElementById('shipping_address_id').value;
+    const billingAddress = document.getElementById('billing_address_id').value;
+    
+    if (!shippingAddress || !billingAddress) {
+        alert('Lütfen teslimat ve fatura adreslerini seçiniz!');
+        return false;
+    }
     if (!selectedCard) {
         alert('Lütfen bir ödeme yöntemi seçiniz!');
         return false;
@@ -507,3 +541,10 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Kayıtlı kart yoksa new_card değerini set et
+document.addEventListener('DOMContentLoaded', function() {
+    // Eğer credit_card_id boşsa, new_card değerini set et
+    if (!document.getElementById('credit_card_id').value) {
+        document.getElementById('credit_card_id').value = 'new_card';
+    }
+});

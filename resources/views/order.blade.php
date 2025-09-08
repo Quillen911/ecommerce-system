@@ -1137,9 +1137,41 @@
                     <div class="address-item selected">
                         <div class="address-label">🏠 Teslimat Adresi</div>
                         <div class="address-details">
-                            {{ auth()->user()->username ?? 'Kullanıcı' }}<br>
-                            {{ auth()->user()->address ?? 'Adres bilgisi yok' }}<br>
-                            {{ auth()->user()->district ?? '' }} {{ auth()->user()->city ?? '' }} {{ auth()->user()->postal_code ?? '' }}
+                            @foreach($addresses as $address)
+                                <label for="shipping_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
+                                    <input type="radio" name="shipping_address_id" value="{{ $address->id }}" id="shipping_address_{{ $address->id }}" style="margin-right: 8px;">
+                                    <div>
+                                        <div style="font-weight:600;margin-bottom:4px;">{{ $address->title }}</div>
+                                        <div class="address-info">{{ $address->first_name }} {{ $address->last_name }}</div>
+                                        <div class="address-info">{{ $address->phone }}</div>
+                                        <div class="address-info">{{ $address->address_line_1 }}</div>
+                                        <div class="address-info">{{ $address->address_line_2 }}</div>
+                                        <div class="address-info">{{ $address->district }} {{ $address->city }} {{ $address->postal_code }}</div>
+                                        <div class="address-info">{{ $address->country }}</div>
+                                        <div class="address-info">{{ $address->notes }}</div>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="address-item selected">
+                    <div class="address-label">�� Fatura Adresi</div>
+                        <div class="address-details">
+                            @foreach($addresses as $address)
+                                <label for="billing_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
+                                    <input type="radio" name="billing_address_id" value="{{ $address->id }}" id="billing_address_{{ $address->id }}" style="margin-right: 8px;">
+                                    <div>
+                                        <div style="font-weight:600;margin-bottom:4px;">{{ $address->title }}</div>
+                                        <div class="address-info">{{ $address->first_name }} {{ $address->last_name }}</div>
+                                        <div class="address-info">{{ $address->phone }}</div>
+                                        <div class="address-info">{{ $address->address_line_1 }}</div>
+                                        <div class="address-info">{{ $address->address_line_2 }}</div>
+                                        <div class="address-info">{{ $address->district }} {{ $address->city }} {{ $address->postal_code }}</div>
+                                        <div class="address-info">{{ $address->country }}</div>
+                                        <div class="address-info">{{ $address->notes }}</div>
+                                    </div>
+                                </label>
+                            @endforeach
                         </div>
                     </div>
                     
@@ -1179,6 +1211,8 @@
                     <form id="order-form" action="{{ route('done') }}" method="POST">
                         @csrf
                         <input type="hidden" name="credit_card_id" id="credit_card_id" value="">
+                        <input type="hidden" name="shipping_address_id" id="shipping_address_id" value="">
+                        <input type="hidden" name="billing_address_id" id="billing_address_id" value="">
                     <div class="step-title">
                         <div class="step-number">3</div>
                         Ödeme Yöntemi

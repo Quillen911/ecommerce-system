@@ -13,6 +13,8 @@ use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Models\Bag;
 use App\Traits\GetUser;
 use App\Http\Requests\OrderRequest;
+use App\Models\UserAddress;
+
 class OrderController extends Controller
 {
     use GetUser;
@@ -33,8 +35,8 @@ class OrderController extends Controller
         $bag = $this->bagService->getBag();
         $user = $this->getUser();
         $creditCards = CreditCard::where('user_id', $user->id)->get();
-        
-        return view('order', array_merge($bag, ['creditCards' => $creditCards]));
+        $addresses = UserAddress::where('user_id', $user->id)->get();
+        return view('order', array_merge($bag, ['creditCards' => $creditCards, 'addresses' => $addresses]));
     }
 
     public function done(OrderRequest $request)
@@ -44,11 +46,17 @@ class OrderController extends Controller
             $bag = Bag::where('bag_user_id', $user->id)->first();
 
             $selectedCreditCard = $request->input('credit_card_id');
-            
+            $selectedShippingAddress = $request->input('shipping_address_id');
+            $selectedBillingAddress = $request->input('billing_address_id');
             if(!$selectedCreditCard){
                 return redirect('order')->with('error', 'Lütfen bir ödeme yöntemi seçiniz!');
             }
-            
+            if(!$selectedShippingAddress){
+                return redirect('order')->with('error', 'Lütfen bir teslimat adresi seçiniz!');
+            }
+            if(!$selectedBillingAddress){
+                return redirect('order')->with('error', 'Lütfen bir fatura adresi seçiniz!');
+            }
             $tempCardData = null;
             $saveNewCard = false;
             
@@ -83,7 +91,7 @@ class OrderController extends Controller
                 return redirect('main')->with('error', 'Sepetiniz boş!');
             }
             
-            $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard, $tempCardData, $saveNewCard);
+            $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard, $tempCardData, $saveNewCard, $selectedShippingAddress, $selectedBillingAddress);
             if($result['success']){
                 $bag->bagItems()->delete();
                 Cache::tags(['bag', 'products'])->flush();

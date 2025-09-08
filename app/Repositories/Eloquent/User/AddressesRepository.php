@@ -29,14 +29,20 @@ class AddressesRepository extends BaseRepository implements AddressesRepositoryI
     }
     public function updateAddress(array $data, $id, $userId)
     {
-        return $this->model->where('id', $id)
-                        ->where('user_id', $userId)
-                        ->update($data);
+        $address = $this->getAddressById($id, $userId);
+        if(!$address){
+            return null;
+        }
+        $address->update($data);
+        return $address;
     }
     public function deleteAddress($id, $userId)
     {
-        return $this->model->where('id', $id)
-                        ->where('user_id', $userId)
-                        ->delete();
+        $address = $this->getAddressById($id, $userId);
+        if(!$address){  
+            return null;
+        }
+        $address->delete();
+        return true;
     }
 }

@@ -40,7 +40,7 @@ class AuthenticationRepository implements AuthenticationRepositoryInterface
         if ($this->isApiRequest()) {
             return Auth::guard('user')->check();
         }
-        return Auth::guard('user_web')->check();;
+        return Auth::guard('user_web')->check();
     }
 
     /**

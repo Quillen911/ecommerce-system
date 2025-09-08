@@ -22,8 +22,8 @@ class UserAddress extends Model
         'address_line_2',
         'district',
         'city',
-        'postal_code',
         'country',
+        'postal_code',
         'is_default',
         'is_active',
         'notes',
@@ -35,5 +35,9 @@ class UserAddress extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }
