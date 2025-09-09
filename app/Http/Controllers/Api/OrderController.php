@@ -14,6 +14,8 @@ use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Models\Bag;
 use App\Models\CreditCard; 
 use App\Http\Requests\OrderRequest;
+use App\Models\UserAddress;
+
 class OrderController extends Controller
 {
     protected $orderService;
@@ -48,6 +50,14 @@ class OrderController extends Controller
 
     public function store(OrderRequest $request)
     {
+        \Log::info('[API] order payload', [
+            'auth_guard' => auth()->getDefaultDriver(),
+            'user_id'    => optional($request->user())->id,
+            'has_products' => !empty($this->bagService->getBag($request->user())),
+            'shipping_address_id' => $request->input('shipping_address_id'),
+            'billing_address_id'  => $request->input('billing_address_id'),
+            'credit_card_id'      => $request->input('credit_card_id'),
+          ]);
         $user = $this->authenticationRepository->getUser();
         if(!$user){
             return ResponseHelper::error('Kullanıcı bulunamadı.', 404);
@@ -58,8 +68,16 @@ class OrderController extends Controller
             return ResponseHelper::error('Sepetiniz bulunamadı!');
         }
         $selectedCreditCard = $request->input('credit_card_id');
+        $selectedShippingAddress = $request->input('shipping_address_id');
+        $selectedBillingAddress = $request->input('billing_address_id');
         if(!$selectedCreditCard){
             return ResponseHelper::error('Lütfen bir kredi kartı seçiniz!');
+        }
+        if(!$selectedShippingAddress){
+            return ResponseHelper::error('Lütfen bir teslimat adresi seçiniz!');
+        }
+        if(!$selectedBillingAddress){
+            return ResponseHelper::error('Lütfen bir fatura adresi seçiniz!');
         }
 
         $products = $bag->bagItems()->with('product.category')->get();
@@ -69,21 +87,55 @@ class OrderController extends Controller
         }
         // İlk ödeme için kart bilgilerini kontrol et
         $tempCardData = null;
-        $creditCard = CreditCard::find($selectedCreditCard);
-        if ($creditCard && !$creditCard->iyzico_card_token) {
-            // İlk ödeme - kart bilgileri gerekli
-            $request->validate([
-                'card_number' => 'required|string|size:16',
-                'cvv' => 'required|string|size:3'
-            ]);
-            
-            $tempCardData = [
-                'card_number' => $request->card_number,
-                'cvv' => $request->cvv
-            ];
-        }
+        $saveNewCard = false;
         
-        $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard, $tempCardData);
+        if ($selectedCreditCard === 'new_card') {
+            $tempCardData = [
+                'card_holder_name' => $request->new_card_holder_name,
+                'card_name' => $request->new_card_name,
+                'card_number' => $request->new_card_number,
+                'expire_month' => $request->new_expire_month,
+                'expire_year' => $request->new_expire_year,
+                'cvv' => $request->new_cvv
+            ];
+            
+            $saveNewCard = $request->boolean('save_new_card');
+            
+        } else {
+            $creditCard = CreditCard::find($selectedCreditCard);
+            if (!$creditCard) {
+                return ResponseHelper::error('Seçilen kart bulunamadı!');
+            }
+            
+            if (!$creditCard->iyzico_card_token) {
+                $tempCardData = [
+                    'card_number' => null,
+                    'cvv' => $request->existing_cvv
+                ];
+            }
+        }
+        if($selectedBillingAddress === 'new_billing_address'){
+            $newBillingAddress = UserAddress::create([
+                'user_id' => $user->id,
+                'title' => $request->new_billing_address_title,
+                'first_name' => $request->new_billing_address_first_name,
+                'last_name' => $request->new_billing_address_last_name,
+                'phone' => $request->new_billing_address_phone,
+                'address_line_1' => $request->new_billing_address_address,
+                'address_line_2' => $request->new_billing_address_address_2,
+                'district' => $request->new_billing_address_district,
+                'city' => $request->new_billing_address_city,
+                'postal_code' => $request->new_billing_address_postal_code,
+                'country' => $request->new_billing_address_country,
+                'notes' => $request->new_billing_address_notes,
+                'is_default' => false,
+                'is_active' => true,
+            ]);
+            $selectedBillingAddress = $newBillingAddress->id;
+            
+        }
+       // dd($selectedShippingAddress, $selectedBillingAddress);
+        $result = $this->orderService->createOrder($user, $products, $this->campaignManager, $selectedCreditCard, $tempCardData, $saveNewCard, $selectedShippingAddress, $selectedBillingAddress);
         if($result instanceof \Exception){
             return ResponseHelper::error($result->getMessage());
         }

@@ -18,9 +18,26 @@ class OrderRequest extends FormRequest
     {
         $rules = [
             'credit_card_id' => 'required',
-            'shipping_address_id' => 'required',
+            'shipping_address_id' => 'required|numeric',
             'billing_address_id' => 'required',
         ];
+
+        if ($this->input('billing_address_id') === 'new_billing_address') {
+            $rules = array_merge($rules, [
+                'new_billing_address_title' => 'required|string|max:255',
+                'new_billing_address_first_name' => 'required|string|max:255',
+                'new_billing_address_last_name' => 'required|string|max:255',
+                'new_billing_address_phone' => 'required|string|max:20',
+                'new_billing_address_address' => 'required|string|max:500',
+                'new_billing_address_district' => 'required|string|max:100',
+                'new_billing_address_city' => 'required|string|max:100',
+                'new_billing_address_postal_code' => 'required|string|max:10',
+                'new_billing_address_country' => 'required|string|size:2',
+            ]);
+        } else {
+            $rules['billing_address_id'] = 'required|integer|exists:user_addresses,id';
+            
+        }
 
         if ($this->input('credit_card_id') === 'new_card') {
             $rules = array_merge($rules, [
@@ -52,6 +69,9 @@ class OrderRequest extends FormRequest
             'credit_card_id.required' => 'Lütfen bir ödeme yöntemi seçiniz.',
             'shipping_address_id.required' => 'Lütfen bir teslimat adresi seçiniz.',
             'billing_address_id.required' => 'Lütfen bir fatura adresi seçiniz.',
+            'shipping_address_id.numeric' => 'Teslimat adresi sayı olmalıdır.', 
+            'billing_address_id.integer' => 'Fatura adresi sayı olmalıdır veya yeni bir fatura adresi giriniz.',
+            'billing_address_id.exists' => 'Fatura adresi bulunamadı.',
             'new_card_holder_name.required' => 'Kart sahibi adı gereklidir.',
             'new_card_name.required' => 'Kart ismi gereklidir.',
             'new_card_number.required' => 'Kart numarası gereklidir.',
@@ -62,7 +82,6 @@ class OrderRequest extends FormRequest
             'new_expire_year.size' => 'Son kullanma yılı 4 haneli olmalıdır.',
             'new_cvv.required' => 'CVV kodu gereklidir.',
             'new_cvv.size' => 'CVV kodu 3 haneli olmalıdır.',
-            
             'existing_cvv.required' => 'CVV kodu gereklidir.',
             'existing_cvv.size' => 'CVV kodu 3 haneli olmalıdır.',
         ];
