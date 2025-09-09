@@ -1199,56 +1199,98 @@
                         Ödeme Yöntemi
                     </div>
 
+                    {{-- Kayıtlı kart VARSA --}}
                     @if($creditCards->count() > 0)
-                        <div class="payment-option selected">
-                            <div class="payment-title">
-                                <strong>Kayıtlı Kredi Kartlarım</strong>
+                        <div id="saved-cards-section">
+                            <div class="payment-option selected">
+                                <div class="payment-title">
+                                    <strong>Kayıtlı Kredi Kartlarım</strong>
+                                </div>
+                                @foreach($creditCards as $card)
+                                    <div class="credit-card-item">
+                                        <input type="radio" name="credit_card_selection" value="{{ $card->id }}" id="card_{{ $card->id }}" autocomplete="off">
+                                        <label for="card_{{ $card->id }}">
+                                            <div>
+                                                <div style="font-weight:600;margin-bottom:4px;">{{ $card->name }}</div>
+                                                <div class="card-info">**** **** **** {{ $card->last_four_digits }}</div>
+                                                <div class="card-info">{{ $card->card_holder_name }}</div>
+                                                <div class="card-info">{{ $card->expire_month }}/{{ $card->expire_year }}</div>
+                                                @if($card->iyzico_card_token)
+                                                    <div class="card-info" style="color:var(--success);font-size:12px;">✓ Güvenli kart</div>
+                                                @endif
+                                            </div>
+                                        </label>
+                                    </div>
+                                @endforeach
                             </div>
-                            @foreach($creditCards as $card)
-                                <div class="credit-card-item">
-                                    <input type="radio" name="credit_card_id" value="{{ $card->id }}" id="card_{{ $card->id }}" autocomplete="off">
-                                    <label for="card_{{ $card->id }}">
-                                        <div>
-                                            <div style="font-weight:600;margin-bottom:4px;">{{ $card->name }}</div>
-                                            <div class="card-info">**** **** **** {{ $card->last_four_digits }}</div>
-                                            <div class="card-info">{{ $card->card_holder_name }}</div>
-                                            <div class="card-info">{{ $card->expire_month }}/{{ $card->expire_year }}</div>
-                                            @if($card->iyzico_card_token)
-                                                <div class="card-info" style="color:var(--success);font-size:12px;">✓ Güvenli kart</div>
-                                            @endif
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label class="new-card-toggle">
+                                    <input type="checkbox" name="credit_card_selection" value="new_card" id="new_card" autocomplete="off">
+                                    <span class="checkmark"></span>
+                                    <span class="toggle-text">Yeni Kart ile Devam Et</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Yeni Kart Formu (Gizli) -->
+                            <div id="new-card-form" style="display: none; margin-top: 20px;">
+                                <div class="payment-option selected">
+                                    <div class="payment-title">💳 Yeni Kredi Kartı</div>
+                                    <div class="payment-details">Güvenli ödeme ile</div>
+                                </div>
+                                
+                                <div id="credit-card-form" style="margin-top: 20px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                        <div class="field">
+                                            <label>Kart Numarası</label>
+                                            <input type="text" name="new_card_number" id="new_card_number" placeholder="Kart Numarası" maxlength="19">
+                                            <div class="field-error" id="new_card_number_error"></div>
                                         </div>
-                                    </label>
+                                        <div class="field">
+                                            <label>Kart Üzerindeki İsim (Kart Sahibi)</label>
+                                            <input type="text" name="new_card_holder_name" id="new_card_holder_name" placeholder="AHMET YILMAZ">
+                                            <div class="field-error" id="new_card_holder_name_error"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 16px; margin-bottom: 16px;">
+                                        <div class="field">
+                                            <label>Ay / Yıl</label>
+                                            <input type="text" name="new_expire_date" id="new_expire_date" placeholder="MM/YY" data-month-field="new_expire_month" data-year-field="new_expire_year">
+                                            <input type="hidden" name="new_expire_month" id="new_expire_month">
+                                            <input type="hidden" name="new_expire_year" id="new_expire_year">
+                                            <div class="field-error" id="new_expire_date_error"></div>
+                                        </div>
+                                        <div class="field">
+                                            <label>CVC</label>
+                                            <input type="password" name="new_cvv" id="new_cvv" placeholder="123" maxlength="3" autocomplete="off">
+                                            <div class="field-error" id="new_cvv_error"></div>
+                                        </div>
+                                        <div style="display: flex; align-items: end; position: relative;">
+                                            <button type="button" class="cvc-help-btn" title="Kartınızın arkasındaki 3 haneli güvenlik kodu">?</button>
+                                        </div>
+                                        <div class="field full">
+                                            <label>Kartınız için isim</label>
+                                            <input type="text" name="new_card_name" id="new_card_name" placeholder="Yeni Kart">
+                                            <div class="field-error" id="new_card_name_error"></div>
+                                        </div>
+                                        <div class="field full" style="margin-top:20px;">
+                                            <label class="save-card-label">
+                                                <input type="checkbox" id="save_new_card_toggle" name="save_new_card" value="1" checked autocomplete="off">
+                                                <div class="save-card-text">
+                                                    <div class="save-card-title">Bu kartı kayıtlı kartlarıma ekle</div>
+                                                    <div class="save-card-subtitle">Sonraki ödemelerinizde tek tıkla ödeme yapabilirsiniz</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
-                            @endforeach
-                        </div>
-                        
-                        <!-- Existing Card CVV (Hidden by default) -->
-                        <div id="existing-card-cvv" style="display: none; margin-top: 20px;">
-                            <div class="payment-option selected">
-                                <div class="payment-title">🔒 Güvenlik Kodu</div>
-                                <div class="payment-details">Kartınızın arkasındaki 3 haneli güvenlik kodunu girin</div>
-                            </div>
-                            <div style="margin-top: 16px;">
-                                <div class="field">
-                                    <label>CVC</label>
-                                    <input type="password" name="existing_cvv" id="existing_cvv" placeholder="123" maxlength="3">
-                                    <div class="field-error" id="existing_cvv_error"></div>
-                                </div>
                             </div>
                         </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label class="new-card-toggle">
-                                <input type="checkbox" id="new_card" name="new_card" value="1" autocomplete="off">
-                                <span class="checkmark"></span>
-                                <span class="toggle-text">Yeni Kart ile Devam Et</span>
-                            </label>
-                        </div>
-                        
-                        <!-- Yeni Kart Formu (Gizli) -->
-                        <div id="new-card-form" style="display: none; margin-top: 20px;">
+                    @else
+                        {{-- Kayıtlı kart YOKSA: sadece Yeni Kart formu --}}
+                        <div id="new-card-form">
                             <div class="payment-option selected">
-                                <div class="payment-title">💳 Yeni Kredi Kartı</div>
+                                <div class="payment-title">💳 Kredi Kartı</div>
                                 <div class="payment-details">Güvenli ödeme ile</div>
                             </div>
                             
@@ -1256,39 +1298,39 @@
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                                     <div class="field">
                                         <label>Kart Numarası</label>
-                                        <input type="text" name="new_card_number" id="card_number" placeholder="Kart Numarası" maxlength="19">
-                                        <div class="field-error" id="card_number_error"></div>
+                                        <input type="text" name="new_card_number" id="new_card_number" placeholder="Kart Numarası" maxlength="19">
+                                        <div class="field-error" id="new_card_number_error"></div>
                                     </div>
                                     <div class="field">
                                         <label>Kart Üzerindeki İsim (Kart Sahibi)</label>
-                                        <input type="text" name="new_card_holder_name" id="card_holder_name" placeholder="AHMET YILMAZ">
-                                        <div class="field-error" id="card_holder_name_error"></div>
+                                        <input type="text" name="new_card_holder_name" id="new_card_holder_name" placeholder="AHMET YILMAZ">
+                                        <div class="field-error" id="new_card_holder_name_error"></div>
                                     </div>
                                 </div>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 16px; margin-bottom: 16px;">
                                     <div class="field">
                                         <label>Ay / Yıl</label>
-                                        <input type="text" name="new_expire_date" id="expire_date" placeholder="MM/YY" data-month-field="new_expire_month" data-year-field="new_expire_year">
-                                        <input type="hidden" name="new_expire_month" id="expire_month">
-                                        <input type="hidden" name="new_expire_year" id="expire_year">
-                                        <div class="field-error" id="expire_date_error"></div>
+                                        <input type="text" name="new_expire_date" id="new_expire_date" placeholder="MM/YY" data-month-field="new_expire_month" data-year-field="new_expire_year">
+                                        <input type="hidden" name="new_expire_month" id="new_expire_month">
+                                        <input type="hidden" name="new_expire_year" id="new_expire_year">
+                                        <div class="field-error" id="new_expire_date_error"></div>
                                     </div>
                                     <div class="field">
                                         <label>CVC</label>
-                                        <input type="password" name="new_cvv" id="cvc" placeholder="123" maxlength="3">
-                                        <div class="field-error" id="cvc_error"></div>
+                                        <input type="password" name="new_cvv" id="new_cvv" placeholder="123" maxlength="3" autocomplete="off">
+                                        <div class="field-error" id="new_cvv_error"></div>
                                     </div>
                                     <div style="display: flex; align-items: end; position: relative;">
                                         <button type="button" class="cvc-help-btn" title="Kartınızın arkasındaki 3 haneli güvenlik kodu">?</button>
                                     </div>
                                     <div class="field full">
                                         <label>Kartınız için isim</label>
-                                        <input type="text" name="new_card_name" id="card_name" placeholder="Yeni Kart">
-                                        <div class="field-error" id="card_name_error"></div>
+                                        <input type="text" name="new_card_name" id="new_card_name" placeholder="Yeni Kart">
+                                        <div class="field-error" id="new_card_name_error"></div>
                                     </div>
                                     <div class="field full" style="margin-top:20px;">
                                         <label class="save-card-label">
-                                            <input type="checkbox" id="save_new_card_toggle" name="save_new_card" value="1" checked autocomplete="off">
+                                            <input type="checkbox" id="save_new_card" name="save_new_card" value="1" checked autocomplete="off">
                                             <div class="save-card-text">
                                                 <div class="save-card-title">Bu kartı kayıtlı kartlarıma ekle</div>
                                                 <div class="save-card-subtitle">Sonraki ödemelerinizde tek tıkla ödeme yapabilirsiniz</div>
@@ -1298,169 +1340,115 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div style="margin-top: 16px;">
-                            <label class="new-card-toggle">
-                                <input type="checkbox" id="billing_same_as_shipping" checked autocomplete="off">
-                                <span class="checkmark"></span>
-                                <span class="toggle-text">Fatura Adresim Teslimat Adresim ile aynı</span>
-                            </label>
-                        </div>
-
-                        <!-- Fatura adresi seçimi (gizli) -->
-                        <div class="address-item" id="billing-address-item" style="display: none; margin-top: 20px;">
-                            <div class="address-label">Fatura Adresi</div>
-                            <div class="address-details">
-                                @foreach($addresses as $address)
-                                    <label for="billing_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
-                                        <input type="radio" name="billing_address_selection" value="{{ $address->id }}" id="billing_address_{{ $address->id }}" style="margin-right: 8px;">
-                                        <div>
-                                            <div style="font-weight:600;margin-bottom:4px;">{{ $address->title }}</div>
-                                            <div class="address-info">{{ $address->first_name }} {{ $address->last_name }}</div>
-                                            <div class="address-info">{{ $address->phone }}</div>
-                                            <div class="address-info">{{ $address->address_line_1 }}</div>
-                                            <div class="address-info">{{ $address->address_line_2 }}</div>
-                                            <div class="address-info">{{ $address->district }} {{ $address->city }} {{ $address->postal_code }}</div>
-                                            <div class="address-info">{{ $address->country }}</div>
-                                            <div class="address-info">{{ $address->notes }}</div>
-                                        </div>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
                         
-                        <div id="new-billing-address-toggle" style="margin-bottom: 16px; margin-top: 20px;">
-                            <label class="new-card-toggle">
-                                <input type="checkbox" id="new_billing_address" name="new_billing_address" value="1" autocomplete="off">
-                                <span class="checkmark"></span>
-                                <span class="toggle-text">Yeni Fatura Adresi</span>
-                            </label>
-                        </div>
-                        <div id="new-billing-address-form" style="display: none; margin-top: 20px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                                <div class="field">
-                                    <label>Başlık</label>
-                                    <input type="text" name="new_billing_address_title" id="new_billing_address_title" placeholder="Başlık" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_title_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Ad</label>
-                                    <input type="text" name="new_billing_address_first_name" id="new_billing_address_first_name" placeholder="Ad" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_first_name_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Soyad</label>
-                                    <input type="text" name="new_billing_address_last_name" id="new_billing_address_last_name" placeholder="Soyad" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_last_name_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Telefon</label>
-                                    <input type="text" name="new_billing_address_phone" id="new_billing_address_phone" placeholder="Telefon" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_phone_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Adres</label>
-                                    <input type="text" name="new_billing_address_address" id="new_billing_address_address" placeholder="Adres" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_address_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Adres 2</label>
-                                    <input type="text" name="new_billing_address_address_2" id="new_billing_address_address_2" placeholder="Adres 2" maxlength="255">
-                                    <div class="field-error" id="new_billing_address_address_2_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>İlçe</label>
-                                    <input type="text" name="new_billing_address_district" id="new_billing_address_district" placeholder="İlçe" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_district_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>İl</label>
-                                    <input type="text" name="new_billing_address_city" id="new_billing_address_city" placeholder="İl" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_city_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Posta Kodu</label>
-                                    <input type="text" name="new_billing_address_postal_code" id="new_billing_address_postal_code" placeholder="Posta Kodu" maxlength="10" required>
-                                    <div class="field-error" id="new_billing_address_postal_code_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Ülke</label>
-                                    <input type="text" name="new_billing_address_country" id="new_billing_address_country" placeholder="Ülke" maxlength="255" required>
-                                    <div class="field-error" id="new_billing_address_country_error"></div>
-                                </div>
-                                <div class="field">
-                                    <label>Notlar</label>
-                                    <textarea name="new_billing_address_notes" id="new_billing_address_notes" placeholder="Notlar" rows="3"></textarea>
-                                    <div class="field-error" id="new_billing_address_notes_error"></div>
-                                </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                const hid = document.getElementById('credit_card_id');
+                                if (hid) hid.value = 'new_card';
+                            });
+                        </script>
+                    @endif
 
-                            </div>
-                        </div>
-                        <div style="display: flex; justify-content: center; margin-top: 24px;">
-                            <button type="submit" class="btn-next complete-order-btn">
-                                 ✓ Siparişi Tamamla
-                            </button>
-                        </div>
-                        <div class="step-navigation">
-                            <button type="button" class="btn-back" onclick="prevStep(2)">
-                                ← Kargoya Geri Dön
-                            </button>
-                        </div>
-                    @else
-                      
-                    <div class="payment-option selected">
-                        <div class="payment-title">💳 Kredi Kartı</div>
-                        <div class="payment-details">Güvenli ödeme ile</div>
+                    <!-- Fatura Adresi Bölümü (Her iki durumda da görünür) -->
+                    <div style="margin-top: 16px;">
+                        <label class="new-card-toggle">
+                            <input type="checkbox" id="billing_same_as_shipping" checked autocomplete="off">
+                            <span class="checkmark"></span>
+                            <span class="toggle-text">Fatura Adresim Teslimat Adresim ile aynı</span>
+                        </label>
                     </div>
-                    
-                    <!-- Kredi Kartı Formu -->
-                    <div id="credit-card-form" style="margin-top: 20px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                            <div class="field">
-                                <label>Kart Numarası</label>
-                                <input type="text" name="new_card_number" id="card_number" placeholder="Kart Numarası" maxlength="19">
-                                <div class="field-error" id="card_number_error"></div>
-                            </div>
-                            <div class="field">
-                                <label>Kart Üzerindeki İsim (Kart Sahibi)</label>
-                                <input type="text" name="new_card_holder_name" id="card_holder_name" placeholder="AHMET YILMAZ">
-                                <div class="field-error" id="card_holder_name_error"></div>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 16px; margin-bottom: 16px;">
-                            <div class="field">
-                                <label>Ay / Yıl</label>
-                                <input type="text" name="new_expire_date" id="expire_date" placeholder="MM/YY" data-month-field="new_expire_month" data-year-field="new_expire_year">
-                                <input type="hidden" name="new_expire_month" id="expire_month">
-                                <input type="hidden" name="new_expire_year" id="expire_year">
-                                <div class="field-error" id="expire_date_error"></div>
-                            </div>
-                            <div class="field">
-                                <label>CVC</label>
-                                <input type="password" name="new_cvv" id="cvc" placeholder="123" maxlength="3">
-                                <div class="field-error" id="cvc_error"></div>
-                            </div>
-                            <div style="display: flex; align-items: end; position: relative;">
-                                <button type="button" class="cvc-help-btn" title="Kartınızın arkasındaki 3 haneli güvenlik kodu">?</button>
-                            </div>
-                            <div class="field full">
-                                <label>Kartınız için isim</label>
-                                <input type="text" name="new_card_name" id="card_name" placeholder="Yeni Kart">
-                                <div class="field-error" id="card_name_error"></div>
-                            </div>
-                            <div class="field full" style="margin-top:20px;">
-                                <label class="save-card-label">
-                                    <input type="checkbox" id="save_new_card" name="save_new_card" value="1" checked autocomplete="off">
-                                    <div class="save-card-text">
-                                        <div class="save-card-title">Bu kartı kayıtlı kartlarıma ekle</div>
-                                        <div class="save-card-subtitle">Sonraki ödemelerinizde tek tıkla ödeme yapabilirsiniz</div>
+
+                    <!-- Fatura adresi seçimi (gizli) -->
+                    <div class="address-item" id="billing-address-item" style="display: none; margin-top: 20px;">
+                        <div class="address-label">Fatura Adresi</div>
+                        <div class="address-details">
+                            @foreach($addresses as $address)
+                                <label for="billing_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
+                                    <input type="radio" name="billing_address_selection" value="{{ $address->id }}" id="billing_address_{{ $address->id }}" style="margin-right: 8px;">
+                                    <div>
+                                        <div style="font-weight:600;margin-bottom:4px;">{{ $address->title }}</div>
+                                        <div class="address-info">{{ $address->first_name }} {{ $address->last_name }}</div>
+                                        <div class="address-info">{{ $address->phone }}</div>
+                                        <div class="address-info">{{ $address->address_line_1 }}</div>
+                                        <div class="address-info">{{ $address->address_line_2 }}</div>
+                                        <div class="address-info">{{ $address->district }} {{ $address->city }} {{ $address->postal_code }}</div>
+                                        <div class="address-info">{{ $address->country }}</div>
+                                        <div class="address-info">{{ $address->notes }}</div>
                                     </div>
                                 </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    
+                    <div id="new-billing-address-toggle" style="margin-bottom: 16px; margin-top: 20px;">
+                        <label class="new-card-toggle">
+                            <input type="checkbox" id="new_billing_address" name="new_billing_address" value="1" autocomplete="off">
+                            <span class="checkmark"></span>
+                            <span class="toggle-text">Yeni Fatura Adresi</span>
+                        </label>
+                    </div>
+                    <div id="new-billing-address-form" style="display: none; margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="field">
+                                <label>Başlık</label>
+                                <input type="text" name="new_billing_address_title" id="new_billing_address_title" placeholder="Başlık" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_title_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Ad</label>
+                                <input type="text" name="new_billing_address_first_name" id="new_billing_address_first_name" placeholder="Ad" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_first_name_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Soyad</label>
+                                <input type="text" name="new_billing_address_last_name" id="new_billing_address_last_name" placeholder="Soyad" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_last_name_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Telefon</label>
+                                <input type="text" name="new_billing_address_phone" id="new_billing_address_phone" placeholder="Telefon" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_phone_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Adres</label>
+                                <input type="text" name="new_billing_address_address" id="new_billing_address_address" placeholder="Adres" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_address_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Adres 2</label>
+                                <input type="text" name="new_billing_address_address_2" id="new_billing_address_address_2" placeholder="Adres 2" maxlength="255">
+                                <div class="field-error" id="new_billing_address_address_2_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>İlçe</label>
+                                <input type="text" name="new_billing_address_district" id="new_billing_address_district" placeholder="İlçe" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_district_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>İl</label>
+                                <input type="text" name="new_billing_address_city" id="new_billing_address_city" placeholder="İl" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_city_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Posta Kodu</label>
+                                <input type="text" name="new_billing_address_postal_code" id="new_billing_address_postal_code" placeholder="Posta Kodu" maxlength="10" required>
+                                <div class="field-error" id="new_billing_address_postal_code_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Ülke</label>
+                                <input type="text" name="new_billing_address_country" id="new_billing_address_country" placeholder="Ülke" maxlength="255" required>
+                                <div class="field-error" id="new_billing_address_country_error"></div>
+                            </div>
+                            <div class="field">
+                                <label>Notlar</label>
+                                <textarea name="new_billing_address_notes" id="new_billing_address_notes" placeholder="Notlar" rows="3"></textarea>
+                                <div class="field-error" id="new_billing_address_notes_error"></div>
                             </div>
                         </div>
                     </div>
-                
-                    <div class="step-navigation">
+
+                    <!-- Siparişi Tamamla Butonu -->
+                    <div class="step-navigation" style="margin-top: 24px;">
                         <button type="button" class="btn-back" onclick="prevStep(2)">
                             ← Kargoya Geri Dön
                         </button>
@@ -1469,11 +1457,10 @@
                         </button>
                     </div>
                     
-                        <div style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--muted);">
-                            Ödemeler güvenli ve şifrelidir.
-                        </div>
+                    <div style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--muted);">
+                        Ödemeler güvenli ve şifrelidir.
+                    </div>
                     </form>
-                    @endif
                 </div>
             </div>
             
