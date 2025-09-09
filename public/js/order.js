@@ -40,415 +40,51 @@ function updateStepProgress() {
 function validateCurrentStep() {
     if (currentStep === 1) {
         const shippingAddress = document.querySelector('input[name="shipping_address_id"]:checked');
-        const billingAddress = document.querySelector('input[name="billing_address_id"]:checked');
         
-        if (!shippingAddress || !billingAddress) {
-            alert('Lütfen teslimat ve fatura adreslerini seçiniz!');
+        if (!shippingAddress) {
+            alert('Lütfen teslimat adresini seçiniz!');
             return false;
         }
         document.getElementById('shipping_address_id').value = shippingAddress.value;
-        document.getElementById('billing_address_id').value = billingAddress.value;
+
     } else if (currentStep === 2) {
         return true;
     } else if (currentStep === 3) {
+        const billingSameCheckbox = document.getElementById('billing_same_as_shipping');
+        const newBillingCheckbox = document.getElementById('new_billing_address');
+        
+        console.log('billingSameCheckbox checked:', billingSameCheckbox?.checked);
+        console.log('newBillingCheckbox checked:', newBillingCheckbox?.checked);
+        
+        if (billingSameCheckbox && billingSameCheckbox.checked) {
+            const shippingAddress = document.querySelector('input[name="shipping_address_id"]:checked');
+            if (shippingAddress) {
+                document.getElementById('billing_address_id').value = shippingAddress.value;
+            }
+        } else if (newBillingCheckbox && newBillingCheckbox.checked) {
+            if (!validateNewBillingAddress()) {
+                return false;
+            }
+            document.getElementById('billing_address_id').value = 'new_billing_address';
+            console.log('Billing address set to: new_billing_address');
+        } else {
+            const billingAddress = document.querySelector('input[name="billing_address_selection"]:checked');
+            if (!billingAddress) {
+                alert('Lütfen fatura adresini seçiniz!');
+                return false;
+            }
+            document.getElementById('billing_address_id').value = billingAddress.value;
+        }
+        
+        console.log('Final billing_address_id value:', document.getElementById('billing_address_id').value);
         return validatePaymentForm();
     }
     return true;
 }
 
-
-function validateCreditCardForm() {
-    let isValid = true;
-    
-    clearFieldErrors();
-    const cardNumber = document.getElementById('card_number');
-    const cardNumberError = document.getElementById('card_number_error');
-    if (!cardNumber.value.trim()) {
-        showFieldError(cardNumber, cardNumberError, 'Geçerli bir kart numarası girin');
-        isValid = false;
-    } else if (cardNumber.value.replace(/\D/g, '').length < 16) {
-        showFieldError(cardNumber, cardNumberError, 'Geçerli bir kart numarası girin');
-        isValid = false;
-    }
-    const cardHolderName = document.getElementById('card_holder_name');
-    const cardHolderNameError = document.getElementById('card_holder_name_error');
-    if (!cardHolderName.value.trim()) {
-        showFieldError(cardHolderName, cardHolderNameError, 'Ad soyad girin');
-        isValid = false;
-    }
-    const expireDate = document.getElementById('expire_date');
-    const expireDateError = document.getElementById('expire_date_error');
-    if (!expireDate.value.trim()) {
-        showFieldError(expireDate, expireDateError, 'Geçerli bir tarih girin');
-        isValid = false;
-    } else if (!/^\d{2}\/\d{2}$/.test(expireDate.value)) {
-        showFieldError(expireDate, expireDateError, 'Geçerli bir tarih girin');
-        isValid = false;
-    }
-    const cvc = document.getElementById('cvc');
-    const cvcError = document.getElementById('cvc_error');
-    if (!cvc.value.trim()) {
-        showFieldError(cvc, cvcError, 'Geçerli bir güvenlik kodu girin');
-        isValid = false;
-    } else if (cvc.value.length !== 3) {
-        showFieldError(cvc, cvcError, 'Geçerli bir güvenlik kodu girin');
-        isValid = false;
-    }
-    
-    const cardName = document.getElementById('card_name');
-    const cardNameError = document.getElementById('card_name_error');
-    if (!cardName.value.trim()) {
-        showFieldError(cardName, cardNameError, 'Kart ismi girin');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-function showFieldError(input, errorElement, message) {
-    input.closest('.field').classList.add('error');
-    errorElement.textContent = message;
-}
-
-function clearFieldErrors() {
-    document.querySelectorAll('.field').forEach(field => {
-        field.classList.remove('error');
-    });
-    document.querySelectorAll('.field-error').forEach(error => {
-        error.textContent = '';
-    });
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    const orderForm = document.getElementById('order-form');
-    if (orderForm) {
-        orderForm.addEventListener('submit', function(e) {
-            if (!validateCurrentStep()) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Expire date'i kontrol et ve ayır (sadece yeni kart için)
-            const selectedCard = document.getElementById('credit_card_id').value;
-            const shippingAddress = document.getElementById('shipping_address_id').value;
-            const billingAddress = document.getElementById('billing_address_id').value;
-            if (!shippingAddress || !billingAddress) {
-                e.preventDefault();
-                alert('Lütfen teslimat ve fatura adreslerini seçiniz!');
-                return false;
-            }
-            if (selectedCard === 'new_card') {
-                const expireDateInput = document.getElementById('expire_date');
-                if (expireDateInput && expireDateInput.value) {
-                    const parts = expireDateInput.value.split('/');
-                    if (parts.length === 2) {
-                        const month = parts[0].padStart(2, '0');
-                        const year = '20' + parts[1];
-                        document.getElementById('expire_month').value = month;
-                        document.getElementById('expire_year').value = year;
-                    }
-                }
-            }
-        });
-    }
-    const cardNumber = document.getElementById('card_number');
-    if (cardNumber) {
-        cardNumber.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 16) value = value.substr(0, 16);
-            e.target.value = value;
-            
-            if (value.length > 0) {
-                clearFieldError(cardNumber);
-            }
-        });
-        
-        // Form submit öncesi kart numarasını temizle
-        cardNumber.addEventListener('blur', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '');
-        });
-    }
-    
-    const cvc = document.getElementById('cvc');
-    if (cvc) {
-        cvc.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 3) value = value.substr(0, 3);
-            e.target.value = value;
-            
-            if (value.length > 0) {
-                clearFieldError(cvc);
-            }
-        });
-        
-        // Form submit öncesi CVC'yi temizle
-        cvc.addEventListener('blur', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '');
-        });
-    }
-    const expireDate = document.getElementById('expire_date');
-    if (expireDate) {
-        expireDate.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length >= 2) {
-                value = value.substr(0, 2) + '/' + value.substr(2, 2);
-            }
-            e.target.value = value;
-            
-            // Ay ve yılı ayrı field'lara yaz
-            const parts = value.split('/');
-            if (parts.length === 2) {
-                const month = parts[0].padStart(2, '0');
-                const year = '20' + parts[1];
-                document.getElementById('expire_month').value = month;
-                document.getElementById('expire_year').value = year;
-            }
-            
-            if (value.length > 0) {
-                clearFieldError(expireDate);
-            }
-        });
-    }
-    const cardHolderName = document.getElementById('card_holder_name');
-    if (cardHolderName) {
-        cardHolderName.addEventListener('input', function(e) {
-            if (e.target.value.trim().length > 0) {
-                clearFieldError(cardHolderName);
-            }
-        });
-    }
-    
-    const cardName = document.getElementById('card_name');
-    if (cardName) {
-        cardName.addEventListener('input', function(e) {
-            if (e.target.value.trim().length > 0) {
-                clearFieldError(cardName);
-            }
-        });
-    }
-    
-    const saveNewCard = document.getElementById('save_new_card');
-    const saveNewCardToggle = document.getElementById('save_new_card_toggle');
-    
-    if (saveNewCard) {
-        saveNewCard.addEventListener('change', function() {
-            const label = this.closest('.save-card-label');
-            if (this.checked) {
-                label.style.borderColor = 'rgba(0, 212, 170, 0.4)';
-                label.style.background = 'rgba(0, 212, 170, 0.08)';
-            } else {
-                label.style.borderColor = 'rgba(0, 212, 170, 0.2)';
-                label.style.background = 'rgba(0, 212, 170, 0.05)';
-            }
-        });
-    }
-    
-    if (saveNewCardToggle) {
-        saveNewCardToggle.addEventListener('change', function() {
-            const label = this.closest('.save-card-label');
-            if (this.checked) {
-                label.style.borderColor = 'rgba(0, 212, 170, 0.4)';
-                label.style.background = 'rgba(0, 212, 170, 0.08)';
-            } else {
-                label.style.borderColor = 'rgba(0, 212, 170, 0.2)';
-                label.style.background = 'rgba(0, 212, 170, 0.05)';
-            }
-        });
-    }
-    
-    // Yeni kart toggle functionality
-    const newCardToggle = document.getElementById('new_card');
-    if (newCardToggle) {
-        newCardToggle.addEventListener('change', function() {
-            const newCardForm = document.getElementById('new-card-form');
-            const creditCardItems = document.querySelectorAll('.credit-card-item');
-            
-            if (this.checked) {
-                // Yeni kart formunu göster
-                newCardForm.style.display = 'block';
-                // Kayıtlı kartları gizle
-                creditCardItems.forEach(item => {
-                    item.style.display = 'none';
-                });
-                // Credit card ID'yi new_card olarak ayarla
-                document.getElementById('credit_card_id').value = 'new_card';
-            } else {
-                // Yeni kart formunu gizle
-                newCardForm.style.display = 'none';
-                // Kayıtlı kartları göster
-                creditCardItems.forEach(item => {
-                    item.style.display = 'block';
-                });
-                // İlk kayıtlı kartı seç
-                const firstCard = document.querySelector('input[name="credit_card_id"]:not([value="new_card"])');
-                if (firstCard) {
-                    firstCard.checked = true;
-                    document.getElementById('credit_card_id').value = firstCard.value;
-                }
-            }
-        });
-    }
-});
-
-function clearFieldError(input) {
-    const field = input.closest('.field');
-    field.classList.remove('error');
-    const errorElement = field.querySelector('.field-error');
-    if (errorElement) {
-        errorElement.textContent = '';
-    }
-}
-
-document.querySelectorAll('input[name="credit_card_id"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        document.getElementById('credit_card_id').value = radio.value;
-        
-        document.querySelectorAll('.credit-card-item').forEach(item => item.classList.remove('selected'));
-        radio.closest('.credit-card-item').classList.add('selected');
-        
-        // Yeni kart toggle'ını kapat
-        const newCardToggle = document.getElementById('new_card');
-        if (newCardToggle && radio.value !== 'new_card') {
-            newCardToggle.checked = false;
-            const newCardForm = document.getElementById('new-card-form');
-            if (newCardForm) {
-                newCardForm.style.display = 'none';
-            }
-        }
-        
-        handleCardSelection(radio.value);
-    });
-});
-
-document.getElementById('useNewCardBtn')?.addEventListener('click', function() {
-    const newCardOption = document.getElementById('new-card-option');
-    if (newCardOption) {
-        newCardOption.style.display = 'block';
-        
-        const newCardRadio = document.getElementById('card_new');
-        if (newCardRadio) {
-            newCardRadio.checked = true;
-            newCardRadio.dispatchEvent(new Event('change'));
-        }
-        
-        this.style.display = 'none';
-        
-        const backBtn = document.createElement('button');
-        backBtn.type = 'button';
-        backBtn.className = 'btn ghost';
-        backBtn.style.width = '100%';
-        backBtn.style.marginTop = '12px';
-        backBtn.innerHTML = `
-            ← Kayıtlı Kartlarıma Geri Dön
-        `;
-        backBtn.id = 'backToSavedCards';
-        this.parentNode.appendChild(backBtn);
-        
-        backBtn.addEventListener('click', function() {
-            newCardOption.style.display = 'none';
-            
-            const firstCard = document.querySelector('input[name="credit_card_id"]:not(#card_new)');
-            if (firstCard) {
-                firstCard.checked = true;
-                firstCard.dispatchEvent(new Event('change'));
-            }
-            
-            document.getElementById('useNewCardBtn').style.display = 'block';
-            this.remove();
-        });
-    }
-});
-
-document.querySelectorAll('input[name="shipping_address_id"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.getElementById('shipping_address_id').value = this.value;
-    });
-});
-
-document.querySelectorAll('input[name="billing_address_id"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.getElementById('billing_address_id').value = this.value;
-    });
-});
-
-function handleCardSelection(cardValue) {
-    const newCardForm = document.getElementById('new-card-form');
-    const existingCardCvv = document.getElementById('existing-card-cvv');
-    
-    newCardForm.style.display = 'none';
-    existingCardCvv.style.display = 'none';
-    
-    clearFormValidation();
-    
-    if (cardValue === 'new_card') {
-        newCardForm.style.display = 'block';
-        setNewCardValidation();
-    } else {
-        checkExistingCard(cardValue);
-    }
-}
-
-function checkExistingCard(cardId) {
-    try {
-        const cards = window.creditCards || {};
-        const selectedCard = cards[cardId];
-        const existingCardCvv = document.getElementById('existing-card-cvv');
-
-
-        if (selectedCard && !selectedCard.iyzico_card_token) {
-            existingCardCvv.style.display = 'block';
-            document.getElementById('existing_cvv').required = true;
-        } else {
-            existingCardCvv.style.display = 'none';
-            document.getElementById('existing_cvv').required = false;
-        }
-    } catch (error) {
-        console.error('Kart kontrolü hatası:', error);
-    }
-}
-
-function clearFormValidation() {
-    document.getElementById('new_card_holder_name').required = false;
-    document.getElementById('new_card_name').required = false;
-    document.getElementById('new_card_number').required = false;
-    document.getElementById('new_expire_month').required = false;
-    document.getElementById('new_expire_year').required = false;
-    document.getElementById('new_cvv').required = false;
-    
-    document.getElementById('existing_cvv').required = false;
-}
-
-function setNewCardValidation() {
-    document.getElementById('new_card_holder_name').required = true;
-    document.getElementById('new_card_name').required = true;
-    document.getElementById('new_card_number').required = true;
-    document.getElementById('new_expire_month').required = true;
-    document.getElementById('new_expire_year').required = true;
-    document.getElementById('new_cvv').required = true;
-}
-
-document.getElementById('save_new_card')?.addEventListener('change', function() {
-    const label = this.closest('label');
-    
-    if (this.checked) {
-        label.style.borderColor = 'rgba(0, 212, 170, 0.4)';
-        label.style.background = 'rgba(0, 212, 170, 0.08)';
-    } else {
-        label.style.borderColor = 'rgba(0, 212, 170, 0.2)';
-        label.style.background = 'rgba(0, 212, 170, 0.05)';
-    }
-});
-
 function validatePaymentForm() {
     const selectedCard = document.getElementById('credit_card_id').value;
-    const shippingAddress = document.getElementById('shipping_address_id').value;
-    const billingAddress = document.getElementById('billing_address_id').value;
     
-    if (!shippingAddress || !billingAddress) {
-        alert('Lütfen teslimat ve fatura adreslerini seçiniz!');
-        return false;
-    }
     if (!selectedCard) {
         alert('Lütfen bir ödeme yöntemi seçiniz!');
         return false;
@@ -495,30 +131,307 @@ function validatePaymentForm() {
     
     return true;
 }
+function handleBillingAddressToggle() {
+    const checkbox = document.getElementById('billing_same_as_shipping');
+    const billingAddressSection = document.getElementById('billing-address-item');
+    const newBillingToggle = document.getElementById('new-billing-address-toggle');
+    const newBillingAddressForm = document.getElementById('new-billing-address-form');
+    const newBillingCheckbox = document.getElementById('new_billing_address');
 
-document.getElementById('new_card_number')?.addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 16) value = value.substr(0, 16);
-    e.target.value = value;
-});
-
-document.getElementById('new_cvv')?.addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 3) value = value.substr(0, 3);
-    e.target.value = value;
-});
-
-document.getElementById('existing_cvv')?.addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 3) value = value.substr(0, 3);
-    e.target.value = value;
-    
-    if (value.length > 0) {
-        clearFieldError(e.target);
+    if (checkbox.checked) {
+        billingAddressSection.style.display = 'none';
+        newBillingToggle.style.display = 'none';
+        newBillingAddressForm.style.display = 'none';
+        
+        if (newBillingCheckbox) {
+            newBillingCheckbox.checked = false;
+        }
+        
+        updateBillingAddressFromShipping();
+    } else {
+        billingAddressSection.style.display = 'block';
+        newBillingToggle.style.display = 'block';
+        
+        newBillingAddressForm.style.display = 'none';
+        
+        if (newBillingCheckbox) {
+            newBillingCheckbox.checked = false;
+        }
     }
-});
+}
 
-window.addEventListener('DOMContentLoaded', function() {
+function updateBillingAddressFromShipping() {
+    const shippingAddress = document.querySelector('input[name="shipping_address_id"]:checked');
+    if (shippingAddress) {
+        const billingAddresses = document.querySelectorAll('input[name="billing_address_id"]');
+        billingAddresses.forEach(address => {
+            address.checked = false;
+        });
+        const billingAddressId = document.getElementById('billing_address_id');
+        if (billingAddressId) {
+            billingAddressId.value = shippingAddress.value;
+        }
+    }
+}
+
+function onShippingAddressChange() {
+    const checkbox = document.getElementById('billing_same_as_shipping');
+    if (checkbox && checkbox.checked) {
+        updateBillingAddressFromShipping();
+    }
+}
+
+function handleNewBillingAddressToggle() {
+    const checkbox = document.getElementById('new_billing_address');
+    const newBillingForm = document.getElementById('new-billing-address-form');
+    const existingBillingSection = document.getElementById('billing-address-item');
+    if (checkbox.checked) {
+        newBillingForm.style.display = 'block';
+        existingBillingSection.style.display = 'none';
+    } else {
+        newBillingForm.style.display = 'none';
+        const billingSameCheckbox = document.getElementById('billing_same_as_shipping');
+        if (billingSameCheckbox && !billingSameCheckbox.checked) {
+            existingBillingSection.style.display = 'block';
+        }
+    }
+}
+
+
+
+function handleCardSelection(cardValue) {
+    const newCardForm = document.getElementById('new-card-form');
+    const existingCardCvv = document.getElementById('existing-card-cvv');
+    
+    newCardForm.style.display = 'none';
+    existingCardCvv.style.display = 'none';
+    
+    clearFormValidation();
+    
+    if (cardValue === 'new_card') {
+        newCardForm.style.display = 'block';
+        setNewCardValidation();
+    } else {
+        checkExistingCard(cardValue);
+    }
+}
+
+function checkExistingCard(cardId) {
+    try {
+        const cards = window.creditCards || {};
+        const selectedCard = cards[cardId];
+        const existingCardCvv = document.getElementById('existing-card-cvv');
+
+        if (selectedCard && !selectedCard.iyzico_card_token) {
+            existingCardCvv.style.display = 'block';
+            document.getElementById('existing_cvv').required = true;
+        } else {
+            existingCardCvv.style.display = 'none';
+            document.getElementById('existing_cvv').required = false;
+        }
+    } catch (error) {
+        console.error('Kart kontrolü hatası:', error);
+    }
+}
+
+function clearFormValidation() {
+    document.getElementById('new_card_holder_name').required = false;
+    document.getElementById('new_card_name').required = false;
+    document.getElementById('new_card_number').required = false;
+    document.getElementById('new_expire_month').required = false;
+    document.getElementById('new_expire_year').required = false;
+    document.getElementById('new_cvv').required = false;
+    
+    document.getElementById('existing_cvv').required = false;
+}
+
+function setNewCardValidation() {
+    document.getElementById('new_card_holder_name').required = true;
+    document.getElementById('new_card_name').required = true;
+    document.getElementById('new_card_number').required = true;
+    document.getElementById('new_expire_month').required = true;
+    document.getElementById('new_expire_year').required = true;
+    document.getElementById('new_cvv').required = true;
+}
+
+function validateNewBillingAddress() {
+    const requiredFields = [
+        {id: 'new_billing_address_title', name: 'Başlık', maxLength: 255},
+        {id: 'new_billing_address_first_name', name: 'Ad', maxLength: 255},
+        {id: 'new_billing_address_last_name', name: 'Soyad', maxLength: 255},
+        {id: 'new_billing_address_phone', name: 'Telefon', maxLength: 255},
+        {id: 'new_billing_address_address', name: 'Adres', maxLength: 255},
+        {id: 'new_billing_address_address_2', name: 'Adres 2', maxLength: 255},
+        {id: 'new_billing_address_district', name: 'İlçe', maxLength: 255},
+        {id: 'new_billing_address_city', name: 'İl', maxLength: 255},
+        {id: 'new_billing_address_postal_code', name: 'Posta Kodu', maxLength: 10},
+        {id: 'new_billing_address_country', name: 'Ülke', maxLength: 255}
+    ];
+    
+    for (let field of requiredFields) {
+        const element = document.getElementById(field.id);
+        
+        if (!element.value.trim()) {
+            alert(`Lütfen ${field.name} giriniz!`);
+            element.focus();
+            return false;
+        }
+        
+        if (element.value.length > field.maxLength) {
+            alert(`${field.name} en fazla ${field.maxLength} karakter olabilir!`);
+            element.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const inputLimits = {
+        'new_billing_address_title': 255,
+        'new_billing_address_first_name': 255,
+        'new_billing_address_last_name': 255,
+        'new_billing_address_phone': 255,
+        'new_billing_address_address': 255,
+        'new_billing_address_address_2': 255,
+        'new_billing_address_district': 255,
+        'new_billing_address_city': 255,
+        'new_billing_address_postal_code': 10,
+        'new_billing_address_country': 255
+    };
+    
+    Object.keys(inputLimits).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', function() {
+                if (this.value.length > inputLimits[id]) {
+                    this.value = this.value.substring(0, inputLimits[id]);
+                }
+            });
+        }
+    });
+
+    // Form submit
+    const orderForm = document.getElementById('order-form');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            if (!validateCurrentStep()) {
+                e.preventDefault();
+                return false;
+            }
+            
+            const selectedCard = document.getElementById('credit_card_id').value;
+            
+            if (selectedCard === 'new_card') {
+                const expireDateInput = document.getElementById('expire_date');
+                if (expireDateInput && expireDateInput.value) {
+                    const parts = expireDateInput.value.split('/');
+                    if (parts.length === 2) {
+                        const month = parts[0].padStart(2, '0');
+                        const year = '20' + parts[1];
+                        document.getElementById('expire_month').value = month;
+                        document.getElementById('expire_year').value = year;
+                    }
+                }
+            }
+        });
+    }
+
+    // Yeni kart toggle
+    const newCardToggle = document.getElementById('new_card');
+    if (newCardToggle) {
+        newCardToggle.addEventListener('change', function() {
+            const newCardForm = document.getElementById('new-card-form');
+            const creditCardItems = document.querySelectorAll('.credit-card-item');
+            
+            if (this.checked) {
+                newCardForm.style.display = 'block';
+                creditCardItems.forEach(item => {
+                    item.style.display = 'none';
+                });
+                document.getElementById('credit_card_id').value = 'new_card';
+            } else {
+                newCardForm.style.display = 'none';
+                creditCardItems.forEach(item => {
+                    item.style.display = 'block';
+                });
+                const firstCard = document.querySelector('input[name="credit_card_id"]:not([value="new_card"])');
+                if (firstCard) {
+                    firstCard.checked = true;
+                    document.getElementById('credit_card_id').value = firstCard.value;
+                }
+            }
+        });
+    }
+
+    // Kart seçimi
+    document.querySelectorAll('input[name="credit_card_id"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.getElementById('credit_card_id').value = radio.value;
+            
+            document.querySelectorAll('.credit-card-item').forEach(item => item.classList.remove('selected'));
+            radio.closest('.credit-card-item').classList.add('selected');
+            
+            const newCardToggle = document.getElementById('new_card');
+            if (newCardToggle && radio.value !== 'new_card') {
+                newCardToggle.checked = false;
+                const newCardForm = document.getElementById('new-card-form');
+                if (newCardForm) {
+                    newCardForm.style.display = 'none';
+                }
+            }
+            
+            handleCardSelection(radio.value);
+        });
+    });
+
+    // Adres seçimi
+
+    const billingSameCheckbox = document.getElementById('billing_same_as_shipping');
+    if (billingSameCheckbox) {
+        billingSameCheckbox.addEventListener('change', handleBillingAddressToggle);
+    }
+
+    const newBillingCheckbox = document.getElementById('new_billing_address');
+    if (newBillingCheckbox) {
+        newBillingCheckbox.addEventListener('change', handleNewBillingAddressToggle);
+    }
+
+    document.querySelectorAll('input[name="shipping_address_id"]').forEach(radio => {
+        radio.addEventListener('change', function(){
+            document.getElementById('shipping_address_id').value = this.value;
+            onShippingAddressChange();
+        });
+    });
+    document.querySelectorAll('input[name="billing_address_selection"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('billing_address_id').value = this.value;
+        });
+    });
+
+    
+
+    // Kart numarası formatı
+    document.getElementById('new_card_number')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 16) value = value.substr(0, 16);
+        e.target.value = value;
+    });
+
+    // CVC formatı
+    document.getElementById('new_cvv')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 3) value = value.substr(0, 3);
+        e.target.value = value;
+    });
+
+    document.getElementById('existing_cvv')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 3) value = value.substr(0, 3);
+        e.target.value = value;
+    });
+
+    // İlk kart seçimi
     if (typeof window.creditCardsData !== 'undefined') {
         window.creditCards = window.creditCardsData;
     }
@@ -539,12 +452,5 @@ window.addEventListener('DOMContentLoaded', function() {
             handleCardSelection('new_card');
         }
     }
-});
-
-// Kayıtlı kart yoksa new_card değerini set et
-document.addEventListener('DOMContentLoaded', function() {
-    // Eğer credit_card_id boşsa, new_card değerini set et
-    if (!document.getElementById('credit_card_id').value) {
-        document.getElementById('credit_card_id').value = 'new_card';
-    }
+    handleBillingAddressToggle();
 });

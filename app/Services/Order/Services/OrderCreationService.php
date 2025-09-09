@@ -51,6 +51,7 @@ class OrderCreationService implements OrderCreationInterface
             'payment_status' => 'failed',
             'status' => 'Başarısız Ödeme',
         ]);
+        \Log::info('DEBUG - OrderCreationService received billing address: ' . $selectedBillingAddress);
     }
 
     public function createOrderItems(Order $order, $products, $eligible_products, $perProductDiscount): void

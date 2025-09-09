@@ -42,8 +42,6 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'user_shipping_address_id' => 'integer',
-        'user_billing_address_id' => 'integer',
         'order_price_cents' => 'integer',
         'cargo_price_cents' => 'integer',
         'discount_cents' => 'integer',

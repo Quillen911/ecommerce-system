@@ -18,8 +18,8 @@ class OrderRequest extends FormRequest
     {
         $rules = [
             'credit_card_id' => 'required',
-            'shipping_address_id' => 'required|exists:user_addresses,id',
-            'billing_address_id' => 'required|exists:user_addresses,id',
+            'shipping_address_id' => 'required',
+            'billing_address_id' => 'required',
         ];
 
         if ($this->input('credit_card_id') === 'new_card') {

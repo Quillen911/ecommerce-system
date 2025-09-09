@@ -688,7 +688,8 @@
 
         .step-navigation {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 12px;
             align-items: center;
             margin-top: 24px;
         }
@@ -1154,26 +1155,6 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="address-item selected">
-                    <div class="address-label">�� Fatura Adresi</div>
-                        <div class="address-details">
-                            @foreach($addresses as $address)
-                                <label for="billing_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
-                                    <input type="radio" name="billing_address_id" value="{{ $address->id }}" id="billing_address_{{ $address->id }}" style="margin-right: 8px;">
-                                    <div>
-                                        <div style="font-weight:600;margin-bottom:4px;">{{ $address->title }}</div>
-                                        <div class="address-info">{{ $address->first_name }} {{ $address->last_name }}</div>
-                                        <div class="address-info">{{ $address->phone }}</div>
-                                        <div class="address-info">{{ $address->address_line_1 }}</div>
-                                        <div class="address-info">{{ $address->address_line_2 }}</div>
-                                        <div class="address-info">{{ $address->district }} {{ $address->city }} {{ $address->postal_code }}</div>
-                                        <div class="address-info">{{ $address->country }}</div>
-                                        <div class="address-info">{{ $address->notes }}</div>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
                     
                     <div class="step-navigation">
                         <div></div>
@@ -1317,12 +1298,112 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div style="margin-top: 16px;">
+                            <label class="new-card-toggle">
+                                <input type="checkbox" id="billing_same_as_shipping" checked autocomplete="off">
+                                <span class="checkmark"></span>
+                                <span class="toggle-text">Fatura Adresim Teslimat Adresim ile aynı</span>
+                            </label>
+                        </div>
+
+                        <!-- Fatura adresi seçimi (gizli) -->
+                        <div class="address-item" id="billing-address-item" style="display: none; margin-top: 20px;">
+                            <div class="address-label">Fatura Adresi</div>
+                            <div class="address-details">
+                                @foreach($addresses as $address)
+                                    <label for="billing_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
+                                        <input type="radio" name="billing_address_selection" value="{{ $address->id }}" id="billing_address_{{ $address->id }}" style="margin-right: 8px;">
+                                        <div>
+                                            <div style="font-weight:600;margin-bottom:4px;">{{ $address->title }}</div>
+                                            <div class="address-info">{{ $address->first_name }} {{ $address->last_name }}</div>
+                                            <div class="address-info">{{ $address->phone }}</div>
+                                            <div class="address-info">{{ $address->address_line_1 }}</div>
+                                            <div class="address-info">{{ $address->address_line_2 }}</div>
+                                            <div class="address-info">{{ $address->district }} {{ $address->city }} {{ $address->postal_code }}</div>
+                                            <div class="address-info">{{ $address->country }}</div>
+                                            <div class="address-info">{{ $address->notes }}</div>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+                        <div id="new-billing-address-toggle" style="margin-bottom: 16px; margin-top: 20px;">
+                            <label class="new-card-toggle">
+                                <input type="checkbox" id="new_billing_address" name="new_billing_address" value="1" autocomplete="off">
+                                <span class="checkmark"></span>
+                                <span class="toggle-text">Yeni Fatura Adresi</span>
+                            </label>
+                        </div>
+                        <div id="new-billing-address-form" style="display: none; margin-top: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                <div class="field">
+                                    <label>Başlık</label>
+                                    <input type="text" name="new_billing_address_title" id="new_billing_address_title" placeholder="Başlık" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_title_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Ad</label>
+                                    <input type="text" name="new_billing_address_first_name" id="new_billing_address_first_name" placeholder="Ad" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_first_name_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Soyad</label>
+                                    <input type="text" name="new_billing_address_last_name" id="new_billing_address_last_name" placeholder="Soyad" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_last_name_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Telefon</label>
+                                    <input type="text" name="new_billing_address_phone" id="new_billing_address_phone" placeholder="Telefon" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_phone_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Adres</label>
+                                    <input type="text" name="new_billing_address_address" id="new_billing_address_address" placeholder="Adres" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_address_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Adres 2</label>
+                                    <input type="text" name="new_billing_address_address_2" id="new_billing_address_address_2" placeholder="Adres 2" maxlength="255">
+                                    <div class="field-error" id="new_billing_address_address_2_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>İlçe</label>
+                                    <input type="text" name="new_billing_address_district" id="new_billing_address_district" placeholder="İlçe" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_district_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>İl</label>
+                                    <input type="text" name="new_billing_address_city" id="new_billing_address_city" placeholder="İl" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_city_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Posta Kodu</label>
+                                    <input type="text" name="new_billing_address_postal_code" id="new_billing_address_postal_code" placeholder="Posta Kodu" maxlength="10" required>
+                                    <div class="field-error" id="new_billing_address_postal_code_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Ülke</label>
+                                    <input type="text" name="new_billing_address_country" id="new_billing_address_country" placeholder="Ülke" maxlength="255" required>
+                                    <div class="field-error" id="new_billing_address_country_error"></div>
+                                </div>
+                                <div class="field">
+                                    <label>Notlar</label>
+                                    <textarea name="new_billing_address_notes" id="new_billing_address_notes" placeholder="Notlar" rows="3"></textarea>
+                                    <div class="field-error" id="new_billing_address_notes_error"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: center; margin-top: 24px;">
+                            <button type="submit" class="btn-next complete-order-btn">
+                                 ✓ Siparişi Tamamla
+                            </button>
+                        </div>
                         <div class="step-navigation">
                             <button type="button" class="btn-back" onclick="prevStep(2)">
                                 ← Kargoya Geri Dön
-                            </button>
-                            <button type="submit" class="btn-next complete-order-btn">
-                                ✓ Siparişi Tamamla
                             </button>
                         </div>
                     @else
@@ -1379,7 +1460,6 @@
                         </div>
                     </div>
                 
-                    
                     <div class="step-navigation">
                         <button type="button" class="btn-back" onclick="prevStep(2)">
                             ← Kargoya Geri Dön
