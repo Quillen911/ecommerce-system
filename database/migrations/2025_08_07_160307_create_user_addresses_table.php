@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('district');
             $table->string('city');
             $table->string('postal_code', 10)->nullable();
-            $table->string('country', 2)->default('TR');
+            $table->string('country')->default('Türkiye');
             $table->boolean('is_default')->default(false);
             $table->boolean('is_active')->default(true);
             $table->text('notes')->nullable();

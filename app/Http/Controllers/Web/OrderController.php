@@ -48,6 +48,12 @@ class OrderController extends Controller
             $selectedCreditCard = $request->input('credit_card_id');
             $selectedShippingAddress = $request->input('shipping_address_id');
             $selectedBillingAddress = $request->input('billing_address_id');
+            \Log::info('DEBUG - Billing Address:', [
+                'selectedBillingAddress' => $selectedBillingAddress,
+                'type' => gettype($selectedBillingAddress),
+                'length' => strlen($selectedBillingAddress ?? ''),
+                'all_request_data' => $request->all()
+            ]);
             if(!$selectedCreditCard){
                 return redirect('order')->with('error', 'Lütfen bir ödeme yöntemi seçiniz!');
             }
@@ -84,6 +90,34 @@ class OrderController extends Controller
                         'cvv' => $request->existing_cvv
                     ];
                 }
+            }
+            \Log::info('DEBUG - Before billing check:', [
+                'selectedBillingAddress' => $selectedBillingAddress,
+                'comparison' => $selectedBillingAddress === 'new_billing_address',
+                'strict_comparison' => $selectedBillingAddress === 'new_billing_address'
+            ]);
+            
+            if($selectedBillingAddress === 'new_billing_address'){
+                \Log::info('DEBUG - Creating new billing address');
+                $newBillingAddress = UserAddress::create([
+                    'user_id' => $user->id,
+                    'title' => $request->new_billing_address_title,
+                    'first_name' => $request->new_billing_address_first_name,
+                    'last_name' => $request->new_billing_address_last_name,
+                    'phone' => $request->new_billing_address_phone,
+                    'address_line_1' => $request->new_billing_address_address,
+                    'address_line_2' => $request->new_billing_address_address_2,
+                    'district' => $request->new_billing_address_district,
+                    'city' => $request->new_billing_address_city,
+                    'postal_code' => $request->new_billing_address_postal_code,
+                    'country' => $request->new_billing_address_country,
+                    'notes' => $request->new_billing_address_notes,
+                    'is_default' => false,
+                    'is_active' => true,
+                ]);
+                $selectedBillingAddress = $newBillingAddress->id;
+                \Log::info('DEBUG - New billing address created:', ['id' => $selectedBillingAddress]);
+                
             }
             
             $products = $bag->bagItems()->with('product.category')->get();
