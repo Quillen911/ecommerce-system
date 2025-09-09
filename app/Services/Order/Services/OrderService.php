@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\GetUser;
 use App\Jobs\SendOrderNotification;
+use App\Repositories\Contracts\User\AddressesRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrderService implements OrderServiceInterface
 {
@@ -25,13 +27,15 @@ class OrderService implements OrderServiceInterface
     protected $inventoryService;
     protected $creditCardRepository;
     protected $orderCreationService;
+    protected $addressesRepository;
     public function __construct(
 
         CalculationInterface $calculationService,
         PaymentInterface $paymentService,
         InventoryInterface $inventoryService,
         CreditCardRepositoryInterface $creditCardRepository,
-        OrderCreationInterface $orderCreationService
+        OrderCreationInterface $orderCreationService,   
+        AddressesRepositoryInterface $addressesRepository
     )
     {
         $this->calculationService = $calculationService;
@@ -39,6 +43,7 @@ class OrderService implements OrderServiceInterface
         $this->inventoryService = $inventoryService;
         $this->creditCardRepository = $creditCardRepository;
         $this->orderCreationService = $orderCreationService;
+        $this->addressesRepository = $addressesRepository;
     }
 
     public function createOrder($user, $products, $campaignManager, $selectedCreditCard, $tempCardData = null, $saveNewCard = false, $selectedShippingAddress = null, $selectedBillingAddress = null): array
@@ -49,7 +54,9 @@ class OrderService implements OrderServiceInterface
             $this->inventoryService->checkStock($products);
             
             $orderData = $this->calculateOrderData($products, $campaignManager);
-            
+
+            $this->validateAddress($selectedShippingAddress, $user);
+            $this->validateAddress($selectedBillingAddress, $user);
             $creditCardIdForOrder = $selectedCreditCard === 'new_card' ? null : $selectedCreditCard;
             
             $order = $this->orderCreationService->createOrderRecord($user, $creditCardIdForOrder, $orderData, $selectedShippingAddress, $selectedBillingAddress);
@@ -217,5 +224,14 @@ class OrderService implements OrderServiceInterface
     public function getOrder($user, $orderId)
     {
         return $this->orderCreationService->getOrder($user->id, $orderId);
+    }
+
+    private function validateAddress($address, $user)
+    {
+        $address = $this->addressesRepository->getAddressById($address, $user->id);
+        if(!$address){
+            throw new ModelNotFoundException('Adres bulunamadı. Lütfen adresi kontrol ediniz veya yeni bir adres oluşturunuz.');
+        }
+        return $address;
     }
 }

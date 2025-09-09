@@ -1139,6 +1139,7 @@
                         <div class="address-label">🏠 Teslimat Adresi</div>
                         <div class="address-details">
                             @foreach($addresses as $address)
+                                @if($address->is_active)
                                 <label for="shipping_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
                                     <input type="radio" name="shipping_address_id" value="{{ $address->id }}" id="shipping_address_{{ $address->id }}" style="margin-right: 8px;">
                                     <div>
@@ -1152,6 +1153,7 @@
                                         <div class="address-info">{{ $address->notes }}</div>
                                     </div>
                                 </label>
+                                @endif
                             @endforeach
                         </div>
                     </div>
@@ -1363,6 +1365,7 @@
                         <div class="address-label">Fatura Adresi</div>
                         <div class="address-details">
                             @foreach($addresses as $address)
+                                @if($address->is_active)
                                 <label for="billing_address_{{ $address->id }}" style="display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;">
                                     <input type="radio" name="billing_address_selection" value="{{ $address->id }}" id="billing_address_{{ $address->id }}" style="margin-right: 8px;">
                                     <div>
@@ -1376,6 +1379,7 @@
                                         <div class="address-info">{{ $address->notes }}</div>
                                     </div>
                                 </label>
+                                @endif
                             @endforeach
                         </div>
                     </div>

@@ -48,12 +48,7 @@ class OrderController extends Controller
             $selectedCreditCard = $request->input('credit_card_id');
             $selectedShippingAddress = $request->input('shipping_address_id');
             $selectedBillingAddress = $request->input('billing_address_id');
-            \Log::info('DEBUG - Billing Address:', [
-                'selectedBillingAddress' => $selectedBillingAddress,
-                'type' => gettype($selectedBillingAddress),
-                'length' => strlen($selectedBillingAddress ?? ''),
-                'all_request_data' => $request->all()
-            ]);
+            
             if(!$selectedCreditCard){
                 return redirect('order')->with('error', 'Lütfen bir ödeme yöntemi seçiniz!');
             }
@@ -91,14 +86,8 @@ class OrderController extends Controller
                     ];
                 }
             }
-            \Log::info('DEBUG - Before billing check:', [
-                'selectedBillingAddress' => $selectedBillingAddress,
-                'comparison' => $selectedBillingAddress === 'new_billing_address',
-                'strict_comparison' => $selectedBillingAddress === 'new_billing_address'
-            ]);
             
             if($selectedBillingAddress === 'new_billing_address'){
-                \Log::info('DEBUG - Creating new billing address');
                 $newBillingAddress = UserAddress::create([
                     'user_id' => $user->id,
                     'title' => $request->new_billing_address_title,
@@ -116,7 +105,6 @@ class OrderController extends Controller
                     'is_active' => true,
                 ]);
                 $selectedBillingAddress = $newBillingAddress->id;
-                \Log::info('DEBUG - New billing address created:', ['id' => $selectedBillingAddress]);
                 
             }
             
