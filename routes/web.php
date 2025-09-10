@@ -6,7 +6,7 @@ use App\Http\Controllers\Web\BagController;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\MyOrdersController;
-
+use App\Http\Controllers\Web\User\AddressesController;
 use App\Http\Controllers\Web\Seller\CampaignController;
 use App\Http\Controllers\Web\Seller\ProductController;
 use App\Http\Controllers\Web\Payments\CreditCardController;
@@ -64,7 +64,9 @@ Route::middleware(['auth:user_web'])->group(function(){
         Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
         Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
 
-        //Route::resource('/adresses', [AddressController::class, 'adresses'])->name('adresses');
+        Route::post('addresses', [AddressesController::class, 'store'])->name('user.addresses.store');
+        Route::post('addresses/{id}', [AddressesController::class, 'update'])->name('user.addresses.update');
+
         Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
     });
 
