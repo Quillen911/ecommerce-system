@@ -283,7 +283,7 @@
                                 @endif
 
                                 <div class="summary-item"><span class="summary-label">Toplam Fiyat</span><span class="summary-value">{{ number_format($order->order_price,2) }} TL</span></div>
-                                <div class="summary-item"><span class="summary-label">Ödenen Tutar</span><span class="summary-value">{{ number_format(floor($order->paid_price*100)/100,2) }} TL</span></div>
+                                <div class="summary-item"><span class="summary-label">Ödenen Tutar</span><span class="summary-value">{{ number_format(($order->paid_price),2) }} TL</span></div>
                             </div>
                         </div>
 

@@ -92,6 +92,7 @@ class IyzicoPaymentService implements PaymentInterface
     public function processPayment(Order $order, CreditCard $creditCard, float $amount, array $tempCardData = null): array
     {
         try{
+
             $request = new CreatePaymentRequest();
 
             $request->setLocale(Locale::TR);
@@ -133,10 +134,10 @@ class IyzicoPaymentService implements PaymentInterface
             $buyer->setIdentityNumber('74300864791');
             $buyer->setLastLoginDate('2015-10-05 12:43:35');
             $buyer->setRegistrationDate('2013-04-21 15:12:09');
-            $buyer->setRegistrationAddress('Test Mahallesi Test Sokak');
+            $buyer->setRegistrationAddress($order->shippingAddress->address_line_1);
             $buyer->setIp('85.34.78.112');
-            $buyer->setCity('Istanbul');
-            $buyer->setCountry('Turkey');
+            $buyer->setCity($order->shippingAddress->city);
+            $buyer->setCountry($order->shippingAddress->country);
             $request->setBuyer($buyer);
 
             $shippingAddress = new Address();

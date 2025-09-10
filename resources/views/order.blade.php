@@ -1661,10 +1661,10 @@
                     @endif
                     <div class="summary-row total-row">
                         <span>Toplam</span>
-                        <span>₺{{ number_format(floor($finalPrice * 100) / 100,2) }}</span>
+                        <span>₺{{ number_format(($finalPrice),2) }}</span>
                     </div>
                     <div class="tax-info">
-                        Vergi ₺{{ number_format(floor($finalPrice * 100) / 100 * 0.01,2) }}
+                        Vergi ₺{{ number_format(($finalPrice * 0.01),2) }}
                     </div>
                     </div>
                     
