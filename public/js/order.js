@@ -38,15 +38,69 @@ function updateStepProgress() {
 }
 
 function handleEditShippingAddress(id) {
-    const editShippingAddressForm = document.getElementById(`edit-shipping-address-form-${id}`);
     const editShippingAddressBtn = document.getElementById(`edit-shipping-address-btn-${id}`);
+    const editShippingAddressFormContainer = document.getElementById(`edit-shipping-address-form-container-${id}`);
     
-    if (editShippingAddressBtn) {
-        editShippingAddressBtn.style.display = 'none';
+    if (!editShippingAddressBtn || !editShippingAddressFormContainer) {
+        console.error('Edit button or form container not found for address:', id);
+        return;
     }
-    if (editShippingAddressForm) {
-        editShippingAddressForm.style.display = 'block';
+    
+    closeOtherEditForms(id);
+    
+    editShippingAddressBtn.style.display = 'none';
+    editShippingAddressFormContainer.style.display = 'block';
+}
+
+
+function closeAllEditForms() {
+    document.querySelectorAll('[id^="edit-shipping-address-form-container-"]').forEach(formContainer => {
+        formContainer.style.display = 'none';
+    });
+    
+    document.querySelectorAll('[id^="edit-shipping-address-btn-"]').forEach(btn => {
+        btn.style.display = 'inline-block';
+    });
+}
+
+
+function closeOtherEditForms(currentId) {
+    document.querySelectorAll('[id^="edit-shipping-address-form-container-"]').forEach(formContainer => {
+        const formId = formContainer.id.replace('edit-shipping-address-form-container-', '');
+        if (formId !== currentId) {
+            formContainer.style.display = 'none';
+        }
+    });
+    
+    document.querySelectorAll('[id^="edit-shipping-address-btn-"]').forEach(btn => {
+        const btnId = btn.id.replace('edit-shipping-address-btn-', '');
+        if (btnId !== currentId) {
+            btn.style.display = 'inline-block';
+        }
+    });
+}
+
+function closeEditForm(addressId) {
+    const formContainer = document.getElementById(`edit-shipping-address-form-container-${addressId}`);
+    const editBtn = document.getElementById(`edit-shipping-address-btn-${addressId}`);
+    
+    if (formContainer) {
+        formContainer.style.display = 'none';
+
     }
+    if (editBtn) {
+        editBtn.style.display = 'inline-block';
+
+    }
+    
+    clearValidationErrors(addressId);
+}
+
+function clearValidationErrors(addressId) {
+    const errorElements = document.querySelectorAll(`[id$="-error-${addressId}"]`);
+    errorElements.forEach(element => {
+        element.textContent = '';
+    });
 }
 
 function handleShippingAddressToggle() {
@@ -89,7 +143,6 @@ function handleShippingAddressToggle() {
 }
 
 function validateCurrentStep() {
-    // Ödeme sayfasında olduğumuzu kontrol et
     const step3Element = document.getElementById('step-3');
     const isOnPaymentStep = step3Element && step3Element.style.display !== 'none';
     
@@ -142,7 +195,6 @@ function validatePaymentForm() {
     }
     
     if (selectedCard === 'new_card') {
-        // Önce expire_date'i expire_month ve expire_year'a dönüştür
         const expireDateInput = document.getElementById('new_expire_date');
         if (expireDateInput && expireDateInput.value) {
             const parts = expireDateInput.value.split('/');
@@ -189,7 +241,6 @@ function handleBillingAddressToggle() {
     const newBillingAddressForm = document.getElementById('new-billing-address-form');
     const newBillingCheckbox = document.getElementById('new_billing_address');
 
-    // Yeni fatura adresi alanlarının required attribute'unu yönet
     const newBillingFields = [
         'new_billing_address_title',
         'new_billing_address_first_name', 
@@ -236,7 +287,6 @@ function handleBillingAddressToggle() {
         updateNewBillingFieldsRequired();
     }
     
-    // Sayfa yüklendiğinde başlangıç durumunu ayarla
     updateNewBillingFieldsRequired();
 }
 
@@ -280,7 +330,6 @@ function handleNewBillingAddressToggle() {
 
 
 function initializePaymentPage() {
-    // Kayıtlı kartlar varsa ilk kartı seç
     const firstCard = document.querySelector('input[name="credit_card_selection"]');
     if (firstCard) {
         firstCard.checked = true;
@@ -359,10 +408,13 @@ document.addEventListener('DOMContentLoaded', function() {
         newShippingAddressCheckbox.addEventListener('change', handleShippingAddressToggle);
     }
 
-    // Her adres için düzenle butonuna event listener ekle
-    document.querySelectorAll('[id^="edit-shipping-address-btn-"]').forEach(btn => {
-        const addressId = btn.id.replace('edit-shipping-address-btn-', '');
-        btn.addEventListener('click', () => handleEditShippingAddress(addressId));
+    // Event delegation for edit buttons (works with dynamically added elements)
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id && e.target.id.startsWith('edit-shipping-address-btn-')) {
+            const addressId = e.target.id.replace('edit-shipping-address-btn-', '');
+            console.log('Edit button clicked for address:', addressId);
+            handleEditShippingAddress(addressId);
+        }
     });
 
     const inputLimits = {
@@ -389,7 +441,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Form submit
     const orderForm = document.getElementById('order-form');
     if (orderForm) {
         orderForm.addEventListener('submit', function(e) {
@@ -415,7 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Yeni kart toggle
     const newCardToggle = document.getElementById('new_card');
     if (newCardToggle) {
         newCardToggle.addEventListener('change', function() {
@@ -442,7 +492,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Kart seçimi
     document.querySelectorAll('input[name="credit_card_id"]').forEach(radio => {
         radio.addEventListener('change', () => {
             document.getElementById('credit_card_id').value = radio.value;
@@ -463,7 +512,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Adres seçimi
     const billingSameCheckbox = document.getElementById('billing_same_as_shipping');
     if (billingSameCheckbox) {
         billingSameCheckbox.addEventListener('change', handleBillingAddressToggle);
@@ -488,21 +536,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
 
-    // Kart numarası formatı
     document.getElementById('new_card_number')?.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 16) value = value.substr(0, 16);
         e.target.value = value;
     });
 
-    // CVC formatı
     document.getElementById('new_cvv')?.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 3) value = value.substr(0, 3);
         e.target.value = value;
     });
 
-    // Tarih formatı (MM/YY)
     document.getElementById('new_expire_date')?.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length >= 2) {
@@ -513,8 +558,214 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-    // Sayfa yüklendiğinde kart durumunu kontrol et
+    
+    // Event delegation for form submissions (works with dynamically added elements)
+    document.addEventListener('submit', function(e) {
+        if (e.target && e.target.id && e.target.id.startsWith('edit-shipping-address-form-')) {
+            console.log('Form submitted:', e.target.id);
+            handleUpdateShippingAddress(e);
+        }
+    });
+
+
     initializePaymentPage();
     handleBillingAddressToggle();
 });
+
+
+function handleUpdateShippingAddress(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formId = form.id;
+    const addressId = formId.replace('edit-shipping-address-form-', '');
+    
+    const formData = new FormData(form);
+    const saveBtn = form.querySelector('button[type="submit"]');
+    
+
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Kaydediliyor...';
+    }
+    
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                           document.querySelector('input[name="_token"]')?.value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+
+            const formContainer = document.getElementById(`edit-shipping-address-form-container-${addressId}`);
+            if (formContainer) {
+                formContainer.style.display = 'none';
+            }
+            
+
+            const editBtn = document.getElementById(`edit-shipping-address-btn-${addressId}`);
+            if (editBtn) {
+                editBtn.style.display = 'inline-block';
+            }
+            
+
+            clearValidationErrors(addressId);
+            
+
+            showSuccessMessage('Adres başarıyla güncellendi');
+            
+
+            updateAddressDisplay(addressId, formData);
+        } else {
+
+            if (data.errors) {
+                showValidationErrors(data.errors, addressId);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorMessage('Bir hata oluştu. Lütfen tekrar deneyin.');
+    })
+    .finally(() => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Adresi Kaydet';
+        }
+    });
+}
+
+
+function showValidationErrors(errors, addressId) {
+    Object.keys(errors).forEach(field => {
+        const errorElement = document.getElementById(`edit-shipping-address-${field}-error-${addressId}`);
+        if (errorElement) {
+            errorElement.textContent = errors[field][0];
+        }
+    });
+}
+
+
+function updateAddressDisplay(addressId, formData) {
+
+    const addressCard = document.querySelector(`input[name="shipping_address_id"][value="${addressId}"]`).closest('div[style*="border"]');
+    
+    if (addressCard) {
+
+        const titleElement = addressCard.querySelector('div[style*="font-weight:600"]');
+        if (titleElement && formData.get('title')) {
+            titleElement.textContent = formData.get('title');
+        }
+        
+
+        const nameElements = addressCard.querySelectorAll('.address-info');
+        if (nameElements.length > 0 && formData.get('first_name') && formData.get('last_name')) {
+            nameElements[0].textContent = `${formData.get('first_name')} ${formData.get('last_name')}`;
+        }
+        
+
+        if (nameElements.length > 1 && formData.get('phone')) {
+            nameElements[1].textContent = formData.get('phone');
+        }
+        
+        
+        if (nameElements.length > 2 && formData.get('address_line_1')) {
+            nameElements[2].textContent = formData.get('address_line_1');
+        }
+        
+        if (nameElements.length > 3) {
+            nameElements[3].textContent = formData.get('address_line_2') || '';
+        }
+        
+        
+        if (nameElements.length > 4 && formData.get('district') && formData.get('city')) {
+            const postalCode = formData.get('postal_code') || '';
+            nameElements[4].textContent = `${formData.get('district')} ${formData.get('city')} ${postalCode}`;
+        }
+        
+        
+        if (nameElements.length > 5 && formData.get('country')) {
+            nameElements[5].textContent = formData.get('country');
+        }
+        
+        
+        if (nameElements.length > 6) {
+            nameElements[6].textContent = formData.get('notes') || '';
+        }
+    }
+}
+
+
+function showSuccessMessage(message) {
+    showToast(message, 'success');
+}
+
+
+function showErrorMessage(message) {
+    showToast(message, 'error');
+}
+
+
+function showToast(message, type = 'info') {
+    
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            pointer-events: none;
+        `;
+        document.body.appendChild(toastContainer);
+    }
+    
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.style.cssText = `
+        background: ${type === 'success' ? '#00E6B8' : type === 'error' ? '#FF5555' : '#404040'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        pointer-events: auto;
+        max-width: 300px;
+        font-size: 14px;
+        font-weight: 500;
+    `;
+    toast.textContent = message;
+    
+    toastContainer.appendChild(toast);
+    
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 300);
+    }, 3000);
+}
 

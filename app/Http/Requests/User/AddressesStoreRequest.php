@@ -22,7 +22,7 @@ class AddressesStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:255',
+            'title' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
@@ -40,6 +40,7 @@ class AddressesStoreRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'title.required' => 'Başlık zorunludur.',
             'title.string' => 'Başlık metin olmalıdır.',
             'title.max' => 'Başlık en fazla 255 karakter olmalıdır.',
             'first_name.required' => 'Ad zorunludur.',
