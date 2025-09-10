@@ -1158,58 +1158,72 @@
                                     <button type="button" id="edit-shipping-address-btn-{{ $address->id }}" class="btn outline" style="flex-shrink: 0; align-self: flex-start; margin-top: 2px; padding: 8px 16px; font-size: 13px; border-width: 2px; min-width: 80px; color: white">
                                         Düzenle
                                     </button>
-                                    <div id="edit-shipping-address-form-{{ $address->id }}" style="display: none; margin-top: 20px;">
-                                        <form action="{{ route('user.addresses.update', $address->id) }}" method="POST">
+                                    <div id="edit-shipping-address-form-container-{{ $address->id }}" style="display: none; margin-top: 20px;">
+                                        <form id="edit-shipping-address-form-{{ $address->id }}" action="{{ route('user.addresses.update', $address->id) }}" method="POST">
                                             @csrf
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                                                 <div class="field">
                                                     <label>Başlık</label>
-                                                    <input type="text" name="title" placeholder="Başlık" maxlength="255" value="{{ $address->title }}">
+                                                    <input type="text" name="title" id="edit-shipping-address-title-{{ $address->id }}" placeholder="Başlık" maxlength="255" required value="{{ $address->title }}">
+                                                    <div class="field-error" id="edit-shipping-address-title-error-{{ $address->id }}"></div>
                                                 </div>
                                             </div>
                                             <div class="field">
                                                 <label>Ad</label>
-                                                <input type="text" name="first_name" placeholder="Ad" maxlength="255" required value="{{ $address->first_name }}">
+                                                <input type="text" name="first_name" id="edit-shipping-address-first_name-{{ $address->id }}" placeholder="Ad" maxlength="255" required value="{{ $address->first_name }}">
+                                                <div class="field-error" id="edit-shipping-address-first_name-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>Soyad</label>
-                                                <input type="text" name="last_name" placeholder="Soyad" maxlength="255" required value="{{ $address->last_name }}">
+                                                <input type="text" name="last_name" id="edit-shipping-address-last_name-{{ $address->id }}" placeholder="Soyad" maxlength="255" required value="{{ $address->last_name }}">
+                                                <div class="field-error" id="edit-shipping-address-last_name-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>Telefon</label>
-                                                <input type="text" name="phone" placeholder="Telefon" maxlength="255" required value="{{ $address->phone }}">
+                                                <input type="text" name="phone" id="edit-shipping-address-phone-{{ $address->id }}" placeholder="Telefon" maxlength="255" required value="{{ $address->phone }}">
+                                                <div class="field-error" id="edit-shipping-address-phone-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>Adres</label>
-                                                <input type="text" name="address_line_1" placeholder="Adres" maxlength="255" required value="{{ $address->address_line_1 }}">
+                                                <input type="text" name="address_line_1" id="edit-shipping-address-address_line_1-{{ $address->id }}" placeholder="Adres" maxlength="255" required value="{{ $address->address_line_1 }}">
+                                                <div class="field-error" id="edit-shipping-address-address_line_1-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>Adres 2</label>
-                                                <input type="text" name="address_line_2" placeholder="Adres 2" maxlength="255" value="{{ $address->address_line_2 }}">
+                                                <input type="text" name="address_line_2" id="edit-shipping-address-address_line_2-{{ $address->id }}" placeholder="Adres 2" maxlength="255" value="{{ $address->address_line_2 }}">
+                                                <div class="field-error" id="edit-shipping-address-address_line_2-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>İlçe</label>
-                                                <input type="text" name="district" placeholder="İlçe" maxlength="255" required value="{{ $address->district }}">
+                                                <input type="text" name="district" id="edit-shipping-address-district-{{ $address->id }}" placeholder="İlçe" maxlength="255" required value="{{ $address->district }}">
+                                                <div class="field-error" id="edit-shipping-address-district-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>İl</label>
-                                                <input type="text" name="city" placeholder="İl" maxlength="255" required value="{{ $address->city }}">
+                                                <input type="text" name="city" id="edit-shipping-address-city-{{ $address->id }}" placeholder="İl" maxlength="255" required value="{{ $address->city }}">
+                                                <div class="field-error" id="edit-shipping-address-city-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>Posta Kodu</label>
-                                                <input type="text" name="postal_code" placeholder="Posta Kodu" maxlength="10" value="{{ $address->postal_code }}">
+                                                <input type="text" name="postal_code" id="edit-shipping-address-postal_code-{{ $address->id }}" placeholder="Posta Kodu" maxlength="10" value="{{ $address->postal_code }}">
+                                                <div class="field-error" id="edit-shipping-address-postal_code-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>Ülke</label>
-                                                <input type="text" name="country" placeholder="Ülke" maxlength="255" required value="{{ $address->country }}">
+                                                <input type="text" name="country" id="edit-shipping-address-country-{{ $address->id }}" placeholder="Ülke" maxlength="255" required value="{{ $address->country }}">
+                                                <div class="field-error" id="edit-shipping-address-country-error-{{ $address->id }}"></div>
                                             </div>
                                             <div class="field">
                                                 <label>Notlar</label>
-                                                <input type="text" name="notes" placeholder="Notlar" maxlength="255" value="{{ $address->notes }}">
+                                                <input type="text" name="notes" id="edit-shipping-address-notes-{{ $address->id }}" placeholder="Notlar" maxlength="255" value="{{ $address->notes }}">
+                                                <div class="field-error" id="edit-shipping-address-notes-error-{{ $address->id }}"></div>
                                             </div>
-                                            <div>
-                                                <button type="submit" class="btn-next" style="margin-top: 20px;">
+                                            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                                                <button type="submit" class="btn-next" id="save-edit-shipping-address-btn-{{ $address->id }}">
                                                     Adresi Kaydet
+                                                </button>
+                                                <button type="button" class="btn outline" style="color: white" id="cancel-edit-shipping-address-btn-{{ $address->id }}" onclick="closeEditForm('{{ $address->id }}')">
+                                                    Vazgeç
                                                 </button>
                                             </div>
                                         </form>
@@ -1233,7 +1247,7 @@
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                                 <div class="field">
                                     <label>Başlık</label>
-                                    <input type="text" name="title" id="new_shipping_address_title" placeholder="Başlık" maxlength="255">
+                                    <input type="text" name="title" id="new_shipping_address_title" placeholder="Başlık" maxlength="255" required>
                                     <div class="field-error" id="new_shipping_address_title_error"></div>
                                 </div>
                             </div>
@@ -1573,7 +1587,7 @@
                             </div>
                             <div class="field">
                                 <label>Posta Kodu</label>
-                                <input type="text" name="new_billing_address_postal_code" id="new_billing_address_postal_code" placeholder="Posta Kodu" maxlength="10" required>
+                                <input type="text" name="new_billing_address_postal_code" id="new_billing_address_postal_code" placeholder="Posta Kodu" maxlength="10">
                                 <div class="field-error" id="new_billing_address_postal_code_error"></div>
                             </div>
                             <div class="field">

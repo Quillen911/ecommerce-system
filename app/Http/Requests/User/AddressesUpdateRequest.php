@@ -27,14 +27,14 @@ class AddressesUpdateRequest extends FormRequest
             'last_name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:255',
             'address_line_1' => 'sometimes|string|max:255',
-            'address_line_2' => 'sometimes|string|max:255',
+            'address_line_2' => 'sometimes|nullable|string|max:255',
             'district' => 'sometimes|string|max:255',
             'city' => 'sometimes|string|max:255',
-            'postal_code' => 'sometimes|string|max:255',
+            'postal_code' => 'sometimes|nullable|string|max:255',
             'country' => 'sometimes|string|max:255',
             'is_default' => 'sometimes|boolean',
             'is_active' => 'sometimes|boolean',
-            'notes' => 'sometimes|string|max:255',
+            'notes' => 'sometimes|nullable|string|max:255',
         ];
     }
     public function messages(): array

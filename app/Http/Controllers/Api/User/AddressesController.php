@@ -37,7 +37,17 @@ class AddressesController extends Controller
     
     public function update(AddressesUpdateRequest $request, $id)
     {
-        $address = $this->addressesService->updateAddresses($request->validated(), $id);
+        $validatedData = $request->validated();
+        
+        // Boş string'leri null'a çevir
+        $nullableFields = ['address_line_2', 'postal_code', 'notes'];
+        foreach ($nullableFields as $field) {
+            if (isset($validatedData[$field]) && $validatedData[$field] === '') {
+                $validatedData[$field] = null;
+            }
+        }
+        
+        $address = $this->addressesService->updateAddresses($validatedData, $id);
         return ResponseHelper::success('Adres başarıyla güncellendi', $address);
     }
 
