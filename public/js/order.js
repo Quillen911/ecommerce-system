@@ -37,6 +37,57 @@ function updateStepProgress() {
     });
 }
 
+function handleEditShippingAddress(id) {
+    const editShippingAddressForm = document.getElementById(`edit-shipping-address-form-${id}`);
+    const editShippingAddressBtn = document.getElementById(`edit-shipping-address-btn-${id}`);
+    
+    if (editShippingAddressBtn) {
+        editShippingAddressBtn.style.display = 'none';
+    }
+    if (editShippingAddressForm) {
+        editShippingAddressForm.style.display = 'block';
+    }
+}
+
+function handleShippingAddressToggle() {
+    const newShippingAddressCheckbox = document.getElementById('new_shipping_address');
+    const addressItemSelected = document.getElementById('shipping-address-item');
+    const newShippingAddressForm = document.getElementById('new-shipping-address-form');
+    const saveShippingAddressBtn = document.getElementById('save-shipping-address-btn');
+
+    const fields = [
+        'new_shipping_address_first_name',
+        'new_shipping_address_last_name',
+        'new_shipping_address_phone',
+        'new_shipping_address_address_line_1',
+        'new_shipping_address_district',
+        'new_shipping_address_city',
+        'new_shipping_address_country',
+    ];
+
+    function updateNewShippingFieldsRequired() {
+        const isNewShippingSelected = newShippingAddressCheckbox && newShippingAddressCheckbox.checked;
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.required = isNewShippingSelected;
+            }
+        });
+    }
+
+    if (newShippingAddressCheckbox.checked) {
+        addressItemSelected.style.display = 'none';
+        newShippingAddressForm.style.display = 'block';
+        saveShippingAddressBtn.style.display = 'block';
+        updateNewShippingFieldsRequired();
+    }
+    else {
+        addressItemSelected.style.display = 'block';
+        newShippingAddressForm.style.display = 'none';
+        saveShippingAddressBtn.style.display = 'none';
+    }
+}
+
 function validateCurrentStep() {
     // Ödeme sayfasında olduğumuzu kontrol et
     const step3Element = document.getElementById('step-3');
@@ -303,6 +354,17 @@ function validateNewBillingAddress() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const newShippingAddressCheckbox = document.getElementById('new_shipping_address');
+    if (newShippingAddressCheckbox) {
+        newShippingAddressCheckbox.addEventListener('change', handleShippingAddressToggle);
+    }
+
+    // Her adres için düzenle butonuna event listener ekle
+    document.querySelectorAll('[id^="edit-shipping-address-btn-"]').forEach(btn => {
+        const addressId = btn.id.replace('edit-shipping-address-btn-', '');
+        btn.addEventListener('click', () => handleEditShippingAddress(addressId));
+    });
+
     const inputLimits = {
         'new_billing_address_title': 255,
         'new_billing_address_first_name': 255,
@@ -450,7 +512,9 @@ document.addEventListener('DOMContentLoaded', function() {
         e.target.value = value;
     });
 
+
     // Sayfa yüklendiğinde kart durumunu kontrol et
     initializePaymentPage();
     handleBillingAddressToggle();
 });
+
