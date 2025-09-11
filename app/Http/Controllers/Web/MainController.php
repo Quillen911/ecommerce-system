@@ -65,7 +65,8 @@ class MainController extends Controller
         
         return view('main', array_merge($data, [
             'filters' => $filters,
-            'categories' => $this->mainService->getCategories()
+            'categories' => $this->mainService->getCategories(),
+            'category' => $category
         ]));
     }
 

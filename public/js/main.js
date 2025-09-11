@@ -177,6 +177,38 @@ function showNotification(message, type, productData = null) {
     }, 5000);
 }
 
+// URL Senkronizasyonu Fonksiyonları
+function updateURL(params) {
+    const url = new URL(window.location);
+    Object.keys(params).forEach(key => {
+        if (params[key]) {
+            url.searchParams.set(key, params[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    });
+    history.pushState({}, '', url);
+}
+
+function getURLParams() {
+    const url = new URL(window.location);
+    const params = {};
+    for (const [key, value] of url.searchParams) {
+        params[key] = value;
+    }
+    return params;
+}
+
+// HTMX ile entegrasyon için hazırlık
+document.body.addEventListener('htmx:afterRequest', function(event) {
+    if (event.detail.xhr && event.detail.xhr.responseURL) {
+        const newUrl = new URL(event.detail.xhr.responseURL);
+        if (newUrl.pathname !== window.location.pathname || newUrl.search !== window.location.search) {
+            history.pushState({}, '', newUrl);
+        }
+    }
+});
+
 // Otomatik Tamamlama Sistemi
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('q');
