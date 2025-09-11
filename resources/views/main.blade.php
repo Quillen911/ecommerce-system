@@ -3,7 +3,76 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Ana Sayfa</title>
+    <title>{{ isset($category) ? $category->category_title . ' - ' . config('app.name') : 'Ana Sayfa - ' . config('app.name') }}</title>
+    <meta name="description" content="{{ isset($category) ? $category->category_title . ' kategorisindeki en iyi ürünler - ' . config('app.name') : 'En iyi ürünler ve fırsatlar - ' . config('app.name') }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+    
+    {{-- Güvenli JSON-LD üretimi --}}
+    @if(isset($category) || (isset($products) && count($products ?? []) > 0))
+        @php
+            $isCat = isset($category);
+            $listName = $isCat ? $category->category_title : 'Tüm Ürünler';
+
+            // items
+            $items = [];
+            foreach (($products ?? []) as $index => $product) {
+                $isArray = is_array($product);
+                $items[] = [
+                    '@type'    => 'Product',
+                    'position' => $index + 1,
+                    'name'     => $isArray ? $product['title']  : $product->title,
+                    'description' => $isArray ? ($product['author'] ?? '') : ($product->author ?? ''),
+                    'offers'   => [
+                        '@type'         => 'Offer',
+                        'price'         => (string)($isArray ? ($product['list_price'] ?? 0) : ($product->list_price ?? 0)),
+                        'priceCurrency' => 'TRY',
+                    ],
+                    'brand'    => [
+                        '@type' => 'Brand',
+                        'name'  => $isArray ? ($product['store_name'] ?? '') : ($product->store->name ?? ''),
+                    ],
+                ];
+            }
+
+            $ld = [
+                '@context'   => 'https://schema.org',
+                '@type'      => 'CollectionPage',
+                'name'       => $listName,
+                'description'=> $isCat ? ($category->category_title.' kategorisindeki en iyi ürünler')
+                                       : 'En iyi ürünler ve fırsatlar',
+                'url'        => url()->current(),
+                'mainEntity' => [
+                    '@type'          => 'ItemList',
+                    'numberOfItems'  => count($products ?? []),
+                    'itemListElement'=> $items,
+                ],
+            ];
+
+            if ($isCat) {
+                $ld['breadcrumb'] = [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => [
+                        [
+                            '@type'    => 'ListItem',
+                            'position' => 1,
+                            'name'     => 'Ana Sayfa',
+                            'item'     => route('main'),
+                        ],
+                        [
+                            '@type'    => 'ListItem',
+                            'position' => 2,
+                            'name'     => $category->category_title,
+                            'item'     => url()->current(),
+                        ],
+                    ],
+                ];
+            }
+        @endphp
+        <script type="application/ld+json">
+            {!! json_encode($ld, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}
+        </script>
+    @endif
+    
     <style>
 
         :root{
@@ -370,6 +439,9 @@
         gap: 24px;
         align-items: center;
         min-width: max-content;
+        list-style: none;
+        margin: 0;
+        padding: 0;
     }
 
     .category-nav-item {
@@ -592,20 +664,34 @@
     @if(session('success')) <div class="notice success">{{ session('success') }}</div> @endif
     @if(session('error')) <div class="notice error">{{ session('error') }}</div> @endif
 
-    <div class="category-nav">
-        <div class="category-nav-content">
-            <div class="category-nav-item featured">
-                <a href="{{ route('main') }}">TÜM ÜRÜNLER</a>
-            </div>
+    @if(isset($category))
+    <nav aria-label="breadcrumb" style="margin-bottom: 20px;">
+        <ol style="display: flex; gap: 8px; align-items: center; list-style: none; margin: 0; padding: 0; font-size: 14px; color: var(--muted);">
+            <li><a href="{{ route('main') }}" style="color: var(--primary); text-decoration: none;">Ana Sayfa</a></li>
+            <li style="color: var(--muted);">›</li>
+            <li style="color: var(--text); font-weight: 500;">{{ $category->category_title }}</li>
+        </ol>
+    </nav>
+    @endif
+
+    <nav class="category-nav" aria-label="Kategoriler">
+        <ul class="category-nav-content">
+            <li class="category-nav-item {{ request()->routeIs('main') ? 'active' : 'featured' }}">
+                <a href="{{ route('main') }}" aria-current="{{ request()->routeIs('main') ? 'page' : 'false' }}">
+                    TÜM ÜRÜNLER
+                </a>
+            </li>
             @foreach($categories as $cat)
-                <div class="category-nav-item {{ request()->is('main/' . $cat->category_slug) ? 'active' : 'regular' }}">
-                    <a href="{{ route('category.filter', ['category_slug' => $cat->category_slug]) }}">
+                @php $isActive = request()->routeIs('category.filter') && request('category_slug') === $cat->category_slug; @endphp
+                <li class="category-nav-item {{ $isActive ? 'active' : 'regular' }}">
+                    <a href="{{ route('category.filter', ['category_slug' => $cat->category_slug]) }}"
+                       aria-current="{{ $isActive ? 'page' : 'false' }}">
                         {{ $cat->category_title }}
                     </a>
-                </div>
+                </li>
             @endforeach
-        </div>
-    </div>
+        </ul>
+    </nav>
     <div class="card" style="margin-top:10px">
         <form action="{{ route('search') }}" method="GET" class="filters">
             @csrf
@@ -623,7 +709,7 @@
                     Ara
                 </button>
             </div>
-            @if(isset($query) && !empty($query))
+            @if(!empty($query))
                 <div class="field">
                     <label for="category_title">Kategori</label>
                     <select id="category_title" name="category_title">
@@ -694,13 +780,13 @@
         </div>
     @endif
 
-    <p class="muted" style="display:none">Gösterilen Ürün Sayısı: {{ count($products) }}</p>
+    <p class="muted" style="display:none">Gösterilen Ürün Sayısı: {{ count($products ?? []) }}</p>
 
-    @if(isset($query) && !empty($query))
+    @if(!empty($query))
         <div class="muted" style="margin-top:10px"><strong>Arama Sonuçları</strong></div>
     @endif
 
-    @if(count($products) > 0)
+    @if(!empty($products) && count($products) > 0)
         <div class="products-grid">
             @foreach($products as $p)
                 @php
@@ -712,7 +798,11 @@
                 
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="{{ $imageUrl }}" alt="{{ is_array($p) ? $p['title'] : $p->title }}">
+                        <img src="{{ $imageUrl }}" 
+                             alt="{{ is_array($p) ? $p['title'] : $p->title }}"
+                             loading="lazy"
+                             width="240" 
+                             height="220">
                         @if($isOutOfStock)
                             <div class="stock-overlay">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:4px">
