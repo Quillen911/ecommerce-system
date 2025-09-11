@@ -21,5 +21,10 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
         });
     }
     
-    
+    public function getCategoryBySlug($category_slug)
+    {
+        return Cache::remember('categories.slug.'.$category_slug, 3600, function () use ($category_slug) {
+            return $this->model->where('category_slug', $category_slug)->first();
+        });
+    }
 }

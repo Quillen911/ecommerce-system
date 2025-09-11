@@ -34,9 +34,12 @@ Route::middleware('guest:user_web')->group(function() {
 
 
 Route::middleware(['auth:user_web'])->group(function(){
-    Route::get('/main', [MainController::class, 'main'])->name('main');
+    Route::prefix('main')->group(function(){
+        Route::get('/', [MainController::class, 'main'])->name('main');
+        Route::get('/{category_slug}', [MainController::class, 'categoryFilter'])->name('category.filter');
+    });
+
     Route::get('/search', [MainController::class, 'search'])->name('search');
-    Route::get('/filter', [MainController::class, 'filter'])->name('filter');
     Route::get('/sorting', [MainController::class, 'sorting'])->name('sorting');
     Route::get('/search/autocomplete', [MainController::class, 'autocomplete'])->name('search/autocomplete');
 

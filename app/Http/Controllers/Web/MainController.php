@@ -52,10 +52,17 @@ class MainController extends Controller
         ]));
     }
 
-    public function filter(Request $request)
+    public function categoryFilter(Request $request, $category_slug)
     {
+        $category = $this->mainService->getCategory($category_slug);
+        if(!$category){
+            return redirect()->route('main')->with('error', 'Kategori bulunamadı');
+        }
+        
+        $request->merge(['category_title' => $category->category_title]);
         $filters = $this->elasticSearchTypeService->filterType($request);
         $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('page', 1), $request->input('size', 12));
+        
         return view('main', array_merge($data, [
             'filters' => $filters,
             'categories' => $this->mainService->getCategories()

@@ -123,7 +123,7 @@ class SellerOrderService
             $order = $orderItem->order;
             $user = $order->user;
             $this->updateOrderStatusAfterRefund($order);
-            RefundOrderItemNotification::dispatch($orderItem, $user, $orderItem->quantity)->onQueue('notifications');
+            RefundOrderItemNotification::dispatch($orderItem, $user, $orderItem->quantity, $orderItem->paid_price)->onQueue('notifications');
             return ['success' => true, 'message' => 'Sipariş başarıyla iade edildi', 'orderItem' => $orderItem];
         }
         throw new \Exception('Sipariş iade edilirken hata oluştu');
