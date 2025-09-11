@@ -40,6 +40,11 @@ class MainService
         $this->getUser();
         return $this->categoryRepository->getAllCategories();
     }
+    public function getCategory($category_slug)
+    {
+        $this->getUser();
+        return $this->categoryRepository->getCategoryBySlug($category_slug);
+    }
     public function getProduct($id)
     {
         $this->getUser();
