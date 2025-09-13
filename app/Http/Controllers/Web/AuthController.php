@@ -91,7 +91,7 @@ class AuthController extends Controller
         if(!$user){
             return redirect()->route('login');
         }
-        return view('auth.profile', compact('user'));
+        return view('user.profile', compact('user'));
     }
 
     /**
