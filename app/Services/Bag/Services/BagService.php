@@ -57,7 +57,7 @@ class BagService implements BagInterface
         ];
     }
 
-    public function addToBag($productId)
+    public function addToBag($productId, $quantity = 1)
     {
         try {
             $user = $this->getUser();
@@ -68,12 +68,12 @@ class BagService implements BagInterface
             if(!$bag){
                 return ['error' => 'Sepet bulunamadı!'];
             }
-            $productItem = $this->stockService->checkStockAvailability($bag, $productId);
+            $productItem = $this->stockService->checkStockAvailability($bag, $productId, $quantity);
             
             if($productItem == null){
-                return $this->stockService->reserveStock($bag, $productId);
+                return $this->stockService->reserveStock($bag, $productId, $quantity);
             }
-            return $this->stockService->reserveStock($bag, $productId);
+            return $this->stockService->reserveStock($bag, $productId, $quantity);
         } catch (InsufficientStockException $e) {
             return ['error' => $e->getMessage()];
         }

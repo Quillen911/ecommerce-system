@@ -191,6 +191,16 @@
         .products-grid{
             display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:24px
         }
+        .product-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .product-link:hover {
+            text-decoration: none;
+            color: inherit;
+        }
         .product-card{
             background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;
             transition:all 0.2s ease;position:relative;box-shadow:0 1px 3px var(--shadow)
@@ -873,29 +883,30 @@
                 @endphp
                 
                 <div class="product-card">
-                    <div class="product-image">
-                        <img src="{{ $imageUrl }}" 
-                             alt="{{ is_array($p) ? $p['title'] : $p->title }}"
-                             loading="lazy"
-                             width="240" 
-                             height="220">
-                        @if($isOutOfStock)
-                            <div class="stock-overlay">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:4px">
-                                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-                                </svg>
-                                Stokta Yok
-                            </div>
-                        @endif
-                    </div>
-                    
-                    <div class="product-info">
-                        <div class="product-title">{{ is_array($p) ? $p['title'] : $p->title }}</div>
-                        <div class="product-author">{{ is_array($p) ? $p['author'] : $p->author }}</div>
-                        <div class="product-store">{{ is_array($p) ? $p['store_name'] : $p->store->name }}</div>
-                        <div class="product-price">{{ number_format(is_array($p) ? $p['list_price'] : $p->list_price, 2) }} TL</div>
-                    </div>
-                    
+                    <a href="{{ route('product.detail', is_array($p) ? $p['slug'] : $p->slug) }}" class="product-link">
+                        <div class="product-image">
+                            <img src="{{ $imageUrl }}" 
+                                alt="{{ is_array($p) ? $p['title'] : $p->title }}"
+                                loading="lazy"
+                                width="240" 
+                                height="220">
+                            @if($isOutOfStock)
+                                <div class="stock-overlay">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:4px">
+                                        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                                    </svg>
+                                    Stokta Yok
+                                </div>
+                            @endif
+                        </div>
+                        
+                        <div class="product-info">
+                            <div class="product-title">{{ is_array($p) ? $p['title'] : $p->title }}</div>
+                            <div class="product-author">{{ is_array($p) ? $p['author'] : $p->author }}</div>
+                            <div class="product-store">{{ is_array($p) ? $p['store_name'] : $p->store->name }}</div>
+                            <div class="product-price">{{ number_format(is_array($p) ? $p['list_price'] : $p->list_price, 2) }} TL</div>
+                        </div>
+                    </a>
                     <div class="product-actions">
                         <form action="{{ route('add') }}" method="POST" style="margin:0" class="add-to-bag-form">
                             @csrf

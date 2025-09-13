@@ -36,7 +36,8 @@ class BagController extends Controller
             return redirect()->route('login')->with('error', 'Lütfen giriş yapınız!');
         }
         
-        $productItem = $this->bagService->addToBag($request->product_id);
+        $quantity = $request->input('quantity', 1);
+        $productItem = $this->bagService->addToBag($request->product_id, $quantity);
 
         if (is_array($productItem) && isset($productItem['error'])) {
             if ($request->ajax()) {

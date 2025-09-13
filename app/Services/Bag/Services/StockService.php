@@ -8,7 +8,7 @@ use App\Models\Product;
 
 class StockService implements StockInterface
 {
-   public function checkStockAvailability($bag, $productId)
+   public function checkStockAvailability($bag, $productId, $quantity = 1)
    {
       $product = Product::find($productId);
       if(!$product){
@@ -20,11 +20,11 @@ class StockService implements StockInterface
       
       $currentQuantity = $productItem ? $productItem->quantity : 0;
       
-      if($product->stock_quantity <= $currentQuantity){
+      if($product->stock_quantity < ($currentQuantity + $quantity)){
          throw new InsufficientStockException(
             'Stokta yeterli ürün yok!', 
             $product, 
-            $currentQuantity +1, 
+            $currentQuantity + $quantity, 
             $product->stock_quantity
          );
       }
@@ -32,7 +32,7 @@ class StockService implements StockInterface
       return $productItem;
    }
 
-   public function reserveStock($bag, $productId)
+   public function reserveStock($bag, $productId, $quantity = 1)
    {
       $product = Product::find($productId);
       if(!$product){
@@ -42,7 +42,7 @@ class StockService implements StockInterface
       $productItem = $bag->bagItems()->where('product_id', $productId)->first();
 
       if($productItem){
-         $productItem->quantity += 1;
+         $productItem->quantity += $quantity;
          $productItem->save();
          return $productItem;
       } else {
@@ -50,7 +50,7 @@ class StockService implements StockInterface
             'product_id' => $productId,
             'product_title' => $product->title,
             'author' => $product->author,
-            'quantity' => 1,
+            'quantity' => $quantity,
             'store_id' => $product->store_id
          ]);
       }

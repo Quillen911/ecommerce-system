@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Jobs\IndexProductToElasticsearch;
 use App\Jobs\DeleteProductToElasticsearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
+
 class Product extends Model
 {
     use SoftDeletes, HasFactory;
@@ -18,20 +20,33 @@ class Product extends Model
         'store_id',
         'store_name',
         'title',
+        'slug',
         'category_id',  
         'author',
+        'description',
+        'meta_title',
+        'meta_description',
         'list_price',
         'list_price_cents',
         'stock_quantity',
         'sold_quantity',
+        'is_published',
         'images'
     ];
     protected $casts = [
         'list_price' => 'float',
         'list_price_cents' => 'integer',
         'stock_quantity' => 'integer',
+        'is_published' => 'boolean',
         'images' => 'array'
     ];
+    public function scopePublished($query) {
+        return $query->where('is_published', true);
+    }
+    public function getRouteKeyName() {
+        return 'slug';
+    }
+
 
     public function getFirstImageAttribute() {
         if (!$this->images || !is_array($this->images) || empty($this->images)) {
@@ -66,6 +81,12 @@ class Product extends Model
 
         static::deleted(function ($product) {
             dispatch(new DeleteProductToElasticsearch($product->toArray()));
+        });
+
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = Str::slug($product->title);
+            }
         });
     }
 
