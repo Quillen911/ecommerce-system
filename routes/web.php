@@ -21,27 +21,27 @@ use App\Http\Middleware\RegisterRateLimit;
  
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('main');
 })->name('home');
 
-Route::middleware('guest:user_web')->group(function() {
-    Route::get('/login', [AuthController::class, 'login'])->name('login');
-    Route::post('/postlogin', [AuthController::class,'postlogin'])->middleware(LoginRateLimit::class)->name('postlogin');
-    Route::get('/register', [AuthController::class, 'register'])->name('register');
-    Route::post('/register', [AuthController::class, 'postRegister'])->middleware(RegisterRateLimit::class)->name('postregister');
+
+Route::prefix('main')->group(function(){
+    Route::get('/', [MainController::class, 'main'])->name('main');
+    Route::get('/{category_slug}', [MainController::class, 'categoryFilter'])->name('category.filter');
 });
+Route::get('/search', [MainController::class, 'search'])->name('search');
+Route::get('/sorting', [MainController::class, 'sorting'])->name('sorting');
+Route::get('/search/autocomplete', [MainController::class, 'autocomplete'])->name('search/autocomplete');
+
+Route::get('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/postlogin', [AuthController::class,'postlogin'])->middleware(LoginRateLimit::class)->name('postlogin');
+Route::get('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/register', [AuthController::class, 'postRegister'])->middleware(RegisterRateLimit::class)->name('postregister');
+
 
 
 
 Route::middleware(['auth:user_web'])->group(function(){
-    Route::prefix('main')->group(function(){
-        Route::get('/', [MainController::class, 'main'])->name('main');
-        Route::get('/{category_slug}', [MainController::class, 'categoryFilter'])->name('category.filter');
-    });
-
-    Route::get('/search', [MainController::class, 'search'])->name('search');
-    Route::get('/sorting', [MainController::class, 'sorting'])->name('sorting');
-    Route::get('/search/autocomplete', [MainController::class, 'autocomplete'])->name('search/autocomplete');
 
     Route::prefix('bag')->group(function(){
         Route::get('/', [BagController::class, 'bag'])->name('bag');
@@ -67,8 +67,10 @@ Route::middleware(['auth:user_web'])->group(function(){
         Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
         Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
 
+        Route::get('/addresses', [AddressesController::class, 'addresses'])->name('user.addresses');
         Route::post('addresses', [AddressesController::class, 'store'])->name('user.addresses.store');
         Route::post('addresses/{id}', [AddressesController::class, 'update'])->name('user.addresses.update');
+        Route::delete('addresses/{id}', [AddressesController::class, 'destroy'])->name('user.addresses.destroy');
 
         Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
     });

@@ -61,6 +61,9 @@ class BagService implements BagInterface
     {
         try {
             $user = $this->getUser();
+            if(!$user){
+                return false;
+            }
             $bag = $this->bagRepository->createBag($user);
             if(!$bag){
                 return ['error' => 'Sepet bulunamadı!'];

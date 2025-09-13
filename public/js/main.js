@@ -40,14 +40,32 @@ function selectOption(value, text) {
 
 // Close dropdown when clicking outside
 document.addEventListener('click', function(event) {
-    const dropdown = document.querySelector('.custom-dropdown');
-    if (!dropdown.contains(event.target)) {
+    // Sorting dropdown
+    const sortingDropdown = document.querySelector('.custom-dropdown');
+    if (sortingDropdown && !sortingDropdown.contains(event.target)) {
         document.getElementById('sortingDropdown').classList.remove('active');
         document.getElementById('dropdownContent').classList.remove('show');
+    }
+    
+    // Account dropdown
+    const accountDropdown = document.getElementById('accountDropdownContainer');
+    const accountButton = document.getElementById('accountDropdownBtn');
+    const accountMenu = document.getElementById('accountDropdownMenu');
+    
+    if (accountDropdown && accountButton && accountMenu && 
+        !accountDropdown.contains(event.target)) {
+        accountButton.classList.remove('is-open');
+        accountMenu.classList.remove('is-visible');
     }
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize account dropdown only if user is logged in
+    const accountDropdown = document.getElementById('accountDropdownContainer');
+    if (accountDropdown) {
+        initAccountDropdown();
+    }
+    
     const forms = document.querySelectorAll('.add-to-bag-form');
     
     forms.forEach(form => {
@@ -73,8 +91,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                // 401 Unauthorized ise direkt login sayfasına yönlendir
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                return response.json();
+            })
             .then(data => {
+                if (!data) return; // 401 durumunda data yok
+                
                 // Form verilerini al
                 const productData = {
                     title: formData.get('product_title'),
@@ -86,6 +113,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(data.success) {
                     showNotification(data.message, 'success', productData);
                 } else {
+                    // Eğer redirect varsa login sayfasına yönlendir
+                    if(data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
                     showNotification(data.message, 'error', productData);
                 }
                 
@@ -426,3 +458,112 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Account Dropdown - DOM elements cached for performance
+let accountButton, accountMenu, accountSelectedText, accountHiddenValue;
+
+// Initialize account dropdown elements
+function initAccountDropdown() {
+    accountButton = document.getElementById('accountDropdownBtn');
+    accountMenu = document.getElementById('accountDropdownMenu');
+    accountSelectedText = document.getElementById('accountSelectedText');
+    accountHiddenValue = document.getElementById('accountHiddenValue');
+    
+    if (!accountButton || !accountMenu || !accountSelectedText || !accountHiddenValue) {
+        console.error('Account dropdown elements not found');
+        return;
+    }
+    
+    // Add event listeners for dropdown button
+    accountButton.addEventListener('click', toggleAccountDropdown);
+    accountButton.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleAccountDropdown();
+        }
+    });
+    
+    // Add event listeners for dropdown items
+    document.querySelectorAll('.account-dropdown-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            const value = item.getAttribute('data-value');
+            const text = item.textContent.trim();
+            selectAccountOption(value, text, e);
+        });
+        
+        item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const value = item.getAttribute('data-value');
+                const text = item.textContent.trim();
+                selectAccountOption(value, text, e);
+            }
+        });
+    });
+}
+
+function toggleAccountDropdown() {
+    if (!accountButton || !accountMenu) {
+        console.error('Account dropdown elements not found');
+        return;
+    }
+    
+    const isOpen = accountButton.classList.contains('is-open');
+    accountButton.classList.toggle('is-open');
+    accountMenu.classList.toggle('is-visible');
+    
+    // Update accessibility attributes
+    accountButton.setAttribute('aria-expanded', !isOpen);
+}
+
+function selectAccountOption(value, text, event) {
+    if (event) {
+        event.preventDefault();
+    }
+    
+    if (accountSelectedText) {
+        accountSelectedText.textContent = text;
+    }
+    
+    if (accountHiddenValue) {
+        accountHiddenValue.value = value;
+    }
+    
+    // Handle different actions based on value
+    if (value === 'profile') {
+        window.location.href = '/account/profile';
+    } else if (value === 'addresses') {
+        window.location.href = '/account/addresses';
+    } else if (value === 'logout') {
+        handleLogout();
+        return;
+    }
+    
+    // Close dropdown after selection
+    if (accountButton && accountMenu) {
+        accountButton.classList.remove('is-open');
+        accountMenu.classList.remove('is-visible');
+        accountButton.setAttribute('aria-expanded', 'false');
+    }
+}
+
+function handleLogout() {
+    // Create a form for secure logout
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/account/logout';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken.getAttribute('content');
+        form.appendChild(csrfInput);
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+

@@ -18,7 +18,7 @@ class Kernel extends HttpKernel
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
@@ -34,8 +34,7 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        'DevelopmentOnly' => \App\Http\Middleware\DevelopmentOnly::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'DevelopmentOnly' => \App\Http\Middleware\DevelopmentOnly::class, 
         'register.limit' => \App\Http\Middleware\RegisterRateLimit::class,
         'login.limit' => \App\Http\Middleware\LoginRateLimit::class,
     ];

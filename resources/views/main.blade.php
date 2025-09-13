@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($category) ? $category->category_title . ' - ' . config('app.name') : 'Ana Sayfa - ' . config('app.name') }}</title>
     <meta name="description" content="{{ isset($category) ? $category->category_title . ' kategorisindeki en iyi ürünler - ' . config('app.name') : 'En iyi ürünler ve fırsatlar - ' . config('app.name') }}">
     <link rel="canonical" href="{{ url()->current() }}">
@@ -100,6 +101,8 @@
         .btn:hover{background:var(--secondary);border-color:var(--secondary);transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,0.3)}
         .btn.outline{background:transparent;color:var(--primary);border:1px solid var(--border);box-shadow:none}
         .btn.outline:hover{background:var(--accent);border-color:var(--primary);color:var(--primary)}
+        .btn.primary{background:var(--primary);color:var(--text);border:1px solid var(--primary);box-shadow:0 2px 8px rgba(16,185,129,0.2)}
+        .btn.primary:hover{background:var(--secondary);border-color:var(--secondary);transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,0.3)}
         
         /* Notices */
         .notice{padding:12px 16px;border:1px solid var(--line);margin:0 0 16px;border-radius:6px;background:var(--card);font-size:14px}
@@ -153,6 +156,23 @@
             border-top:4px solid var(--text);transition:transform 0.2s ease
         }
         .dropdown-btn.active .dropdown-arrow{transform:rotate(180deg)}
+        
+        /* Account Dropdown Styles */
+        .account-dropdown-container{position:relative;display:inline-block;width:120px}
+        .account-dropdown-button{width:100%;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text);transition:all 0.2s ease;outline:none}
+        .account-dropdown-button:hover{border-color:var(--primary)}
+        .account-dropdown-button:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+        .account-dropdown-button.is-open{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+        .account-dropdown-menu{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:1000;opacity:0;transform:translateY(-8px);transition:all 0.2s ease;pointer-events:none}
+        .account-dropdown-menu.is-visible{opacity:1;transform:translateY(0);pointer-events:auto}
+        .account-dropdown-item{padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:all 0.15s ease;font-size:14px;color:var(--text);outline:none}
+        .account-dropdown-item:last-child{border-bottom:none}
+        .account-dropdown-item:hover{background:var(--accent)}
+        .account-dropdown-item:focus{background:var(--accent);box-shadow:inset 0 0 0 2px var(--primary)}
+        .account-dropdown-item.is-selected{background:var(--primary);color:var(--text)}
+        .account-dropdown-arrow{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid var(--text);transition:transform 0.2s ease}
+        .account-dropdown-button.is-open .account-dropdown-arrow{transform:rotate(180deg)}
+        
         /* Ürün Grid */
         .products-grid{
             display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:24px
@@ -627,37 +647,70 @@
     <div class="header-content">
         <div>
             <h1>Omnia</h1>
-            <div class="header-subtitle">Hoş geldiniz, {{ auth()->user()->username }}</div>
+            <div class="header-subtitle"> {{ auth()->user() ? 'Hoş Geldiniz, ' . auth()->user()->username : 'Hoş Geldiniz' }}</div>
         </div>
         <div class="nav-section">
-            <a href="/bag" class="btn outline" style="color:rgb(255, 255, 255);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/>
-                </svg>
-                Sepetim
-            </a>
-            <a href="/myorders" class="btn outline" style="color:rgb(255, 255, 255);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 3h18v18H3zM8 7h8M8 11h8M8 15h5"/>
-                </svg>
-                Siparişlerim
-            </a>
-            <a href="{{ route('profile') }}" class="btn outline" style="color:rgb(255, 255, 255);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-                Hesabım
-            </a>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline">
-                @csrf
-                <button type="submit" class="btn">
+            @auth('user_web')
+                <a href="/bag" class="btn outline" style="color:rgb(255, 255, 255);">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                        <path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/>
                     </svg>
-                    Çıkış Yap
-                </button>
-            </form>
+                    Sepetim
+                </a>
+                <a href="/myorders" class="btn outline" style="color:rgb(255, 255, 255);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3h18v18H3zM8 7h8M8 11h8M8 15h5"/>
+                    </svg>
+                    Siparişlerim
+                </a>
+                <div class="account-dropdown-container" id="accountDropdownContainer">
+                    <div class="account-dropdown-button" 
+                         role="button" 
+                         aria-haspopup="true" 
+                         aria-expanded="false" 
+                         tabindex="0"
+                         id="accountDropdownBtn">
+                        <span id="accountSelectedText">Hesabım</span>
+                        <div class="account-dropdown-arrow"></div>
+                    </div>
+                    <div class="account-dropdown-menu" 
+                         role="menu" 
+                         id="accountDropdownMenu">
+                        <div class="account-dropdown-item" 
+                             role="menuitem" 
+                             tabindex="0"
+                             data-value="profile">Hesabım</div>
+                        <div class="account-dropdown-item" 
+                             role="menuitem" 
+                             tabindex="0"
+                             data-value="addresses">Adreslerim</div>
+                        <div class="account-dropdown-item" 
+                             role="menuitem" 
+                             tabindex="0"
+                             data-value="logout" 
+                             style="color:var(--danger)">Çıkış Yap</div>
+                    </div>
+                    <input type="hidden" name="accountValue" id="accountHiddenValue" value="">
+                </div>
+            @else
+                <a href="{{ route('login') }}" class="btn outline" style="color:rgb(255, 255, 255);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10,17 15,12 10,7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                    Giriş Yap
+                </a>
+                <a href="{{ route('register') }}" class="btn primary" style="color:rgb(255, 255, 255);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Kaydol
+                </a>
+            @endauth
         </div>
     </div>
 </div>

@@ -6,6 +6,7 @@ use App\Services\Bag\Contracts\BagInterface;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 
 class BagController extends Controller
 {
@@ -24,6 +25,17 @@ class BagController extends Controller
 
     public function add(Request $request)
     {
+        if(!Auth::guard('user_web')->check()){
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Lütfen giriş yapınız!',
+                    'redirect' => route('login')
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'Lütfen giriş yapınız!');
+        }
+        
         $productItem = $this->bagService->addToBag($request->product_id);
 
         if (is_array($productItem) && isset($productItem['error'])) {
