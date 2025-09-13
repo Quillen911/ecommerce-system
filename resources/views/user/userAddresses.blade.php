@@ -92,7 +92,7 @@
 <div class="page-header">
     <div class="header-content">
         <div>
-            <h1>Omnia</h1>
+            <h1><a href="{{ route('main') }}" style="text-decoration: none; color: inherit;">Omnia</a></h1>
             <div class="header-subtitle">Hoş geldiniz, {{ auth()->user()->username }}</div>
         </div>
         <div class="nav-section">
@@ -101,12 +101,6 @@
                     <path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/>
                 </svg>
                 Sepetim
-            </a>
-            <a href="/myorders" class="btn outline" style="color:rgb(255, 255, 255);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 3h18v18H3zM8 7h8M8 11h8M8 15h5"/>
-                </svg>
-                Siparişlerim
             </a>
             <div class="account-dropdown-container" id="accountDropdownContainer">
                     <div class="account-dropdown-button" 
@@ -130,6 +124,11 @@
                              role="menuitem" 
                              tabindex="0"
                              data-value="addresses">Adreslerim</div>
+                        <div class="account-dropdown-item" 
+                             role="menuitem" 
+                             tabindex="0"
+                             data-value="orders"
+                             onclick="window.location.href='{{ route('myorders') }}'">Siparişlerim</div>
                         <div class="account-dropdown-item" 
                              role="menuitem" 
                              tabindex="0"

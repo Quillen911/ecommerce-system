@@ -294,7 +294,7 @@
     <div class="page-header">
         <div class="header-content">
             <div>
-                <h1>Omnia</h1>
+                <h1><a href="{{ route('main') }}" style="text-decoration: none; color: inherit;">Omnia</a></h1>
                 <div class="header-subtitle">Hoş geldiniz, {{ auth()->user()->username }}</div>
             </div>
             <div class="nav-section">
@@ -303,12 +303,6 @@
                         <path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/>
                     </svg>
                     Sepetim
-                </a>
-                <a href="/myorders" class="btn outline" style="color:rgb(255, 255, 255);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 3h18v18H3zM8 7h8M8 11h8M8 15h5"/>
-                    </svg>
-                    Siparişlerim
                 </a>
                 <div class="account-dropdown-container" id="accountDropdownContainer">
                         <div class="account-dropdown-button" 
@@ -336,6 +330,11 @@
                             <div class="account-dropdown-item" 
                                  role="menuitem" 
                                  tabindex="0"
+                                 data-value="orders"
+                                 onclick="window.location.href='{{ route('myorders') }}'">Siparişlerim</div>
+                            <div class="account-dropdown-item" 
+                                 role="menuitem" 
+                                 tabindex="0"
                                  data-value="logout" 
                                  style="color:var(--danger)"
                                  onclick="document.getElementById('logoutForm').submit()">Çıkış Yap</div>
@@ -357,7 +356,7 @@
             <div class="flex items-center justify-between">
                 <div class="section-header">
                     <div class="icon-wrapper">
-                        <i class="fas fa-user-circle"></i>
+                        <i class="fas fa-user"></i>
                     </div>
                     <div>
                         <h2 class="text-3xl font-bold text-gray-800 mb-2">Profilim</h2>
@@ -374,14 +373,14 @@
         <!-- Success/Error Messages -->
         @if(session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+                <i class="fas fa-check mr-2"></i>{{ session('success') }}
             </div>
         @endif
 
         @if($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
                 @foreach($errors->all() as $error)
-                    <p><i class="fas fa-exclamation-circle mr-2"></i>{{ $error }}</p>
+                    <p><i class="fas fa-exclamation-triangle mr-2"></i>{{ $error }}</p>
                 @endforeach
             </div>
         @endif
@@ -395,7 +394,7 @@
                 <div class="form-section bg-blue-50">
                     <h3 class="text-lg font-semibold text-blue-800 mb-3">
                         <div class="icon-wrapper">
-                            <i class="fas fa-asterisk"></i>
+                            <i class="fas fa-lock"></i>
                         </div>
                         Zorunlu Bilgiler
                     </h3>
@@ -432,12 +431,42 @@
                 <div class="form-section bg-gray-50">
                     <h3 class="text-lg font-semibold text-gray-700 mb-3">
                         <div class="icon-wrapper">
-                            <i class="fas fa-edit"></i>
+                            <i class="fas fa-user-edit"></i>
                         </div>
                         Düzenlenebilir Bilgiler
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fas fa-user mr-2"></i>Ad
+                            </label>
+                            <input 
+                                type="text" 
+                                id="first_name"
+                                name="first_name" 
+                                value="{{ old('first_name', $user->first_name) }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Adınız"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fas fa-user mr-2"></i>Soyad
+                            </label>
+                            <input 
+                                type="text" 
+                                id="last_name"
+                                name="last_name" 
+                                value="{{ old('last_name', $user->last_name) }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Soyadınız"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
                                 <i class="fas fa-phone mr-2"></i>Telefon
@@ -451,10 +480,6 @@
                                 placeholder="+90 555 123 4567"
                             >
                         </div>
-
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     </div>
                 </div>
 
@@ -464,13 +489,13 @@
                         href="{{ route('main') }}" 
                         class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200"
                     >
-                        <i class="fas fa-times mr-2"></i>İptal
+                        <i class="fas fa-arrow-left mr-2"></i>İptal
                     </a>
                     <button 
                         type="submit" 
                         class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
                     >
-                        <i class="fas fa-save mr-2"></i>Değişiklikleri Kaydet
+                        <i class="fas fa-check mr-2"></i>Değişiklikleri Kaydet
                     </button>
                 </div>
             </form>
@@ -480,7 +505,7 @@
         <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
             <div class="section-header">
                 <div class="icon-wrapper">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="fas fa-chart-line"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-800">Profil İstatistikleri</h3>
             </div>
@@ -495,12 +520,10 @@
                     <div class="stat-number">
                         @php
                             $filledFields = 0;
-                            $totalFields = 7; // username, email, phone, address, city, district, postal_code
+                            $totalFields = 5; // username, email, first_name, last_name, phone
+                            if($user->first_name) $filledFields++;
+                            if($user->last_name) $filledFields++;
                             if($user->phone) $filledFields++;
-                            if($user->address) $filledFields++;
-                            if($user->city) $filledFields++;
-                            if($user->district) $filledFields++;
-                            if($user->postal_code) $filledFields++;
                             $filledFields += 2; // username ve email her zaman dolu
                             $completionRate = round(($filledFields / $totalFields) * 100);
                         @endphp
@@ -526,7 +549,7 @@
             
             form.addEventListener('submit', function() {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kaydediliyor...';
+                submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Kaydediliyor...';
             });
         });
     </script>
