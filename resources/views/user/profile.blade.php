@@ -255,38 +255,103 @@
             margin-right: 0.5rem;
             margin-bottom: 0;
         }
+        
+        /* Header Styles */
+        .page-header{background:var(--card);border-bottom:1px solid var(--line);padding:20px 0;margin:-24px -20px 24px;box-shadow:0 4px 20px var(--shadow)}
+        .header-content{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
+        .header-content h1{font-size:24px;font-weight:600;letter-spacing:-0.01em;margin:0;color:var(--text)}
+        .header-subtitle{font-size:14px;color:var(--muted);font-weight:500}
+        
+        /* Toolbar */
+        .nav-section{display:flex;gap:6px;align-items:center}
+        .btn{border:1px solid var(--primary);background:var(--primary);color:var(--text);padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:500;font-size:14px;transition:all 0.15s ease;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(16,185,129,0.2)}
+        .btn:hover{background:var(--secondary);border-color:var(--secondary);transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,0.3)}
+        .btn.outline{background:transparent;color:var(--primary);border:1px solid var(--border);box-shadow:none}
+        .btn.outline:hover{background:var(--accent);border-color:var(--primary);color:var(--primary)}
+        
+        /* Account Dropdown Styles */
+        .account-dropdown-container{position:relative;display:inline-block;width:120px}
+        .account-dropdown-button{width:100%;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text);transition:all 0.2s ease;outline:none}
+        .account-dropdown-button:hover{border-color:var(--primary)}
+        .account-dropdown-button:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+        .account-dropdown-button.is-open{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+        .account-dropdown-menu{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:1000;opacity:0;transform:translateY(-8px);transition:all 0.2s ease;pointer-events:none}
+        .account-dropdown-menu.is-visible{opacity:1;transform:translateY(0);pointer-events:auto}
+        .account-dropdown-item{padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:all 0.15s ease;font-size:14px;color:var(--text);outline:none}
+        .account-dropdown-item:last-child{border-bottom:none}
+        .account-dropdown-item:hover{background:var(--accent)}
+        .account-dropdown-item:focus{background:var(--accent);box-shadow:inset 0 0 0 2px var(--primary)}
+        .account-dropdown-item.is-selected{background:var(--primary);color:var(--text)}
+        .account-dropdown-arrow{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid var(--text);transition:transform 0.2s ease}
+        .account-dropdown-button.is-open .account-dropdown-arrow{transform:rotate(180deg)}
+        
+        /* Shell */
+        .shell{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-gray-800">Omnia</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('main') }}" class="text-gray-600 hover:text-gray-800">
-                        <i class="fas fa-home mr-2"></i>Anasayfa
-                    </a>
-                    <a href="{{ route('bag') }}" class="text-gray-600 hover:text-gray-800">
-                        <i class="fas fa-shopping-bag mr-2"></i>Sepetim
-                    </a>
-                    <a href="{{ route('myorders') }}" class="text-gray-600 hover:text-gray-800">
-                        <i class="fas fa-box mr-2"></i>Siparişlerim
-                    </a>
-                    <form action="{{ route('logout') }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="text-red-600 hover:text-red-800">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Çıkış
-                        </button>
-                    </form>
-                </div>
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div>
+                <h1>Omnia</h1>
+                <div class="header-subtitle">Hoş geldiniz, {{ auth()->user()->username }}</div>
+            </div>
+            <div class="nav-section">
+                <a href="/bag" class="btn outline" style="color:rgb(255, 255, 255);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2l1 7h10l1-7"/><path d="M5 9h14l-1 11H6L5 9z"/><path d="M9 13h6"/>
+                    </svg>
+                    Sepetim
+                </a>
+                <a href="/myorders" class="btn outline" style="color:rgb(255, 255, 255);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3h18v18H3zM8 7h8M8 11h8M8 15h5"/>
+                    </svg>
+                    Siparişlerim
+                </a>
+                <div class="account-dropdown-container" id="accountDropdownContainer">
+                        <div class="account-dropdown-button" 
+                             role="button" 
+                             aria-haspopup="true" 
+                             aria-expanded="false" 
+                             tabindex="0"
+                             id="accountDropdownBtn">
+                            <span id="accountSelectedText">Hesabım</span>
+                            <div class="account-dropdown-arrow"></div>
+                        </div>
+                        <div class="account-dropdown-menu" 
+                             role="menu" 
+                             id="accountDropdownMenu">
+                            <div class="account-dropdown-item" 
+                                 role="menuitem" 
+                                 tabindex="0"
+                                 data-value="profile"
+                                 onclick="window.location.href='{{ route('profile') }}'">Hesabım</div>
+                            <div class="account-dropdown-item" 
+                                 role="menuitem" 
+                                 tabindex="0"
+                                 data-value="addresses"
+                                 onclick="window.location.href='{{ route('user.addresses') }}'">Adreslerim</div>
+                            <div class="account-dropdown-item" 
+                                 role="menuitem" 
+                                 tabindex="0"
+                                 data-value="logout" 
+                                 style="color:var(--danger)"
+                                 onclick="document.getElementById('logoutForm').submit()">Çıkış Yap</div>
+                        </div>
+                        <input type="hidden" name="accountValue" id="accountHiddenValue" value="">
+                    </div>
             </div>
         </div>
-    </nav>
+    </div>
+    
+    <!-- Hidden logout form -->
+    <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 
-    <div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="shell">
         <!-- Header -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div class="flex items-center justify-between">
@@ -452,6 +517,7 @@
         </div>
     </div>
 
+    <script src="{{ asset('js/main.js') }}"></script>
     <script>
         // Form validation ve UX improvements
         document.addEventListener('DOMContentLoaded', function() {

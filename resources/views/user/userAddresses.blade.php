@@ -36,14 +36,16 @@
         
         /* Account Dropdown Styles */
         .account-dropdown-container{position:relative;display:inline-block;width:120px}
-        .account-dropdown-button{width:100%;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text);transition:all 0.15s ease}
+        .account-dropdown-button{width:100%;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text);transition:all 0.2s ease;outline:none}
         .account-dropdown-button:hover{border-color:var(--primary)}
+        .account-dropdown-button:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
         .account-dropdown-button.is-open{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
-        .account-dropdown-menu{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:1000;max-height:0;overflow:hidden;transition:all 0.2s ease}
-        .account-dropdown-menu.is-visible{max-height:300px;overflow-y:auto}
-        .account-dropdown-item{padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background-color 0.15s ease;font-size:14px;color:var(--text)}
+        .account-dropdown-menu{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:1000;opacity:0;transform:translateY(-8px);transition:all 0.2s ease;pointer-events:none}
+        .account-dropdown-menu.is-visible{opacity:1;transform:translateY(0);pointer-events:auto}
+        .account-dropdown-item{padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:all 0.15s ease;font-size:14px;color:var(--text);outline:none}
         .account-dropdown-item:last-child{border-bottom:none}
         .account-dropdown-item:hover{background:var(--accent)}
+        .account-dropdown-item:focus{background:var(--accent);box-shadow:inset 0 0 0 2px var(--primary)}
         .account-dropdown-item.is-selected{background:var(--primary);color:var(--text)}
         .account-dropdown-arrow{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid var(--text);transition:transform 0.2s ease}
         .account-dropdown-button.is-open .account-dropdown-arrow{transform:rotate(180deg)}
@@ -107,17 +109,35 @@
                 Siparişlerim
             </a>
             <div class="account-dropdown-container" id="accountDropdownContainer">
-                <div class="account-dropdown-button" onclick="toggleAccountDropdown()" id="accountDropdownBtn">
-                    <span id="accountSelectedText">Hesabım</span>
-                    <div class="account-dropdown-arrow"></div>
+                    <div class="account-dropdown-button" 
+                         role="button" 
+                         aria-haspopup="true" 
+                         aria-expanded="false" 
+                         tabindex="0"
+                         id="accountDropdownBtn">
+                        <span id="accountSelectedText">Hesabım</span>
+                        <div class="account-dropdown-arrow"></div>
+                    </div>
+                    <div class="account-dropdown-menu" 
+                         role="menu" 
+                         id="accountDropdownMenu">
+                        <div class="account-dropdown-item" 
+                             role="menuitem" 
+                             tabindex="0"
+                             data-value="profile"
+                             onclick="window.location.href='{{ route('profile') }}'">Hesabım</div>
+                        <div class="account-dropdown-item" 
+                             role="menuitem" 
+                             tabindex="0"
+                             data-value="addresses">Adreslerim</div>
+                        <div class="account-dropdown-item" 
+                             role="menuitem" 
+                             tabindex="0"
+                             data-value="logout" 
+                             style="color:var(--danger)">Çıkış Yap</div>
+                    </div>
+                    <input type="hidden" name="accountValue" id="accountHiddenValue" value="">
                 </div>
-                <div class="account-dropdown-menu" id="accountDropdownMenu">
-                    <div class="account-dropdown-item" onclick="selectAccountOption('profile', 'Hesabım', event)">Hesabım</div>
-                    <div class="account-dropdown-item" onclick="selectAccountOption('addresses', 'Adreslerim', event)">Adreslerim</div>
-                    <div class="account-dropdown-item" style="color:var(--danger)" onclick="selectAccountOption('logout', 'Çıkış Yap', event)">Çıkış Yap</div>
-                </div>
-                <input type="hidden" name="accountValue" id="accountHiddenValue" value="">
-            </div>
         </div>
     </div>
 </div>
