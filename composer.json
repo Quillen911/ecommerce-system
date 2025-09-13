@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.1",
         "laravel/tinker": "^2.10.1",
         "stripe/stripe-php": "^17.5",
+        "symfony/deprecation-contracts": "*",
         "vladimir-yuldashev/laravel-queue-rabbitmq": "^14.0"
     },
     "require-dev": {
