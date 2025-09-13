@@ -90,7 +90,9 @@
         
         /* Header */
         .page-header{background:var(--card);border-bottom:1px solid var(--line);padding:20px 0;margin:-24px -20px 24px;box-shadow:0 4px 20px var(--shadow)}
-        .header-content{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
+        .header-content{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+        .header-left{flex:1;min-width:200px}
+        .header-right{flex:1;min-width:200px;display:flex;justify-content:flex-end;gap:12px}
         h1{font-size:24px;font-weight:600;letter-spacing:-0.01em;margin:0;color:var(--text)}
         .header-subtitle{font-size:14px;color:var(--muted);font-weight:500}
         
@@ -173,6 +175,18 @@
         .account-dropdown-arrow{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid var(--text);transition:transform 0.2s ease}
         .account-dropdown-button.is-open .account-dropdown-arrow{transform:rotate(180deg)}
         
+        /* Header Search Styles */
+        .header-search{flex:3;max-width:900px;margin:0 20px;order:2;min-width:500px;position:relative;}
+        .search-input-group{display:flex;background:var(--card);border:2px solid var(--border);border-radius:8px;overflow:hidden;transition:all 0.2s ease;width:100%}
+        .search-input-group:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+        .search-input{flex:1;padding:12px 18px;background:transparent;border:none;color:var(--text);font-size:14px;outline:none;min-width:0}
+        .search-input::placeholder{color:var(--muted)}
+        .search-btn{padding:12px 18px;background:var(--primary);border:none;color:var(--text);cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .search-btn:hover{background:var(--secondary)}
+        
+        /* Header Autocomplete Styles */
+        .header-search .autocomplete-container{z-index:1001;top:100%;left:0;right:0;margin-top:4px}
+        
         /* Ürün Grid */
         .products-grid{
             display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:24px
@@ -237,7 +251,8 @@
             .page-header{margin:-24px -16px 24px;padding:32px 0}
             h1{font-size:24px}
             .toolbar{padding:16px 20px;flex-direction:column;align-items:stretch}
-            .nav-section{justify-content:center}
+            .nav-section{justify-content:center;flex-direction:column;gap:12px}
+            .header-search{max-width:100%;margin:0}
             .search-group{flex-direction:column;gap:8px}
             .search-group .btn{margin-top:0!important}
             .products-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px}
@@ -645,13 +660,27 @@
 <body>
 <div class="page-header">
     <div class="header-content">
-        <div>
-            
-        <h1><a href="{{ route('main') }}" style="text-decoration: none; color: inherit;">Omnia</a></h1>
-
+        <div class="header-left">
+            <h1><a href="{{ route('main') }}" style="text-decoration: none; color: inherit;">Omnia</a></h1>
             <div class="header-subtitle"> {{ auth()->user() ? 'Hoş Geldiniz, ' . auth()->user()->username : 'Hoş Geldiniz' }}</div>
         </div>
         <div class="nav-section">
+            <form action="{{ route('search') }}" method="GET" class="header-search">
+                @csrf
+                <div class="search-input-group">
+                    <input type="text" name="q" placeholder="Ürün ara..." value="{{ $query ?? request('q') }}" autocomplete="off" class="search-input" id="headerSearchInput">
+                    <input type="hidden" name="page" value="1">
+                    <input type="hidden" name="size" value="12">
+                    <button type="submit" class="search-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="autocomplete-container" id="headerAutocompleteContainer"></div>
+            </form>
+        </div>
+        <div class="header-right">
             @auth('user_web')
                 <a href="/bag" class="btn outline" style="color:rgb(255, 255, 255);">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -750,24 +779,42 @@
             @endforeach
         </ul>
     </nav>
-    <div class="card" style="margin-top:10px">
-        <form action="{{ route('search') }}" method="GET" class="filters">
-            @csrf
-            <div class="search-group">
-                <div class="field" style="flex:1">
-                    <label for="q">Ürün Ara</label>
-                    <input id="q" type="text" name="q" placeholder="Ürün adı, Mağaza adı, yazar..." value="{{ $query ?? request('q') }}" autocomplete="off">
-                    <input type="hidden" name="page" value="1">
-                    <input type="hidden" name="size" value="12">
+
+    @if(empty($query))
+        <div class="card" style="margin-top:12px">
+            <form action="{{ route('sorting') }}" method="GET" class="actions" style="justify-content:flex-start;align-items:center">
+                @csrf
+                <div class="custom-dropdown">
+                    <div class="dropdown-btn" onclick="toggleDropdown()" id="sortingDropdown">
+                        <span id="selectedOption">Önerilen</span>
+                        <div class="dropdown-arrow"></div>
+                    </div>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <div class="dropdown-item selected" onclick="selectOption('', 'Önerilen')">Önerilen</div>
+                        <div class="dropdown-item" onclick="selectOption('price_asc', 'En Düşük Fiyat')">En Düşük Fiyat</div>
+                        <div class="dropdown-item" onclick="selectOption('price_desc', 'En Yüksek Fiyat')">En Yüksek Fiyat</div>
+                        <div class="dropdown-item" onclick="selectOption('stock_quantity_asc', 'En Az Stok')">En Az Stok</div>
+                        <div class="dropdown-item" onclick="selectOption('stock_quantity_desc', 'En Çok Stok')">En Çok Stok</div>
+                    </div>
+                    <input type="hidden" name="sorting" id="sortingValue" value="">
                 </div>
-                <button class="btn" type="submit" style="margin-top:26px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                    </svg>
-                    Ara
-                </button>
-            </div>
-            @if(!empty($query))
+                <button class="btn" type="submit" style="margin-left:16px">Sırala</button>
+            </form>
+        </div>
+    @endif
+
+    <p class="muted" style="display:none">Gösterilen Ürün Sayısı: {{ count($products ?? []) }}</p>
+
+    @if(!empty($query))
+        <div class="muted" style="margin-top:10px"><strong>Arama Sonuçları</strong></div>
+        
+        <div class="card" style="margin-top:12px">
+            <form action="{{ route('search') }}" method="GET" class="filters">
+                @csrf
+                <input type="hidden" name="q" value="{{ $query }}">
+                <input type="hidden" name="page" value="1">
+                <input type="hidden" name="size" value="12">
+                
                 <div class="field">
                     <label for="category_title">Kategori</label>
                     <select id="category_title" name="category_title">
@@ -811,37 +858,8 @@
                         Uygula
                     </button>
                 </div>
-            @endif
-        </form>
-    </div>
-
-    @if(empty($query))
-        <div class="card" style="margin-top:12px">
-            <form action="{{ route('sorting') }}" method="GET" class="actions" style="justify-content:flex-start;align-items:center">
-                @csrf
-                <div class="custom-dropdown">
-                    <div class="dropdown-btn" onclick="toggleDropdown()" id="sortingDropdown">
-                        <span id="selectedOption">Önerilen</span>
-                        <div class="dropdown-arrow"></div>
-                    </div>
-                    <div class="dropdown-content" id="dropdownContent">
-                        <div class="dropdown-item selected" onclick="selectOption('', 'Önerilen')">Önerilen</div>
-                        <div class="dropdown-item" onclick="selectOption('price_asc', 'En Düşük Fiyat')">En Düşük Fiyat</div>
-                        <div class="dropdown-item" onclick="selectOption('price_desc', 'En Yüksek Fiyat')">En Yüksek Fiyat</div>
-                        <div class="dropdown-item" onclick="selectOption('stock_quantity_asc', 'En Az Stok')">En Az Stok</div>
-                        <div class="dropdown-item" onclick="selectOption('stock_quantity_desc', 'En Çok Stok')">En Çok Stok</div>
-                    </div>
-                    <input type="hidden" name="sorting" id="sortingValue" value="">
-                </div>
-                <button class="btn" type="submit" style="margin-left:16px">Sırala</button>
             </form>
         </div>
-    @endif
-
-    <p class="muted" style="display:none">Gösterilen Ürün Sayısı: {{ count($products ?? []) }}</p>
-
-    @if(!empty($query))
-        <div class="muted" style="margin-top:10px"><strong>Arama Sonuçları</strong></div>
     @endif
 
     @if(!empty($products) && count($products) > 0)
@@ -915,5 +933,220 @@
 </div>
 
 <script src="{{ asset('js/main.js') }}"></script>
+<script>
+// Header arama barı için autocomplete
+document.addEventListener('DOMContentLoaded', function() {
+    const headerSearchInput = document.getElementById('headerSearchInput');
+    const headerAutocompleteContainer = document.getElementById('headerAutocompleteContainer');
+    
+    if (!headerSearchInput || !headerAutocompleteContainer) return;
+    
+    let debounceTimer;
+    let selectedIndex = -1;
+    let suggestions = [];
+    let isLoading = false;
+    
+    // Debounce fonksiyonu
+    function debounce(func, delay) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(func, delay);
+    }
+    
+    // Autocomplete verilerini getir
+    async function fetchAutocomplete(query) {
+        if (query.length < 2) {
+            hideAutocomplete();
+            return;
+        }
+        
+        isLoading = true;
+        showLoadingState();
+        
+        try {
+            const response = await fetch(`/search/autocomplete?q=${encodeURIComponent(query)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Autocomplete response:', data); // Debug için
+            suggestions = data.data?.products || data.products || [];
+            
+            if (suggestions.length > 0) {
+                showAutocomplete();
+            } else {
+                showNoResults();
+            }
+        } catch (error) {
+            console.error('Autocomplete error:', error);
+            console.error('Query was:', query);
+            showError('Arama sırasında hata oluştu: ' + error.message);
+        } finally {
+            isLoading = false;
+        }
+    }
+    
+    // Loading durumunu göster
+    function showLoadingState() {
+        headerAutocompleteContainer.innerHTML = '<div class="autocomplete-loading">Aranıyor...</div>';
+        headerAutocompleteContainer.style.display = 'block';
+    }
+    
+    // Sonuç bulunamadı mesajı
+    function showNoResults() {
+        headerAutocompleteContainer.innerHTML = '<div class="autocomplete-loading">Sonuç bulunamadı</div>';
+        headerAutocompleteContainer.style.display = 'block';
+    }
+    
+    // Hata mesajı
+    function showError(message = 'Bir hata oluştu') {
+        headerAutocompleteContainer.innerHTML = `<div class="autocomplete-loading">${message}</div>`;
+        headerAutocompleteContainer.style.display = 'block';
+    }
+    
+    // Otomatik tamamlama listesini göster
+    function showAutocomplete() {
+        headerAutocompleteContainer.innerHTML = '';
+        
+        suggestions.forEach((product, index) => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            
+            const imageUrl = product.images && product.images.length > 0 
+                ? `/storage/productsImages/${product.images[0]}`
+                : '';
+            
+            item.innerHTML = `
+                <div class="autocomplete-product-image">
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${product.title}" onerror="this.style.display='none'">` : ''}
+                </div>
+                <div class="autocomplete-product-info">
+                    <div class="autocomplete-product-title">
+                        ${highlightQuery(product.title, headerSearchInput.value)}
+                    </div>
+                    <div class="autocomplete-product-author">${product.author || ''}</div>
+                    <div class="autocomplete-product-store">${product.store_name || ''}</div>
+                </div>
+                <div class="autocomplete-product-price">
+                    ${parseFloat(product.list_price || 0).toFixed(2)} TL
+                </div>
+            `;
+            
+            item.addEventListener('click', () => {
+                selectSuggestion(product);
+            });
+            
+            item.addEventListener('mouseenter', () => {
+                selectedIndex = index;
+                updateSelection();
+            });
+            
+            headerAutocompleteContainer.appendChild(item);
+        });
+        
+        headerAutocompleteContainer.style.display = 'block';
+        selectedIndex = -1;
+    }
+    
+    // Otomatik tamamlama listesini gizle
+    function hideAutocomplete() {
+        headerAutocompleteContainer.style.display = 'none';
+        selectedIndex = -1;
+    }
+    
+    // Seçili öğeyi vurgula
+    function updateSelection() {
+        const items = headerAutocompleteContainer.querySelectorAll('.autocomplete-item');
+        items.forEach((item, index) => {
+            if (index === selectedIndex) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+    
+    // Öneriyi seç
+    function selectSuggestion(product) {
+        headerSearchInput.value = product.title;
+        hideAutocomplete();
+        // Formu submit et
+        headerSearchInput.closest('form').submit();
+    }
+    
+    // Query'yi vurgula
+    function highlightQuery(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<strong>$1</strong>');
+    }
+    
+    // Input event listener
+    headerSearchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        debounce(() => fetchAutocomplete(query), 300);
+    });
+    
+    // Klavye navigasyonu
+    headerSearchInput.addEventListener('keydown', function(e) {
+        if (headerAutocompleteContainer.style.display === 'none') return;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+                updateSelection();
+                break;
+                
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection();
+                break;
+                
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                    selectSuggestion(suggestions[selectedIndex]);
+                } else {
+                    this.closest('form').submit();
+                }
+                break;
+                
+            case 'Escape':
+                hideAutocomplete();
+                break;
+        }
+    });
+    
+    // Dışarı tıklandığında gizle
+    document.addEventListener('click', function(e) {
+        if (!headerSearchInput.contains(e.target) && !headerAutocompleteContainer.contains(e.target)) {
+            hideAutocomplete();
+        }
+    });
+});
+
+// Filtreleri sıfırla fonksiyonu
+function resetFilters() {
+    document.getElementById('category_title').value = '';
+    document.getElementById('min_price').value = '';
+    document.getElementById('max_price').value = '';
+    document.getElementById('sorting').value = '';
+    
+    // Formu submit et
+    const form = document.querySelector('.filters');
+    if (form) {
+        form.submit();
+    }
+}
+</script>
 </body>
 </html>
