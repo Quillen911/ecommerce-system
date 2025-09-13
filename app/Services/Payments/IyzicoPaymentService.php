@@ -176,6 +176,12 @@ class IyzicoPaymentService implements PaymentInterface
                 $basketItem->setCategory1($item->product->category?->category_title ?? 'Genel');
                 $basketItem->setItemType(BasketItemType::PHYSICAL);
                 $linePrice = round((float)($item->paid_price), 4);
+                
+                // Sıfır fiyatlı ürünleri Iyzico'ya gönderme (kampanya ürünleri)
+                if ($linePrice <= 0) {
+                    continue; // Bu ürünü atla
+                }
+                
                 $basketItem->setPrice(number_format($linePrice, 4, '.', ''));
 
                // $basketItem->setSubMerchantKey($store->sub_merchant_key);

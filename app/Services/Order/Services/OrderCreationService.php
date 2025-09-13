@@ -63,6 +63,16 @@ class OrderCreationService implements OrderCreationInterface
             $basePriceCents = (int)round($product->product->list_price * $product->quantity * 100);
             $paidPriceCents = $basePriceCents;
             $diff = 0;
+            
+            // Debug: Fiyat hesaplama
+            \Log::info('Order Creation Debug - Initial', [
+                'product_id' => $product->product_id,
+                'product_title' => $product->product->title,
+                'list_price' => $product->product->list_price,
+                'quantity' => $product->quantity,
+                'basePriceCents' => $basePriceCents,
+                'paidPriceCents' => $paidPriceCents
+            ]);
 
             if ($eligible_products && $this->isProductEligible($product, $eligible_products)) {
                 $discountItem = $perProductDiscount->first(function ($item) use ($product) {
@@ -74,6 +84,14 @@ class OrderCreationService implements OrderCreationInterface
                     $discountAmountCents = (int)round($discountAmount * 100);
                     
                     $paidPriceCents = $basePriceCents - $discountAmountCents;
+                
+                    // Debug: Discount sonrası
+                    \Log::info('Order Creation Debug - After Discount', [
+                        'product_id' => $product->product_id,
+                        'discountAmount' => $discountAmount,
+                        'discountAmountCents' => $discountAmountCents,
+                        'paidPriceCents' => $paidPriceCents
+                    ]);
                 
                     $calculatedPrice = ($product->product->list_price * $product->quantity - $discountAmount) * 100;
                     if($diffApplied == false){
@@ -88,6 +106,9 @@ class OrderCreationService implements OrderCreationInterface
                 }
             }
             
+            // Ücretsiz ürün kontrolü
+            $isFreeItem = $paidPriceCents <= 0;
+            
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $product->product_id,
@@ -101,14 +122,14 @@ class OrderCreationService implements OrderCreationInterface
                 'discount_price_cents' => (int)$discountAmountCents,
                 'paid_price' => $paidPriceCents / 100,
                 'paid_price_cents' => (int)$paidPriceCents,
-                'payment_transaction_id' => "",
+                'payment_transaction_id' => $isFreeItem ? 'free_item' : "",
                 'refunded_price' => 0,
                 'refunded_price_cents' => 0,
-                'payment_status' => 'failed',
+                'payment_status' => $isFreeItem ? 'paid' : 'failed',
                 'refunded_at' => null,
                 'store_id' => $product->product->store_id,
                 'store_name' => $product->product->store_name,
-                'status' => 'Başarısız Ödeme',
+                'status' => $isFreeItem ? 'confirmed' : 'Başarısız Ödeme',
             ]);
         }
     }
