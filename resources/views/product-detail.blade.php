@@ -222,6 +222,26 @@
             </div>
         </div>
     @endif
+
+    @if(isset($similarSeller) && $similarSeller->count() > 0)
+        <div class="similar-products">
+            <h3>Benzer Mağaza Ürünleri</h3>
+            <div class="products-grid">
+                @foreach($similarSeller as $similarProduct)
+                    <a href="{{ route('product.detail', $similarProduct->slug) }}" class="similar-product-card">
+                        <div class="similar-product-image">
+                            <img src="/storage/productsImages/{{ $similarProduct->images[0] ?? 'no-image.png' }}" alt="{{ $similarProduct->title }}">
+                        </div>
+                        <div class="similar-product-info">
+                            <h4>{{ $similarProduct->title }}</h4>
+                            <p class="similar-product-author">{{ $similarProduct->author }}</p>
+                            <p class="similar-product-price">{{ number_format($similarProduct->list_price, 2) }} ₺</p>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>
 </div>
 

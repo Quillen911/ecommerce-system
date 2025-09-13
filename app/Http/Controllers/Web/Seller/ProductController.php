@@ -119,6 +119,9 @@ class ProductController extends Controller
     public function updateProduct(ProductUpdateRequest $request, $id)
     {
         try{
+            \Log::info('UpdateProduct - Request received:', $request->all());
+            \Log::info('UpdateProduct - Validated data:', $request->validated());
+            
             $seller = $this->authenticationRepository->getSeller();
             if(!$seller){
                 return redirect()->route('seller.login')->with('error', 'Lütfen giriş yapınız');
@@ -127,6 +130,7 @@ class ProductController extends Controller
             return redirect()->route('seller.product')->with('success', 'Ürün başarıyla güncellendi');
         }
         catch(\Exception $e){
+            \Log::error('UpdateProduct - Error:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return redirect()->route('seller.product')->with('error', 'Ürün güncellenemedi: ' . $e->getMessage());
         }
     }

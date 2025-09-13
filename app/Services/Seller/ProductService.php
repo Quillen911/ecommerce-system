@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use Illuminate\Support\Str;
 
 class ProductService
 {
@@ -47,9 +48,15 @@ class ProductService
             'store_id' => $store->id,
             'store_name' => $store->name,
             'sold_quantity' => 0,
+            'is_published' => true,
+            'slug' => Str::slug($request['title']),
+            'meta_title' => $this->generateMetaTitle($request, $store),
+            'meta_description' => $request['meta_description'] ?? $this->generateMetaDescription($request, $store),
         ]);
         
+        
         $product = $this->productRepository->createProduct($productData);
+        
         
         if (!$product) {
             throw new \Exception('Ürün oluşturulamadı');
@@ -80,8 +87,14 @@ class ProductService
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
-        
-        $result = $this->productRepository->updateProduct($request, $store->id, $id);
+        $productData = array_merge($request, [
+            'store_id' => $store->id,
+            'store_name' => $store->name,
+            'slug' => Str::slug($request['title']),
+            'meta_title' => $this->generateMetaTitle($request, $store),
+            'meta_description' => $request['meta_description'] ?? $this->generateMetaDescription($request, $store),
+        ]);
+        $result = $this->productRepository->updateProduct($productData, $store->id, $id);
         
         if (!$result) {
             throw new \Exception('Ürün güncellenemedi');
@@ -227,5 +240,56 @@ class ProductService
     public function getCategories()
     {
         return $this->categoryRepository->all();
+    }
+    
+    private function generateMetaTitle($request, $store)
+    {
+        $title = $request['title'];
+        $author = $request['author'] ?? '';
+        $storeName = $store->name ?? '';
+        
+        // Otomatik meta title oluştur
+        $metaTitle = $title;
+        
+        if ($author) {
+            $metaTitle .= " - {$author}";
+        }
+        
+        if ($storeName) {
+            $metaTitle .= " | {$storeName}";
+        }
+        
+        // 60 karakter limiti (SEO için optimal)
+        return strlen($metaTitle) > 60 ? substr($metaTitle, 0, 57) . '...' : $metaTitle;
+    }
+    
+    private function generateMetaDescription($request, $store)
+    {
+        $title = $request['title'];
+        $author = $request['author'] ?? '';
+        $description = $request['description'] ?? '';
+        $price = $request['list_price'] ?? 0;
+        
+        // Otomatik meta description oluştur
+        $metaDescription = $title;
+        
+        if ($author) {
+            $metaDescription .= " kitabını {$author} yazmıştır.";
+        }
+        
+        if ($description) {
+            // Açıklamadan ilk 100 karakteri al
+            $shortDesc = strlen($description) > 100 ? substr($description, 0, 97) . '...' : $description;
+            $metaDescription .= " {$shortDesc}";
+        }
+        
+        if ($price > 0) {
+            $metaDescription .= " En uygun fiyat: " . number_format($price, 2) . " TL.";
+        }
+        
+        $metaDescription .= " Hızlı kargo, güvenli ödeme.";
+        
+        // 160 karakter limiti (SEO için optimal)
+        return strlen($metaDescription) > 160 ? substr($metaDescription, 0, 157) . '...' : $metaDescription;
     }
 }

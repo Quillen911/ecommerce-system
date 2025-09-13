@@ -10,6 +10,8 @@ use App\Http\Requests\FilterRequest;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Services\Search\ElasticSearchProductService;
 use App\Services\MainService;
+use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 
 class MainController extends Controller
 {
@@ -47,6 +49,39 @@ class MainController extends Controller
             return ResponseHelper::notFound('Ürün bulunamadı.');
         }
         return ResponseHelper::success('Ürün', $product);
+    }
+
+    public function productDetail($slug)
+    {
+        // Önce ürün olarak ara
+        $product = Product::where('slug', $slug)->first();
+
+        if(!$product) {
+            // Ürün bulunamadı, kategori olabilir mi kontrol et
+            $category = $this->mainService->getCategory($slug);
+            if($category) {
+                return $this->categoryFilter(request(), $slug); // Kategori sayfasına yönlendir
+            }
+            return ResponseHelper::notFound('Sayfa bulunamadı');
+        }
+
+        // If product is found, proceed with product detail logic
+        abort_unless($product->is_published, 404);
+        $product = Cache::remember("product:{$product->id}:detail",
+        now()->addMinutes(15),
+        fn() => $product->load('category', 'store'));
+
+        $similar = Product::published()
+            ->where('category_id', $product->category_id)
+            ->whereKeyNot($product->id)
+            ->latest()
+            ->take(20)
+            ->get(['id', 'slug', 'title', 'list_price', 'images']);
+
+        return ResponseHelper::success('Ürün Detayı', [
+            'product' => $product,
+            'similar' => $similar
+        ]);
     }
 
     //elasticsearch

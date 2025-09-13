@@ -145,6 +145,20 @@
                 </div>
                 
                 <div class="form-group full-width">
+                    <label class="form-label" for="description">Ürün Açıklaması</label>
+                    <textarea id="description" name="description" class="form-input form-textarea" 
+                              placeholder="Ürün hakkında detaylı bilgi girin..." 
+                              rows="4">{{ old('description') }}</textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label class="form-label" for="meta_description">Kısa Açıklama</label>
+                    <textarea id="meta_description" name="meta_description" class="form-input form-textarea" 
+                              placeholder="Kısa açıklama girin... (Maksimum 160 karakter)" 
+                              rows="2" maxlength="160">{{ old('meta_description') }}</textarea>
+                </div>
+                
+                <div class="form-group full-width">
                     <label class="form-label">Ürün Resimleri</label>
                     <div class="file-upload">
                         <input type="file" name="images[]" id="images" class="file-input" multiple accept="image/*">

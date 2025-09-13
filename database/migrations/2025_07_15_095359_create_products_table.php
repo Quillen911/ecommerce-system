@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('slug');
             $table->unsignedBigInteger('category_id')->nullable();
             $table->string('author');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->decimal('list_price',10,2);
