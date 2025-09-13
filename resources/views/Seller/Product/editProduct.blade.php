@@ -152,6 +152,20 @@
                 </div>
                 
                 <div class="form-group full-width">
+                    <label class="form-label" for="description">Ürün Açıklaması</label>
+                    <textarea id="description" name="description" class="form-input form-textarea" 
+                              placeholder="Ürün hakkında detaylı bilgi girin..." 
+                              rows="4">{{ $products->description }}</textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label class="form-label" for="meta_description">Kısa Açıklama</label>
+                    <textarea id="meta_description" name="meta_description" class="form-input form-textarea" 
+                              placeholder="Kısa açıklama girin... (Maksimum 160 karakter)" 
+                              rows="2" maxlength="160">{{ $products->meta_description ?? '' }}</textarea>
+                </div>
+                
+                <div class="form-group full-width">
                     <label class="form-label">Ürün Resimleri</label>
                     
                     @if($products->images && count($products->images) > 0)

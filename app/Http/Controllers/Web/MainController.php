@@ -51,7 +51,14 @@ class MainController extends Controller
             ->take(20)
             ->get(['id', 'slug', 'title', 'list_price', 'images']);
 
-        return view('product-detail', compact('product', 'similar'));
+        $similarSeller = Product::published()
+            ->where('store_id', $product->store_id)
+            ->whereKeyNot($product->id)
+            ->latest()
+            ->take(20)
+            ->get(['id', 'slug', 'title', 'list_price', 'images']);
+
+        return view('product-detail', compact('product', 'similar', 'similarSeller'));
     }
 
     public function search(Request $request)
