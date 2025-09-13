@@ -31,23 +31,23 @@ class MainService
 
     public function getProducts()
     {
-        $this->getUser();
+
         return $this->productRepository->getProductsWithCategory();
     }
     
     public function getCategories()
     {
-        $this->getUser();
+
         return $this->categoryRepository->getAllCategories();
     }
     public function getCategory($category_slug)
     {
-        $this->getUser();
+
         return $this->categoryRepository->getCategoryBySlug($category_slug);
     }
     public function getProduct($id)
     {
-        $this->getUser();
+
         return $this->productRepository->getProductWithCategory($id);
     }
 

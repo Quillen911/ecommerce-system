@@ -15,9 +15,17 @@ class AddressesController extends Controller
     {
         $this->addressesService = $addressesService;
     }
+    public function addresses()
+    {
+        $addresses = $this->addressesService->indexAddresses();
+        return view('user.userAddresses', ['addresses' => $addresses]);
+    }
     public function store(AddressesStoreRequest $request)
     {
         $adress = $this->addressesService->storeAddresses($request->validated());
+        if(route('user.addresses')){
+            return redirect()->route('user.addresses')->with('success', 'Adres başarıyla oluşturuldu');
+        }
         return redirect()->route('order')->with('success', 'Adres başarıyla oluşturuldu');
     }
     public function update(AddressesUpdateRequest $request, $id)
@@ -42,6 +50,9 @@ class AddressesController extends Controller
                 ]);
             }
             
+            if(route('user.addresses')){
+                return redirect()->route('user.addresses')->with('success', 'Adres başarıyla güncellendi');
+            }
             return redirect()->route('order')->with('success', 'Adres başarıyla güncellendi');
         } catch (\Exception $e) {
             if ($request->ajax()) {
@@ -52,7 +63,17 @@ class AddressesController extends Controller
                 ], 422);
             }
             
+            if(route('user.addresses')){
+                return redirect()->route('user.addresses')->with('error', 'Adres güncellenirken bir hata oluştu');
+            }
             return redirect()->route('order')->with('error', 'Adres güncellenirken bir hata oluştu');
         }
     }
+
+    public function destroy($id)
+    {
+        $address = $this->addressesService->destroyAddresses($id);
+        return redirect()->route('user.addresses')->with('success', 'Adres başarıyla silindi');
+    }
+    
 }

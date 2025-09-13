@@ -23,9 +23,6 @@ class AddressesService
     {
         $user = $this->getUser();
         $addresses = $this->addressesRepository->getAddressesByUserId($user->id);
-        if($addresses->isEmpty()){
-            throw new ModelNotFoundException('Adres bulunamadı.');
-        }
         return $addresses;
     }
 
