@@ -8,6 +8,8 @@ use App\Services\Search\ElasticsearchService;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Services\MainService;
 use App\Services\Search\ElasticSearchProductService;
+use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 
 class MainController extends Controller
 {
@@ -34,6 +36,22 @@ class MainController extends Controller
         $categories = $this->mainService->getCategories();
 
         return view('main', compact('products', 'categories'));
+    }
+    public function productDetail(Product $product)
+    {
+        abort_unless($product->is_published, 404);
+        $product = Cache::remember("product:{$product->id}:detail",
+        now()->addMinutes(15),
+        fn() => $product->load('category', 'store'));
+
+        $similar = Product::published()
+            ->where('category_id', $product->category_id)
+            ->whereKeyNot($product->id)
+            ->latest()
+            ->take(20)
+            ->get(['id', 'slug', 'title', 'list_price', 'images']);
+
+        return view('product-detail', compact('product', 'similar'));
     }
 
     public function search(Request $request)

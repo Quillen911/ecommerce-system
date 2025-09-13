@@ -27,6 +27,7 @@ Route::get('/', function () {
 
 Route::prefix('main')->group(function(){
     Route::get('/', [MainController::class, 'main'])->name('main');
+    Route::get('/{product:slug}', [MainController::class, 'productDetail'])->name('product.detail');
     Route::get('/{category_slug}', [MainController::class, 'categoryFilter'])->name('category.filter');
 });
 Route::get('/search', [MainController::class, 'search'])->name('search');
