@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Services\Campaigns\Handlers;
+
+use App\Services\Campaigns\BaseCampaign;
+
+class FixedCampaign extends BaseCampaign
+{
+    public function isApplicable(array $products): bool
+    {
+        if(!$this->isCampaignActive()){
+            return false;
+        }
+        $eligibleProducts = $this->productEligible($products);
+
+       
+
+        $min_bag = $this->getConditionValue('min_bag');
+        if($min_bag){
+            $total = collect($eligibleProducts)->sum(function($item) {
+                return $item->product->list_price * $item->quantity;
+            });
+            if($total < $min_bag){
+                return false;
+            }
+        }
+
+        $author = $this->getConditionValue('author');
+        if($author){
+            $eligible = collect($eligibleProducts)->filter(function($item) use ($author) {
+                return in_array($item->product->author, (array)$author);
+            });
+            if($eligible->sum('quantity') == 0){
+                return false;
+            }
+        }
+
+        $category = $this->getConditionValue('category');
+        if($category){
+            $eligible = collect($eligibleProducts)->filter(function($item) use ($category) {
+                return $item->product->category?->category_title == $category;
+            }); 
+            if($eligible->sum('quantity') == 0){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function calculateDiscount(array $products): array 
+    {
+        $discount_rule = $this->getDiscountRule();
+        if (!$discount_rule) {
+            return ['description' => '', 'discount' => 0];
+        }
+
+        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;   
+        $discount_amount = is_array($discount_value) ? ($discount_value['amount'] ?? 0) : (float)$discount_value;
+
+        $eligible_products = $this->productEligible($products);
+        
+        $author = $this->getConditionValue('author');
+        if($author){
+            $eligible_products = collect($eligible_products)->filter(function($item) use ($author) {
+                return in_array($item->product->author, (array)$author);
+            });
+        }
+
+        $category = $this->getConditionValue('category');
+        if($category){
+            $eligible_products = collect($eligible_products)->filter(function($item) use ($category) {
+                return $item->product->category?->category_title == $category;
+            });
+        }
+        $total_price = collect($eligible_products)->sum(function($item) {
+            return $item->product->list_price * $item->quantity;
+        });
+        
+        $perProductDiscount = $eligible_products->map(function($item) use ($discount_amount, $eligible_products) {
+            $discount_per_product = $discount_amount / $eligible_products->count();
+            return [
+                'product' => $item->product,
+                'quantity' => $item->quantity,
+                'discount' => $discount_per_product
+            ];
+        });
+        if($total_price < $discount_amount){
+            return [
+                'description' => $this->campaign->description,
+                'discount' => 0,
+                'campaign_id' => $this->campaign->id,
+                'eligible_products' => $eligible_products,
+                'eligible_total' => $total_price,
+                'per_product_discount' => $perProductDiscount,
+                'store_id' => $this->campaign->store_id
+            ];
+        }
+        if(collect($eligible_products)->sum('quantity') > 0) {
+            return [
+                'description' => $this->campaign->description,
+                'discount' => $discount_amount,
+                'campaign_id' => $this->campaign->id,
+                'eligible_products' => $eligible_products,
+                'eligible_total' => $total_price,
+                'per_product_discount' => $perProductDiscount,
+                'store_id' => $this->campaign->store_id
+            ];
+        }
+
+        return [
+            'description' => $this->campaign->description,
+            'discount' => 0,
+            'campaign_id' => $this->campaign->id,
+            'eligible_products' => $eligible_products,
+            'eligible_total' => $total_price,
+            'per_product_discount' =>[],
+            'store_id' => $this->campaign->store_id
+        ];
+    }
+}
