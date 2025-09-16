@@ -7,7 +7,7 @@ export default function Input({
     value,
     onChange,
     type = 'text',
-    required,
+    required = false, // sadece yıldız göstermek için
     disabled,
     error,
     autoComplete,
@@ -15,9 +15,9 @@ export default function Input({
     return (
         <div className="w-full">
             {label && (
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                     {label}
-                    {required && <span className='text-red-500 ml-1'>*</span>}
+                    {required && <span className="text-red-500 ml-1">*</span>}
                 </label>
             )}
 
@@ -38,9 +38,8 @@ export default function Input({
             />
 
             {error && (
-                <p className='mt-1 text-sm text-red-600'>{error}</p>
+                <p className="mt-1 text-sm text-red-600">{error}</p>
             )}
-
         </div>
     )
 }
