@@ -1,11 +1,16 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Input from '@/components/ui/Input'
-import { useAuth } from '@/hooks/useAuth'
+import { useLogin, useRegister, useCsrf } from '@/hooks/useAuthQuery'
 
 export default function LoginRegisterSplit() {
-  const { login, register, loading, error, fieldErrors } = useAuth()
+  const router = useRouter()
+  const loginMutation = useLogin()
+  const registerMutation = useRegister()
+  const csrfMutation = useCsrf()
+
   const [isLogin, setIsLogin] = useState(true)
 
   const [email, setEmail] = useState('')
@@ -15,32 +20,71 @@ export default function LoginRegisterSplit() {
   const [lastName, setLastName] = useState('')
   const [username, setUsername] = useState('')
 
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string[] }>({})
+  
+  const loading = loginMutation.isPending || registerMutation.isPending || csrfMutation.isPending
+  const error = isLogin ? loginMutation.error?.response?.data?.message : registerMutation.error?.response?.data?.message
+  const fieldErrors = isLogin ? loginMutation.error?.response?.data?.errors : registerMutation.error?.response?.data?.errors
+
+  const clearForm = () => {
+    setEmail('')
+    setPassword('')
+    setPasswordConfirmation('')
+    setFirstName('')
+    setLastName('')
+    setUsername('')
+    setFormErrors({})
+    loginMutation.reset()
+    registerMutation.reset()
+  }
+
+  const handleModeSwitch = (newIsLogin: boolean) => {
+    clearForm()
+    setIsLogin(newIsLogin)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (isLogin) {
-      const res = await login(email, password)
-      if (res?.success) {
-        window.location.href = '/'
+    
+    setFormErrors({})
+    loginMutation.reset()
+    registerMutation.reset()
+    
+    try {
+      await csrfMutation.mutateAsync()
+      
+      if (isLogin) {
+        await loginMutation.mutateAsync({ email, password })
+        router.push('/')
+      } else {
+        await registerMutation.mutateAsync({ 
+          firstName: firstName, 
+          lastName: lastName, 
+          username, 
+          email, 
+          password, 
+          password_confirmation: passwordConfirmation 
+        })
+        router.push('/')
       }
-    } else {
-      const res = await register(firstName, lastName, username, email, password, passwordConfirmation)
-      if (res?.success) {
-        window.location.href = '/'
+    } catch (error: any) {
+      if (error?.response?.data?.errors) {
+        const errors = error.response.data.errors
+        setFormErrors(errors)
       }
     }
   }
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-100">
-      {/* Sol taraf */}
-      <div className="flex items-center justify-center p-12">
+      {/* Sol taraf  */}
+      <div className="flex items-center justify-center p-12">    
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-sm"
-        >
+        > 
           <AnimatePresence mode="wait">
             {isLogin ? (
               <motion.div
@@ -63,7 +107,7 @@ export default function LoginRegisterSplit() {
                     value={email} 
                     onChange={setEmail} 
                     type="email" 
-                    error={fieldErrors?.email?.[0]} 
+                    error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} 
                   />
                   <Input 
                     label="Şifre" 
@@ -71,14 +115,14 @@ export default function LoginRegisterSplit() {
                     value={password} 
                     onChange={setPassword} 
                     type="password" 
-                    error={fieldErrors?.password?.[0]} 
+                    error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} 
                   />
                   <div className="flex items-center justify-between">
                     <label className="flex items-center space-x-2 text-sm text-gray-600">
                       <input type="checkbox" className="rounded" />
                       <span>Beni hatırla</span>
                     </label>
-                    <a href="#" className="text-sm text-gray-500 hover:underline">Şifremi unuttum</a>
+                    <button className="text-sm text-gray-500 hover:underline">Şifremi unuttum</button>
                   </div>
                   <button
                     type="submit"
@@ -90,7 +134,7 @@ export default function LoginRegisterSplit() {
                 </form>
                 <p className="text-sm text-gray-500 mt-6 text-center">
                   Hesabın yok mu?{' '}
-                  <button onClick={() => setIsLogin(false)} className="text-black font-semibold hover:underline">
+                  <button onClick={() => handleModeSwitch(false)} className="text-black font-semibold hover:underline">
                     Kayıt Ol
                   </button>
                 </p>
@@ -105,12 +149,12 @@ export default function LoginRegisterSplit() {
               >
                 <h1 className="text-3xl font-bold mb-8">Kayıt Ol</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <Input label="Ad" value={firstName} onChange={setFirstName} error={fieldErrors?.first_name?.[0]} />
-                  <Input label="Soyad" value={lastName} onChange={setLastName} error={fieldErrors?.last_name?.[0]} />
-                  <Input label="Kullanıcı Adı" value={username} onChange={setUsername} error={fieldErrors?.username?.[0]} />
-                  <Input label="E-posta Adresi" value={email} onChange={setEmail} type="email" error={fieldErrors?.email?.[0]} />
-                  <Input label="Şifre" value={password} onChange={setPassword} type="password" error={fieldErrors?.password?.[0]} />
-                  <Input label="Şifre Tekrarı" value={passwordConfirmation} onChange={setPasswordConfirmation} type="password" error={fieldErrors?.password_confirmation?.[0]} />
+                  <Input label="Ad" value={firstName} onChange={setFirstName} error={formErrors?.first_name?.[0] || fieldErrors?.first_name?.[0]} />
+                  <Input label="Soyad" value={lastName} onChange={setLastName} error={formErrors?.last_name?.[0] || fieldErrors?.last_name?.[0]} />
+                  <Input label="Kullanıcı Adı" value={username} onChange={setUsername} error={formErrors?.username?.[0] || fieldErrors?.username?.[0]} />
+                  <Input label="E-posta Adresi" value={email} onChange={setEmail} type="email" error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} />
+                  <Input label="Şifre" value={password} onChange={setPassword} type="password" error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} />
+                  <Input label="Şifre Tekrarı" value={passwordConfirmation} onChange={setPasswordConfirmation} type="password" error={formErrors?.password_confirmation?.[0] || fieldErrors?.password_confirmation?.[0]} />
                   <button
                     type="submit"
                     disabled={loading}
@@ -121,7 +165,7 @@ export default function LoginRegisterSplit() {
                 </form>
                 <p className="text-sm text-gray-500 mt-6 text-center">
                   Zaten bir hesabın var mı?{' '}
-                  <button onClick={() => setIsLogin(true)} className="text-black font-semibold hover:underline">
+                  <button onClick={() => handleModeSwitch(true)} className="text-black font-semibold hover:underline">
                     Giriş Yap
                   </button>
                 </p>
@@ -131,7 +175,7 @@ export default function LoginRegisterSplit() {
         </motion.div>
       </div>
 
-      {/* Sağ taraf */}
+      {/* Sağ taraf  */}
       <div className="hidden md:flex items-center justify-center bg-gray-100">
         <motion.div
           initial={{ opacity: 0, x: 50 }}

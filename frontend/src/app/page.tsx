@@ -1,41 +1,19 @@
 'use client'
-import { useEffect, useState } from "react";
-import { authApi } from '@/lib/api/authApi'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useMe } from '@/hooks/useAuthQuery'
 
 export default function Home() {
-  const [username, setUsername] = useState('')
-  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+  const { data: user, isLoading, error } = useMe()
 
-  const handleLogout = () => {
-    authApi.logout()
-      .then((response) => {
-        console.log(response)
-        localStorage.removeItem('token')
-        window.location.href = '/login'
-      })
-      .catch((error) => {
-        console.error('Çıkış yapılamadı', error)
-      })
-  }
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      (authApi.me() as Promise<any>)
-        .then((response) => {
-          setUsername(response.data.data.username)
-        })
-        .catch((error) => {
-          console.error('Kullanıcı bilgileri alınamadı', error)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    } else {
-      setLoading(false)
-    }
-  }, []);
+    setMounted(true)
+  }, [])
 
-  if (loading) {
+
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Yükleniyor...</p>
@@ -45,10 +23,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
-      <h2 className="text-2xl font-bold">Hoş Geldiniz, {username}</h2>
-      <div className="mt-4">
-        <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">Çıkış Yap</button>
-      </div>
+      <h2 className="text-2xl font-bold">Hoş Geldiniz, {user?.username}</h2>
     </div>
     
   );
