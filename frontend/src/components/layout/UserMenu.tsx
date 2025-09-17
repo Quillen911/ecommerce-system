@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLogout } from '@/hooks/useAuthQuery'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -10,6 +10,16 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
   const logoutMutation = useLogout()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div>Loading...</div>
+  }
+  
   const handleLogout = async () => {
       await logoutMutation.mutate()
       router.push('/login')
@@ -45,14 +55,8 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
             <p className="text-sm font-medium text-gray-900">{user.username}</p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
-          <Link href="/profile" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+          <Link href="/account/profile" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
             Hesabım
-          </Link>
-          <Link href="/addresses" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            Adreslerim
-          </Link>
-          <Link href="/orders" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            Siparişlerim
           </Link>
           <button
             onClick={handleLogout}

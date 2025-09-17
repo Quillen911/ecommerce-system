@@ -1,5 +1,13 @@
 import axios from 'axios'
-import { AddressDestroyResponse, AddressIndexResponse, AddressShowResponse, AddressStoreRequest, AddressStoreResponse, AddressUpdateRequest, AddressUpdateResponse } from '@/types/userAddress'
+import { AddressDestroyResponse, 
+    AddressIndexResponse, 
+    AddressShowResponse, 
+    AddressStoreRequest, 
+    AddressStoreResponse, 
+    AddressUpdateRequest, 
+    AddressUpdateResponse 
+} from '@/types/userAddress'
+
 const api = axios.create({
     baseURL: 'http://localhost:8000/api',
     headers: {
@@ -7,6 +15,19 @@ const api = axios.create({
         'Accept': 'application/json',
     },
     withCredentials: true,
+})
+
+api.interceptors.request.use((config) => {
+    if(typeof window !== 'undefined') {
+        const token = localStorage.getItem('token')
+        if(token) {
+            config.headers = {
+                ...config.headers,
+                Authorization: `Bearer ${token}`,
+            } as any
+        }
+    }
+    return config
 })
 
 export const addressApi = {

@@ -1,0 +1,105 @@
+'use client'
+import Link from "next/link"
+import { usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
+
+export default function AccountLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const menuItems = [
+    { href: '/account/profile', label: 'Profilim' },
+    { href: '/account/addresses', label: 'Adreslerim' },
+    { href: '/account/orders', label: 'Siparişlerim' }
+  ]
+
+  const isActive = (href: string) => pathname === href
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sol Sidebar */}
+      <motion.div 
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        style={{ width: '280px' }}
+        className="bg-white border-r border-gray-200 shadow-sm relative"
+      >
+        <div className="p-6">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-8"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Hesabım</h2>
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: 48 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="h-1 bg-black rounded-full"
+            ></motion.div>
+          </motion.div>
+          
+          <nav className="space-y-1 relative">
+            {menuItems.map((item, index) => (
+              <motion.div
+                key={item.href}
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ 
+                  duration: 0.4, 
+                  delay: 0.3 + index * 0.1,
+                  ease: "easeOut" 
+                }}
+              >
+                <Link 
+                  href={item.href}
+                  className={`
+                    relative flex items-center py-3 px-4 rounded-lg transition-all duration-200 group
+                    ${isActive(item.href) 
+                      ? 'text-black bg-gray-100 font-bold text-lg'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-black hover:scale-105'
+                    }
+                  `}
+                >
+                  <motion.span 
+                    className={`w-2 h-2 rounded-full mr-3 transition-colors duration-200 ${
+                      isActive(item.href) ? 'bg-black' : 'bg-gray-400 group-hover:bg-black'
+                    }`}
+                    whileHover={{ scale: 1.2 }}
+                  ></motion.span>
+                  {item.label}
+                  
+                  {/* Active Slide Indicator */}
+                  {isActive(item.href) && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="absolute left-0 top-0 bottom-0 w-6 bg-black"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              </motion.div>
+            ))}
+          </nav>
+        </div>
+      </motion.div>
+      
+      {/* Sağ İçerik */}
+      <motion.div 
+        key={pathname}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="flex-1 p-8"
+      >
+        <div className="max-w-4xl">
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
