@@ -123,7 +123,7 @@ export default function AddressForm({
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                     className={`${inputStyles} ${errors.title ? 'border-red-500' : ''}`}
-                    required
+                    
                 />
                 <ErrorMessage field="title" />
             </motion.div>
@@ -143,7 +143,7 @@ export default function AddressForm({
                         value={formData.first_name}
                         onChange={(e) => setFormData({...formData, first_name: e.target.value})}
                         className={`${inputStyles} ${errors.first_name ? 'border-red-500' : ''}`}
-                        required
+                        
                     />
                     <ErrorMessage field="first_name" />
                 </div>
@@ -155,7 +155,7 @@ export default function AddressForm({
                         value={formData.last_name}
                         onChange={(e) => setFormData({...formData, last_name: e.target.value})}
                         className={`${inputStyles} ${errors.last_name ? 'border-red-500' : ''}`}
-                        required
+                        
                     />
                     <ErrorMessage field="last_name" />
                 </div>
@@ -174,7 +174,7 @@ export default function AddressForm({
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     className={`${inputStyles} ${errors.phone ? 'border-red-500' : ''}`}
-                    required
+                    
                 />
                 <ErrorMessage field="phone" />
             </motion.div>
@@ -194,7 +194,7 @@ export default function AddressForm({
                         onChange={(e) => setFormData({...formData, address_line_1: e.target.value})}
                         className={`${textareaStyles} ${errors.address_line_1 ? 'border-red-500' : ''}`}
                         rows={3}
-                        required
+                        
                     />
                     <ErrorMessage field="address_line_1" />
                 </div>
@@ -226,7 +226,7 @@ export default function AddressForm({
                         value={formData.district}
                         onChange={(e) => setFormData({...formData, district: e.target.value})}
                         className={`${inputStyles} ${errors.district ? 'border-red-500' : ''}`}
-                        required
+                        
                     />
                     <ErrorMessage field="district" />
                 </div>
@@ -238,7 +238,7 @@ export default function AddressForm({
                         value={formData.city}
                         onChange={(e) => setFormData({...formData, city: e.target.value})}
                         className={`${inputStyles} ${errors.city ? 'border-red-500' : ''}`}
-                        required
+                        
                     />
                     <ErrorMessage field="city" />
                 </div>
@@ -259,7 +259,7 @@ export default function AddressForm({
                         value={formData.country}
                         onChange={(e) => setFormData({...formData, country: e.target.value})}
                         className={`${inputStyles} ${errors.country ? 'border-red-500' : ''}`}
-                        required
+                        
                     />
                     <ErrorMessage field="country" />
                 </div>

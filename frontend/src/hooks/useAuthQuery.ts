@@ -28,10 +28,13 @@ export const useLogin = () => {
       return response.data
     },
     onSuccess: (data: any) => {
-
       localStorage.setItem('token', data.data.token)
-
+      document.cookie = `token=${data.data.token}; path=/; max-age=86400`
       queryClient.setQueryData(authKeys.me(), data.data.user)
+
+      queryClient.removeQueries({ queryKey: ['addresses'] })
+      queryClient.removeQueries({ queryKey: ['orders'] })
+      queryClient.removeQueries({ queryKey: ['profile'] })
     },
     onError: (error: any) => {
       // Error handling otomatik
@@ -48,9 +51,8 @@ export const useRegister = () => {
       return response.data
     },
     onSuccess: (data: any) => {
-      
       localStorage.setItem('token', data.data.token)
-
+      document.cookie = `token=${data.data.token}; path=/; max-age=86400`
       queryClient.setQueryData(authKeys.me(), data.data.user)
     },
     onError: (error: any) => {
@@ -68,15 +70,16 @@ export const useLogout = () => {
       return response.data
     },
     onSuccess: () => {
-
       localStorage.removeItem('token')
-
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       queryClient.removeQueries({ queryKey: authKeys.all })
+      queryClient.removeQueries()
     },
     onError: (error: any) => {
-      // Hata olsa bile local state'i temizle
       localStorage.removeItem('token')
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       queryClient.removeQueries({ queryKey: authKeys.all })
+      queryClient.removeQueries()
     }
   })
 }

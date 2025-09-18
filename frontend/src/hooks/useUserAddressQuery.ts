@@ -4,21 +4,22 @@ import { AddressStoreRequest, AddressUpdateRequest } from '@/types/userAddress'
 
 export const addressKeys = {
     all: ['addresses'] as const,
-    index: () => [...addressKeys.all, 'index'] as const,
-    detail: (id: number) => [...addressKeys.all, 'detail', id] as const,
+    index: (userId?: number) => [...addressKeys.all, 'index', userId] as const,
+    detail: (id: number, userId?: number) => [...addressKeys.all, 'detail', id, userId] as const,
 }
 
-export const useUserAddressIndex = () => {
+export const useUserAddressIndex = (userId?: number) => {
     return useQuery({
-        queryKey:addressKeys.index(),
+        queryKey: addressKeys.index(userId),
         queryFn: async () => {
             const response = await addressApi.index()
             return response.data.data
-        }
+        },
+        enabled: !!userId,
     })
 }
 
-export const useUserAddressStore = () => {
+export const useUserAddressStore = (userId?: number) => {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -27,7 +28,7 @@ export const useUserAddressStore = () => {
             return response.data.data
         },
         onSuccess: (data: any) => {
-            queryClient.invalidateQueries({ queryKey: addressKeys.index() })
+            queryClient.invalidateQueries({ queryKey: addressKeys.index(userId) })
         },
         onError: (error: any) => {
             // Error handling otomatik
@@ -35,18 +36,18 @@ export const useUserAddressStore = () => {
     })
 }
 
-export const useUserAddressShow = (id: number) => {
+export const useUserAddressShow = (id: number, userId?: number) => {
     return useQuery({
-        queryKey: addressKeys.detail(id),
+        queryKey: addressKeys.detail(id, userId),
         queryFn: async () => {
             const response = await addressApi.show(id)
             return response.data.data
         },
-        enabled: !!id
+        enabled: !!id && !!userId
     })
 }
 
-export const useUserAddressUpdate = () => {
+export const useUserAddressUpdate = (userId?: number) => {
     const queryClient = useQueryClient()
     
     return useMutation({
@@ -55,8 +56,8 @@ export const useUserAddressUpdate = () => {
             return response.data.data
         },
         onSuccess: (_, { id }) => {
-            queryClient.invalidateQueries({ queryKey: addressKeys.detail(id) })
-            queryClient.invalidateQueries({ queryKey: addressKeys.index() })
+            queryClient.invalidateQueries({ queryKey: addressKeys.detail(id, userId) })
+            queryClient.invalidateQueries({ queryKey: addressKeys.index(userId) })
         },
         onError: (error: any) => {
             // Error handling
@@ -64,7 +65,7 @@ export const useUserAddressUpdate = () => {
     })
 }
 
-export const useUserAddressDestroy = () => {
+export const useUserAddressDestroy = (userId?: number) => {
     const queryClient = useQueryClient()
     
     return useMutation({
@@ -73,7 +74,7 @@ export const useUserAddressDestroy = () => {
             return response.data
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: addressKeys.index() })
+            queryClient.invalidateQueries({ queryKey: addressKeys.index(userId) })
         },
         onError: (error: any) => {
             // Error handling otomatik

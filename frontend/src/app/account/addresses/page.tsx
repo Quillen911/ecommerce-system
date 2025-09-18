@@ -2,13 +2,15 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useUserAddressDestroy, useUserAddressIndex, useUserAddressUpdate, useUserAddressStore } from '@/hooks/useUserAddressQuery'
-import { AddressFormModal } from '@/components/forms'
+import { useMe } from '@/hooks/useAuthQuery'
+import AddressForm from '@/components/forms/AddressForm'
 
 export default function AddressesPage() {
-    const { data: addresses, isLoading, error } = useUserAddressIndex()
-    const destroyAddressMutation = useUserAddressDestroy()
-    const updateAddressMutation = useUserAddressUpdate()
-    const storeAddressMutation = useUserAddressStore()
+    const { data: me } = useMe()
+    const { data: addresses, isLoading, error } = useUserAddressIndex(me?.id)
+    const destroyAddressMutation = useUserAddressDestroy(me?.id)
+    const updateAddressMutation = useUserAddressUpdate(me?.id)
+    const storeAddressMutation = useUserAddressStore(me?.id)
 
     const [editingAddress, setEditingAddress] = useState<any>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -92,7 +94,7 @@ export default function AddressesPage() {
             <button className="bg-black text-white px-6 py-3 font-medium hover:bg-gray-800 transition-colors duration-200 rounded-2xl" onClick={() => setIsAddModalOpen(true)}>
                 Adres Ekle
             </button>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-10">
                 {addresses.map((address, index) => (
                     <motion.div
                         key={address.id}
@@ -164,24 +166,36 @@ export default function AddressesPage() {
                     </motion.div>
                 ))}
             </div>
+
+            {/* Inline Form  */}
+            {(isAddModalOpen || isModalOpen) && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-8 max-w-2xl mx-auto"
+                >
+                    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                        <div className="mb-6">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                                {isModalOpen ? 'Adres Düzenle' : 'Yeni Adres Ekle'}
+                            </h2>
+                            <div className="w-16 h-1 bg-black rounded-full"></div>
+                        </div>
+                        <AddressForm
+                            initialData={editingAddress}
+                            onSubmit={isModalOpen ? handleUpdate : handleStore}
+                            onCancel={() => {
+                                setIsModalOpen(false)
+                                setIsAddModalOpen(false)
+                                setEditingAddress(null)
+                            }}
+                            isLoading={isModalOpen ? updateAddressMutation.isPending : storeAddressMutation.isPending}
+                            submitText={isModalOpen ? 'Güncelle' : 'Kaydet'}
+                        />
+                    </div>
+                </motion.div>
+            )}
                     
-            <AddressFormModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleUpdate}
-                initialData={editingAddress}
-                isLoading={updateAddressMutation.isPending}
-                title="Adres Düzenle"
-                submitText="Güncelle"
-            />
-            <AddressFormModal
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-                onSubmit={handleStore}
-                isLoading={storeAddressMutation.isPending}
-                title="Adres Ekle"
-                submitText="Kaydet"
-            />
         </motion.div>
     )
 }

@@ -73,14 +73,6 @@ export default function AccountLayout({
                   ></motion.span>
                   {item.label}
                   
-                  {/* Active Slide Indicator */}
-                  {isActive(item.href) && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="absolute left-0 top-0 bottom-0 w-6 bg-black"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
-                  )}
                 </Link>
               </motion.div>
             ))}

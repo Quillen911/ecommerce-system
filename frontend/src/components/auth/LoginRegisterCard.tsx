@@ -107,6 +107,7 @@ export default function LoginRegisterSplit() {
                     value={email} 
                     onChange={setEmail} 
                     type="email" 
+                    autoComplete="email"
                     error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} 
                   />
                   <Input 
@@ -115,6 +116,7 @@ export default function LoginRegisterSplit() {
                     value={password} 
                     onChange={setPassword} 
                     type="password" 
+                    autoComplete="password"
                     error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} 
                   />
                   <div className="flex items-center justify-between">
@@ -149,12 +151,12 @@ export default function LoginRegisterSplit() {
               >
                 <h1 className="text-3xl font-bold mb-8">Kayıt Ol</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <Input label="Ad" value={firstName} onChange={setFirstName} error={formErrors?.first_name?.[0] || fieldErrors?.first_name?.[0]} />
-                  <Input label="Soyad" value={lastName} onChange={setLastName} error={formErrors?.last_name?.[0] || fieldErrors?.last_name?.[0]} />
-                  <Input label="Kullanıcı Adı" value={username} onChange={setUsername} error={formErrors?.username?.[0] || fieldErrors?.username?.[0]} />
-                  <Input label="E-posta Adresi" value={email} onChange={setEmail} type="email" error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} />
-                  <Input label="Şifre" value={password} onChange={setPassword} type="password" error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} />
-                  <Input label="Şifre Tekrarı" value={passwordConfirmation} onChange={setPasswordConfirmation} type="password" error={formErrors?.password_confirmation?.[0] || fieldErrors?.password_confirmation?.[0]} />
+                  <Input label="Ad" value={firstName} onChange={setFirstName} autoComplete="given-name" error={formErrors?.first_name?.[0] || fieldErrors?.first_name?.[0]} />
+                  <Input label="Soyad" value={lastName} onChange={setLastName} autoComplete="family-name" error={formErrors?.last_name?.[0] || fieldErrors?.last_name?.[0]} />
+                  <Input label="Kullanıcı Adı" value={username} onChange={setUsername} autoComplete="username" error={formErrors?.username?.[0] || fieldErrors?.username?.[0]} />
+                  <Input label="E-posta Adresi" value={email} onChange={setEmail} type="email" autoComplete="email" error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} />
+                  <Input label="Şifre" value={password} onChange={setPassword} type="password"  autoComplete="new-password" error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} />
+                  <Input label="Şifre Tekrarı" value={passwordConfirmation} onChange={setPasswordConfirmation} type="password" autoComplete="new-password" error={formErrors?.password_confirmation?.[0] || fieldErrors?.password_confirmation?.[0]} />
                   <button
                     type="submit"
                     disabled={loading}
