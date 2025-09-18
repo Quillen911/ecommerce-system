@@ -43,6 +43,9 @@ RUN chmod -R 775 /var/www/bootstrap/cache
 # Install dependencies (including dev packages for development)
 RUN composer install --optimize-autoloader
 
+# Create storage link
+RUN php artisan storage:link
+
 # Final permission fix
 RUN chown -R www-data:www-data /var/www/storage
 RUN chown -R www-data:www-data /var/www/bootstrap/cache

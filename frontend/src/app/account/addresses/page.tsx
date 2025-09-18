@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useUserAddressDestroy, useUserAddressIndex, useUserAddressUpdate, useUserAddressStore } from '@/hooks/useUserAddressQuery'
 import { useMe } from '@/hooks/useAuthQuery'
@@ -65,19 +65,50 @@ export default function AddressesPage() {
 
     if (!addresses || addresses.length === 0) {
         return (
-            <div className="text-center py-16">
-                <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+            <>
+                <div className="text-center py-16">
+                    <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz adres eklememişsiniz</h3>
+                    <p className="text-gray-600 mb-6">İlk adresinizi ekleyerek başlayın</p>
+                    <button className="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors duration-200 rounded-md" onClick={() => setIsAddModalOpen(true)}>
+                        Adres Ekle
+                    </button>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz adres eklememişsiniz</h3>
-                <p className="text-gray-600 mb-6">İlk adresinizi ekleyerek başlayın</p>
-                <button className="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors duration-200 rounded-md" onClick={() => setIsAddModalOpen(true)}>
-                    Adres Ekle
-                </button>
-            </div>
+                
+                {/* Modal - Adres yokken */}
+                {(isAddModalOpen || isModalOpen) && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-8 max-w-2xl mx-auto"
+                    >
+                        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                                    {isModalOpen ? 'Adres Düzenle' : 'Yeni Adres Ekle'}
+                                </h2>
+                                <div className="w-16 h-1 bg-black rounded-full"></div>
+                            </div>
+                            <AddressForm
+                                initialData={editingAddress}
+                                onSubmit={isModalOpen ? handleUpdate : handleStore}
+                                onCancel={() => {
+                                    setIsModalOpen(false)
+                                    setIsAddModalOpen(false)
+                                    setEditingAddress(null)
+                                }}
+                                isLoading={isModalOpen ? updateAddressMutation.isPending : storeAddressMutation.isPending}
+                                submitText={isModalOpen ? 'Güncelle' : 'Kaydet'}
+                            />
+                        </div>
+                    </motion.div>
+                )}
+            </>
         )
     }
         
@@ -95,7 +126,7 @@ export default function AddressesPage() {
                 Adres Ekle
             </button>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-10">
-                {addresses.map((address, index) => (
+                {addresses?.map((address, index) => (
                     <motion.div
                         key={address.id}
                         initial={{ opacity: 0, y: 30 }}
@@ -168,7 +199,7 @@ export default function AddressesPage() {
             </div>
 
             {/* Inline Form  */}
-            {(isAddModalOpen || isModalOpen) && (
+            {(isAddModalOpen || isModalOpen ) && (
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}

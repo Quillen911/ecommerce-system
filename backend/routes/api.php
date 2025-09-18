@@ -16,12 +16,16 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/seller/login', [AuthController::class, 'sellerLogin']);
 
+Route::prefix('main')->group(function(){
+    Route::get('/', [MainController::class, 'main']);
+    Route::get('/{category_slug}', [MainController::class, 'categoryFilter']);
+    Route::get('/product/{product:slug}', [MainController::class, 'productDetail']);
+});
 
 Route::middleware('auth:user')->group(function(){
 
     Route::apiResource('bags', BagController::class)->only(['index','store','show','destroy']);
     Route::apiResource('orders', OrderController::class)->only(['index','store','show']);
-    Route::apiResource('main', MainController::class)->only(['index','show']);
     Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
    
     Route::apiResource('creditcard', CreditCardController::class);

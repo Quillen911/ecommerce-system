@@ -7,6 +7,7 @@ use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Traits\GetUser;
+use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
 
 class MainService
 {
@@ -15,18 +16,20 @@ class MainService
     protected $productRepository;
     protected $categoryRepository;
     protected $authenticationRepository;
-    
+    protected $campaignRepository;
     public function __construct(
         ElasticsearchService $elasticSearch, 
         ProductRepositoryInterface $productRepository, 
         CategoryRepositoryInterface $categoryRepository,
-        AuthenticationRepositoryInterface $authenticationRepository
+        AuthenticationRepositoryInterface $authenticationRepository,
+        CampaignRepositoryInterface $campaignRepository
     )
     {
         $this->elasticSearch = $elasticSearch;
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
         $this->authenticationRepository = $authenticationRepository;
+        $this->campaignRepository = $campaignRepository;
     }
 
     public function getProducts()
@@ -49,6 +52,13 @@ class MainService
     {
 
         return $this->productRepository->getProductWithCategory($id);
+    }
+
+    public function getCampaigns()
+    {
+
+        $campaigns = $this->campaignRepository->getActiveCampaigns();
+        return $campaigns;
     }
 
 }

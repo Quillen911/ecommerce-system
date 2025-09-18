@@ -32,13 +32,15 @@ class MainController extends Controller
         $this->mainService = $mainService;
     }
 
-    public function index(Request $request)
+    public function main(Request $request)
     {
         $products = $this->mainService->getProducts();
         $categories = $this->mainService->getCategories();
+        $campaigns = $this->mainService->getCampaigns();
         return ResponseHelper::success('Ürünler', [
             'products' => $products,
-            'categories' => $categories
+            'categories' => $categories,
+            'campaigns' => $campaigns
         ]);
     }
 
@@ -108,6 +110,29 @@ class MainController extends Controller
             'size' => $request->input('size', 12),
             'query' => $query ? $query : "null",
             'products' => []
+        ]);
+    }
+    public function categoryFilter(Request $request, $category_slug)
+    {
+        $category = $this->mainService->getCategory($category_slug);
+
+        if(!$category){
+            return ResponseHelper::notFound('Kategori bulunamadı.');
+        }
+        
+        $request->merge(['category_title' => $category->category_title]);
+        $filters = $this->elasticSearchTypeService->filterType($request);
+        $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('page', 1), $request->input('size', 12));
+        
+        return ResponseHelper::success('Ürünler Bulundu', [
+            'products' => $data,
+            'filters' => $filters,
+            'categories' => $this->mainService->getCategories(),
+            'category' => $category,
+            'pagination' => [
+                'page' => $request->input('page', 1),
+                'size' => $request->input('size', 12)
+            ]
         ]);
     }
 

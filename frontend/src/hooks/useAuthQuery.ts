@@ -19,6 +19,19 @@ export const useMe = () => {
   })
 }
 
+export const useProfile = () => {
+  return useQuery({
+    queryKey: [...authKeys.all, 'profile'],
+    queryFn: async () => {
+      const response = await authApi.profile()
+      return response.data.data
+    },
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('token'),
+    staleTime: 5 * 60 * 1000, 
+    retry: 1,
+  })
+}
+
 export const useLogin = () => {
   const queryClient = useQueryClient()
   
@@ -80,6 +93,24 @@ export const useLogout = () => {
       document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       queryClient.removeQueries({ queryKey: authKeys.all })
       queryClient.removeQueries()
+    }
+  })
+}
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await authApi.updateProfile(data)
+      return response.data
+    },
+    onSuccess: (data: any) => {
+      queryClient.setQueryData([...authKeys.all, 'profile'], data.data)
+      queryClient.setQueryData(authKeys.me(), data.data.user)
+    },
+    onError: (error: any) => {
+      // Error handling otomatik
     }
   })
 }

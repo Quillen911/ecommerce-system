@@ -2,7 +2,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMe } from '@/hooks/useAuthQuery'
-
+import CampaignBanner from '@/components/home/CampaignBanner'
+import HeroSection from '@/components/home/HeroSection'
+import CategorySection from '@/components/home/CategorySection'
+import ProductSection from '@/components/home/ProductSection'
 export default function Home() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -22,8 +25,11 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <h2 className="text-2xl font-bold">Hoş Geldiniz, {user?.username}</h2>
+    <div>
+      <CampaignBanner />
+      <HeroSection />
+      <CategorySection />
+      <ProductSection />
     </div>
     
   );
