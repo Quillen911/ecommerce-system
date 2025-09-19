@@ -84,7 +84,7 @@ export default function ProductImage({
                 alt={imageAlt}
                 width={dimensions.width}
                 height={dimensions.height}
-                className={`object-contain transition-all duration-300 ${
+                className={`object-contain transition-all duration-300${
                     isLoading ? 'opacity-0' : 'opacity-100'
                 } ${onClick ? 'cursor-pointer hover:scale-105' : ''}`}
                 style={{ 

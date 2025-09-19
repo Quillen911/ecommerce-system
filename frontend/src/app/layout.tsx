@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { CategoryProvider } from "@/contexts/CategoryContext";
 import ConditionalHeader from "@/components/layout/ConditionalHeader";
 
 export const metadata: Metadata = {
@@ -17,8 +18,10 @@ export default function RootLayout({
     <html lang="tr">
       <body className="antialiased">
         <QueryProvider>
-          <ConditionalHeader />
-          {children}
+          <CategoryProvider>
+            <ConditionalHeader />
+            {children}
+          </CategoryProvider>
         </QueryProvider>
       </body>
     </html>

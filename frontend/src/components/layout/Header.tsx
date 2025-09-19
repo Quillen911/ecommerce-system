@@ -3,6 +3,7 @@ import { useMe } from '@/hooks/useAuthQuery'
 import Logo from './HeaderLogo'
 import UserMenu from './UserMenu'
 import CartButton from './CartButton'
+import SearchBar from './SearchBar'
 
 export default function Header() {
   const { data: user, isLoading } = useMe()
@@ -19,7 +20,8 @@ export default function Header() {
             <Logo />
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 ">
+            <SearchBar />
             <CartButton onClick={handleCartClick} />
             <UserMenu user={user} isLoading={isLoading}/>
           </div>

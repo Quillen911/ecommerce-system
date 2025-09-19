@@ -21,6 +21,10 @@ Route::prefix('main')->group(function(){
     Route::get('/{category_slug}', [MainController::class, 'categoryFilter']);
     Route::get('/product/{product:slug}', [MainController::class, 'productDetail']);
 });
+Route::get('/search', [MainController::class, 'search']);
+Route::get('/filter', [MainController::class, 'filter']);
+Route::get('/sorting', [MainController::class, 'sorting']);
+Route::get('/autocomplete', [MainController::class, 'autocomplete']);
 
 Route::middleware('auth:user')->group(function(){
 
@@ -32,10 +36,6 @@ Route::middleware('auth:user')->group(function(){
     
     Route::post('/myorders/{id}/refund', [MyOrdersController::class, 'refundItems']);
 
-    Route::get('/search', [MainController::class, 'search']);
-    Route::get('/filter', [MainController::class, 'filter']);
-    Route::get('/sorting', [MainController::class, 'sorting']);
-    Route::get('/autocomplete', [MainController::class, 'autocomplete']);
 
     Route::get('/me', [AuthController::class, 'me']);
 

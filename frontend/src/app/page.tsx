@@ -1,20 +1,25 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useMe } from '@/hooks/useAuthQuery'
 import CampaignBanner from '@/components/home/CampaignBanner'
 import HeroSection from '@/components/home/HeroSection'
 import CategorySection from '@/components/home/CategorySection'
 import ProductSection from '@/components/home/ProductSection'
+import { useQueryClient } from '@tanstack/react-query'
+import { useCategory } from '@/contexts/CategoryContext'
+
 export default function Home() {
-  const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const { data: user, isLoading, error } = useMe()
+  const { isLoading } = useMe()
+  const { selectedCategory, resetCategory } = useCategory()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
+    queryClient.removeQueries({ queryKey: ['category-products'], exact: false })
+    queryClient.invalidateQueries({ queryKey: ['main-data'] })
+    resetCategory()
     setMounted(true)
-  }, [])
-
+  }, [queryClient, resetCategory])
 
   if (!mounted || isLoading) {
     return (
@@ -29,8 +34,7 @@ export default function Home() {
       <CampaignBanner />
       <HeroSection />
       <CategorySection />
-      <ProductSection />
+      <ProductSection selectedCategory={selectedCategory} />
     </div>
-    
-  );
+  )
 }

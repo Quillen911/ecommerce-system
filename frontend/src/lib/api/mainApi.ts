@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Category, MainData } from '@/types/main'
+import { Category, CategoryResponse, MainData } from '@/types/main'
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
@@ -12,4 +12,5 @@ const api = axios.create({
 export const mainApi = {
     getMainData: () => api.get<{message: string, data: MainData}>('/main'),
     getCategoryData: (category_slug: string) => api.get<{message: string, data: Category}>(`/main/${category_slug}`),
+    getCategoryProducts: (category_slug: string) => api.get<{message: string, data: CategoryResponse}>(`/main/${category_slug}`),
 }

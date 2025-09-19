@@ -23,6 +23,25 @@ export interface MainData {
     campaigns: Campaign[]
 }
 
+export interface CategoryResponse {
+    products: {
+      products: Product[]
+      results: any
+      total: number
+      page: number
+      size: number
+    }
+    filters: {
+      category_title: string
+    }
+    categories: Category[]
+    category: Category
+    pagination: {
+      page: number
+      size: number
+    }
+  }
+
 export interface Product {
     id: number
     store_id: number
