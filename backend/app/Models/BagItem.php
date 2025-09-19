@@ -9,7 +9,6 @@ class BagItem extends Model
         'bag_id', 
         'product_id', 
         'product_title',
-        'author',
         'quantity',
         'store_id',
         'store_name'
@@ -26,13 +25,5 @@ class BagItem extends Model
     
     public function product() {
         return $this->belongsTo(Product::class ,'product_id');
-    }
-    public function productTitle()
-    {
-        return $this->product ? $this->product->title : null;
-    }
-    public function productAuthor()
-    {
-        return $this->product ? $this->product->author : null;
     }
 }

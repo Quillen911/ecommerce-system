@@ -56,7 +56,6 @@ export interface Product {
     title: string
     slug: string
     category_id: number
-    author: string
     description: string
     meta_title: string
     meta_description: string

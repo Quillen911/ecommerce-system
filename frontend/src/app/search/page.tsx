@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useSearchQuery } from "@/hooks/useSearchQuery"
+import { ProductCardImage } from '@/components/ui/ProductImage'
 
 export default function SearchPage() {
   const searchParams = useSearchParams()
@@ -99,11 +100,10 @@ export default function SearchPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-15 items-center px-10">
             {products.map((p: any) => (
-              <div key={p.id} className="border rounded p-3 shadow hover:shadow-lg transition">
-                <img
-                  src={p.images[0]}
-                  alt={p.title}
-                  className="w-full h-40 object-cover mb-2 rounded"
+              <div key={p.id} className="border rounded p-3 shadow hover:shadow-lg transition justify-center items-center p-7">
+                <ProductCardImage
+                  product={p}
+                  className="mb-4"
                 />
                 <h3 className="font-semibold">{p.title}</h3>
                 <p className="text-green-600 font-bold">{p.list_price} ₺</p>

@@ -49,7 +49,6 @@ class StockService implements StockInterface
          return $bag->bagItems()->create([
             'product_id' => $productId,
             'product_title' => $product->title,
-            'author' => $product->author,
             'quantity' => $quantity,
             'store_id' => $product->store_id
          ]);

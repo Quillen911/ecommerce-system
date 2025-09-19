@@ -16,6 +16,11 @@ export default function SearchBox() {
         setIsOpen(false)
       }
     }
+    const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        handleSearch()
+      }
+    }
 
   return (
     <div className="flex items-center p-2 w-full">
@@ -29,6 +34,7 @@ export default function SearchBox() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
+              onKeyDown={handleEnter}
             />
             <button
               onClick={handleSearch}

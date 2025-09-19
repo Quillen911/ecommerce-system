@@ -28,7 +28,7 @@ Route::get('/autocomplete', [MainController::class, 'autocomplete']);
 
 Route::middleware('auth:user')->group(function(){
 
-    Route::apiResource('bags', BagController::class)->only(['index','store','show','destroy']);
+    Route::apiResource('bags', BagController::class)->only(['index','store','show', 'update', 'destroy']);
     Route::apiResource('orders', OrderController::class)->only(['index','store','show']);
     Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
    

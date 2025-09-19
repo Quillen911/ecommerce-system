@@ -4,12 +4,13 @@ import Logo from './HeaderLogo'
 import UserMenu from './UserMenu'
 import CartButton from './CartButton'
 import SearchBar from './SearchBar'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const { data: user, isLoading } = useMe()
-
+  const router = useRouter()
   const handleCartClick = () => {
-    // TODO: Cart functionality
+    router.push('/bag')
   }
 
   return (

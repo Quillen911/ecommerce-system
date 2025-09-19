@@ -3,7 +3,7 @@ import "../styles/globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { CategoryProvider } from "@/contexts/CategoryContext";
 import ConditionalHeader from "@/components/layout/ConditionalHeader";
-import CampaignBanner from "@/components/home/CampaignBanner";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Omnia",
@@ -18,6 +18,11 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className="antialiased">
+        <Toaster 
+          position="top-right"
+          richColors
+          closeButton
+        />
         <QueryProvider>
           <CategoryProvider>
             <ConditionalHeader />
