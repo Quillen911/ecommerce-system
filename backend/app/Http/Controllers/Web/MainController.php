@@ -42,7 +42,12 @@ class MainController extends Controller
         abort_unless($product->is_published, 404);
         $product = Cache::remember("product:{$product->id}:detail",
         now()->addMinutes(15),
-        fn() => $product->load('category', 'store'));
+        fn() => $product->load(
+            'category:id,category_title,category_slug',
+            'store:id,name',
+            'productAttributes.attribute:id,name,code,input_type',
+            'productAttributes.option:id,attribute_id,value,slug'
+        ));
 
         $similar = Product::published()
             ->where('category_id', $product->category_id)

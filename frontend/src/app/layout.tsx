@@ -3,6 +3,7 @@ import "../styles/globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { CategoryProvider } from "@/contexts/CategoryContext";
 import ConditionalHeader from "@/components/layout/ConditionalHeader";
+import CampaignBanner from "@/components/home/CampaignBanner";
 
 export const metadata: Metadata = {
   title: "Omnia",

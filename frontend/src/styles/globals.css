@@ -1,16 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background-light: #f9fafb; 
-  --background-dark: #0f0f0f;    
-  --foreground: #171717;         
-  --foreground-light: #ffffff;   
-
-  --primary: #111111;            
-  --primary-hover: #272727;
-
-  --secondary: #1f2937;          
-  --secondary-light: #374151;
+  --bg: #F5F6F7;
+  --surface: #FFFFFF;
+  --sand: #E8E1D6;
+  --stone: #D9D2C6;
+  --text: #111827;
+  --muted: #6B7280;
+  --accent: #4C8ED9;
+  --accent-dark: #0F172A;
+  --border: #E5E7EB;
 }
 @keyframes marquee {
   0% {
@@ -74,10 +73,19 @@
 
 
 body {
-  background: var(--background-light);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Theming helpers */
+.surface { background-color: var(--surface); }
+.sand { background-color: var(--sand); }
+.stone { background-color: var(--stone); }
+.accent { color: var(--accent); }
+.accent-dark { color: var(--accent-dark); }
+.muted { color: var(--muted); }
+.border-color { border-color: var(--border); }
 
 /* Image utilities */
 .line-clamp-2 {

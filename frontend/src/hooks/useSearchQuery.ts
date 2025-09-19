@@ -1,13 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
 import { searchApi } from '@/lib/api/searchApi'
-import { SearchResponse } from '@/types/search'
+import { SearchResponse, FilterResponse } from '@/types/search'
 
 export const useSearchQuery = (query: string, filters?: any, sorting?: string, page?: number, size?: number) => {
-    return useQuery<SearchResponse>({
-        queryKey: ['search', query, filters, sorting, page, size],
-        queryFn: async () => {
-            const response = await searchApi.search(query, filters, sorting, page, size)
-            return response.data
-        },
-    })
+  return useQuery<SearchResponse>({
+    queryKey: ['search', query, filters, sorting, page, size],
+    queryFn: async () => {
+      const response = await searchApi.search(query, filters, sorting, page, size)
+      return response.data
+    },
+  })
+}
+
+export const useFilterQuery = (filters?: any, page = 1, size = 12) => {
+  return useQuery<FilterResponse>({
+    queryKey: ['filter', filters, page, size],
+    queryFn: async () => {
+      const response = await searchApi.filter(filters, page, size)
+      return response.data
+    },
+    enabled: !!filters,
+  })
 }

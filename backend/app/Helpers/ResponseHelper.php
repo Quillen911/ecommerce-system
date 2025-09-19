@@ -8,18 +8,19 @@ class ResponseHelper
     {
         return response()->json(['error' => $message], $code);
     }
+
     public static function errorForArray($message, $data = [], $code = 400)
     {
         return response()->json(['error' => $message, 'data' => $data], $code);
     }
 
-    public static function success($message, $data = [], $code =200)
+    public static function success($message, $data = [], $code = 200)
     {
         return response()->json(['message' => $message, 'data' => $data], $code);
     }
     
-    public static function notFound($message, $code = 404)
+    public static function notFound($message, $data = [], $code = 404)
     {
-        return response()->json(['error' => $message], $code);
+        return response()->json(['message' => $message, 'data' => $data], $code);
     }
 }

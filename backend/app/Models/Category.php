@@ -10,9 +10,20 @@ class Category extends Model
     protected $table = 'categories';
 
     protected $fillable = [
-        'id', 
+        'parent_id',
         'category_title',
         'category_slug'
     ];
-
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_id');
+    }
 }

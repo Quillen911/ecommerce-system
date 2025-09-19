@@ -19,6 +19,10 @@ class ElasticSearchTypeService
         if($request->filled('store_id')){
             $filters['store_id'] = $request->input('store_id') ?? '';
         }
+        if($request->filled('game')){
+            $filters['game'] = $request->input('game') ?? '';
+        }
+        
         return $filters;
         
     }

@@ -36,15 +36,20 @@ export default function HeroSection() {
     }, [slides.length])
     
     return (
-        <div className="relative h-96 overflow-hidden">
+        <div className="relative h-96 overflow-hidden bg-[var(--sand)]">
             <div className="flex transition-transform duration-500 ease-in-out"
                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
                 {slides.map((slide) => (
                     <div key={slide.id} className="w-full flex-shrink-0 relative">
-                        <div className="w-full h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                            <div className="text-center text-white">
-                                <h2 className="text-4xl font-bold mb-4">{slide.title}</h2>
-                                <p className="text-xl">{slide.description}</p>
+                        <div className="w-full h-96 bg-gradient-to-r from-[var(--surface)] to-[var(--muted)] flex items-center justify-center">
+                            <div className="text-center">
+                                <h2 className="text-4xl font-bold mb-4 text-[var(--accent-dark)]">{slide.title}</h2>
+                                <p className="text-xl text-[var(--muted)]">{slide.description}</p>
+                                <div className="mt-6">
+                                    <button className="px-5 py-3 rounded-md bg-[var(--accent)] text-white hover:brightness-90 transition">
+                                        Keşfet
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -54,13 +59,13 @@ export default function HeroSection() {
             {/* Sol/Sağ Oklar */}
             <button 
                 onClick={() => setCurrentSlide((prev) => prev === 0 ? slides.length - 1 : prev - 1)}
-                className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-none text-white rounded-full hover:bg-opacity-75"
+                className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-none text-[var(--accent-dark)] rounded-full"
             >
                 <ChevronLeftIcon className="w-10 h-10" />
             </button>
             <button 
                 onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-none text-white rounded-full hover:bg-opacity-75"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-none text-[var(--accent-dark)] rounded-full"
             >
                 <ChevronRightIcon className="w-10 h-10" />
             </button>
@@ -72,7 +77,7 @@ export default function HeroSection() {
                         key={index}
                         onClick={() => setCurrentSlide(index)}
                         className={`w-3 h-3 rounded-full transition-colors ${
-                            index === currentSlide ? 'bg-white' : 'bg-white bg-opacity-50'
+                            index === currentSlide ? 'bg-[var(--accent-dark)]' : 'bg-[color:var(--accent-dark)]/30'
                         }`}
                     />
                 ))}

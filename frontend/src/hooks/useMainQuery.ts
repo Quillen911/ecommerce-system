@@ -12,18 +12,20 @@ export const useMainData = () => {
   })
 }
 
-
 export const useCategoryProducts = (
-    category_slug: string,
-    options?: Omit<UseQueryOptions<CategoryResponse>, 'queryKey' | 'queryFn'>
-  ) => {
-    return useQuery<CategoryResponse>({
-      queryKey: ['category-products', category_slug],
-      queryFn: async () => {
-        const response = await mainApi.getCategoryProducts(category_slug)
-        return response.data.data
-      },
-      enabled: !!category_slug,
-      ...options,               
-    })
-  }
+  category_slug: string,
+  options?: Omit<UseQueryOptions<CategoryResponse>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery<CategoryResponse>({
+    queryKey: ['category-products', category_slug],
+    queryFn: async () => {
+
+      const response = await mainApi.getCategoryProducts(category_slug, {
+        params: { game: category_slug }
+      })
+      return response.data.data
+    },
+    enabled: !!category_slug, // slug yoksa çalışmaz
+    ...options,
+  })
+}

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug');
             $table->unsignedBigInteger('category_id')->nullable();
-            $table->string('author');
             $table->text('description')->nullable();
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
@@ -32,7 +31,7 @@ return new class extends Migration
             $table->foreign('category_id')
                   ->references('id')
                   ->on('categories')
-                  ->onDelete('set null');
+                  ->onDelete('cascade');
 
         });
     }

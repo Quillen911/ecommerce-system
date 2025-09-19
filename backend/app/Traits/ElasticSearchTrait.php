@@ -4,6 +4,26 @@ namespace App\Traits;
 
 trait ElasticSearchTrait
 {
+    public function getGameFilterTrait(array $filters): array
+    {
+        if(isset($filters['game'])){
+            return [[
+                'nested' => [
+                    'path' => 'computed_attributes',
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                [ 'term' => [ 'computed_attributes.code' => 'game' ] ],
+                                [ 'term' => [ 'computed_attributes.slug' => $filters['game'] ] ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]];
+        }
+        return [];
+    }
+
     public function getCategoryFilterTrait(array $filters): array
     {
         if(isset($filters['category_title'])){
@@ -70,6 +90,7 @@ trait ElasticSearchTrait
     public function mergeFiltersTrait(array $filters): array
     {
         return array_merge(
+            $this->getGameFilterTrait($filters),
             $this->getCategoryFilterTrait($filters),
             $this->getPriceFilterTrait($filters),
             $this->getStoreFilterTrait($filters)

@@ -42,6 +42,13 @@ export interface CategoryResponse {
     }
   }
 
+export interface ProductAttribute {
+    code: string
+    label: string
+    value: string
+    slug: string
+}
+
 export interface Product {
     id: number
     store_id: number
@@ -63,6 +70,7 @@ export interface Product {
     updated_at: string
     deleted_at: string | null
     category: Category
+    computed_attributes?: ProductAttribute[]
 }
 
 

@@ -1,9 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useProfile, useUpdateProfile } from '@/hooks/useAuthQuery'
 
 export default function ProfilePage() {
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => setMounted(true), [])
     const { data: profile, isLoading, error } = useProfile()
     const updateProfileMutation = useUpdateProfile()
     
@@ -48,11 +50,15 @@ export default function ProfilePage() {
         })
     }
 
+    if (!mounted) {
+        return null
+    }
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-64">
                 <div className="flex items-center space-x-2 text-gray-600">
-                    <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-2xl animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-[var(--accent-dark)] rounded-2xl animate-spin"></div>
                     <span className="text-lg">Profil bilgileri yükleniyor...</span>
                 </div>
             </div>

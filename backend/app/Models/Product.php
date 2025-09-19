@@ -22,7 +22,6 @@ class Product extends Model
         'title',
         'slug',
         'category_id',  
-        'author',
         'description',
         'meta_title',
         'meta_description',
@@ -66,6 +65,31 @@ class Product extends Model
     }
     public function store(){
         return $this->belongsTo(Store::class, 'store_id');
+    }
+
+    public function productAttributes()
+    {
+        return $this->hasMany(ProductAttribute::class);
+    }
+
+    protected $appends = ['computed_attributes'];
+
+    public function getComputedAttributesAttribute()
+    {
+        return $this->productAttributes()
+            ->with(['attribute:id,name,code,input_type', 'option:id,attribute_id,value,slug'])
+            ->get()
+            ->map(function ($pa) {
+                $attr = $pa->attribute;
+                $val = $pa->option?->value ?? $pa->value ?? $pa->value_number ?? $pa->value_bool;
+                $slug = $pa->option?->slug;
+                return [
+                    'code' => $attr->code,
+                    'label' => $attr->name,
+                    'value' => $val,
+                    'slug' => $slug
+                ];
+            })->values();
     }
 
     //Elasticsearch
