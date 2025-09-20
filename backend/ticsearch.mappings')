@@ -1,0 +1,41 @@
+[90m= [39m[
+    "[34manalysis[39m" => [
+      "[34mfilter[39m" => [
+        "[34msynonym_filter[39m" => [
+          "[34mtype[39m" => "[32msynonym[39m",
+          "[34msynonyms[39m" => [
+            "[32mlol[39m",
+            "[32mleague of legends[39m",
+          ],
+        ],
+      ],
+      "[34manalyzer[39m" => [
+        "[34mautocomplete_analyzer[39m" => [
+          "[34mtokenizer[39m" => "[32mautocomplete_tokenizer[39m",
+          "[34mfilter[39m" => [
+            "[32mlowercase[39m",
+            "[32msynonym_filter[39m",
+          ],
+        ],
+        "[34mautocomplete_search_analyzer[39m" => [
+          "[34mtokenizer[39m" => "[32mstandard[39m",
+          "[34mfilter[39m" => [
+            "[32mlowercase[39m",
+            "[32msynonym_filter[39m",
+          ],
+        ],
+      ],
+      "[34mtokenizer[39m" => [
+        "[34mautocomplete_tokenizer[39m" => [
+          "[34mtype[39m" => "[32medge_ngram[39m",
+          "[34mmin_gram[39m" => [35m2[39m,
+          "[34mmax_gram[39m" => [35m20[39m,
+          "[34mtoken_chars[39m" => [
+            "[32mletter[39m",
+            "[32mdigit[39m",
+          ],
+        ],
+      ],
+    ],
+  ]
+

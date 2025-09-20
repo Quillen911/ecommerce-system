@@ -266,58 +266,31 @@ class ElasticsearchService
     public function updateMapping(): bool
     {
         try {
-            // Elasticsearch index'ini yeniden oluştur
             $indexName = 'products';
-            
-            // Eğer index varsa sil
+
             if ($this->client->indices()->exists(['index' => $indexName])) {
                 $this->client->indices()->delete(['index' => $indexName]);
             }
-            
-            $mapping = [
-                'properties' => [
-                    'id' => ['type' => 'integer'],
-                    'store_id' => ['type' => 'integer'],
-                    'store_name' => [
-                        'type' => 'text',
-                        'fields' => ['keyword' => ['type' => 'keyword']]
+
+            $params = [
+                'index' => $indexName,
+                'body' => [
+                    'settings' => config('elasticsearch.settings'),
+                    'mappings' => [
+                        'properties' => config('elasticsearch.mappings')['products']['properties']
                     ],
-                    'title' => [
-                        'type' => 'text',
-                        'fields' => ['keyword' => ['type' => 'keyword']]
-                    ],
-                    'list_price' => ['type' => 'float'],
-                    'category_id' => ['type' => 'integer'],
-                    'computed_attributes' => [
-                        'type' => 'nested',
-                        'properties' => [
-                            'code' => ['type' => 'keyword'],
-                            'label' => ['type' => 'text'],
-                            'value' => ['type' => 'keyword'],
-                            'slug' => ['type' => 'keyword']
-                        ]
-                    ],
-                    'category_title' => [
-                        'type' => 'text',
-                        'fields' => ['keyword' => ['type' => 'keyword']]
-                    ],
-                    'stock_quantity' => ['type' => 'integer'],
-                    'sold_quantity' => ['type' => 'integer'],
-                    'images' => ['type' => 'keyword'],
-                    'created_at' => ['type' => 'date'],
-                    'updated_at' => ['type' => 'date'],
                 ]
             ];
-            
-            $this->createIndex($indexName, $mapping);
-            
-            Log::info("Elasticsearch mapping updated successfully");
+
+            $this->client->indices()->create($params);
+
+            Log::info("Elasticsearch mapping updated successfully with autocomplete analyzer");
             return true;
-            
         } catch (\Exception $e) {
             Log::error("Elasticsearch mapping update failed: " . $e->getMessage());
             return false;
         }
     }
+
     
 }

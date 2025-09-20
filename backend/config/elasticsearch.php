@@ -9,14 +9,55 @@ return [
         'timeout' => env('ELASTICSEARCH_TIMEOUT', 30),
         'retries' => env('ELASTICSEARCH_RETRIES', 3),
     ],
-    
+
+    'settings' => [
+        'analysis' => [
+            'filter' => [
+                'synonym_filter' => [
+                    'type' => 'synonym',
+                    'synonyms' => [
+                        'lol, league of legends'
+                    ]
+                ]
+            ],
+            'analyzer' => [
+                'autocomplete_analyzer' => [
+                    'tokenizer' => 'autocomplete_tokenizer',
+                    'filter' => ['lowercase', 'synonym_filter']
+                ],
+                'autocomplete_search_analyzer' => [
+                    'tokenizer' => 'standard',
+                    'filter' => ['lowercase', 'synonym_filter']
+                ],
+            ],
+            'tokenizer' => [
+                'autocomplete_tokenizer' => [
+                    'type' => 'edge_ngram',
+                    'min_gram' => 2,
+                    'max_gram' => 20,
+                    'token_chars' => ['letter', 'digit']
+                ]
+            ]
+        ]
+    ],
+
     'mappings' => [
         'products' => [
             'properties' => [
                 'id' => ['type' => 'integer'],
                 'store_id' => ['type' => 'integer'],
-                'store_name' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
-                'title' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
+                'store_name' => [
+                    'type' => 'text',
+                    'analyzer' => 'autocomplete_analyzer',
+                    'search_analyzer' => 'autocomplete_search_analyzer',
+                    'fields' => ['keyword' => ['type' => 'keyword']]
+                ],
+                'title' => [
+                    'type' => 'text',
+                    'analyzer' => 'autocomplete_analyzer',
+                    'search_analyzer' => 'autocomplete_search_analyzer',
+                    'fields' => ['keyword' => ['type' => 'keyword']]
+                ],
                 'list_price' => ['type' => 'float'],
                 'category_id' => ['type' => 'integer'],
                 'computed_attributes' => [
@@ -28,7 +69,12 @@ return [
                         'slug' => ['type' => 'keyword']
                     ]
                 ],
-                'category_title' => ['type' => 'text', 'analyzer' => 'standard', 'fields' => ['keyword' => ['type' => 'keyword']]],
+                'category_title' => [
+                    'type' => 'text',
+                    'analyzer' => 'autocomplete_analyzer',
+                    'search_analyzer' => 'autocomplete_search_analyzer',
+                    'fields' => ['keyword' => ['type' => 'keyword']]
+                ],
                 'stock_quantity' => ['type' => 'integer'],
                 'sold_quantity' => ['type' => 'integer'],
                 'images' => ['type' => 'keyword'],
