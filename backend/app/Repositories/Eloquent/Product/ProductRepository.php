@@ -14,124 +14,170 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     {
         $this->model = $model;
     }
+
+    /**
+     * Kategori ve varyantlarıyla birlikte ürünleri getirir.
+     */
     public function getProductsWithCategory($perpage = 100)
     {
         $page = request('page', 1);
+
         return Cache::remember("products.page.$page", 60, function () use ($perpage) {
-            return $this->model->with(['category'])->orderBy('id')->paginate($perpage);
+            return $this->model
+                ->with([
+                    'category',
+                    'variants.variantAttributes.attribute',
+                    'variants.variantAttributes.option',
+                ])
+                ->orderBy('id')
+                ->paginate($perpage);
         });
     }
-    
+
+    /**
+     * Tek ürünü kategori ve varyantlarıyla getirir.
+     */
     public function getProductWithCategory($id)
     {
-        return $this->model->with(['category'])->find($id);
+        return $this->model
+            ->with([
+                'category',
+                'variants.variantAttributes.attribute',
+                'variants.variantAttributes.option',
+            ])
+            ->find($id);
     }
 
+    /**
+     * Mağazaya ait ürünleri kategori ve varyantlarıyla getirir.
+     */
     public function getProductsByStore($storeId)
     {
-        return $this->model->with(['category'])->where('store_id', $storeId)->orderBy('id')->get();
+        return $this->model
+            ->with([
+                'category',
+                'variants.variantAttributes.attribute',
+                'variants.variantAttributes.option',
+            ])
+            ->where('store_id', $storeId)
+            ->orderBy('id')
+            ->get();
     }
 
+    /**
+     * Ürün oluştur.
+     */
     public function createProduct(array $productData)
     {
         if (isset($productData['list_price'])) {
             $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
         }
-        
 
+        // Ana ürün resimlerini işle
         if (isset($productData['images']) && is_array($productData['images'])) {
-            $images = [];
-            foreach($productData['images'] as $image){
-                if ($image instanceof \Illuminate\Http\UploadedFile) {
-                    $filename = time() . '_' . $image->getClientOriginalName();
-                    $image->storeAs('productsImages', $filename, 'public');
-                    $images[] = $filename;
-                } else {
-                    $images[] = $image;
-                }
-            }
-            $productData['images'] = $images;
+            $productData['images'] = $this->processImages($productData['images']);
         }
 
         return $this->create($productData);
     }
 
+    /**
+     * Ürün güncelle.
+     */
     public function updateProduct(array $productData, $storeId, $id)
     {
-        if(isset($productData['list_price'])){
+        if (isset($productData['list_price'])) {
             $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
         }
-        if(isset($productData['images']) && is_array($productData['images'])){
-            $images = [];
-            foreach($productData['images'] as $image){
-                if ($image instanceof \Illuminate\Http\UploadedFile) {
-                    $filename = time() . '_' . $image->getClientOriginalName();
-                    $image->storeAs('productsImages', $filename, 'public');
-                    $images[] = $filename;
-                } else {
-                    $images[] = $image;
-                }
-            }
-            $productData['images'] = $images;
+
+        if (isset($productData['images']) && is_array($productData['images'])) {
+            $productData['images'] = $this->processImages($productData['images']);
         }
-        
-        return $this->model->where('store_id', $storeId)->find($id)->update($productData);
+
+        $product = $this->model->where('store_id', $storeId)->find($id);
+
+        return $product ? $product->update($productData) : false;
     }
 
+    /**
+     * Toplu ürün oluştur.
+     */
     public function bulkCreateProducts(array $productsData)
     {
         $created = [];
-        
+
         foreach ($productsData as $productData) {
             if (isset($productData['list_price'])) {
                 $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
             }
-            
-            // Resim işleme
+
             if (isset($productData['images']) && is_array($productData['images'])) {
-                $images = [];
-                foreach($productData['images'] as $image){
-                    if ($image instanceof \Illuminate\Http\UploadedFile) {
-                        $filename = time() . '_' . $image->getClientOriginalName();
-                        $image->storeAs('productsImages', $filename, 'public');
-                        $images[] = $filename;
-                    } else {
-                        $images[] = $image;
-                    }
-                }
-                $productData['images'] = $images;
+                $productData['images'] = $this->processImages($productData['images']);
             }
-            
+
             $product = $this->create($productData);
             $created[] = $product;
         }
-        
+
         return $created;
     }
 
+    /**
+     * Ürünü sil + varyant resimlerini de temizle.
+     */
     public function deleteProduct($storeId, $id)
     {
-        $product = $this->model->where('store_id', $storeId)->where('id', $id)->first();
+        $product = $this->model->with('variants')->where('store_id', $storeId)->where('id', $id)->first();
 
-        if($product && $product->images && is_array($product->images)){
-            foreach($product->images as $image){
-                if(is_array($image)){
-                    foreach($image as $img){
+        if (!$product) {
+            return false;
+        }
+
+        // Ana ürün resimlerini sil
+        if ($product->images && is_array($product->images)) {
+            foreach ($product->images as $image) {
+                if (is_array($image)) {
+                    foreach ($image as $img) {
                         Storage::disk('public')->delete('productsImages/' . $img);
                     }
-                }else{
+                } else {
                     Storage::disk('public')->delete('productsImages/' . $image);
                 }
             }
         }
+
+        // Varyant resimlerini sil
+        foreach ($product->variants as $variant) {
+            if ($variant->images && is_array($variant->images)) {
+                foreach ($variant->images as $image) {
+                    if (is_array($image)) {
+                        foreach ($image as $img) {
+                            Storage::disk('public')->delete('productsImages/' . $img);
+                        }
+                    } else {
+                        Storage::disk('public')->delete('productsImages/' . $image);
+                    }
+                }
+            }
+        }
+
         return $product->delete();
     }
 
+    /**
+     * Mağazaya ait tek ürünü getir.
+     */
     public function getProductByStore($storeId, $id)
     {
-        return $this->model->where('store_id', $storeId)->find($id);
+        return $this->model
+            ->with([
+                'category',
+                'variants.variantAttributes.attribute',
+                'variants.variantAttributes.option',
+            ])
+            ->where('store_id', $storeId)
+            ->find($id);
     }
-
 
     public function incrementStockQuantity($productId, $quantity)
     {
@@ -151,5 +197,25 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     public function decrementSoldQuantity($productId, $quantity)
     {
         return $this->model->whereKey($productId)->decrement('sold_quantity', $quantity);
+    }
+
+    /**
+     * Resim yükleme işlemlerini soyutladım.
+     */
+    private function processImages(array $images): array
+    {
+        $processed = [];
+
+        foreach ($images as $image) {
+            if ($image instanceof \Illuminate\Http\UploadedFile) {
+                $filename = time() . '_' . $image->getClientOriginalName();
+                $image->storeAs('productsImages', $filename, 'public');
+                $processed[] = $filename;
+            } else {
+                $processed[] = $image;
+            }
+        }
+
+        return $processed;
     }
 }

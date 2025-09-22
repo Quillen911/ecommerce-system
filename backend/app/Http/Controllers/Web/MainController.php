@@ -22,7 +22,7 @@ class MainController extends Controller
         ElasticsearchService $elasticSearch, 
         ElasticSearchTypeService $elasticSearchTypeService, 
         MainService $mainService, 
-        ElasticSearchProductService $elasticSearchProductService, 
+        ElasticSearchProductService $elasticSearchProductService
     ) {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
@@ -34,9 +34,9 @@ class MainController extends Controller
     {
         $products = $this->mainService->getProducts();
         $categories = $this->mainService->getCategories();
-
         return view('main', compact('products', 'categories'));
     }
+
     public function productDetail(Product $product)
     {
         abort_unless($product->is_published, 404);
@@ -45,8 +45,8 @@ class MainController extends Controller
         fn() => $product->load(
             'category:id,category_title,category_slug',
             'store:id,name',
-            'productAttributes.attribute:id,name,code,input_type',
-            'productAttributes.option:id,attribute_id,value,slug'
+            'variants.variantAttributes.attribute:id,name,code,input_type',
+            'variants.variantAttributes.option:id,attribute_id,value,slug'
         ));
 
         $similar = Product::published()

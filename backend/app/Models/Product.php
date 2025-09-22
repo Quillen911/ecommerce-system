@@ -39,13 +39,32 @@ class Product extends Model
         'is_published' => 'boolean',
         'images' => 'array'
     ];
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    public function getStockQuantityAttribute()
+    {
+        return $this->variants()->sum('stock_quantity');
+    }
+
+    public function category(){
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function store(){
+        return $this->belongsTo(Store::class, 'store_id');
+    }
+    
     public function scopePublished($query) {
         return $query->where('is_published', true);
     }
+
     public function getRouteKeyName() {
         return 'slug';
     }
-
 
     public function getFirstImageAttribute() {
         if (!$this->images || !is_array($this->images) || empty($this->images)) {
@@ -59,37 +78,6 @@ class Product extends Model
         }
         
         return '/storage/productsImages/' . $firstImage;
-    }
-    public function category(){
-        return $this->belongsTo(Category::class, 'category_id');
-    }
-    public function store(){
-        return $this->belongsTo(Store::class, 'store_id');
-    }
-
-    public function productAttributes()
-    {
-        return $this->hasMany(ProductAttribute::class);
-    }
-
-    protected $appends = ['computed_attributes'];
-
-    public function getComputedAttributesAttribute()
-    {
-        return $this->productAttributes()
-            ->with(['attribute:id,name,code,input_type', 'option:id,attribute_id,value,slug'])
-            ->get()
-            ->map(function ($pa) {
-                $attr = $pa->attribute;
-                $val = $pa->option?->value ?? $pa->value ?? $pa->value_number ?? $pa->value_bool;
-                $slug = $pa->option?->slug;
-                return [
-                    'code' => $attr->code,
-                    'label' => $attr->name,
-                    'value' => $val,
-                    'slug' => $slug
-                ];
-            })->values();
     }
 
     //Elasticsearch

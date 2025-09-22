@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Services\Search\ElasticsearchService;
-use App\Http\Requests\FilterRequest;
 use App\Services\Search\ElasticSearchTypeService;
 use App\Services\Search\ElasticSearchProductService;
 use App\Services\MainService;
+use App\Http\Resources\Product\ProductResource;
+use App\Http\Resources\Category\CategoryResource;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,10 +22,10 @@ class MainController extends Controller
     protected $mainService;
 
     public function __construct(
-        ElasticsearchService $elasticSearch, 
-        ElasticSearchTypeService $elasticSearchTypeService, 
-        ElasticSearchProductService $elasticSearchProductService, 
-        MainService $mainService, 
+        ElasticsearchService $elasticSearch,
+        ElasticSearchTypeService $elasticSearchTypeService,
+        ElasticSearchProductService $elasticSearchProductService,
+        MainService $mainService
     ) {
         $this->elasticSearch = $elasticSearch;
         $this->elasticSearchTypeService = $elasticSearchTypeService;
@@ -34,106 +35,118 @@ class MainController extends Controller
 
     public function main(Request $request)
     {
-        $products = $this->mainService->getProducts();
+        $products   = $this->mainService->getProducts();
         $categories = $this->mainService->getCategories();
-        $campaigns = $this->mainService->getCampaigns();
-        return ResponseHelper::success('Ürünler', [
-            'products' => $products,
-            'categories' => $categories,
-            'campaigns' => $campaigns
+        $campaigns  = $this->mainService->getCampaigns();
+
+        return ResponseHelper::success('Ana Sayfa', [
+            'products'   => ProductResource::collection($products),
+            'categories' => CategoryResource::collection($categories),
+            'campaigns'  => $campaigns
         ]);
     }
 
-    public function show(Request $request, $id)
+    public function show($id)
     {
         $product = $this->mainService->getProduct($id);
-        if(!$product){
+        if (!$product) {
             return ResponseHelper::notFound('Ürün bulunamadı.');
         }
-        return ResponseHelper::success('Ürün', $product);
+        return ResponseHelper::success('Ürün', new ProductResource($product));
     }
 
     public function productDetail($slug)
     {
-        // Önce ürün olarak ara
         $product = Product::where('slug', $slug)->first();
 
-        if(!$product) {
-            // Ürün bulunamadı, kategori olabilir mi kontrol et
+        if (!$product) {
             $category = $this->mainService->getCategory($slug);
-            if($category) {
-                return $this->categoryFilter(request(), $slug); // Kategori sayfasına yönlendir
+            if ($category) {
+                return $this->categoryFilter(request(), $slug);
             }
             return ResponseHelper::notFound('Sayfa bulunamadı');
         }
 
-        // If product is found, proceed with product detail logic
         abort_unless($product->is_published, 404);
+
         $product = Cache::remember("product:{$product->id}:detail",
-        now()->addMinutes(15),
-        fn() => $product->load(
-            'category:id,category_title,category_slug',
-            'store:id,name',
-            'productAttributes.attribute:id,name,code,input_type',
-            'productAttributes.option:id,attribute_id,value,slug'
-        ));
+            now()->addMinutes(15),
+            fn() => $product->load(
+                'category:id,category_title,category_slug,parent_id',
+                'store:id,name',
+                'variants.variantAttributes.attribute',
+                'variants.variantAttributes.option'
+            )
+        );
 
         $similar = Product::published()
             ->where('category_id', $product->category_id)
             ->whereKeyNot($product->id)
             ->latest()
             ->take(20)
-            ->get(['id', 'slug', 'title', 'list_price', 'images']);
+            ->get();
 
         return ResponseHelper::success('Ürün Detayı', [
-            'product' => $product->append('computed_attributes'),
-            'similar' => $similar
+            'product' => new ProductResource($product),
+            'similar' => ProductResource::collection($similar)
         ]);
     }
 
-    //elasticsearch
     public function search(Request $request)
     {
-        $query = $request->input('q', '');
+        $query   = $request->input('q', '');
         $filters = $this->elasticSearchTypeService->filterType($request);
         $sorting = $this->elasticSearchTypeService->sortingType($request);
-        
-        $data = $this->elasticSearchProductService->searchProducts($query, $filters, $sorting, $request->input('page', 1), $request->input('size', 12));
-        
-        if(!empty($data['products'])){
+
+        $data = $this->elasticSearchProductService->searchProducts(
+            $query,
+            $filters,
+            $sorting,
+            $request->input('page', 1),
+            $request->input('size', 12)
+        );
+
+        if (!empty($data['products'])) {
             return ResponseHelper::success('Ürünler Bulundu', [
-                'total' => $data['results']['total'],
-                'page' => $request->input('page', 1),
-                'size' => $request->input('size', 12),
-                'query' => $query ? $query : "null",
-                'products' => $data['products'],
+                'total'    => $data['results']['total'],
+                'page'     => $request->input('page', 1),
+                'size'     => $request->input('size', 12),
+                'query'    => $query ?: "null",
+                'products' => ProductResource::collection($data['products']),
             ]);
         }
+
         return ResponseHelper::notFound('Ürün bulunamadı.', [
-            'total' => 0,
-            'page' => $request->input('page', 1),
-            'size' => $request->input('size', 12),
-            'query' => $query ? $query : "null",
+            'total'    => 0,
+            'page'     => $request->input('page', 1),
+            'size'     => $request->input('size', 12),
+            'query'    => $query ?: "null",
             'products' => []
         ]);
     }
+
     public function categoryFilter(Request $request, $category_slug)
     {
         $category = $this->mainService->getCategory($category_slug);
 
-        if(!$category){
+        if (!$category) {
             return ResponseHelper::notFound('Kategori bulunamadı.');
         }
-        
+
         $request->merge(['category_title' => $category->category_title]);
         $filters = $this->elasticSearchTypeService->filterType($request);
-        $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('page', 1), $request->input('size', 12));
-        
-        return ResponseHelper::success('Ürünler Bulundu', [
-            'products' => $data,
-            'filters' => $filters,
-            'categories' => $this->mainService->getCategories(),
-            'category' => $category,
+
+        $data = $this->elasticSearchProductService->filterProducts(
+            $filters,
+            $request->input('page', 1),
+            $request->input('size', 12)
+        );
+
+        return ResponseHelper::success('Kategori Ürünleri', [
+            'products'   => ProductResource::collection($data['products']),
+            'filters'    => $filters,
+            'categories' => CategoryResource::collection($this->mainService->getCategories()),
+            'category'   => new CategoryResource($category),
             'pagination' => [
                 'page' => $request->input('page', 1),
                 'size' => $request->input('size', 12)
@@ -141,39 +154,49 @@ class MainController extends Controller
         ]);
     }
 
-    public function filter(FilterRequest $request)
+    public function filter(Request $request)
     {
         $filters = $this->elasticSearchTypeService->filterType($request);
-        $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('page', 1), $request->input('size', 12));
-        
-        return ResponseHelper::success('Ürünler Bulundu', [
-            'total' => $data['results']['total'],
-            'page' => $request->input('page', 1),
-            'size' => $request->input('size', 12),
-            'filters' => $filters,
-            'products' => $data['products'],
+
+        $data = $this->elasticSearchProductService->filterProducts(
+            $filters,
+            $request->input('page', 1),
+            $request->input('size', 12)
+        );
+
+        return ResponseHelper::success('Filtre Sonucu', [
+            'total'    => $data['results']['total'],
+            'page'     => $request->input('page', 1),
+            'size'     => $request->input('size', 12),
+            'filters'  => $filters,
+            'products' => ProductResource::collection($data['products']),
         ]);
     }
 
     public function sorting(Request $request)
     {
         $sorting = $this->elasticSearchTypeService->sortingType($request);
-        $data = $this->elasticSearchProductService->sortingProducts($sorting, $request->input('page', 1), $request->input('size', 12));
+
+        $data = $this->elasticSearchProductService->sortingProducts(
+            $sorting,
+            $request->input('page', 1),
+            $request->input('size', 12)
+        );
 
         return ResponseHelper::success('Sıralama', [
-            'total' => $data['results']['total'],
-            'page' => $request->input('page', 1),
-            'size' => $request->input('size', 12),
-            'sorting' => $sorting,
-            'products' => $data['products'],
+            'total'    => $data['results']['total'],
+            'page'     => $request->input('page', 1),
+            'size'     => $request->input('size', 12),
+            'sorting'  => $sorting,
+            'products' => ProductResource::collection($data['products']),
         ]);
     }
 
     public function autocomplete(Request $request)
     {
         $query = $request->input('q', '');
-        $data = $this->elasticSearchProductService->autocomplete($query);
-        return ResponseHelper::success('Otomatik Tamamlandı', $data);
+        $data  = $this->elasticSearchProductService->autocomplete($query);
+
+        return ResponseHelper::success('Otomatik Tamamlama', $data);
     }
-    
 }

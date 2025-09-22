@@ -4,7 +4,7 @@ return [
     'hosts' => [
         'http://elasticsearch:9200',
     ],
-    
+
     'connection' => [
         'timeout' => env('ELASTICSEARCH_TIMEOUT', 30),
         'retries' => env('ELASTICSEARCH_RETRIES', 3),
@@ -50,34 +50,56 @@ return [
                     'type' => 'text',
                     'analyzer' => 'autocomplete_analyzer',
                     'search_analyzer' => 'autocomplete_search_analyzer',
-                    'fields' => ['keyword' => ['type' => 'keyword']]
+                    'fields' => [
+                        'keyword' => ['type' => 'keyword']
+                    ]
                 ],
                 'title' => [
                     'type' => 'text',
                     'analyzer' => 'autocomplete_analyzer',
                     'search_analyzer' => 'autocomplete_search_analyzer',
-                    'fields' => ['keyword' => ['type' => 'keyword']]
-                ],
-                'list_price' => ['type' => 'float'],
-                'category_id' => ['type' => 'integer'],
-                'computed_attributes' => [
-                    'type' => 'nested',
-                    'properties' => [
-                        'code' => ['type' => 'keyword'],
-                        'label' => ['type' => 'text'],
-                        'value' => ['type' => 'keyword'],
-                        'slug' => ['type' => 'keyword']
+                    'fields' => [
+                        'keyword' => ['type' => 'keyword']
                     ]
                 ],
+                'slug' => ['type' => 'keyword'],
+                'list_price' => ['type' => 'float'],
+                'list_price_cents' => ['type' => 'integer'],
+                'category_id' => ['type' => 'integer'],
                 'category_title' => [
                     'type' => 'text',
                     'analyzer' => 'autocomplete_analyzer',
                     'search_analyzer' => 'autocomplete_search_analyzer',
-                    'fields' => ['keyword' => ['type' => 'keyword']]
+                    'fields' => [
+                        'keyword' => ['type' => 'keyword']
+                    ]
                 ],
                 'stock_quantity' => ['type' => 'integer'],
                 'sold_quantity' => ['type' => 'integer'],
                 'images' => ['type' => 'keyword'],
+
+                'variants' => [
+                    'type' => 'nested',
+                    'properties' => [
+                        'id' => ['type' => 'integer'],
+                        'sku' => ['type' => 'keyword'],
+                        'price' => ['type' => 'float'],
+                        'price_cents' => ['type' => 'integer'],
+                        'stock_quantity' => ['type' => 'integer'],
+                        'images' => ['type' => 'keyword'],
+                        'attributes' => [
+                            'type' => 'nested',
+                            'properties' => [
+                                'attribute_id' => ['type' => 'integer'],
+                                'code'         => ['type' => 'keyword'],
+                                'name'         => ['type' => 'text'],
+                                'value'        => ['type' => 'keyword'],
+                                'slug'         => ['type' => 'keyword'],
+                            ]
+                        ]
+                    ]
+                ],
+
                 'created_at' => ['type' => 'date'],
                 'updated_at' => ['type' => 'date'],
             ]

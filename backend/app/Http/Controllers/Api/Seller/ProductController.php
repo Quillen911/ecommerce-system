@@ -16,6 +16,9 @@ use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use App\Http\Resources\Product\ProductResource;
+use App\Http\Resources\Product\ProductVariantResource;
+
 class ProductController extends Controller
 {
     protected $productService;
@@ -53,7 +56,7 @@ class ProductController extends Controller
             
             $products = $this->productService->indexProduct($seller->id);
 
-            return ResponseHelper::success('Ürünler başarıyla listelendi', $products);
+            return ProductResource::collection($products->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option'));
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürünler alınamadı: ' . $e->getMessage());
@@ -65,7 +68,7 @@ class ProductController extends Controller
             $seller = $this->authenticationRepository->getSeller();
             $product = $this->productService->createProduct($seller->id, $request->validated());
             
-            return ResponseHelper::success('Ürün başarıyla oluşturuldu', $product);
+            return new ProductResource($product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option'));
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün oluşturulamadı: ' . $e->getMessage());
@@ -77,7 +80,9 @@ class ProductController extends Controller
             $seller = $this->authenticationRepository->getSeller();
             $product = $this->productService->showProduct($seller->id, $id);
             
-            return ResponseHelper::success('Ürün başarıyla listelendi', $product);
+            return new ProductResource(
+                $product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+            );
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün bulunamadı: ' . $e->getMessage());
@@ -87,9 +92,11 @@ class ProductController extends Controller
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $this->productService->updateProduct($seller->id, $request->validated(), $id);
+            $product = $this->productService->updateProduct($seller->id, $request->validated(), $id);
             
-            return ResponseHelper::success('Product updated successfully');
+            return new ProductResource(
+                $product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+            );
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün güncellenemedi: ' . $e->getMessage());
@@ -99,9 +106,11 @@ class ProductController extends Controller
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $this->productService->deleteProduct($seller->id, $id);
+            $product = $this->productService->deleteProduct($seller->id, $id);
             
-            return ResponseHelper::success('Ürün başarıyla silindi');
+            return ResponseHelper::success('Ürün başarıyla silindi', new ProductResource(
+                $product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+            ));
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün silinemedi: ' . $e->getMessage());
@@ -115,7 +124,9 @@ class ProductController extends Controller
             
             $products = $this->productService->bulkStoreProductApi($productsData, $seller->id);
             
-            return ResponseHelper::success('Ürünler başarıyla oluşturuldu', $products);
+            return ProductResource::collection(
+                collect($products)->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+            );
         } catch(\Exception $e){
             return ResponseHelper::error('Ürünler oluşturulamadı: ' . $e->getMessage());
         }
@@ -144,7 +155,7 @@ class ProductController extends Controller
                     'page' => $request->input('page', 1),
                     'size' => $request->input('size', 12),
                     'query' => $query ? $query : "null",
-                    'products' => $data['products'],
+                    'products' => ProductResource::collection(collect($data['products'])),
                 ]);
             }
 

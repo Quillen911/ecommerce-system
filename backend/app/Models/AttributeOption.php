@@ -24,9 +24,4 @@ class AttributeOption extends Model
     {
         return $this->belongsTo(Attribute::class);
     }
-
-    public function productAttributes()
-    {
-        return $this->hasMany(ProductAttribute::class, 'option_id');
-    }
 }

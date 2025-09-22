@@ -5,34 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class ProductAttribute extends Model
+class VariantAttribute extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'product_id',
+        'variant_id',
         'attribute_id',
         'option_id',
-        'value',
-        'value_number',
-        'value_bool'
+        'value'
     ];
 
     protected $casts = [
-        'value_number' => 'decimal:2',
-        'value_bool' => 'boolean'
+        'value' => 'string'
     ];
 
-    public function product()
+    public function variant()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
-
+    
     public function attribute()
     {
         return $this->belongsTo(Attribute::class);
     }
-
+    
     public function option()
     {
         return $this->belongsTo(AttributeOption::class, 'option_id');
