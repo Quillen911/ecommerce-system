@@ -24,5 +24,8 @@ class Seller extends Authenticatable
         'status' => 'boolean',
     ];
 
-    
+    public function store()
+    {
+        return $this->hasOne(Store::class, 'seller_id');
+    }
 }

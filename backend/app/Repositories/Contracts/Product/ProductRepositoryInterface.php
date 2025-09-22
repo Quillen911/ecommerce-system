@@ -11,6 +11,7 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
     public function getProductWithCategory($id);
     public function getProductsByStore($storeId);
     public function getProductByStore($storeId, $id);
+    public function getProductBySlug($storeId, $slug);
 
     // CRUD
     public function createProduct(array $productData);

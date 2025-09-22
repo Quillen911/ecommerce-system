@@ -10,6 +10,7 @@
   --accent: #4C8ED9;
   --accent-dark: #0F172A;
   --border: #E5E7EB;
+  --danger: #991b1b;
 }
 @keyframes marquee {
   0% {

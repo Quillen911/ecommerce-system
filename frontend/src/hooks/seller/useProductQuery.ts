@@ -6,6 +6,7 @@ export const productKeys = {
     all: ['products'] as const,
     index: (sellerId?: number) => [...productKeys.all, 'index', sellerId] as const,
     detail: (id: number, sellerId?: number) => [...productKeys.all, 'detail', id, sellerId] as const,
+    slugDetail: (slug: string, sellerId?: number) => [...productKeys.all, 'slugDetail', slug, sellerId] as const,
     bulkStore: (sellerId?: number) => [...productKeys.all, 'bulkStore', sellerId] as const,
 }
 
@@ -39,14 +40,14 @@ export const useStoreProduct = (sellerId?: number) => {
     })
 }
 
-export const useShowProduct = (id: number, sellerId?: number) => {
+export const useShowProductBySlug = (slug: string, sellerId?: number) => {
     return useQuery({
-        queryKey: productKeys.detail(id, sellerId),
+        queryKey: productKeys.slugDetail(slug, sellerId),
         queryFn: async () => {
-            const response = await ProductApi.show(id)
-            return response.data
+            const response = await ProductApi.showBySlug(slug) // backend: /product/{product:slug}
+            return response.data.data
         },
-        enabled: typeof window !== 'undefined' && !!localStorage.getItem('seller_token'),
+        enabled: !!slug && typeof window !== 'undefined' && !!localStorage.getItem('seller_token'),
         staleTime: 5 * 60 * 1000,
         retry: 1,
     })

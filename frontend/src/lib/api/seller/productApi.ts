@@ -33,16 +33,21 @@ api.interceptors.request.use((config) => {
 
 export const ProductApi = {
     index: () => api.get<{ message: string; data: Product[] }>('/seller/product'),
+
     store: (data: StoreProductRequest) =>
       api.post<StoreProductResponse>('/seller/product', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       }),
-    show: (id: number) => api.get<Product>(`/seller/product/${id}`),
+
+    showBySlug: (slug: string) => api.get<{ data: Product }>(`/seller/product/${slug}`),
+
     update: (id: number, data: UpdateProductRequest) =>
       api.post<UpdateProductResponse>(`/seller/product/${id}?_method=PUT`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       }),
+
     destroy: (id: number) => api.delete<DestroyProductResponse>(`/seller/product/${id}`),
+
     bulkStore: (data: BulkProductStoreRequest) =>
       api.post<BulkProductResponse>('/seller/product/bulk', data, {
         headers: { 'Content-Type': 'multipart/form-data' },

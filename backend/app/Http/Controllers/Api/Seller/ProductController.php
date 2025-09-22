@@ -18,6 +18,7 @@ use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\Product\ProductVariantResource;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
@@ -74,12 +75,13 @@ class ProductController extends Controller
             return ResponseHelper::error('Ürün oluşturulamadı: ' . $e->getMessage());
         }
     }
-    public function show($id)
+    public function show(Product $product)
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $product = $this->productService->showProduct($seller->id, $id);
-            
+            if ($product->store_id !== $seller->store->id) {
+                return ResponseHelper::error('Bu ürüne erişim yetkiniz yok.');
+            }
             return new ProductResource(
                 $product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
             );
@@ -88,6 +90,7 @@ class ProductController extends Controller
             return ResponseHelper::error('Ürün bulunamadı: ' . $e->getMessage());
         }
     }
+
     public function update(ProductUpdateRequest $request, $id)
     {
         try{

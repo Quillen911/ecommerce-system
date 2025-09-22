@@ -1,10 +1,10 @@
-import ConditionalSideBar from "./conditionalSideBar";
+import ConditionalSideBar from "../conditionalSideBar";
 
 export const metadata = {
-  title: "Seller",
+  title: "Seller Login",
 };
 
-export default function SellerRootLayout({
+export default function LoginRootLayout({
   children,
 }: {
   children: React.ReactNode

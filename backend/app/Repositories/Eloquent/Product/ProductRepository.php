@@ -94,10 +94,17 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             $productData['images'] = $this->processImages($productData['images']);
         }
 
-        $product = $this->model->where('store_id', $storeId)->find($id);
+        $product = $this->model->where('store_id', $storeId)->where('id', $id)->first();
 
-        return $product ? $product->update($productData) : false;
+        if (!$product) {
+            return false;
+        }
+
+        $product->update($productData);
+
+        return $product->fresh(); 
     }
+
 
     /**
      * Toplu ürün oluştur.
@@ -197,6 +204,11 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     public function decrementSoldQuantity($productId, $quantity)
     {
         return $this->model->whereKey($productId)->decrement('sold_quantity', $quantity);
+    }
+
+    public function getProductBySlug($storeId, $slug)
+    {
+        return $this->model->where('store_id', $storeId)->where('slug', $slug)->first();
     }
 
     /**

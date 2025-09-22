@@ -38,6 +38,7 @@ export default function SellerLoginPage() {
             if (error?.response?.data?.errors) {
                 const errors = error.response.data.errors
                 setFormErrors(errors)
+                console.log(errors)
             }
         }
     }

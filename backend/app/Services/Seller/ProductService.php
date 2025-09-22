@@ -101,6 +101,21 @@ class ProductService
         return $product->load('variants.variantAttributes.attribute', 'variants.variantAttributes.option');
     }
 
+    public function showProductBySlug($sellerId, $slug)
+    {
+        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        if (!$store) {
+            throw new \Exception('Mağaza bulunamadı');
+        }
+
+        $product = $this->productRepository->getProductBySlug($store->id, $slug);
+        if (!$product) {
+            throw new \Exception('Ürün bulunamadı');
+        }
+
+        return $product->load('variants.variantAttributes.attribute', 'variants.variantAttributes.option');
+    }
+
     public function updateProduct($sellerId, array $request, $id)
     {
         $store = $this->storeRepository->getStoreBySellerId($sellerId);
@@ -113,7 +128,7 @@ class ProductService
             if (!$product) {
                 throw new \Exception('Ürün bulunamadı');
             }
-
+            
             $productData = array_merge($request, [
                 'store_id' => $store->id,
                 'store_name' => $store->name,
@@ -121,8 +136,10 @@ class ProductService
                 'meta_title' => $this->generateMetaTitle($request, $store),
                 'meta_description' => $request['meta_description'] ?? $this->generateMetaDescription($request, $store),
             ]);
-
+            
             $this->productRepository->updateProduct($productData, $store->id, $id);
+            
+            $product->refresh();
 
             // Varyantlar güncelle
             if (isset($request['variants'])) {
@@ -182,7 +199,7 @@ class ProductService
                     }
                 }
             }
-
+            
             return $product->fresh()->load('variants.variantAttributes.attribute', 'variants.variantAttributes.option');
         });
     }
