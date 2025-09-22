@@ -35,6 +35,7 @@ export interface RegisterRequest {
     username: string
     email: string
     password: string
+    password_confirmation: string
 }
 
 export interface RegisterResponse {
@@ -42,6 +43,42 @@ export interface RegisterResponse {
     message: string
     data: {
         token: string
+        user: User
+    }
+}
+
+export interface MeResponse {
+    success: boolean
+    message: string
+    data: User
+    
+}
+
+export interface LogoutResponse {
+    success: boolean
+    message: string
+}
+
+export interface ProfileResponse {
+    success: boolean
+    message: string
+    data: {
+        user: User
+    }
+}
+
+export interface UpdateProfileRequest {
+    first_name?: string
+    last_name?: string
+    username?: string
+    email?: string
+    phone?: string
+}
+
+export interface UpdateProfileResponse {
+    success: boolean
+    message: string
+    data: {
         user: User
     }
 }

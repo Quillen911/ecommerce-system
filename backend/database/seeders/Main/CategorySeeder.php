@@ -23,19 +23,36 @@ class CategorySeeder extends Seeder
         // Alt kategoriler
         Category::create([
             'category_title' => 'Jean',
-            'category_slug'  => 'jean',
+            'category_slug'  => $erkekCocuk->category_slug . '-jean',
             'parent_id'      => $erkekCocuk->id,
         ]);
+        Category::create([
+            'category_title' => 'Jean',
+            'category_slug'  => $kizCocuk->category_slug . '-jean',
+            'parent_id'      => $kizCocuk->id,
+        ]);
+        
 
         Category::create([
             'category_title' => 'Eşofman Takım',
-            'category_slug'  => 'esofman-takim',
+            'category_slug'  => $erkekCocuk->category_slug . '-esofman-takim',
             'parent_id'      => $erkekCocuk->id,
         ]);
+        Category::create([
+            'category_title' => 'Eşofman Takım',
+            'category_slug'  => $kizCocuk->category_slug . '-esofman-takim',
+            'parent_id'      => $kizCocuk->id,
+        ]);
+        
 
         Category::create([
             'category_title' => 'Keten Pantolon',
-            'category_slug'  => 'keten-pantolon',
+            'category_slug'  => $erkekCocuk->category_slug . '-keten-pantolon',
+            'parent_id'      => $erkekCocuk->id,
+        ]);
+        Category::create([
+            'category_title' => 'Keten Pantolon',
+            'category_slug'  => $kizCocuk->category_slug . '-keten-pantolon',
             'parent_id'      => $kizCocuk->id,
         ]);
     }

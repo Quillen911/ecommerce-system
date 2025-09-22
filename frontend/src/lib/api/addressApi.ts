@@ -19,7 +19,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
     if(typeof window !== 'undefined') {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('user_token')
         if(token) {
             config.headers = {
                 ...config.headers,

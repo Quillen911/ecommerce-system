@@ -23,7 +23,7 @@ export default function LoginRegisterSplit() {
   const [formErrors, setFormErrors] = useState<{ [key: string]: string[] }>({})
   
   const loading = loginMutation.isPending || registerMutation.isPending || csrfMutation.isPending
-  const error = isLogin ? loginMutation.error?.response?.data?.message : registerMutation.error?.response?.data?.message
+  const error = isLogin ? loginMutation.error?.response?.data?.error : registerMutation.error?.response?.data?.error
   const fieldErrors = isLogin ? loginMutation.error?.response?.data?.errors : registerMutation.error?.response?.data?.errors
 
   const clearForm = () => {
@@ -58,8 +58,8 @@ export default function LoginRegisterSplit() {
         router.push('/')
       } else {
         await registerMutation.mutateAsync({ 
-          firstName: firstName, 
-          lastName: lastName, 
+          first_name: firstName, 
+          last_name: lastName, 
           username, 
           email, 
           password, 
@@ -78,13 +78,13 @@ export default function LoginRegisterSplit() {
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-100">
       {/* Sol taraf  */}
-      <div className="flex items-center justify-center p-12">    
+      <div className="flex items-center justify-center p-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-sm"
-        > 
+        >
           <AnimatePresence mode="wait">
             {isLogin ? (
               <motion.div
@@ -100,24 +100,29 @@ export default function LoginRegisterSplit() {
                     {error}
                   </div>
                 )}
+                {fieldErrors && Object.keys(fieldErrors).map((key) => (
+                  <div key={key} className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm mb-3">
+                    {fieldErrors[key][0]}
+                  </div>
+                ))}
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <Input 
-                    label="E-posta Adresi" 
-                    placeholder="ornek@email.com" 
-                    value={email} 
-                    onChange={setEmail} 
-                    type="email" 
+                  <Input
+                    label="E-posta Adresi"
+                    placeholder="ornek@email.com"
+                    value={email}
+                    onChange={setEmail}
+                    type="email"
                     autoComplete="email"
-                    error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} 
+                    error={formErrors?.email?.[0] || fieldErrors?.email?.[0]}
                   />
-                  <Input 
-                    label="Şifre" 
-                    placeholder="********" 
-                    value={password} 
-                    onChange={setPassword} 
-                    type="password" 
+                  <Input
+                    label="Şifre"
+                    placeholder="********"
+                    value={password}
+                    onChange={setPassword}
+                    type="password"
                     autoComplete="password"
-                    error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} 
+                    error={formErrors?.password?.[0] || fieldErrors?.password?.[0]}
                   />
                   <div className="flex items-center justify-between">
                     <label className="flex items-center space-x-2 text-sm text-gray-600">
@@ -150,12 +155,17 @@ export default function LoginRegisterSplit() {
                 transition={{ duration: 0.4 }}
               >
                 <h1 className="text-3xl font-bold mb-8">Kayıt Ol</h1>
+                {fieldErrors && Object.keys(fieldErrors).map((key) => (
+                  <div key={key} className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm mb-3">
+                    {fieldErrors[key][0]}
+                  </div>
+                ))}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input label="Ad" value={firstName} onChange={setFirstName} autoComplete="given-name" error={formErrors?.first_name?.[0] || fieldErrors?.first_name?.[0]} />
                   <Input label="Soyad" value={lastName} onChange={setLastName} autoComplete="family-name" error={formErrors?.last_name?.[0] || fieldErrors?.last_name?.[0]} />
                   <Input label="Kullanıcı Adı" value={username} onChange={setUsername} autoComplete="username" error={formErrors?.username?.[0] || fieldErrors?.username?.[0]} />
                   <Input label="E-posta Adresi" value={email} onChange={setEmail} type="email" autoComplete="email" error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} />
-                  <Input label="Şifre" value={password} onChange={setPassword} type="password"  autoComplete="new-password" error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} />
+                  <Input label="Şifre" value={password} onChange={setPassword} type="password" autoComplete="new-password" error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} />
                   <Input label="Şifre Tekrarı" value={passwordConfirmation} onChange={setPasswordConfirmation} type="password" autoComplete="new-password" error={formErrors?.password_confirmation?.[0] || fieldErrors?.password_confirmation?.[0]} />
                   <button
                     type="submit"
@@ -176,7 +186,7 @@ export default function LoginRegisterSplit() {
           </AnimatePresence>
         </motion.div>
       </div>
-
+  
       {/* Sağ taraf  */}
       <div className="hidden md:flex items-center justify-center bg-gray-100">
         <motion.div
@@ -200,4 +210,5 @@ export default function LoginRegisterSplit() {
       </div>
     </div>
   )
+  
 }

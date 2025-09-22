@@ -17,7 +17,6 @@ class ProductUpdateRequest extends FormRequest
         return [
             'title' => 'sometimes|string|max:255',
             'category_id' => 'sometimes|nullable|exists:categories,id',
-            'author' => 'sometimes|string|max:255',
             'description' => 'sometimes|nullable|string',
             'meta_description' => 'sometimes|nullable|string|max:160',
             'list_price' => 'sometimes|numeric|min:0',

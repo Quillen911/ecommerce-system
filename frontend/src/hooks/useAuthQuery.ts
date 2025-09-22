@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { authApi, LoginRequest, RegisterRequest } from '@/lib/api/authApi'
+import { authApi } from '@/lib/api/authApi' 
+import { LoginRequest, RegisterRequest } from '@/types/user'
 
 export const authKeys = {
   all: ['auth'] as const,
@@ -13,7 +14,7 @@ export const useMe = () => {
       const response = await authApi.me()
       return response.data.data
     },
-    enabled: typeof window !== 'undefined' && !!localStorage.getItem('token'),
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('user_token'),
     staleTime: 5 * 60 * 1000, 
     retry: 1,
   })
@@ -26,7 +27,7 @@ export const useProfile = () => {
       const response = await authApi.profile()
       return response.data.data
     },
-    enabled: typeof window !== 'undefined' && !!localStorage.getItem('token'),
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('user_token'),
     staleTime: 5 * 60 * 1000, 
     retry: 1,
   })
@@ -41,8 +42,8 @@ export const useLogin = () => {
       return response.data
     },
     onSuccess: (data: any) => {
-      localStorage.setItem('token', data.data.token)
-      document.cookie = `token=${data.data.token}; path=/; max-age=86400`
+      localStorage.setItem('user_token', data.data.token)
+      document.cookie = `user_token=${data.data.token}; path=/; max-age=86400`
       queryClient.setQueryData(authKeys.me(), data.data.user)
 
       queryClient.removeQueries({ queryKey: ['addresses'] })
@@ -64,8 +65,8 @@ export const useRegister = () => {
       return response.data
     },
     onSuccess: (data: any) => {
-      localStorage.setItem('token', data.data.token)
-      document.cookie = `token=${data.data.token}; path=/; max-age=86400`
+      localStorage.setItem('user_token', data.data.token)
+      document.cookie = `user_token=${data.data.token}; path=/; max-age=86400`
       queryClient.setQueryData(authKeys.me(), data.data.user)
     },
     onError: (error: any) => {
@@ -83,14 +84,14 @@ export const useLogout = () => {
       return response.data
     },
     onSuccess: () => {
-      localStorage.removeItem('token')
-      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      localStorage.removeItem('user_token')
+      document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       queryClient.removeQueries({ queryKey: authKeys.all })
       queryClient.removeQueries()
     },
     onError: (error: any) => {
-      localStorage.removeItem('token')
-      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      localStorage.removeItem('user_token')
+      document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       queryClient.removeQueries({ queryKey: authKeys.all })
       queryClient.removeQueries()
     }
