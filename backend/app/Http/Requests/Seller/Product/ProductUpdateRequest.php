@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Seller\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ProductUpdateRequest extends FormRequest
 {
@@ -20,26 +19,19 @@ class ProductUpdateRequest extends FormRequest
             'description' => 'sometimes|nullable|string',
             'meta_description' => 'sometimes|nullable|string|max:160',
             'list_price' => 'sometimes|numeric|min:0',
-            'stock_quantity' => 'sometimes|integer|min:0',
             'sold_quantity' => 'sometimes|integer|min:0',
+            'is_published' => 'sometimes|boolean',
 
             'images' => 'sometimes|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
-            // Varyantlar
             'variants' => 'sometimes|array|min:1',
-            'variants.*.sku' => [
-                'sometimes',
-                'string',
-                'max:255',
-                Rule::unique('product_variants', 'sku')->ignore($this->variant_id ?? null),
-            ],
+            'variants.*.id' => 'required_with:variants.*.price,variants.*.stock_quantity,variants.*.attributes|exists:product_variants,id',
             'variants.*.price' => 'sometimes|numeric|min:0',
             'variants.*.stock_quantity' => 'sometimes|integer|min:0',
             'variants.*.images' => 'sometimes|array|min:1',
             'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
-            // Varyant attribute validasyonu
             'variants.*.attributes' => 'sometimes|array|min:1',
             'variants.*.attributes.*.attribute_id' => 'sometimes|exists:attributes,id',
             'variants.*.attributes.*.option_id' => 'nullable|exists:attribute_options,id',
@@ -57,11 +49,10 @@ class ProductUpdateRequest extends FormRequest
             'list_price.numeric' => 'Liste fiyatı sayı olmalıdır.',
             'list_price.min' => 'Liste fiyatı en az 0 olmalıdır.',
 
-            'stock_quantity.integer' => 'Stok miktarı sayı olmalıdır.',
-            'stock_quantity.min' => 'Stok miktarı en az 0 olmalıdır.',
-
             'sold_quantity.integer' => 'Satılan miktar sayı olmalıdır.',
             'sold_quantity.min' => 'Satılan miktar en az 0 olmalıdır.',
+
+            'is_published.boolean' => 'Yayın durumu boolean olmalıdır.',
 
             'images.array' => 'Resimler dizi olmalıdır.',
             'images.*.image' => 'Resimler resim dosyası olmalıdır.',
@@ -69,9 +60,7 @@ class ProductUpdateRequest extends FormRequest
             'images.*.max' => 'Resimler en fazla 2MB olmalıdır.',
 
             'variants.array' => 'Variants dizi olmalıdır.',
-            'variants.*.sku.string' => 'SKU metin olmalıdır.',
-            'variants.*.sku.max' => 'SKU en fazla 255 karakter olmalıdır.',
-            'variants.*.sku.unique' => 'SKU benzersiz olmalıdır.',
+            'variants.*.id.exists' => 'Geçersiz varyant.',
             'variants.*.price.numeric' => 'Fiyat sayı olmalıdır.',
             'variants.*.price.min' => 'Fiyat en az 0 olmalıdır.',
             'variants.*.stock_quantity.integer' => 'Stok miktarı sayı olmalıdır.',
@@ -84,7 +73,6 @@ class ProductUpdateRequest extends FormRequest
             'variants.*.attributes.array' => 'Varyant özellikleri dizi olmalıdır.',
             'variants.*.attributes.*.attribute_id.exists' => 'Geçersiz attribute.',
             'variants.*.attributes.*.option_id.exists' => 'Geçersiz attribute option.',
-            'variants.*.attributes.*.value.string' => 'Attribute değeri metin olmalıdır.',
         ];
     }
 }

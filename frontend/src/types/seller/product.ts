@@ -41,7 +41,6 @@ export interface Product {
 export interface StoreProductRequest {
     title: string
     category_id?: number | null
-    author?: string | null
     description?: string | null
     meta_description?: string | null
     list_price: number
@@ -51,7 +50,6 @@ export interface StoreProductRequest {
 }
   
 export interface StoreProductVariantRequest {
-    sku: string
     price: number
     stock_quantity: number
     images: File[]
@@ -61,7 +59,6 @@ export interface StoreProductVariantRequest {
 export interface StoreProductVariantAttributeRequest {
     attribute_id: number
     option_id?: number | null
-    value?: string | null
 }
   
 
@@ -85,7 +82,6 @@ export interface UpdateProductRequest {
 }
   
 export interface UpdateVariantRequest {
-    sku?: string
     price?: number
     stock_quantity?: number
     images?: File[]
@@ -95,7 +91,6 @@ export interface UpdateVariantRequest {
 export interface UpdateVariantAttributeRequest {
     attribute_id?: number
     option_id?: number | null
-    value?: string | null
 }
 
 export interface UpdateProductResponse {

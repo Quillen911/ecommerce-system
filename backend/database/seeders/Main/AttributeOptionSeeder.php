@@ -10,37 +10,42 @@ class AttributeOptionSeeder extends Seeder
     public function run()
     {
         // Renkler
-        AttributeOption::create([
-            'attribute_id' => 1, 
-            'value' => 'Kırmızı', 
-            'slug' => 'kirmizi'
-        ]);
-        AttributeOption::create([
-            'attribute_id' => 1, 
-            'value' => 'Mavi', 
-            'slug' => 'mavi'
-        ]);
-        AttributeOption::create([
-            'attribute_id' => 1, 
-            'value' => 'Yeşil', 
-            'slug' => 'yesil'
-        ]);
+        $colors = [
+            ['Kırmızı', 'kirmizi'],
+            ['Mavi', 'mavi'],
+            ['Yeşil', 'yesil'],
+            ['Siyah', 'siyah'],
+        ];
 
-        // Yaş Aralığı
-        AttributeOption::create([
-            'attribute_id' => 2, 
-            'value' => '3-4 Yaş', 
-            'slug' => '3-4-yas'
-        ]);
-        AttributeOption::create([
-            'attribute_id' => 2, 
-            'value' => '5-6 Yaş', 
-            'slug' => '5-6-yas'
-        ]);
-        AttributeOption::create([
-            'attribute_id' => 2, 
-            'value' => '7-8 Yaş', 
-            'slug' => '7-8-yas'
-        ]);
+        foreach ($colors as $color) {
+            AttributeOption::create([
+                'attribute_id' => 1, // Renk
+                'value' => $color[0],
+                'slug'  => $color[1],
+            ]);
+        }
+
+        // Yaş Aralıkları / Bedenler
+        $ages = [
+            ['6 Yaş', '6-yas'],
+            ['7 Yaş', '7-yas'],
+            ['8 Yaş', '8-yas'],
+            ['9 Yaş', '9-yas'],
+            ['10 Yaş', '10-yas'],
+            ['11 Yaş', '11-yas'],
+            ['12 Yaş', '12-yas'],
+            ['13 Yaş', '13-yas'],
+            ['14 Yaş', '14-yas'],
+            ['15 Yaş', '15-yas'],
+            ['16 Yaş', '16-yas'],
+        ];
+
+        foreach ($ages as $age) {
+            AttributeOption::create([
+                'attribute_id' => 2, // Yaş Aralığı
+                'value' => $age[0],
+                'slug'  => $age[1],
+            ]);
+        }
     }
 }

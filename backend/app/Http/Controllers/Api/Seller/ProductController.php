@@ -57,7 +57,12 @@ class ProductController extends Controller
             
             $products = $this->productService->indexProduct($seller->id);
 
-            return ProductResource::collection($products->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option'));
+            return ProductResource::collection($products->load([
+                'category.parent',
+                'category.children',
+                'variants.variantAttributes.attribute',
+                'variants.variantAttributes.option'
+            ]));
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürünler alınamadı: ' . $e->getMessage());
@@ -65,16 +70,36 @@ class ProductController extends Controller
     }
     public function store(ProductStoreRequest $request)
     {
-        try{
+        try {
             $seller = $this->authenticationRepository->getSeller();
-            $product = $this->productService->createProduct($seller->id, $request->validated());
             
-            return new ProductResource($product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option'));
-        }
-        catch(\Exception $e){
+            $data = $request->validated();
+
+            if ($request->hasFile('images')) {
+                $data['images'] = $request->file('images');
+            }
+
+            foreach ($request->file('variants', []) as $i => $variant) {
+                if (isset($variant['images'])) {
+                    $data['variants'][$i]['images'] = $variant['images'];
+                }
+            }
+
+            $product = $this->productService->createProduct($seller->id, $data);
+
+            return new ProductResource(
+                $product->load([
+                    'category.parent',
+                    'category.children',
+                    'variants.variantAttributes.attribute',
+                    'variants.variantAttributes.option'
+                ])
+            );
+        } catch (\Exception $e) {
             return ResponseHelper::error('Ürün oluşturulamadı: ' . $e->getMessage());
         }
     }
+
     public function show(Product $product)
     {
         try{
@@ -83,7 +108,12 @@ class ProductController extends Controller
                 return ResponseHelper::error('Bu ürüne erişim yetkiniz yok.');
             }
             return new ProductResource(
-                $product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+                $product->load([
+                    'category.parent',
+                    'category.children',
+                    'variants.variantAttributes.attribute',
+                    'variants.variantAttributes.option'
+                ])
             );
         }
         catch(\Exception $e){
@@ -95,10 +125,28 @@ class ProductController extends Controller
     {
         try{
             $seller = $this->authenticationRepository->getSeller();
-            $product = $this->productService->updateProduct($seller->id, $request->validated(), $id);
+
+            $data = $request->validated();
+
+            if ($request->hasFile('images')) {
+                $data['images'] = $request->file('images');
+            }
+
+            foreach ($request->file('variants', []) as $i => $variant) {
+                if (isset($variant['images'])) {
+                    $data['variants'][$i]['images'] = $variant['images'];
+                }
+            }
+
+            $product = $this->productService->updateProduct($seller->id, $data, $id);
             
             return new ProductResource(
-                $product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+                $product->load([
+                    'category.parent',
+                    'category.children',
+                    'variants.variantAttributes.attribute',
+                    'variants.variantAttributes.option'
+                ])
             );
         }
         catch(\Exception $e){
@@ -111,9 +159,7 @@ class ProductController extends Controller
             $seller = $this->authenticationRepository->getSeller();
             $product = $this->productService->deleteProduct($seller->id, $id);
             
-            return ResponseHelper::success('Ürün başarıyla silindi', new ProductResource(
-                $product->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
-            ));
+            return ResponseHelper::success('Ürün başarıyla silindi.');
         }
         catch(\Exception $e){
             return ResponseHelper::error('Ürün silinemedi: ' . $e->getMessage());
@@ -128,7 +174,12 @@ class ProductController extends Controller
             $products = $this->productService->bulkStoreProductApi($productsData, $seller->id);
             
             return ProductResource::collection(
-                collect($products)->load('category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+                collect($products)->load([
+                    'category.parent',
+                    'category.children',
+                    'variants.variantAttributes.attribute',
+                    'variants.variantAttributes.option'
+                ])
             );
         } catch(\Exception $e){
             return ResponseHelper::error('Ürünler oluşturulamadı: ' . $e->getMessage());
@@ -158,7 +209,12 @@ class ProductController extends Controller
                     'page' => $request->input('page', 1),
                     'size' => $request->input('size', 12),
                     'query' => $query ? $query : "null",
-                    'products' => ProductResource::collection(collect($data['products'])),
+                    'products' => ProductResource::collection(collect($data['products'])->load([
+                        'category.parent',
+                        'category.children',
+                        'variants.variantAttributes.attribute',
+                        'variants.variantAttributes.option'
+                    ])),
                 ]);
             }
 

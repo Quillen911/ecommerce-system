@@ -73,11 +73,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
         }
 
-        // Ana ürün resimlerini işle
-        if (isset($productData['images']) && is_array($productData['images'])) {
-            $productData['images'] = $this->processImages($productData['images']);
-        }
-
         return $this->create($productData);
     }
 
@@ -88,10 +83,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     {
         if (isset($productData['list_price'])) {
             $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
-        }
-
-        if (isset($productData['images']) && is_array($productData['images'])) {
-            $productData['images'] = $this->processImages($productData['images']);
         }
 
         $product = $this->model->where('store_id', $storeId)->where('id', $id)->first();
@@ -209,25 +200,5 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     public function getProductBySlug($storeId, $slug)
     {
         return $this->model->where('store_id', $storeId)->where('slug', $slug)->first();
-    }
-
-    /**
-     * Resim yükleme işlemlerini soyutladım.
-     */
-    private function processImages(array $images): array
-    {
-        $processed = [];
-
-        foreach ($images as $image) {
-            if ($image instanceof \Illuminate\Http\UploadedFile) {
-                $filename = time() . '_' . $image->getClientOriginalName();
-                $image->storeAs('productsImages', $filename, 'public');
-                $processed[] = $filename;
-            } else {
-                $processed[] = $image;
-            }
-        }
-
-        return $processed;
     }
 }

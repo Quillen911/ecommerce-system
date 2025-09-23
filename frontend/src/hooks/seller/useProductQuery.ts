@@ -27,8 +27,8 @@ export const useStoreProduct = (sellerId?: number) => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async (data: StoreProductRequest) => {
-            const response = await ProductApi.store(data)
+        mutationFn: async (formData: FormData) => {
+            const response = await ProductApi.store(formData)
             return response.data
         },
         onSuccess: (data: any) => {
@@ -71,21 +71,18 @@ export const useUpdateProduct = (id: number, sellerId?: number) => {
     })
 }
 
-export const useDestroyProduct = (id: number, sellerId?: number) => {
+export const useDestroyProduct = (sellerId?: number) => {
     const queryClient = useQueryClient()
-
+  
     return useMutation({
-        mutationFn: async () => {
-            const response = await ProductApi.destroy(id)
-            return response.data
-        },
-        onSuccess: (data: any) => {
-            queryClient.invalidateQueries({ queryKey: productKeys.detail(id, sellerId) })
-            queryClient.invalidateQueries({ queryKey: productKeys.index(sellerId) })
-        },
-        onError: (error: any) => {
-            // Error handling
-        }
+      mutationFn: async (productId: number) => {
+        const response = await ProductApi.destroy(productId)
+        return response.data
+      },
+      onSuccess: (_, productId) => {
+        queryClient.invalidateQueries({ queryKey: productKeys.detail(productId, sellerId) })
+        queryClient.invalidateQueries({ queryKey: productKeys.index(sellerId) })
+      },
     })
 }
 

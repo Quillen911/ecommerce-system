@@ -1,27 +1,42 @@
-export interface MainData {
+export interface Attribute {
+    id: number
+    name: string
+    code: string
+  }
+  
+  export interface AttributeOption {
+    id: number
+    attribute_id: number
+    value: string
+    slug?: string | null
+  }
+  
+  export interface MainData {
     products: {
-        current_page: number
-        data: Product[]
-        first_page_url: string
-        from: number
-        last_page: number
-        last_page_url: string
-        links: Array<{
-            url: string | null
-            label: string
-            page: number | null
-            active: boolean
-        }>
-        next_page_url: string | null
-        path: string
-        per_page: number
-        prev_page_url: string | null
-        to: number
-        total: number
+      current_page: number
+      data: Product[]
+      first_page_url: string
+      from: number
+      last_page: number
+      last_page_url: string
+      links: Array<{
+        url: string | null
+        label: string
+        page: number | null
+        active: boolean
+      }>
+      next_page_url: string | null
+      path: string
+      per_page: number
+      prev_page_url: string | null
+      to: number
+      total: number
     }
     categories: Category[]
     campaigns: Campaign[]
-}
+    attributes: Attribute[]
+    attributeOptions: AttributeOption[]
+  }
 
 export interface CategoryResponse {
     products: {
@@ -42,14 +57,26 @@ export interface CategoryResponse {
     }
   }
 
-export interface ProductAttribute {
+  export interface ProductAttribute {
+    attribute_id: number
     code: string
-    label: string
+    name: string
     value: string
-    slug: string
-}
+    slug?: string | null
+  }
+  
 
-export interface Product {
+  export interface ProductVariant {
+    id: number
+    sku: string
+    price: number
+    price_cents: number
+    stock_quantity: number
+    images: string[]
+    attributes: ProductAttribute[]
+  }
+  
+  export interface Product {
     id: number
     store_id: number
     store_name: string
@@ -69,17 +96,18 @@ export interface Product {
     updated_at: string
     deleted_at: string | null
     category: Category
-    computed_attributes?: ProductAttribute[]
-}
+    variants: ProductVariant[]
+  }
+  
 
 
-export interface Category {
+  export interface Category {
     id: number
-    category_title: string
-    category_slug: string
-    created_at: string
-    updated_at: string
-}
+    title: string
+    slug: string
+    parent_id: number | null
+    children?: Category[]
+  }
 
 export interface Campaign {
     id: number

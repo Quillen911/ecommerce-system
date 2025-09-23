@@ -2,8 +2,7 @@ import axios from "axios"
 import { BulkProductResponse, 
     BulkProductStoreRequest, 
     DestroyProductResponse, 
-    Product, 
-    StoreProductRequest, 
+    Product,  
     StoreProductResponse, 
     UpdateProductRequest, 
     UpdateProductResponse 
@@ -34,8 +33,8 @@ api.interceptors.request.use((config) => {
 export const ProductApi = {
     index: () => api.get<{ message: string; data: Product[] }>('/seller/product'),
 
-    store: (data: StoreProductRequest) =>
-      api.post<StoreProductResponse>('/seller/product', data, {
+    store: (formData: FormData) =>
+      api.post<StoreProductResponse>('/seller/product', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       }),
 

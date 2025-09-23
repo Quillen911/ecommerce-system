@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MainController;
 use App\Http\Controllers\Api\MyOrdersController;
 use App\Http\Controllers\Api\Seller\CampaignController;
 use App\Http\Controllers\Api\Seller\ProductController;
+use App\Http\Controllers\Api\Seller\CategoryController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 use App\Http\Controllers\Api\User\AddressesController;
@@ -59,6 +60,8 @@ Route::middleware('auth:seller')->group(function(){
 
         Route::apiResource('campaign', CampaignController::class);
         Route::apiResource('product', ProductController::class);
+        Route::get('/categories/{id}/children', [CategoryController::class, 'children']);
+
 
         Route::apiResource('order', SellerOrderController::class)->only(['index','show']);
         Route::post('orderitem/{id}/confirm', [SellerOrderController::class, 'confirmOrderItem']);

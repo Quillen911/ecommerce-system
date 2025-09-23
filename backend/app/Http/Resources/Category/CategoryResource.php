@@ -13,6 +13,7 @@ class CategoryResource extends JsonResource
             'title'    => $this->category_title,
             'slug'     => $this->category_slug,
             'parent_id'=> $this->parent_id,
+            'parent'   => new CategoryResource($this->whenLoaded('parent')),
             'children' => CategoryResource::collection($this->whenLoaded('children')),
         ];
     }

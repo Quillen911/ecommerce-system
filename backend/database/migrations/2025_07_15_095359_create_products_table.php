@@ -21,10 +21,10 @@ return new class extends Migration
             $table->text('meta_description')->nullable();
             $table->decimal('list_price',10,2);
             $table->bigInteger('list_price_cents')->default(0);
-            $table->integer('stock_quantity');
+            $table->integer('stock_quantity')->nullable();
             $table->boolean('is_published')->default(true);
             $table->integer('sold_quantity')->default(0);
-            $table->json('images');
+            $table->json('images')->nullable();
             $table->timestamps();
             $table->softDeletes();
             

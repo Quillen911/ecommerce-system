@@ -8,6 +8,8 @@ use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Traits\GetUser;
 use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
+use App\Repositories\Contracts\Attribute\AttributeRepositoryInterface;
+use App\Repositories\Contracts\AttributeOptions\AttributeOptionsRepositoryInterface;
 
 class MainService
 {
@@ -17,12 +19,16 @@ class MainService
     protected $categoryRepository;
     protected $authenticationRepository;
     protected $campaignRepository;
+    protected $attributeRepository;
+    protected $attributeOptionsRepository;
     public function __construct(
         ElasticsearchService $elasticSearch, 
         ProductRepositoryInterface $productRepository, 
         CategoryRepositoryInterface $categoryRepository,
         AuthenticationRepositoryInterface $authenticationRepository,
-        CampaignRepositoryInterface $campaignRepository
+        CampaignRepositoryInterface $campaignRepository,
+        AttributeRepositoryInterface $attributeRepository,
+        AttributeOptionsRepositoryInterface $attributeOptionsRepository
     )
     {
         $this->elasticSearch = $elasticSearch;
@@ -30,6 +36,8 @@ class MainService
         $this->categoryRepository = $categoryRepository;
         $this->authenticationRepository = $authenticationRepository;
         $this->campaignRepository = $campaignRepository;
+        $this->attributeRepository = $attributeRepository;
+        $this->attributeOptionsRepository = $attributeOptionsRepository;
     }
 
     public function getProducts()
@@ -59,6 +67,18 @@ class MainService
 
         $campaigns = $this->campaignRepository->getActiveCampaigns();
         return $campaigns;
+    }
+
+    public function getAttributes()
+    {
+
+        return $this->attributeRepository->getAllAttributes();
+    }
+
+    public function getAttributeOptions()
+    {
+
+        return $this->attributeOptionsRepository->getAllAttributeOptions();
     }
 
 }

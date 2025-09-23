@@ -19,13 +19,11 @@ class ProductStoreRequest extends FormRequest
             'description' => 'nullable|string',
             'meta_description' => 'nullable|string|max:160',
             'list_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
             'images' => 'sometimes|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
             // Varyantlar
             'variants' => 'required|array|min:1',
-            'variants.*.sku' => 'required|string|max:255|unique:product_variants,sku',
             'variants.*.price' => 'required|numeric|min:0',
             'variants.*.stock_quantity' => 'required|integer|min:0',
             'variants.*.images' => 'required|array|min:1',
@@ -34,8 +32,7 @@ class ProductStoreRequest extends FormRequest
             // Varyant attribute validasyonu
             'variants.*.attributes' => 'required|array|min:1',
             'variants.*.attributes.*.attribute_id' => 'required|exists:attributes,id',
-            'variants.*.attributes.*.option_id' => 'nullable|exists:attribute_options,id',
-            'variants.*.attributes.*.value' => 'nullable|string|max:255'
+            'variants.*.attributes.*.option_id' => 'required|exists:attribute_options,id',
         ];
     }
 
@@ -79,8 +76,8 @@ class ProductStoreRequest extends FormRequest
             'variants.*.attributes.required' => 'Varyant için en az bir özellik eklenmelidir.',
             'variants.*.attributes.*.attribute_id.required' => 'Attribute ID zorunludur.',
             'variants.*.attributes.*.attribute_id.exists' => 'Geçersiz attribute.',
+            'variants.*.attributes.*.option_id.required' => 'Attribute option zorunludur.',
             'variants.*.attributes.*.option_id.exists' => 'Geçersiz attribute option.',
-            'variants.*.attributes.*.value.string' => 'Attribute değeri metin olmalıdır.'
         ];
     }
 }

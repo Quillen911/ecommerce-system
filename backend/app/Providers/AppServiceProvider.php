@@ -43,6 +43,18 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\Category\CategoryRepository::class
         );
 
+        // Attribute Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\Attribute\AttributeRepositoryInterface::class,
+            \App\Repositories\Eloquent\Attribute\AttributeRepository::class
+        );
+
+        // Attribute Options Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\AttributeOptions\AttributeOptionsRepositoryInterface::class,
+            \App\Repositories\Eloquent\AttributeOptions\AttributeOptionsRepository::class
+        );
+
         // Store Repository
         $this->app->bind(
             \App\Repositories\Contracts\Store\StoreRepositoryInterface::class,

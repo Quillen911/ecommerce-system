@@ -45,11 +45,6 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
-    public function getStockQuantityAttribute()
-    {
-        return $this->variants()->sum('stock_quantity');
-    }
-
     public function category(){
         return $this->belongsTo(Category::class, 'category_id');
     }
@@ -60,6 +55,11 @@ class Product extends Model
     
     public function scopePublished($query) {
         return $query->where('is_published', true);
+    }
+
+    public function getStockQuantityAttribute()
+    {
+        return $this->variants()->sum('stock_quantity');
     }
 
     public function getRouteKeyName() {

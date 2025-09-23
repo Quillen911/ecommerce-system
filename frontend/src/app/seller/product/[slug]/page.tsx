@@ -2,16 +2,20 @@
 import { useParams } from 'next/navigation'
 import ProductImage  from '@/components/ui/ProductImage'
 import { useShowProductBySlug } from '@/hooks/seller/useProductQuery'
+import { useRouter } from 'next/navigation'
 
 export default function ProductDetailPage() {
   const { slug } = useParams()
   const { data: product, isLoading } = useShowProductBySlug(slug as string)
-
+  const router = useRouter()
   if (!product) return <p>Ürün bulunamadı</p>
   if (isLoading) return <p>Yükleniyor...</p>
 
   return (
     <div className="p-6">
+      <button className="bg-[var(--text)] text-white p-3 rounded-3xl absolute top-10 right-10 hover:bg-gray-500 hover:text-black transition-all duration-300" onClick={() => router.back()}>
+        Geri
+      </button>
       <h1 className="text-2xl font-bold mb-4">{product.title}</h1>
       <ProductImage 
         product={product} 
