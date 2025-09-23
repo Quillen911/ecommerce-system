@@ -18,7 +18,6 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->nullable();
             $table->bigInteger('price_cents')->default(0);
             $table->integer('stock_quantity')->default(0);
-            $table->json('images')->nullable();
             $table->timestamps();
         });
     }

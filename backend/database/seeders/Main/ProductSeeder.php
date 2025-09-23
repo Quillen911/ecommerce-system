@@ -23,7 +23,6 @@ class ProductSeeder extends Seeder
             'stock_quantity' => 0, // varyantlar stok tutacak
             'sold_quantity' => 0,
             'is_published' => true,
-            'images' => ['esofman.jpg']
         ]);
     }
 }

@@ -11,6 +11,7 @@ use App\Models\ProductVariant;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use Illuminate\Http\UploadedFile;
 
 class ProductService
 {
@@ -50,44 +51,53 @@ class ProductService
             $slug = Str::slug($request['title']);
 
             $productData = $request;
-            $productData['store_id'] = $store->id;
-            $productData['store_name'] = $store->name;
+            $productData['store_id']      = $store->id;
+            $productData['store_name']    = $store->name;
             $productData['sold_quantity'] = 0;
-            $productData['slug'] = $slug;
-            $productData['is_published'] = true;
-            $productData['meta_title'] = $this->generateMetaTitle($request, $store);
-            $productData['meta_description'] = $request['meta_description'] ?? $this->generateMetaDescription($request, $store);
-
-            $productImages = Arr::flatten($productData['images'] ?? []);
-            $productData['images'] = $this->processImages($productImages);
+            $productData['slug']          = $slug;
+            $productData['is_published']  = true;
+            $productData['meta_title']    = $this->generateMetaTitle($productData, $store);
+            $productData['meta_description'] = $productData['meta_description'] 
+                ?? $this->generateMetaDescription($productData, $store);
 
             $product = $this->productRepository->createProduct($productData);
+
+            if ($request['images']) {
+                foreach ($request['images'] as $file) {
+                    $path = $file->store('productImages', 'public');
+                    $product->images()->create([
+                        'image' => Storage::url($path) // url döner: /storage/productImages/xxx.png
+                    ]);
+                }
+            }
+
             $totalStock = 0;
 
-            if (!empty($request['variants'])) {
-                foreach ($request['variants'] as $index => $variantData) {
-                    
-                    $sku = $this->generateSku($product, $variantData, $index);
+            foreach ($request['variants'] as $index => $variantData) {
+                $sku = $this->generateSku($product, $variantData, $index);
 
-                    $variantImages = Arr::flatten($variantData['images'] ?? []);
+                $variant = $product->variants()->create([
+                    'sku'            => $sku,
+                    'price'          => $variantData['price'],
+                    'price_cents'    => $variantData['price'] * 100,
+                    'stock_quantity' => $variantData['stock_quantity'] ?? 0,
+                ]);
 
-                    $variant = $product->variants()->create([
-                        'sku'            => $sku,
-                        'price'          => $variantData['price'],
-                        'price_cents'    => $variantData['price'] * 100,
-                        'stock_quantity' => $variantData['stock_quantity'] ?? 0,
-                        'images'         => $this->processImages($variantImages),
-                    ]);
+                $totalStock += $variantData['stock_quantity'] ?? 0;
 
-                    $totalStock += $variantData['stock_quantity'] ?? 0;
+                if (!empty($variantData['attributes'])) {
+                    foreach ($variantData['attributes'] as $attr) {
+                        $variant->variantAttributes()->create([
+                            'attribute_id' => $attr['attribute_id'],
+                            'option_id'    => $attr['option_id'],
+                        ]);
+                    }
+                }
 
-                    if (!empty($variantData['attributes'])) {
-                        foreach ($variantData['attributes'] as $attr) {
-                            $variant->variantAttributes()->create([
-                                'attribute_id' => $attr['attribute_id'],
-                                'option_id'    => $attr['option_id'],
-                            ]);
-                        }
+                if ($request["variants"][$index]['images']) {
+                    foreach ($request["variants"][$index]['images'] as $file) {
+                        $path = $file->store('productImages', 'public');
+                        $variant->images()->create(['image' => Storage::url($path)]);
                     }
                 }
             }
@@ -97,9 +107,13 @@ class ProductService
                 'slug' => $slug . '-p-' . $product->id,
             ]);
 
-            return $product->load('variants.variantAttributes.attribute', 'variants.variantAttributes.option');
+            return $product->load([
+                    'variants.variantAttributes.attribute',
+                    'variants.variantAttributes.option',
+            ]);
         });
     }
+
 
     public function updateProduct($sellerId, array $request, $id)
     {
@@ -127,15 +141,22 @@ class ProductService
                 $productData['meta_description'] = $request['meta_description'];
             }
 
-
-            $productImages = Arr::flatten($productData['images'] ?? []);
-            $productData['images'] = $this->processImages($productImages);
+            /**
+             * Ürün resimleri
+             */
+            $uploadedProductFiles = request()->file('images') ?? []; // yeni dosyalar
+            $existingProductImages = is_array($product->images) ? $product->images : [];
+            $mergedProductImages = array_merge($existingProductImages, $uploadedProductFiles);
+            $productData['images'] = $this->processImages($mergedProductImages);
 
             $this->productRepository->updateProduct($productData, $store->id, $id);
 
             $product->refresh();
             $totalStock = 0;
 
+            /**
+             * Varyant güncelleme
+             */
             if (isset($request['variants'])) {
                 foreach ($request['variants'] as $variantData) {
                     $variantImages = Arr::flatten($variantData['images'] ?? []);
@@ -189,9 +210,13 @@ class ProductService
 
             $product->update(['stock_quantity' => $totalStock]);
 
-            return $product->fresh()->load('variants.variantAttributes.attribute', 'variants.variantAttributes.option');
+            return $product->fresh()->load(
+                'variants.variantAttributes.attribute',
+                'variants.variantAttributes.option'
+            );
         });
     }
+
 
 
     public function deleteProduct($sellerId, $id)
@@ -224,38 +249,6 @@ class ProductService
         }
 
         return $processed;
-    }
-
-
-    private function processBase64Image($base64String)
-    {
-        $parts = explode(',', $base64String);
-        if (count($parts) !== 2) {
-            throw new \Exception('Geçersiz base64 resim formatı');
-        }
-
-        $header = $parts[0];
-        $base64Data = $parts[1];
-
-        if (preg_match('/data:image\/(\w+);base64/', $header, $matches)) {
-            $extension = $matches[1];
-        } else {
-            $extension = 'jpg';
-        }
-
-        $imageData = base64_decode($base64Data);
-        if ($imageData === false) {
-            throw new \Exception('Base64 decode hatası');
-        }
-
-        if (strlen($imageData) > 2 * 1024 * 1024) {
-            throw new \Exception('Resim boyutu 2MB\'dan büyük olamaz');
-        }
-
-        $filename = time() . '_' . uniqid() . '.' . $extension;
-        Storage::disk('public')->put('productsImages/' . $filename, $imageData);
-
-        return $filename;
     }
 
     private function generateMetaTitle($request, $store)

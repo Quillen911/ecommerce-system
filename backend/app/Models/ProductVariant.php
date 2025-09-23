@@ -15,14 +15,12 @@ class ProductVariant extends Model
         'price',
         'price_cents',
         'stock_quantity',
-        'images'
     ];
 
     protected $casts = [
         'price' => 'float',
         'price_cents' => 'integer',
         'stock_quantity' => 'integer',
-        'images' => 'array'
     ];
 
     public function product()
@@ -33,5 +31,10 @@ class ProductVariant extends Model
     public function variantAttributes()
     {
         return $this->hasMany(VariantAttribute::class, 'variant_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductVariantImage::class, 'product_variant_id');
     }
 }

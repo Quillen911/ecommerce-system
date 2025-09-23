@@ -26,7 +26,7 @@ class ProductStoreRequest extends FormRequest
             'variants' => 'required|array|min:1',
             'variants.*.price' => 'required|numeric|min:0',
             'variants.*.stock_quantity' => 'required|integer|min:0',
-            'variants.*.images' => 'required|array|min:1',
+            'variants.*.images' => 'required|array',
             'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
             // Varyant attribute validasyonu

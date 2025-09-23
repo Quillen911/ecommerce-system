@@ -86,7 +86,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         }
 
         $product = $this->model->where('store_id', $storeId)->where('id', $id)->first();
-
+        
         if (!$product) {
             return false;
         }

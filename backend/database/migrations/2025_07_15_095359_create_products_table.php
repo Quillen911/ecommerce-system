@@ -24,7 +24,6 @@ return new class extends Migration
             $table->integer('stock_quantity')->nullable();
             $table->boolean('is_published')->default(true);
             $table->integer('sold_quantity')->default(0);
-            $table->json('images')->nullable();
             $table->timestamps();
             $table->softDeletes();
             

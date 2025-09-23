@@ -70,34 +70,18 @@ class ProductController extends Controller
     }
     public function store(ProductStoreRequest $request)
     {
-        try {
-            $seller = $this->authenticationRepository->getSeller();
-            
-            $data = $request->validated();
+        $seller = $this->authenticationRepository->getSeller();
 
-            if ($request->hasFile('images')) {
-                $data['images'] = $request->file('images');
-            }
+        $product = $this->productService->createProduct($seller->id, $request->validated());
 
-            foreach ($request->file('variants', []) as $i => $variant) {
-                if (isset($variant['images'])) {
-                    $data['variants'][$i]['images'] = $variant['images'];
-                }
-            }
-
-            $product = $this->productService->createProduct($seller->id, $data);
-
-            return new ProductResource(
-                $product->load([
-                    'category.parent',
-                    'category.children',
-                    'variants.variantAttributes.attribute',
-                    'variants.variantAttributes.option'
-                ])
-            );
-        } catch (\Exception $e) {
-            return ResponseHelper::error('Ürün oluşturulamadı: ' . $e->getMessage());
-        }
+        return new ProductResource(
+            $product->load([
+                'category.parent',
+                'category.children',
+                'variants.variantAttributes.attribute',
+                'variants.variantAttributes.option'
+            ])
+        );
     }
 
     public function show(Product $product)
@@ -132,12 +116,14 @@ class ProductController extends Controller
                 $data['images'] = $request->file('images');
             }
 
-            foreach ($request->file('variants', []) as $i => $variant) {
-                if (isset($variant['images'])) {
-                    $data['variants'][$i]['images'] = $variant['images'];
+            $variants = $request->input('variants', []); // varsayılan boş array
+
+            foreach ($variants as $i => $v) {
+                if ($request->hasFile("variants.$i.images")) {
+                    $data['variants'][$i]['images'] = $request->file("variants.$i.images");
                 }
             }
-
+            
             $product = $this->productService->updateProduct($seller->id, $data, $id);
             
             return new ProductResource(

@@ -30,19 +30,25 @@ class Product extends Model
         'stock_quantity',
         'sold_quantity',
         'is_published',
-        'images'
     ];
     protected $casts = [
         'list_price' => 'float',
         'list_price_cents' => 'integer',
         'stock_quantity' => 'integer',
         'is_published' => 'boolean',
-        'images' => 'array'
     ];
 
     public function variants()
     {
         return $this->hasMany(ProductVariant::class);
+    }
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class, 'product_id');
+    }
+    public function variantImages()
+    {
+        return $this->hasMany(ProductVariantImage::class, 'product_id');
     }
 
     public function category(){
