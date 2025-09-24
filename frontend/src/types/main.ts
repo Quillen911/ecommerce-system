@@ -1,3 +1,5 @@
+import { ProductImage, ProductVariantImage } from "./seller/product"
+
 export interface Attribute {
     id: number
     name: string
@@ -72,7 +74,7 @@ export interface CategoryResponse {
     price: number
     price_cents: number
     stock_quantity: number
-    images: string[]
+    images: ProductVariantImage[]
     attributes: ProductAttribute[]
   }
   
@@ -91,7 +93,7 @@ export interface CategoryResponse {
     stock_quantity: number
     is_published: boolean
     sold_quantity: number
-    images: string[]
+    images: ProductImage[]
     created_at: string
     updated_at: string
     deleted_at: string | null

@@ -6,51 +6,25 @@ export interface ImageConfig {
     blur?: boolean
 }
 
-export const getProductImageUrl = (
-    imagePath: string | null | undefined, 
-    config?: ImageConfig
-): string => {
-    if (!imagePath) {
-        return '/images/no-image.svg'
+const DEFAULT_PRODUCT_IMAGE = '/images/no-image.svg'
+const DEFAULT_STORE_IMAGE = '/images/no-store.svg'
+
+export const getProductImage = (product: any, index: number = 0): string => {
+    if (!product?.images || !Array.isArray(product.images) || product.images.length === 0) {
+        return DEFAULT_PRODUCT_IMAGE
     }
-    
-    // Eğer tam URL ise direkt döndür
-    if (imagePath.startsWith('http')) {
-        return imagePath
+
+    if (index >= product.images.length) {
+        return DEFAULT_PRODUCT_IMAGE
     }
+
+    const imageData = product.images[index]
     
-    // Storage path'ini oluştur
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
-    let url = `${baseUrl}/storage/productsImages/${imagePath}`
-    
-    // Query parameters ekle (Laravel image optimization için)
-    if (config) {
-        const params = new URLSearchParams()
-        if (config.width) params.append('w', config.width.toString())
-        if (config.height) params.append('h', config.height.toString())
-        if (config.quality) params.append('q', config.quality.toString())
-        if (config.format) params.append('f', config.format)
-        if (config.blur) params.append('blur', '1')
-        
-        if (params.toString()) {
-            url += `?${params.toString()}`
-        }
-    }
-    
-    return url
+    return imageData?.image || DEFAULT_PRODUCT_IMAGE
 }
 
-export const getProductImage = (product: any, index: number = 0, config?: ImageConfig): string => {
-    if (!product.images || !Array.isArray(product.images) || product.images.length === 0) {
-        return '/images/no-image.svg'
-    }
-    
-    const imagePath = product.images[index]
-    return getProductImageUrl(imagePath, config)
-}
-
-export const getStoreImage = (store: any, config?: ImageConfig): string => {
-    return getProductImageUrl(store.image, config) || '/images/no-store.svg'
+export const getStoreImage = (store: any): string => {
+    return store?.image || DEFAULT_STORE_IMAGE
 }
 
 export const getImageDimensions = (aspectRatio: 'square' | 'portrait' | 'landscape' | 'wide') => {

@@ -72,20 +72,6 @@ class Product extends Model
         return 'slug';
     }
 
-    public function getFirstImageAttribute() {
-        if (!$this->images || !is_array($this->images) || empty($this->images)) {
-            return '/images/no-image.png';
-        }
-        
-        $firstImage = $this->images[0];
-        
-        if (is_object($firstImage) || is_array($firstImage) || empty($firstImage)) {
-            return '/images/no-image.png';
-        }
-        
-        return '/storage/productsImages/' . $firstImage;
-    }
-
     //Elasticsearch
     protected static function boot()
     {

@@ -14,7 +14,7 @@ class ProductVariantResource extends JsonResource
             'price'          => $this->price,
             'price_cents'    => $this->price_cents,
             'stock_quantity' => $this->stock_quantity,
-            'images'         => $this->images ?? [],
+            'images'         => ProductVariantImageResource::collection($this->whenLoaded('images')),
             'attributes'     => VariantAttributeResource::collection($this->whenLoaded('variantAttributes')),
         ];
     }

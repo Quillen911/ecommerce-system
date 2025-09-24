@@ -1,5 +1,4 @@
 'use client'
-
 import Image from 'next/image'
 import { useState } from 'react'
 import { getProductImage, getImageDimensions, getResponsiveSizes, ImageConfig } from '@/lib/utils/imageUtils'
@@ -36,7 +35,7 @@ export default function ProductImage({
     
     const dimensions = getImageDimensions(aspectRatio)
     const sizes = getResponsiveSizes(breakpoint)
-    const imageUrl = getProductImage(product, index, config)
+    const imageUrl = getProductImage(product, index)
     const imageAlt = alt || product.title || 'Product image'
     
     const handleLoad = () => {
@@ -103,7 +102,6 @@ export default function ProductImage({
     )
 }
 
-// Özel kullanım için hazır componentler
 export function ProductCardImage({ product, ...props }: Omit<ProductImageProps, 'aspectRatio' | 'breakpoint'>) {
     return (
         <ProductImage 

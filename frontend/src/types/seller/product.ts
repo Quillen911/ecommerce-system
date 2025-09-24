@@ -1,5 +1,21 @@
 import { Category } from "./category"
 
+export interface ProductImage {
+    id: number
+    product_id: number
+    image: string
+    is_primary: boolean
+    sort_order: number
+}
+
+export interface ProductVariantImage {
+    id: number
+    product_variant_id: number
+    image: string
+    is_primary: boolean
+    sort_order: number
+}
+
 export interface ProductVariantAttribute {
     id: number
     attribute_id: number
@@ -15,7 +31,7 @@ export interface ProductVariant {
     price: number
     price_cents: number
     stock_quantity: number
-    images: string[]
+    images: ProductVariantImage[]
     attributes: ProductVariantAttribute[]
 }
 
@@ -32,7 +48,7 @@ export interface Product {
     stock_quantity: number
     sold_quantity: number
     is_published: boolean
-    images: string[]
+    images: ProductImage[]
     variants: ProductVariant[]
     created_at: string
     updated_at: string

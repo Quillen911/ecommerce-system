@@ -7,13 +7,14 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend:/var/www
-      - ./backend/storage:/var/www/storage
       - /var/www/vendor
       - /var/www/node_modules
     depends_on:
       - postgres
       - redis
     environment:
+      - LOG_CHANNEL=single
+      - LOG_LEVEL=debug
       - APP_ENV=local
       - DB_CONNECTION=pgsql
       - DB_HOST=postgres
@@ -35,7 +36,6 @@ services:
       - "8000:80"
     volumes:
       - ./backend:/var/www
-      - ./backend/storage:/var/www/storage 
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - api

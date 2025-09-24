@@ -64,6 +64,11 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ->get();
     }
 
+    public function getProductBySlugAndStore($storeId, $slug)
+    {
+        return $this->model->with('store')->where('store_id', $storeId)->where('slug', $slug)->first();
+    }
+
     /**
      * Ürün oluştur.
      */
@@ -136,10 +141,10 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             foreach ($product->images as $image) {
                 if (is_array($image)) {
                     foreach ($image as $img) {
-                        Storage::disk('public')->delete('productsImages/' . $img);
+                        Storage::disk('public')->delete('productImages/' . $img);
                     }
                 } else {
-                    Storage::disk('public')->delete('productsImages/' . $image);
+                    Storage::disk('public')->delete('productImages/' . $image);
                 }
             }
         }
@@ -150,10 +155,10 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 foreach ($variant->images as $image) {
                     if (is_array($image)) {
                         foreach ($image as $img) {
-                            Storage::disk('public')->delete('productsImages/' . $img);
+                            Storage::disk('public')->delete('productImages/' . $img);
                         }
                     } else {
-                        Storage::disk('public')->delete('productsImages/' . $image);
+                        Storage::disk('public')->delete('productImages/' . $image);
                     }
                 }
             }

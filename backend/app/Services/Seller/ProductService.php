@@ -236,7 +236,7 @@ class ProductService
         foreach ($images as $image) {
             if ($image instanceof \Illuminate\Http\UploadedFile) {
                 $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $path = $image->storeAs('productsImages', $filename, 'public');
+                $path = $image->storeAs('productImages', $filename, 'public');
 
                 if ($path) {
                     $processed[] = $filename;

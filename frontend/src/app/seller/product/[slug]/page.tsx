@@ -1,6 +1,6 @@
 'use client'
 import { useParams } from 'next/navigation'
-import ProductImage  from '@/components/ui/ProductImage'
+import ProductImage, { ProductCardImage } from '@/components/ui/ProductImage'
 import { useShowProductBySlug } from '@/hooks/seller/useProductQuery'
 import { useRouter } from 'next/navigation'
 
@@ -17,11 +17,8 @@ export default function ProductDetailPage() {
         Geri
       </button>
       <h1 className="text-2xl font-bold mb-4">{product.title}</h1>
-      <ProductImage 
+      <ProductCardImage 
         product={product} 
-        index={0}
-        alt={product.title} 
-        className="w-48 h-48 rounded mb-4" 
       /> 
       <p className="mb-4 text-muted">{product.description}</p>
       <p className="font-medium">Liste Fiyatı: {product.list_price} ₺</p>

@@ -226,7 +226,7 @@
                 @foreach($products as $product)
                     @php
                         $imageUrl = is_array($product) 
-                            ? '/storage/productsImages/' . $product['images'][0]
+                            ? '/storage/productsImage/' . $product['images'][0]
                             : $product->first_image;
                         $stockQty = is_array($product) ? $product['stock_quantity'] : $product->stock_quantity;
                         $stockClass = $stockQty <= 5 ? 'low' : ($stockQty <= 20 ? 'medium' : 'high');

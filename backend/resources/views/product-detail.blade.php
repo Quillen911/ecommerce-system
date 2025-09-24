@@ -143,7 +143,7 @@
     <div class="product-gallery">
         @foreach($product->images as $image)
             <div style="position:relative">
-            <img src="/storage/productsImages/{{ $image }}" 
+            <img src="/storage/productsImage/{{ $image }}" 
                  alt="{{ $product->title }}"
                  loading="lazy">
                 @if($product->stock_quantity <= 0)
@@ -210,7 +210,7 @@
                 @foreach($similar as $similarProduct)
                     <a href="{{ route('product.detail', $similarProduct->slug) }}" class="similar-product-card">
                         <div class="similar-product-image">
-                            <img src="/storage/productsImages/{{ $similarProduct->images[0] ?? 'no-image.png' }}" alt="{{ $similarProduct->title }}">
+                            <img src="/storage/productsImage/{{ $similarProduct->images[0] ?? 'no-image.png' }}" alt="{{ $similarProduct->title }}">
                         </div>
                         <div class="similar-product-info">
                             <h4>{{ $similarProduct->title }}</h4>
@@ -230,7 +230,7 @@
                 @foreach($similarSeller as $similarProduct)
                     <a href="{{ route('product.detail', $similarProduct->slug) }}" class="similar-product-card">
                         <div class="similar-product-image">
-                            <img src="/storage/productsImages/{{ $similarProduct->images[0] ?? 'no-image.png' }}" alt="{{ $similarProduct->title }}">
+                            <img src="/storage/productsImage/{{ $similarProduct->images[0] ?? 'no-image.png' }}" alt="{{ $similarProduct->title }}">
                         </div>
                         <div class="similar-product-info">
                             <h4>{{ $similarProduct->title }}</h4>
@@ -254,7 +254,7 @@
     "description": "{{ $product->description }}",
     "image": [
         @foreach($product->images as $image)
-            "{{ url('/storage/productsImages/' . $image) }}"{{ !$loop->last ? ',' : '' }}
+            "{{ url('/storage/productsImage/' . $image) }}"{{ !$loop->last ? ',' : '' }}
         @endforeach
     ],
     "offers": {
@@ -403,7 +403,7 @@
          productHtml = `
              <div class="cart-product">
                  <div class="cart-product-image">
-                     <img src="/storage/productsImages/${productData.image}" alt="${productData.title}">
+                     <img src="/storage/productsImage/${productData.image}" alt="${productData.title}">
                  </div>
                  <div class="cart-product-info">
                      <div class="cart-product-title">${productData.title}</div>

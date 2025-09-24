@@ -878,7 +878,7 @@
                 @php
                     $isOutOfStock = (is_array($p) ? $p['stock_quantity'] : $p->stock_quantity) <= 0;
                     $imageUrl = is_array($p) 
-                        ? '/storage/productsImages/' . $p['images'][0]
+                        ? '/storage/productsImage/' . $p['images'][0]
                         : $p->first_image;
                 @endphp
                 
@@ -1031,7 +1031,7 @@ document.addEventListener('DOMContentLoaded', function() {
             item.className = 'autocomplete-item';
             
             const imageUrl = product.images && product.images.length > 0 
-                ? `/storage/productsImages/${product.images[0]}`
+                ? `/storage/productsImage/${product.images[0]}`
                 : '';
             
             item.innerHTML = `

@@ -153,7 +153,7 @@ function showNotification(message, type, productData = null) {
         productHtml = `
             <div class="cart-product">
                 <div class="cart-product-image">
-                    <img src="/storage/productsImages/${productData.image}" alt="${productData.title}">
+                    <img src="/storage/productsImage/${productData.image}" alt="${productData.title}">
                 </div>
                 <div class="cart-product-info">
                     <div class="cart-product-title">${productData.title}</div>
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
             item.className = 'autocomplete-item';
             
             const imageUrl = product.images && product.images.length > 0 
-                ? `/storage/productsImages/${product.images[0]}`
+                ? `/storage/productsImage/${product.images[0]}`
                 : '';
             
             item.innerHTML = `

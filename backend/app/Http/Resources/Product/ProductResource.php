@@ -24,7 +24,7 @@ class ProductResource extends JsonResource
             'stock_quantity'   => $this->stock_quantity,
             'sold_quantity'    => $this->sold_quantity,
             'is_published'     => $this->is_published,
-            'images'           => $this->images ?? [],
+            'images'           => ProductImageResource::collection($this->whenLoaded('images')),
             'variants'         => ProductVariantResource::collection($this->whenLoaded('variants')),
             'created_at'       => $this->created_at,
             'updated_at'       => $this->updated_at,

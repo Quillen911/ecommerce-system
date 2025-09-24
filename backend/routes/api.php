@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\Seller\CategoryController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 use App\Http\Controllers\Api\User\AddressesController;
+use App\Http\Controllers\Api\Seller\Image\ProductImageController;
+use App\Http\Controllers\Api\Seller\Image\ProductVariantImageController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -60,6 +62,20 @@ Route::middleware('auth:seller')->group(function(){
 
         Route::apiResource('campaign', CampaignController::class);
         Route::apiResource('product', ProductController::class);
+
+        Route::prefix('product/{product}')->group(function () {
+            Route::post('images', [ProductImageController::class, 'store']);
+            Route::delete('images/{image}', [ProductImageController::class, 'destroy']);
+            Route::put('images/reorder', [ProductImageController::class, 'reorder']);
+            
+            Route::prefix('variants/{variant}')->group(function () {
+                Route::post('images', [ProductVariantImageController::class, 'store']);
+                Route::put('images/{image}', [ProductVariantImageController::class, 'update']);
+                Route::delete('images/{image}', [ProductVariantImageController::class, 'destroy']);
+                Route::put('images/reorder', [ProductVariantImageController::class, 'reorder']);
+            });
+        });
+
         Route::get('/categories/{id}/children', [CategoryController::class, 'children']);
 
 

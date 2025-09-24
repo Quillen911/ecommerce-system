@@ -39,7 +39,6 @@ class AddressesController extends Controller
     {
         $validatedData = $request->validated();
         
-        // Boş string'leri null'a çevir
         $nullableFields = ['address_line_2', 'postal_code', 'notes'];
         foreach ($nullableFields as $field) {
             if (isset($validatedData[$field]) && $validatedData[$field] === '') {
