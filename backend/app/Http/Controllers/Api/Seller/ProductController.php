@@ -60,7 +60,9 @@ class ProductController extends Controller
             return ProductResource::collection($products->load([
                 'category.parent',
                 'category.children',
+                'images',
                 'variants.variantAttributes.attribute',
+                'variants.variantImages',
                 'variants.variantAttributes.option'
             ]));
         }
@@ -78,7 +80,9 @@ class ProductController extends Controller
             $product->load([
                 'category.parent',
                 'category.children',
+                'images',
                 'variants.variantAttributes.attribute',
+                'variants.variantImages',
                 'variants.variantAttributes.option'
             ])
         );
@@ -95,7 +99,9 @@ class ProductController extends Controller
                 $product->load([
                     'category.parent',
                     'category.children',
+                    'images',
                     'variants.variantAttributes.attribute',
+                    'variants.variantImages',
                     'variants.variantAttributes.option'
                 ])
             );
@@ -130,7 +136,9 @@ class ProductController extends Controller
                 $product->load([
                     'category.parent',
                     'category.children',
+                    'images',
                     'variants.variantAttributes.attribute',
+                    'variants.variantImages',
                     'variants.variantAttributes.option'
                 ])
             );
@@ -163,7 +171,9 @@ class ProductController extends Controller
                 collect($products)->load([
                     'category.parent',
                     'category.children',
+                    'images',
                     'variants.variantAttributes.attribute',
+                    'variants.variantImages',
                     'variants.variantAttributes.option'
                 ])
             );
@@ -198,7 +208,9 @@ class ProductController extends Controller
                     'products' => ProductResource::collection(collect($data['products'])->load([
                         'category.parent',
                         'category.children',
+                        'images',
                         'variants.variantAttributes.attribute',
+                        'variants.variantImages',
                         'variants.variantAttributes.option'
                     ])),
                 ]);

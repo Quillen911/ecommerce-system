@@ -68,9 +68,8 @@ Route::middleware('auth:seller')->group(function(){
             Route::delete('images/{image}', [ProductImageController::class, 'destroy']);
             Route::put('images/reorder', [ProductImageController::class, 'reorder']);
             
-            Route::prefix('variants/{variant}')->group(function () {
+            Route::prefix('variants/{variantId}')->group(function () {
                 Route::post('images', [ProductVariantImageController::class, 'store']);
-                Route::put('images/{image}', [ProductVariantImageController::class, 'update']);
                 Route::delete('images/{image}', [ProductVariantImageController::class, 'destroy']);
                 Route::put('images/reorder', [ProductVariantImageController::class, 'reorder']);
             });

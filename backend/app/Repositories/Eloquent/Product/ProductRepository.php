@@ -26,6 +26,8 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             return $this->model
                 ->with([
                     'category',
+                    'images',
+                    'variants.variantImages',
                     'variants.variantAttributes.attribute',
                     'variants.variantAttributes.option',
                 ])
@@ -42,6 +44,8 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model
             ->with([
                 'category',
+                'images',
+                'variants.variantImages',
                 'variants.variantAttributes.attribute',
                 'variants.variantAttributes.option',
             ])
@@ -56,7 +60,9 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model
             ->with([
                 'category',
+                'images',
                 'variants.variantAttributes.attribute',
+                'variants.variantImages',
                 'variants.variantAttributes.option',
             ])
             ->where('store_id', $storeId)
@@ -175,6 +181,8 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model
             ->with([
                 'category',
+                'images',
+                'variants.variantImages',
                 'variants.variantAttributes.attribute',
                 'variants.variantAttributes.option',
             ])

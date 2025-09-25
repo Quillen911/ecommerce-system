@@ -80,8 +80,10 @@ class MainController extends Controller
             fn() => $product->load(
                 'category:id,category_title,category_slug,parent_id',
                 'store:id,name',
+                'images',
                 'variants.variantAttributes.attribute',
-                'variants.variantAttributes.option'
+                'variants.variantAttributes.option',
+                'variants.images'
             )
         );
 
@@ -90,7 +92,7 @@ class MainController extends Controller
             ->whereKeyNot($product->id)
             ->latest()
             ->take(20)
-            ->get();
+            ->get(['id', 'slug', 'title', 'list_price', 'images']);
 
         return ResponseHelper::success('Ürün Detayı', [
             'product' => new ProductResource($product),

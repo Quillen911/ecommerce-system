@@ -3,15 +3,11 @@
 namespace App\Services\Seller;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
-use Illuminate\Http\UploadedFile;
 
 class ProductService
 {
@@ -64,9 +60,8 @@ class ProductService
 
             if ($request['images']) {
                 foreach ($request['images'] as $file) {
-                    $path = $file->store('productImages', 'public');
                     $product->images()->create([
-                        'image' => Storage::url($path) // url döner: /storage/productImages/xxx.png
+                        'image' => $file,
                     ]);
                 }
             }
@@ -96,8 +91,9 @@ class ProductService
 
                 if ($request["variants"][$index]['images']) {
                     foreach ($request["variants"][$index]['images'] as $file) {
-                        $path = $file->store('productImages', 'public');
-                        $variant->images()->create(['image' => Storage::url($path)]);
+                        $variant->variantImages()->create([
+                            'image' => $file,
+                        ]);
                     }
                 }
             }
@@ -108,7 +104,9 @@ class ProductService
             ]);
 
             return $product->load([
+                    'images',
                     'variants.variantAttributes.attribute',
+                    'variants.variantImages',
                     'variants.variantAttributes.option',
             ]);
         });

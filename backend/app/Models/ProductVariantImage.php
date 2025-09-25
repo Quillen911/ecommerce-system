@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 
 class ProductVariantImage extends Model
 {
@@ -22,9 +23,10 @@ class ProductVariantImage extends Model
 
     public function setImageAttribute($value)
     {
-        if ($value instanceof \Illuminate\Http\UploadedFile) {
+        if ($value instanceof UploadedFile) {
             $filePath = $value->store('productImages', 'public');
-            $this->attributes['image'] = $filePath;
+
+            $this->attributes['image'] = basename($filePath);
         } else {
             $this->attributes['image'] = $value;
         }

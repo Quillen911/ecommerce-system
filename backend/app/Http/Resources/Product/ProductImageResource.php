@@ -14,8 +14,6 @@ class ProductImageResource extends JsonResource
             'image' => $this->image_url,
             'is_primary' => $this->is_primary,
             'sort_order' => $this->sort_order,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }

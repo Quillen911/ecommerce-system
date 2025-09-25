@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
-class ImageReorderRequest extends FormRequest
+class VariantImageReorderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -20,7 +20,7 @@ class ImageReorderRequest extends FormRequest
             'images.*.id' => [
                 'required',
                 'integer',
-                Rule::exists('product_images', 'id')
+                Rule::exists('product_variant_images', 'id')
             ],
             'images.*.sort_order' => ['required', 'integer', 'min:1'],
         ];

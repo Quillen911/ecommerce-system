@@ -37,6 +37,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\Product\ProductRepository::class
         );
 
+        // Product Variant Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\Product\ProductVariantRepositoryInterface::class,
+            \App\Repositories\Eloquent\Product\ProductVariantRepository::class
+        );
+
         // Category Repository
         $this->app->bind(
             \App\Repositories\Contracts\Category\CategoryRepositoryInterface::class,
