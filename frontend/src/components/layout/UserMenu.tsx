@@ -31,7 +31,7 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
   if (!user) {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
-        <Link href="/login" className="text-gray-600 hover:text-gray-900">
+        <Link href="/login" className="text-white hover:text-gray-500 cursor-pointer">
           Giriş Yap
         </Link>
       </div>
@@ -42,7 +42,7 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+        className="flex items-center space-x-2 text-white hover:text-gray-500 cursor-pointer"
       >
         <UserIcon className="h-6 w-6" />
         <span>{user.username}</span>
@@ -50,17 +50,17 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-          <div className="px-4 py-2 border-b border-gray-200">
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 text-black">
+          <div className="px-4 py-2 border-b border-gray-200 text-black">
             <p className="text-sm font-medium text-gray-900">{user.username}</p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
-          <Link href="/account/profile" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+          <Link href="/account/profile" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-black">
             Hesabım
           </Link>
           <button
             onClick={handleLogout}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-black"
           >
             Çıkış Yap
           </button>

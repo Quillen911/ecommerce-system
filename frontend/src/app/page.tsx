@@ -4,7 +4,7 @@ import { useMe } from '@/hooks/useAuthQuery'
 import CampaignBanner from '@/components/home/CampaignBanner'
 import HeroSection from '@/components/home/HeroSection'
 import CategorySection from '@/components/home/CategorySection'
-import ProductSection from '@/components/home/ProductSection'
+import PopulerProductSection from '@/components/home/PopulerProductSection'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCategory } from '@/contexts/CategoryContext'
 import Header from '@/components/layout/Header'
@@ -31,11 +31,10 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className='bg-[var(--main-bg)]'>
       <CampaignBanner />
       <HeroSection />
-      <CategorySection />
-      <ProductSection selectedCategory={selectedCategory} />
+      <PopulerProductSection />
     </div>
   )
 }

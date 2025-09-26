@@ -58,14 +58,15 @@ class ProductService
 
             $product = $this->productRepository->createProduct($productData);
 
-            if ($request['images']) {
-                foreach ($request['images'] as $file) {
-                    $product->images()->create([
-                        'image' => $file,
-                    ]);
+            if(isset($request['images'])){
+                if ($request['images']) {
+                    foreach ($request['images'] as $file) {
+                        $product->images()->create([
+                            'image' => $file,
+                        ]);
+                    }
                 }
             }
-
             $totalStock = 0;
 
             foreach ($request['variants'] as $index => $variantData) {

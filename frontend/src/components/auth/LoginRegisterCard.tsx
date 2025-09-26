@@ -155,11 +155,7 @@ export default function LoginRegisterSplit() {
                 transition={{ duration: 0.4 }}
               >
                 <h1 className="text-3xl font-bold mb-8">Kayıt Ol</h1>
-                {fieldErrors && Object.keys(fieldErrors).map((key) => (
-                  <div key={key} className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm mb-3">
-                    {fieldErrors[key][0]}
-                  </div>
-                ))}
+                
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input label="Ad" value={firstName} onChange={setFirstName} autoComplete="given-name" error={formErrors?.first_name?.[0] || fieldErrors?.first_name?.[0]} />
                   <Input label="Soyad" value={lastName} onChange={setLastName} autoComplete="family-name" error={formErrors?.last_name?.[0] || fieldErrors?.last_name?.[0]} />

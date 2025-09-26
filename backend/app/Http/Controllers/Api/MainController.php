@@ -14,6 +14,8 @@ use App\Http\Resources\Category\CategoryResource;
 use App\Models\Product;
 use App\Http\Resources\Product\AttributeResource;
 use App\Http\Resources\Product\AttributeOptionResource;
+use App\Http\Resources\Campaign\CampaignResource;
+use App\Http\Resources\MainResource;
 use Illuminate\Support\Facades\Cache;
 
 class MainController extends Controller
@@ -43,12 +45,12 @@ class MainController extends Controller
         $attributes = $this->mainService->getAttributes();
         $attributeOptions = $this->mainService->getAttributeOptions();
 
-        return ResponseHelper::success('Ana Sayfa', [
-            'products'   => ProductResource::collection($products),
-            'categories' => CategoryResource::collection($categories),
-            'campaigns'  => $campaigns,
-            'attributes' => AttributeResource::collection($attributes),
-            'attributeOptions' => AttributeOptionResource::collection($attributeOptions),
+        return new MainResource([
+            'products' => $products,
+            'categories' => $categories,
+            'campaigns' => $campaigns,
+            'attributes' => $attributes,
+            'attributeOptions' => $attributeOptions,
         ]);
     }
 

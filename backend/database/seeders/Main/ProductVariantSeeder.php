@@ -15,6 +15,7 @@ class ProductVariantSeeder extends Seeder
             'price' => 200,
             'price_cents' => 20000,
             'stock_quantity' => 10,
+            'is_popular' => true,
         ]);
 
         ProductVariant::create([
@@ -23,6 +24,7 @@ class ProductVariantSeeder extends Seeder
             'price' => 200,
             'price_cents' => 20000,
             'stock_quantity' => 8,
+            'is_popular' => true,
         ]);
     }
 }

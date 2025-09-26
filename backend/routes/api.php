@@ -62,6 +62,7 @@ Route::middleware('auth:seller')->group(function(){
 
         Route::apiResource('campaign', CampaignController::class);
         Route::apiResource('product', ProductController::class);
+        //Route::put('product/{product:slug}', ProductController::class);
 
         Route::prefix('product/{product}')->group(function () {
             Route::post('images', [ProductImageController::class, 'store']);

@@ -14,14 +14,14 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-[var(--surface)] border-b border-[var(--border)] text-[var(--text)] sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-[var(--main-bg)] text-[var(--text)] sticky top-0 z-40">
+      <div className="w-full px-10">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Logo />
           </div>
 
-          <div className="flex items-center space-x-4 ">
+          <div className="flex items-center space-x-4">
             <SearchBar />
             <CartButton onClick={handleCartClick} />
             <UserMenu user={user} isLoading={isLoading}/>
@@ -29,5 +29,6 @@ export default function Header() {
         </div>
       </div>
     </header>
+
   )
 }

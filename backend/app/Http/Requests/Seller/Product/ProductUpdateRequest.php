@@ -22,16 +22,11 @@ class ProductUpdateRequest extends FormRequest
             'sold_quantity' => 'sometimes|integer|min:0',
             'is_published' => 'sometimes|boolean',
 
-            'images' => 'sometimes|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-
             'variants' => 'sometimes|array|min:1',
             'variants.*.id' => 'required_with:variants.*.price,variants.*.stock_quantity,variants.*.attributes|exists:product_variants,id',
             'variants.*.price' => 'sometimes|numeric|min:0',
             'variants.*.stock_quantity' => 'sometimes|integer|min:0',
-            'variants.*.images' => 'sometimes|array|min:1',
-            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-
+    
             'variants.*.attributes' => 'sometimes|array|min:1',
             'variants.*.attributes.*.attribute_id' => 'sometimes|exists:attributes,id',
             'variants.*.attributes.*.option_id' => 'nullable|exists:attribute_options,id',
@@ -54,21 +49,12 @@ class ProductUpdateRequest extends FormRequest
 
             'is_published.boolean' => 'Yayın durumu boolean olmalıdır.',
 
-            'images.array' => 'Resimler dizi olmalıdır.',
-            'images.*.image' => 'Resimler resim dosyası olmalıdır.',
-            'images.*.mimes' => 'Resimler jpeg, png, jpg, gif, svg formatında olmalıdır.',
-            'images.*.max' => 'Resimler en fazla 2MB olmalıdır.',
-
             'variants.array' => 'Variants dizi olmalıdır.',
             'variants.*.id.exists' => 'Geçersiz varyant.',
             'variants.*.price.numeric' => 'Fiyat sayı olmalıdır.',
             'variants.*.price.min' => 'Fiyat en az 0 olmalıdır.',
             'variants.*.stock_quantity.integer' => 'Stok miktarı sayı olmalıdır.',
             'variants.*.stock_quantity.min' => 'Stok en az 0 olmalıdır.',
-            'variants.*.images.array' => 'Varyant resimleri dizi olmalıdır.',
-            'variants.*.images.*.image' => 'Varyant resimleri dosya olmalıdır.',
-            'variants.*.images.*.mimes' => 'Varyant resimleri jpeg, png, jpg, gif, svg formatında olmalıdır.',
-            'variants.*.images.*.max' => 'Varyant resimleri en fazla 2MB olmalıdır.',
 
             'variants.*.attributes.array' => 'Varyant özellikleri dizi olmalıdır.',
             'variants.*.attributes.*.attribute_id.exists' => 'Geçersiz attribute.',

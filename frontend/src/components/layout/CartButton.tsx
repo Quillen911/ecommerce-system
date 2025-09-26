@@ -10,7 +10,7 @@ export default function CartButton({
   return (
     <button
       onClick={onClick}
-      className={`relative p-2 text-gray-600 hover:text-gray-900 transition-colors ${className}`}
+      className={`relative p-2 text-white hover:text-gray-500 transition-colors cursor-pointer ${className}`}
     >
       <ShoppingCartIcon className="h-6 w-6" />
       {itemCount > 0 && (

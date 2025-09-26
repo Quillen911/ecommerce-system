@@ -36,12 +36,12 @@ export default function HeroSection() {
     }, [slides.length])
     
     return (
-        <div className="relative h-96 overflow-hidden bg-[var(--sand)]">
+        <div className="relative h-96 overflow-hidden bg-[var(--main-bg)]">
             <div className="flex transition-transform duration-500 ease-in-out"
                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
                 {slides.map((slide) => (
                     <div key={slide.id} className="w-full flex-shrink-0 relative">
-                        <div className="w-full h-96 bg-gradient-to-r from-[var(--surface)] to-[var(--muted)] flex items-center justify-center">
+                        <div className="w-full h-96 bg-gradient-to-r from-[var(--main-bg)] to-[var(--muted)] flex items-center justify-center">
                             <div className="text-center">
                                 <h2 className="text-4xl font-bold mb-4 text-[var(--accent-dark)]">{slide.title}</h2>
                                 <p className="text-xl text-[var(--muted)]">{slide.description}</p>

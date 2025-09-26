@@ -14,31 +14,13 @@ export interface Attribute {
   }
   
   export interface MainData {
-    products: {
-      current_page: number
-      data: Product[]
-      first_page_url: string
-      from: number
-      last_page: number
-      last_page_url: string
-      links: Array<{
-        url: string | null
-        label: string
-        page: number | null
-        active: boolean
-      }>
-      next_page_url: string | null
-      path: string
-      per_page: number
-      prev_page_url: string | null
-      to: number
-      total: number
-    }
+    products: Product[]
     categories: Category[]
     campaigns: Campaign[]
     attributes: Attribute[]
     attributeOptions: AttributeOption[]
   }
+  
 
 export interface CategoryResponse {
     products: {
@@ -74,42 +56,41 @@ export interface CategoryResponse {
     price: number
     price_cents: number
     stock_quantity: number
+    is_popular: boolean
     images: ProductVariantImage[]
     attributes: ProductAttribute[]
   }
   
   export interface Product {
     id: number
-    store_id: number
-    store_name: string
     title: string
     slug: string
     category_id: number
+    category: Category
     description: string
     meta_title: string
     meta_description: string
     list_price: number
     list_price_cents: number
     stock_quantity: number
-    is_published: boolean
     sold_quantity: number
+    is_published: boolean
     images: ProductImage[]
+    variants: ProductVariant[]
     created_at: string
     updated_at: string
-    deleted_at: string | null
-    category: Category
-    variants: ProductVariant[]
-  }
+}
   
 
 
-  export interface Category {
-    id: number
-    title: string
-    slug: string
-    parent_id: number | null
-    children?: Category[]
-  }
+export interface Category {
+  id: number
+  title: string
+  slug: string
+  parent_id: number | null
+  parent?: Category | null    
+  children?: Category[]       
+}
 
 export interface Campaign {
     id: number

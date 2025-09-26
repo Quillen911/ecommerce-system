@@ -21,7 +21,7 @@ export default function Logo({ className = '' }: HeaderProps) {
       onClick={handleLogoClick} 
       className={`flex items-center ${className}`}
     >
-      <span className="text-2xl font-bold text-black">Omnia</span>
+      <span className="text-2xl font-bold text-white cursor-pointer">{process.env.NEXT_PUBLIC_APP_NAME}</span>
     </button>
   )
 }

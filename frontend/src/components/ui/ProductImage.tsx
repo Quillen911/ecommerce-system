@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { getProductImage, getImageDimensions, getResponsiveSizes, ImageConfig } from '@/lib/utils/imageUtils'
 
 interface ProductImageProps {
-    product: any
+    product: any | string
     index?: number
     aspectRatio?: 'square' | 'portrait' | 'landscape' | 'wide'
     breakpoint?: 'mobile' | 'tablet' | 'desktop' | 'wide'
@@ -35,7 +35,10 @@ export default function ProductImage({
     
     const dimensions = getImageDimensions(aspectRatio)
     const sizes = getResponsiveSizes(breakpoint)
-    const imageUrl = getProductImage(product, index)
+    const imageUrl = typeof product === 'string' 
+        ? product 
+        : getProductImage(product, index)
+        
     const imageAlt = alt || product.title || 'Product image'
     
     const handleLoad = () => {

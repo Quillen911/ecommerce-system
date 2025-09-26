@@ -31,6 +31,7 @@ export interface ProductVariant {
     price: number
     price_cents: number
     stock_quantity: number
+    is_popular: boolean
     images: ProductVariantImage[]
     attributes: ProductVariantAttribute[]
 }

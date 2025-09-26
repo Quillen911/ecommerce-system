@@ -1,6 +1,9 @@
 @import "tailwindcss";
+@import 'swiper/css';
+@import 'swiper/css/navigation';
 
 :root {
+  --main-bg:#1f1f21;
   --bg: #F5F6F7;
   --surface: #FFFFFF;
   --sand: #E8E1D6;
@@ -12,6 +15,13 @@
   --border: #E5E7EB;
   --danger: #9b1818;
 }
+/* globals.css veya componentin css'ine ekle */
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  content: '' !important;
+  display: none !important;
+}
+
 @keyframes marquee {
   0% {
       transform: translateX(0%);

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductVariant extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'product_id',
@@ -15,12 +16,14 @@ class ProductVariant extends Model
         'price',
         'price_cents',
         'stock_quantity',
+        'is_popular',
     ];
 
     protected $casts = [
         'price' => 'float',
         'price_cents' => 'integer',
         'stock_quantity' => 'integer',
+        'is_popular' => 'boolean',
     ];
 
     public function product()

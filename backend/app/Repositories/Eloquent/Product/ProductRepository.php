@@ -25,7 +25,8 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return Cache::remember("products.page.$page", 60, function () use ($perpage) {
             return $this->model
                 ->with([
-                    'category',
+                    'category.parent',
+                    'category.children',
                     'images',
                     'variants.variantImages',
                     'variants.variantAttributes.attribute',
@@ -43,7 +44,8 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     {
         return $this->model
             ->with([
-                'category',
+                'category.parent',
+                'category.children',
                 'images',
                 'variants.variantImages',
                 'variants.variantAttributes.attribute',

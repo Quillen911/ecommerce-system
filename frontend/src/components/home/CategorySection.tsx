@@ -21,7 +21,7 @@ export default function CategorySection() {
     )
 console.log(gameCategories)
     return (
-        <div className='relative flex flex-wrap gap-4 justify-center p-10 bg-gray-100'>
+        <div className='relative flex flex-wrap gap-4 justify-center p-10 bg-var(--main-bg)'>
             <h2 className="absolute top-1 left-1/2 transform -translate-x-1/2 text-xl font-bold text-gray-700 animate-fadeIn mb-10">
                 Kategoriler
             </h2>
