@@ -13,26 +13,26 @@ class VariantAttributeSeeder extends Seeder
         VariantAttribute::create([
             'variant_id' => 1, 
             'attribute_id' => 1, 
-            'option_id' => 1
+            'option_id' => 4
         ]); // Renk: Kırmızı
 
         VariantAttribute::create([
             'variant_id' => 1, 
             'attribute_id' => 2, 
-            'option_id' => 4
+            'option_id' => 7
         ]); // Yaş: 3-4
 
         // 2. Varyant -> Mavi + 5-6 Yaş
         VariantAttribute::create([
             'variant_id' => 2, 
             'attribute_id' => 1, 
-            'option_id' => 2
+            'option_id' => 3
         ]); // Renk: Mavi
 
         VariantAttribute::create([
             'variant_id' => 2, 
             'attribute_id' => 2, 
-            'option_id' => 5
+            'option_id' => 10
         ]); // Yaş: 5-6
     }
 }

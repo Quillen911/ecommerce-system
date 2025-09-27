@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\Main\ProductSeeder::class,
             \Database\Seeders\Main\ProductVariantSeeder::class,
             \Database\Seeders\Main\VariantAttributeSeeder::class,
+            \Database\Seeders\Main\ProductVariantImageSeeder::class,
             \Database\Seeders\Campaigns\CampaignSeeder::class,
             \Database\Seeders\Campaigns\CampaignConditionSeeder::class,
             \Database\Seeders\Campaigns\CampaignDiscountSeeder::class,

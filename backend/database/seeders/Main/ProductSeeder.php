@@ -14,7 +14,7 @@ class ProductSeeder extends Seeder
             'store_name' => 'i&d',
             'title' => 'Çocuk Eşofman Takımı',
             'slug' => 'cocuk-esofman-takimi',
-            'category_id' => 2, // örn: Erkek Çocuk > Eşofman Takım
+            'category_id' => 5, // örn: Erkek Çocuk > Eşofman Takım
             'description' => 'Rahat ve şık çocuk eşofman takımı.',
             'meta_title' => 'Çocuk Eşofman Takımı',
             'meta_description' => 'Çocuklar için kaliteli eşofman takımı',

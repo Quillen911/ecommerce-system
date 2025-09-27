@@ -11,7 +11,7 @@ class ProductVariantSeeder extends Seeder
     {
         ProductVariant::create([
             'product_id' => 1,
-            'sku' => 'ESF-RED-3Y',
+            'sku' => 'ESF-SIY-8Y',
             'price' => 200,
             'price_cents' => 20000,
             'stock_quantity' => 10,
@@ -20,7 +20,7 @@ class ProductVariantSeeder extends Seeder
 
         ProductVariant::create([
             'product_id' => 1,
-            'sku' => 'ESF-BLUE-5Y',
+            'sku' => 'ESF-YES-10Y',
             'price' => 200,
             'price_cents' => 20000,
             'stock_quantity' => 8,
