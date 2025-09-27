@@ -17,7 +17,7 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
     public function getAllCategories()
     {
         return Cache::remember('categories.all', 3600, function () {
-            return $this->model->all();
+            return $this->model->with('children')->get();
         });
     }
     

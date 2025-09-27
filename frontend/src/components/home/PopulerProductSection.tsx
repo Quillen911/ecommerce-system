@@ -1,7 +1,6 @@
 'use client'
-import { useRouter } from "next/navigation"
 import { useMainData } from '@/hooks/useMainQuery'
-import { Category, MainData, Product } from '@/types/main'
+import { Product } from '@/types/main'
 import ProductImageGallery from '../ui/ProductImageGallery'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -9,7 +8,6 @@ import { Navigation } from 'swiper/modules'
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
 export default function PopulerProductSection() {
-  const router = useRouter()
   const {data: mainData, isLoading, error} = useMainData()
 
   const populerProductVariants = mainData?.products.flatMap((product: Product) =>

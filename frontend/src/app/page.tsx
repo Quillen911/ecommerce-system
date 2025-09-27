@@ -34,6 +34,7 @@ export default function Home() {
     <div className='bg-[var(--main-bg)]'>
       <CampaignBanner />
       <HeroSection />
+      <CategorySection />
       <PopulerProductSection />
     </div>
   )

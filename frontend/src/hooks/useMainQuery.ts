@@ -25,7 +25,7 @@ export const useCategoryProducts = (
       })
       return response.data.data
     },
-    enabled: !!category_slug, // slug yoksa çalışmaz
+    enabled: !!category_slug,
     ...options,
   })
 }

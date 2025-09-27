@@ -1,6 +1,9 @@
 'use client'
 import { useMainData } from '@/hooks/useMainQuery'
 import { useCategory } from '@/contexts/CategoryContext'
+import { Category } from '@/types/main'
+import Link from 'next/link'
+import Image from 'next/image'
 
 export default function CategorySection() {
     const { selectedCategory, setSelectedCategory } = useCategory()
@@ -9,40 +12,50 @@ export default function CategorySection() {
     if (error) return null
     if (isLoading) return null
     
-    const gameCategories = Array.from(
-        new Set(
-            (mainData?.products?.data || [])
-                .flatMap(p =>
-                    p.computed_attributes
-                        ?.filter(attr => attr.code === "game")
-                        .map(attr => attr.slug) || []
-                )
-        )
-    )
-console.log(gameCategories)
+    const categories = [
+        ...new Map(
+          mainData?.categories
+            .filter((c) => c.parent_id !== null)
+            .map((c) => [c.title, c])
+        ).values()
+      ]
+
+    
     return (
-        <div className='relative flex flex-wrap gap-4 justify-center p-10 bg-var(--main-bg)'>
-            <h2 className="absolute top-1 left-1/2 transform -translate-x-1/2 text-xl font-bold text-gray-700 animate-fadeIn mb-10">
-                Kategoriler
+        <div className='relative flex gap-5 justify-center items-center h-300 py-45 bg-var(--main-bg)'>
+            <h2 className="absolute top-1 left-42 transform -translate-x-1/3 text-2xl font-sans font-bold text-white mt-25">
+                KATEGORİLER
             </h2>
 
-            {gameCategories.map((game, index) => (
-                <button 
-                    key={game} 
-                    onClick={() => setSelectedCategory(game.toLowerCase())}
-                    className={`w-[150px] h-[150px] shadow-lg rounded-lg flex items-center justify-center flex-shrink-0 cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                        selectedCategory === game.toLowerCase()
-                            ? 'bg-blue-500 text-white shadow-xl scale-105' 
-                            : 'bg-white text-gray-900 hover:bg-gray-50'
-                    }`}
-                    style={{
-                        animation: `fadeInUp 0.6s ease-out ${index * 100}ms forwards`
-                    }}>
-                    <span className="font-medium text-lg">
-                    {game.replace(/-/g, " ").toUpperCase()}
-                    </span>
-                </button>
-            ))}
+            {categories?.map((category) => {
+
+                let imageSrc = "/images/categories/default.png"
+
+                if (category.title === "Jean") {
+                imageSrc = "/images/categories/Jean.png"
+                } else if (category.title === "Eşofman Takım") {
+                imageSrc = "/images/categories/EsofmanTakim.png"
+                } else if (category.title === "Keten Pantolon") {
+                imageSrc = "/images/categories/KetenPantolon.png"
+                }
+
+                return (
+                    <Link 
+                        key={category?.slug} 
+                        href={`/${category?.slug}`}
+                        className="w-150 h-200 bg-var(--main-bg)cursor-pointer transition-all duration-300 transform hover:scale-102"
+                        >
+                            <div className='w-150 h-200'>
+                                <Image src={imageSrc} alt={category?.title} width={150} height={200} className='object-cover w-full h-full'/>
+                            </div>
+
+                        
+                        <p className="font-medium text-lg text-white mt-10">
+                        {category?.title}
+                        </p>
+                    </Link>
+            )})}
+
         </div>
     )
 }
