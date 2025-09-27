@@ -10,7 +10,7 @@ export default function Logo({ className = '' }: HeaderProps) {
   const { resetCategory } = useCategory()
 
   const handleLogoClick = () => {
-    queryClient.removeQueries({ queryKey: ['category-products'], exact: false })
+    queryClient.removeQueries({ queryKey: ['main-data'], exact: false })
     queryClient.invalidateQueries({ queryKey: ['main-data'] })
     resetCategory()
     router.push('/')

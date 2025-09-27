@@ -26,12 +26,12 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
   }
 
   if (isLoading) {
-    return <div className="w-20 h-8"></div>
+    return <div className="w-20 h-8 text-white"></div>
   } 
   if (!user) {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
-        <Link href="/login" className="text-white hover:text-gray-500 cursor-pointer">
+        <Link href="/login" className="text-white hover:text-white cursor-pointer">
           Giriş Yap
         </Link>
       </div>

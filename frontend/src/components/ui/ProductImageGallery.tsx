@@ -51,7 +51,7 @@ export default function ProductImageGallery({
       {safeImages.length > 1 && (
         <button
           onClick={handlePrev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 text-black text-2xl p-2 hover:scale-160 transition-transform duration-100 ease-in-out cursor-pointer"
+          className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-2xl p-2 hover:scale-160 transition-transform duration-100 ease-in-out cursor-pointer"
         >
           ‹
         </button>
@@ -61,7 +61,7 @@ export default function ProductImageGallery({
       {safeImages.length > 1 && (
         <button
           onClick={handleNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-black text-2xl p-2 hover:scale-160 transition-transform duration-100 ease-in-out cursor-pointer"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-white text-2xl p-2 hover:scale-160 transition-transform duration-100 ease-in-out cursor-pointer"
         >
           ›
         </button>

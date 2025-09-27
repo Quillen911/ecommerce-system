@@ -1,12 +1,9 @@
 'use client'
 import { useMainData } from '@/hooks/useMainQuery'
-import { useCategory } from '@/contexts/CategoryContext'
-import { Category } from '@/types/main'
 import Link from 'next/link'
 import Image from 'next/image'
 
 export default function CategorySection() {
-    const { selectedCategory, setSelectedCategory } = useCategory()
     const { data: mainData, isLoading, error } = useMainData()
     
     if (error) return null
@@ -43,7 +40,7 @@ export default function CategorySection() {
                     <Link 
                         key={category?.slug} 
                         href={`/${category?.slug}`}
-                        className="w-150 h-200 bg-var(--main-bg)cursor-pointer transition-all duration-300 transform hover:scale-102"
+                        className="w-150 h-200 bg-var(--main-bg) cursor-pointer transition-all duration-400 transform hover:scale-101"
                         >
                             <div className='w-150 h-200'>
                                 <Image src={imageSrc} alt={category?.title} width={150} height={200} className='object-cover w-full h-full'/>

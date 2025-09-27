@@ -7,7 +7,7 @@ import CategorySection from '@/components/home/CategorySection'
 import PopulerProductSection from '@/components/home/PopulerProductSection'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCategory } from '@/contexts/CategoryContext'
-import Header from '@/components/layout/Header'
+import Header from '@/components/header/Header'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)

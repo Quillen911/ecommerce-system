@@ -36,11 +36,13 @@ export default function PopulerProductSection() {
   if (error) return <p>Hata oluştu</p>
 
   return (
-    <div className="relative px-10 py-14 bg-white">
+    <div className="relative px-10 py-14 bg-var(--main-bg)">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">POPÜLER ÜRÜNLER</h2>
-
-        <div className="flex items-center gap-2 absolute top-15 right-10 z-20">
+        <div className="absolute left-42 transform -translate-x-1/3">
+          <h2 className="text-2xl font-bold text-white">POPÜLER ÜRÜNLER</h2>
+        </div>
+        
+        <div className="flex items-center gap-2 absolute top-10 right-20 z-20">
           {/* Sol buton */}
           <button className="custom-next w-10 h-10 rounded-full bg-gray-200 shadow flex items-center justify-center hover:bg-gray-300 transition cursor-pointer">
             <ChevronLeftIcon className="w-4 h-4 text-black" />
@@ -66,18 +68,18 @@ export default function PopulerProductSection() {
         {populerProductVariants.map((variant) => (
           <SwiperSlide key={variant.id}>
             <div className="cursor-pointer">
-              <div className="bg-white flex items-center justify-center py-10">
+              <div className="bg-var(--main-bg) flex items-center justify-center py-15">
                 <ProductImageGallery 
                   images={variant.images}
                   alt={variant.title}
                   className="object-contain w-full h-80"
                 />
               </div>
-              <h3 className="mt-3 text-base font-semibold text-gray-900 line-clamp-1">
+              <h3 className="mt-3 text-base font-semibold text-white line-clamp-1 px-10">
                 {variant.title}
               </h3>
-              <p className="text-sm text-gray-500">{variant.category}</p>
-              <p className="text-lg font-bold mt-1">{variant.price} ₺</p>
+              <p className="text-sm text-white px-10">{variant.category}</p>
+              <p className="text-lg font-bold mt-1 text-white px-10">{variant.price} ₺</p>
             </div>
           </SwiperSlide>
         ))}
