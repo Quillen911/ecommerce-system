@@ -15,7 +15,7 @@ export interface SearchResponse {
 export interface FilterResponse {
   products: Product[]
   filters: Record<string, any>
-  category: Category
+  categories: Category[]
   pagination: {
     page: number
     size: number

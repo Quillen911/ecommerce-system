@@ -22,6 +22,10 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+    public function genders()
+    {
+        return $this->belongsToMany(Gender::class, 'category_genders');
+    }
     public function products()
     {
         return $this->hasMany(Product::class, 'category_id');

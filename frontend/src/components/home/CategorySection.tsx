@@ -13,9 +13,11 @@ export default function CategorySection() {
         ...new Map(
           mainData?.categories
             .filter((c) => c.parent_id !== null)
-            .map((c) => [c.title, c])
+            .map((c) => [c.slug, c])
         ).values()
       ]
+      console.log('Categories',categories)
+      console.log('mainData?.categories',mainData?.categories)
 
     
     return (

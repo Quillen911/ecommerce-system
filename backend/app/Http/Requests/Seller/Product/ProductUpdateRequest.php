@@ -26,7 +26,8 @@ class ProductUpdateRequest extends FormRequest
             'variants.*.id' => 'required_with:variants.*.price,variants.*.stock_quantity,variants.*.attributes|exists:product_variants,id',
             'variants.*.price' => 'sometimes|numeric|min:0',
             'variants.*.stock_quantity' => 'sometimes|integer|min:0',
-    
+            'variants.*.is_popular' => 'sometimes|boolean',
+
             'variants.*.attributes' => 'sometimes|array|min:1',
             'variants.*.attributes.*.attribute_id' => 'sometimes|exists:attributes,id',
             'variants.*.attributes.*.option_id' => 'nullable|exists:attribute_options,id',
@@ -55,7 +56,7 @@ class ProductUpdateRequest extends FormRequest
             'variants.*.price.min' => 'Fiyat en az 0 olmalıdır.',
             'variants.*.stock_quantity.integer' => 'Stok miktarı sayı olmalıdır.',
             'variants.*.stock_quantity.min' => 'Stok en az 0 olmalıdır.',
-
+            'variants.*.is_popular.boolean' => 'Varyant popülerlik boolean olmalıdır.',
             'variants.*.attributes.array' => 'Varyant özellikleri dizi olmalıdır.',
             'variants.*.attributes.*.attribute_id.exists' => 'Geçersiz attribute.',
             'variants.*.attributes.*.option_id.exists' => 'Geçersiz attribute option.',

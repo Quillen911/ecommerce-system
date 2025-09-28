@@ -36,6 +36,14 @@ trait ElasticSearchTrait
             ];
         }
 
+        if (isset($filters['category_ids']) && is_array($filters['category_ids'])) {
+            $query[] = [
+                'terms' => [
+                    'category_id' => array_map('intval', $filters['category_ids'])
+                ]
+            ];
+        }
+
         if (isset($filters['child_category_ids']) && is_array($filters['child_category_ids'])) {
             $query[] = [
                 'terms' => [

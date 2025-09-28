@@ -28,6 +28,7 @@ class ProductStoreRequest extends FormRequest
             'variants.*.stock_quantity' => 'required|integer|min:0',
             'variants.*.images' => 'required|array',
             'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'variants.*.is_popular' => 'sometimes|boolean',
 
             // Varyant attribute validasyonu
             'variants.*.attributes' => 'required|array|min:1',
@@ -72,6 +73,7 @@ class ProductStoreRequest extends FormRequest
             'variants.*.images.*.image' => 'Varyant resimleri dosya olmalıdır.',
             'variants.*.images.*.mimes' => 'Varyant resimleri jpeg, png, jpg, gif, svg formatında olmalıdır.',
             'variants.*.images.*.max' => 'Varyant resimleri en fazla 2MB olmalıdır.',
+            'variants.*.is_popular.boolean' => 'Varyant popülerlik boolean olmalıdır.',
 
             'variants.*.attributes.required' => 'Varyant için en az bir özellik eklenmelidir.',
             'variants.*.attributes.*.attribute_id.required' => 'Attribute ID zorunludur.',

@@ -4,56 +4,48 @@ namespace Database\Seeders\Main;
 
 use Illuminate\Database\Seeder;
 use App\Models\Category;
+use App\Models\Gender;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
     public function run()
     {
-        // Ana kategoriler
+        $erkek = Gender::where('slug', 'erkek')->first();
+        $kiz   = Gender::where('slug', 'kiz')->first();
+
         $erkekCocuk = Category::create([
             'category_title' => 'Erkek Çocuk',
             'category_slug'  => 'erkek-cocuk',
         ]);
+        $erkekCocuk->genders()->attach($erkek->id);
 
         $kizCocuk = Category::create([
             'category_title' => 'Kız Çocuk',
             'category_slug'  => 'kiz-cocuk',
         ]);
+        $kizCocuk->genders()->attach($kiz->id);
 
-        // Alt kategoriler
-        Category::create([
-            'category_title' => 'Jean',
-            'category_slug'  => $erkekCocuk->category_slug . '-jean',
-            'parent_id'      => $erkekCocuk->id,
-        ]);
-        Category::create([
-            'category_title' => 'Jean',
-            'category_slug'  => $kizCocuk->category_slug . '-jean',
-            'parent_id'      => $kizCocuk->id,
-        ]);
-        
+        $altKategoriler = [
+            'Jean',
+            'Eşofman Takım',
+            'Keten Pantolon'
+        ];
 
-        Category::create([
-            'category_title' => 'Eşofman Takım',
-            'category_slug'  => $erkekCocuk->category_slug . '-esofman-takim',
-            'parent_id'      => $erkekCocuk->id,
-        ]);
-        Category::create([
-            'category_title' => 'Eşofman Takım',
-            'category_slug'  => $kizCocuk->category_slug . '-esofman-takim',
-            'parent_id'      => $kizCocuk->id,
-        ]);
-        
+        foreach ($altKategoriler as $alt) {
+            $slug = Str::slug($alt);
 
-        Category::create([
-            'category_title' => 'Keten Pantolon',
-            'category_slug'  => $erkekCocuk->category_slug . '-keten-pantolon',
-            'parent_id'      => $erkekCocuk->id,
-        ]);
-        Category::create([
-            'category_title' => 'Keten Pantolon',
-            'category_slug'  => $kizCocuk->category_slug . '-keten-pantolon',
-            'parent_id'      => $kizCocuk->id,
-        ]);
+            $erkekAlt = $erkekCocuk->children()->create([
+                'category_title' => $alt,
+                'category_slug'  => $slug,
+            ]);
+            $erkekAlt->genders()->attach($erkek->id);
+
+            $kizAlt = $kizCocuk->children()->create([
+                'category_title' => $alt,
+                'category_slug'  => $slug,
+            ]);
+            $kizAlt->genders()->attach($kiz->id);
+        }
     }
 }

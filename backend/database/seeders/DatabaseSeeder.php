@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\SellerSeeder::class,
             \Database\Seeders\StoreSeeder::class,
             \Database\Seeders\Main\UserSeeder::class,
+            \Database\Seeders\Main\GenderSeeder::class,
             \Database\Seeders\Main\CategorySeeder::class,
             \Database\Seeders\Main\AttributeSeeder::class,
             \Database\Seeders\Main\AttributeOptionSeeder::class,
