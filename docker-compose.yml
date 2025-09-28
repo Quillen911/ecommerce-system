@@ -126,6 +126,38 @@ services:
         limits:
           memory: 256M
 
+  queue:
+    build: ./backend
+    container_name: laravel-queue
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - /var/www/vendor
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    environment:
+      - LOG_CHANNEL=single
+      - LOG_LEVEL=debug
+      - APP_ENV=local
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=ismail400
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M      
+
   # Elasticsearch
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0

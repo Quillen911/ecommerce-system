@@ -26,18 +26,25 @@ trait ElasticSearchTrait
 
     public function getCategoryFilterTrait(array $filters): array
     {
-        if(isset($filters['category_title'])){
-            return [[
-                'match' => [
-                    'category_title' => [
-                        'query' => $filters['category_title'],
-                        'operator' => 'or',
-                        'fuzziness' => 'AUTO'
-                    ]
+        $query = [];
+
+        if (isset($filters['category_id'])) {
+            $query[] = [
+                'term' => [
+                    'category_id' => (int) $filters['category_id']
                 ]
-            ]];
+            ];
         }
-        return [];
+
+        if (isset($filters['child_category_ids']) && is_array($filters['child_category_ids'])) {
+            $query[] = [
+                'terms' => [
+                    'category_id' => array_map('intval', $filters['child_category_ids'])
+                ]
+            ];
+        }
+
+        return $query;
     }
 
     public function getPriceFilterTrait(array $filters): array

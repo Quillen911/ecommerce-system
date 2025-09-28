@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Services\Search\ElasticsearchService;
+use Illuminate\Support\Facades\Log;
 
 class UpdateElasticsearchMapping extends Command
 {

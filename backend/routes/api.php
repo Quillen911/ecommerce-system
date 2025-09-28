@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Seller\CategoryController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 use App\Http\Controllers\Api\User\AddressesController;
+use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\Seller\Image\ProductImageController;
 use App\Http\Controllers\Api\Seller\Image\ProductVariantImageController;
 
@@ -21,9 +22,13 @@ Route::post('/seller/login', [AuthController::class, 'sellerLogin']);
 
 Route::prefix('main')->group(function(){
     Route::get('/', [MainController::class, 'main']);
-    Route::get('/{category_slug}', [MainController::class, 'categoryFilter']);
     Route::get('/product/{product:slug}', [MainController::class, 'productDetail']);
 });
+
+Route::prefix('category')->group(function(){
+    Route::get('/{category_slug}', [CategoriesController::class, 'categoryFilter']);
+});
+
 Route::get('/search', [MainController::class, 'search']);
 Route::get('/filter', [MainController::class, 'filter']);
 Route::get('/sorting', [MainController::class, 'sorting']);

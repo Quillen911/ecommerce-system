@@ -63,6 +63,9 @@ return [
                     ]
                 ],
                 'slug' => ['type' => 'keyword'],
+                'description' => ['type' => 'text'],
+                'meta_title' => ['type' => 'text'],
+                'meta_description' => ['type' => 'text'],
                 'list_price' => ['type' => 'float'],
                 'list_price_cents' => ['type' => 'integer'],
                 'category_id' => ['type' => 'integer'],
@@ -76,7 +79,16 @@ return [
                 ],
                 'stock_quantity' => ['type' => 'integer'],
                 'sold_quantity' => ['type' => 'integer'],
-                'images' => ['type' => 'keyword'],
+                'images' => [
+                    'type' => 'nested',
+                    'properties' => [
+                        'id' => ['type' => 'integer'],
+                        'product_id' => ['type' => 'integer'],
+                        'image' => ['type' => 'keyword'],
+                        'is_primary' => ['type' => 'boolean'],
+                        'sort_order' => ['type' => 'integer'],
+                    ]
+                ],
 
                 'variants' => [
                     'type' => 'nested',
@@ -86,7 +98,17 @@ return [
                         'price' => ['type' => 'float'],
                         'price_cents' => ['type' => 'integer'],
                         'stock_quantity' => ['type' => 'integer'],
-                        'images' => ['type' => 'keyword'],
+                        'images' => [
+                            'type' => 'nested',
+                            'properties' => [
+                                'id' => ['type' => 'integer'],
+                                'product_variant_id' => ['type' => 'integer'],
+                                'image' => ['type' => 'keyword'],
+                                'is_primary' => ['type' => 'boolean'],
+                                'sort_order' => ['type' => 'integer'],
+                            ]
+                        ],
+                        'is_popular' => ['type' => 'boolean'],
                         'attributes' => [
                             'type' => 'nested',
                             'properties' => [

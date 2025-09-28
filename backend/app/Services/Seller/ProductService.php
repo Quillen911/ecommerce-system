@@ -132,7 +132,7 @@ class ProductService
             $productData['store_name'] = $store->name;
 
             if (isset($request['title'])) {
-                $productData['slug'] = Str::slug($request['title']);
+                $productData['slug'] = Str::slug($request['title'] . '-p-' . $product->id);
                 $productData['meta_title'] = $this->generateMetaTitle($request, $store);
             }
 

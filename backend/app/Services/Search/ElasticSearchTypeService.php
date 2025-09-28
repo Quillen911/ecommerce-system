@@ -10,6 +10,9 @@ class ElasticSearchTypeService
         if($request->filled('category_title')){
             $filters['category_title'] = $request->input('category_title') ?? '';
         }
+        if($request->filled('category_id')){
+            $filters['category_id'] = $request->input('category_id') ?? '';
+        }
         if($request->filled('min_price')){
             $filters['min_price'] = $request->input('min_price') ?? '';
         }
@@ -18,9 +21,6 @@ class ElasticSearchTypeService
         }
         if($request->filled('store_id')){
             $filters['store_id'] = $request->input('store_id') ?? '';
-        }
-        if($request->filled('game')){
-            $filters['game'] = $request->input('game') ?? '';
         }
         
         return $filters;

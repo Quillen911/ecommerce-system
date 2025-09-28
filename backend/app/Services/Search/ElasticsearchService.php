@@ -153,7 +153,7 @@ class ElasticsearchService
                     'from' => $from,
                     'sort' => [
                         '_score' => ['order' => 'desc']
-                    ]
+                    ]              
                 ]
             ];
             $response = $this->client->search($params);

@@ -1,6 +1,7 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { mainApi } from '@/lib/api/mainApi'
-import { MainData, CategoryResponse } from '@/types/main'
+import { MainData } from '@/types/main'
+import { FilterResponse } from '@/types/search'
 
 export const useMainData = () => {
   return useQuery<MainData>({
@@ -9,23 +10,5 @@ export const useMainData = () => {
       const response = await mainApi.getMainData()
       return response.data.data
     },
-  })
-}
-
-export const useCategoryProducts = (
-  category_slug: string,
-  options?: Omit<UseQueryOptions<CategoryResponse>, 'queryKey' | 'queryFn'>
-) => {
-  return useQuery<CategoryResponse>({
-    queryKey: ['category-products', category_slug],
-    queryFn: async () => {
-
-      const response = await mainApi.getCategoryProducts(category_slug, {
-        params: { game: category_slug }
-      })
-      return response.data.data
-    },
-    enabled: !!category_slug,
-    ...options,
   })
 }

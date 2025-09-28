@@ -26,6 +26,7 @@ class ElasticSearchProductService
         $results = $this->elasticSearch->filterProducts($filters, $page, $size);
         return [
             'products' => collect($results['hits'])->pluck('_source')->toArray(),
+            'total' => $results['total'],
             'results' => $results
         ];
     }

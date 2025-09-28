@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { Category, CategoryResponse, MainData } from '@/types/main'
+import { Category, MainData } from '@/types/main'
+import { FilterResponse } from '@/types/search'
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
@@ -11,6 +12,6 @@ const api = axios.create({
 
 export const mainApi = {
     getMainData: () => api.get<{message: string, data: MainData}>('/main'),
-    getCategoryData: (category_slug: string) => api.get<{message: string, data: Category}>(`/main/${category_slug}`),
-    getCategoryProducts: (category_slug: string, params?: any) => api.get<{message: string, data: CategoryResponse}>(`/main/${category_slug}`, { params }),
+    getCategoryData: (category_slug: string) => api.get<{message: string, data: Category}>(`/category/${category_slug}`),
+    getCategoryProducts: (category_slug: string) => api.get<FilterResponse>(`/category/${category_slug}`),
 }

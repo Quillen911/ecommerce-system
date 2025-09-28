@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { searchApi } from '@/lib/api/searchApi'
 import { SearchResponse, FilterResponse } from '@/types/search'
+import { mainApi } from '@/lib/api/mainApi'
 
 export const useSearchQuery = (query: string, filters?: any, sorting?: string, page?: number, size?: number) => {
   return useQuery<SearchResponse>({
@@ -20,5 +21,18 @@ export const useFilterQuery = (filters?: any, page = 1, size = 12) => {
       return response.data
     },
     enabled: !!filters,
+  })
+}
+
+export const useCategoryProducts = (
+  category_slug: string
+) => {
+  return useQuery<FilterResponse>({
+    queryKey: ['category-products', category_slug],
+    queryFn: async () => {
+      const response = await mainApi.getCategoryProducts(category_slug)
+      return response.data
+    },
+    enabled: !!category_slug,
   })
 }
