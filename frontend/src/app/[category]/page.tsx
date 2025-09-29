@@ -1,42 +1,46 @@
-'use client'
-
-import { useParams } from "next/navigation";
-import { useCategoryProducts } from "@/hooks/useSearchQuery";
-import { Product } from "@/types/main";
-
+"use client"
+import CategoryFilter from "@/components/product/CategoryFilter"
+import ProductList from "@/components/product/ProductList"
+import { useState } from "react"
+  import { FaFilter } from "react-icons/fa"
+    
 export default function CategoryPage() {
-  const { category } = useParams();
-  const { data: filteredProducts, isLoading } = useCategoryProducts(category as string);
-  
-  const categoryProducts = filteredProducts?.products.flatMap((product: Product) =>
-    product.variants.map((variant) => {
-        const primaryImage =
-          variant.images.find((img) => img.is_primary)?.image ||
-          variant.images[0]?.image ||
-          "/images/no-image.png"
-        return {
-            id: variant.id,
-            title: product.title,
-            category: product.category.title,
-            list_price: variant.price,
-            image: primaryImage,
-            images: variant.images,
-        }
-    })
-  ) ?? [];
-console.log(categoryProducts);
 
-  return <div>
-    <h1 className="text-2xl font-bold mb-4">{category}</h1>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {categoryProducts.map((product: any) => (
-        <div key={product.id}>
-          <h2 className="text-lg font-bold mb-2">{product.title}</h2>
-          <p className="text-sm text-gray-500 mb-2">{product.category}</p>
-          <p className="text-sm text-gray-500 mb-2">{product.list_price}</p>
-          <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
-        </div>
-      ))}
+  const [isOpen, setIsOpen] = useState(true)
+
+  const handleOpen = () => {
+    if(isOpen) {
+      handleClose()
+    } else {
+      setIsOpen(true)
+    }
+  }
+  const handleClose = () => {
+    setIsOpen(false)
+  }
+
+  return (
+    <div className="min-h-screen grid grid-cols-12 gap-6 bg-[var(--bg)] p-8">
+  {/* Filtre butonu */}
+  <div className="col-span-12 flex justify-end">
+    <button onClick={handleOpen} type="button" className="flex items-center gap-2">
+      <FaFilter className="w-8 h-8 cursor-pointer" />
+      <span className="text-lg font-bold cursor-pointer">Filtrelemeyi Gizle</span>
+    </button>
+  </div>
+
+  {/* Sol Sidebar */}
+  <aside className="col-span-12 md:col-span-3 lg:col-span-2 xl:col-span-2 self-start">
+    <div className="sticky top-24">
+      <CategoryFilter isOpen={isOpen} handleOpen={handleOpen} handleClose={handleClose} />
     </div>
-  </div>;
+  </aside>
+
+  {/* Sağ içerik */}
+  <main className="col-span-12 md:col-span-9 lg:col-span-10 xl:col-span-10 self-start">
+    <ProductList />
+  </main>
+</div>
+
+  )
 }

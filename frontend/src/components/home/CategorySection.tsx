@@ -16,10 +16,7 @@ export default function CategorySection() {
             .map((c) => [c.slug, c])
         ).values()
       ]
-      console.log('Categories',categories)
-      console.log('mainData?.categories',mainData?.categories)
 
-    
     return (
         <div className='relative flex gap-5 justify-center items-center h-300 py-45 bg-var(--main-bg)'>
             <h2 className="absolute top-1 left-42 transform -translate-x-1/3 text-2xl font-sans font-bold text-white mt-25">

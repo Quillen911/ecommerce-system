@@ -31,7 +31,7 @@ export interface CategoryResponse {
       size: number
     }
     filters: {
-      category_title: string
+      category_ids: number[]
     }
     categories: Category[]
     category: Category
@@ -79,6 +79,7 @@ export interface CategoryResponse {
     variants: ProductVariant[]
     created_at: string
     updated_at: string
+    gender?: string
 }
   
 

@@ -35,10 +35,8 @@ class CategoriesController extends Controller
         if (!$categories) {
             return ResponseHelper::notFound('Kategori bulunamadı.');
         }
-
         $request->merge([
-            'category_title' => $categories->first()->category_title,
-            'category_ids' => $categories->pluck('id')->toArray()
+            'category_ids' => $categories->pluck('id')->toArray(),
         ]);
         $filters = $this->elasticSearchTypeService->filterType($request);
 
@@ -51,7 +49,9 @@ class CategoriesController extends Controller
         return response()->json([
             'products'   => $data['products'],
             'filters'    => $filters,
+            'cat'   => $categories,
             'categories'   =>CategoryResource::collection($categories),
+            'total' => $data['results']['total'],
             'pagination' => [
                 'page' => $request->input('page', 1),
                 'size' => $request->input('size', 12)

@@ -30,7 +30,9 @@ class Product extends Model
         'stock_quantity',
         'sold_quantity',
         'is_published',
+        'image',
     ];
+    
     protected $casts = [
         'list_price' => 'float',
         'list_price_cents' => 'integer',
@@ -38,43 +40,42 @@ class Product extends Model
         'is_published' => 'boolean',
     ];
 
+    // Relations
     public function variants()
     {
         return $this->hasMany(ProductVariant::class);
     }
+
     public function images()
     {
         return $this->hasMany(ProductImage::class, 'product_id');
     }
+
     public function variantImages()
     {
         return $this->hasMany(ProductVariantImage::class, 'product_id');
     }
 
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function store(){
+    public function store()
+    {
         return $this->belongsTo(Store::class, 'store_id');
     }
     
-    public function scopePublished($query) {
+    // Scopes
+    public function scopePublished($query) 
+    {
         return $query->where('is_published', true);
     }
 
-    public function getStockQuantityAttribute()
+    // Accessors & Mutators
+    public function getRouteKeyName() 
     {
-        return $this->variants()->sum('stock_quantity');
-    }
-
-    public function getRouteKeyName() {
         return 'slug';
-    }
-
-    public function setImageUrlAttribute()
-    {
-        $this->attributes['image_url'] = $this->getImageUrlAttribute();
     }
 
     public function getImageUrlAttribute()
@@ -88,67 +89,36 @@ class Product extends Model
     {
         if ($value instanceof \Illuminate\Http\UploadedFile) {
             $filePath = $value->store('productImages', 'public');
-
             $this->attributes['image'] = basename($filePath);
         } else {
             $this->attributes['image'] = $value;
         }
     }
 
+    // DÜZELTME: Stock quantity hesaplaması için accessor yerine method kullan
+    public function getTotalStockQuantity()
+    {
+        return $this->variants()->sum('stock_quantity');
+    }
 
-    //Elasticsearch
+    // Model Events
     protected static function boot()
     {
-        
         parent::boot();
+        
         static::saved(function ($product) {
-            $product->load(['category', 'variants.variantImages', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option']);
-            
-            $data = $product->toArray();
-            $data['category_title'] = $product->category?->category_title ?? '';
-
-            $data['variants'] = $product->variants->map(function ($variant) {
-                return [
-                    'id'             => $variant->id,
-                    'sku'            => $variant->sku,
-                    'price'          => $variant->price,
-                    'price_cents'    => $variant->price_cents,
-                    'stock_quantity' => $variant->stock_quantity,
-                    'images'         => $variant->variantImages->map(fn($image) => [
-                        'id'    => $image->id,
-                        'product_variant_id' => $image->product_variant_id,
-                        'image' => asset('storage/productImages/' . $image->image),
-                        'is_primary' => $image->is_primary,
-                        'sort_order' => $image->sort_order
-                    ])->toArray(),
-                    'is_popular'     => $variant->is_popular,
-                    'attributes'     => $variant->variantAttributes->map(function ($attr) {
-                        return [
-                            'attribute_id' => $attr->attribute->id,
-                            'code'         => $attr->attribute->code,
-                            'name'         => $attr->attribute->name,
-                            'value'        => $attr->option->value ?? null,
-                            'slug'         => $attr->option->slug,
-                        ];
-                    })->toArray()
-                ];
-            })->toArray();
-
-           // dd($data['variants']);
-
-            dispatch(new IndexProductToElasticsearch($data));
+            // ID tabanlı yaklaşım (önerilen)
+            dispatch(new IndexProductToElasticsearch($product->id));
         });
         
-
         static::deleted(function ($product) {
-            dispatch(new DeleteProductToElasticsearch($product->toArray()));
+            dispatch(new DeleteProductToElasticsearch($product->id));
         });
-
+        
         static::creating(function ($product) {
             if (empty($product->slug)) {
                 $product->slug = Str::slug($product->title);
             }
         });
     }
-
 }

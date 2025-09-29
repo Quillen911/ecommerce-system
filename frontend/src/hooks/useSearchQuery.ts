@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { searchApi } from '@/lib/api/searchApi'
 import { SearchResponse, FilterResponse } from '@/types/search'
 import { mainApi } from '@/lib/api/mainApi'
+import { useSearchParams } from 'next/navigation'
 
 export const useSearchQuery = (query: string, filters?: any, sorting?: string, page?: number, size?: number) => {
   return useQuery<SearchResponse>({
@@ -27,10 +28,11 @@ export const useFilterQuery = (filters?: any, page = 1, size = 12) => {
 export const useCategoryProducts = (
   category_slug: string
 ) => {
+  const searchParams = useSearchParams()
   return useQuery<FilterResponse>({
-    queryKey: ['category-products', category_slug],
+    queryKey: ['category-products', category_slug, searchParams.toString()],
     queryFn: async () => {
-      const response = await mainApi.getCategoryProducts(category_slug)
+      const response = await mainApi.getCategoryProducts(category_slug, searchParams.toString())
       return response.data
     },
     enabled: !!category_slug,

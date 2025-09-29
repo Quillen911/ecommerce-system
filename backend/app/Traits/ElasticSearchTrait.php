@@ -4,25 +4,6 @@ namespace App\Traits;
 
 trait ElasticSearchTrait
 {
-    public function getGameFilterTrait(array $filters): array
-    {
-        if(isset($filters['game'])){
-            return [[
-                'nested' => [
-                    'path' => 'computed_attributes',
-                    'query' => [
-                        'bool' => [
-                            'must' => [
-                                [ 'term' => [ 'computed_attributes.code' => 'game' ] ],
-                                [ 'term' => [ 'computed_attributes.slug' => $filters['game'] ] ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]];
-        }
-        return [];
-    }
 
     public function getCategoryFilterTrait(array $filters): array
     {
@@ -52,6 +33,49 @@ trait ElasticSearchTrait
             ];
         }
 
+        if (isset($filters['gender'])) {
+            $query[] = [
+                'term' => [
+                    'gender.keyword' => $filters['gender']
+                ]
+            ];
+        }
+
+        $attributeFilters = [];
+
+        foreach (['color', 'age'] as $attr) {
+            if (isset($filters[$attr])) {
+                $attributeFilters[] = [
+                    'nested' => [
+                        'path' => 'variants.attributes',
+                        'query' => [
+                            'bool' => [
+                                'must' => [
+                                    ['term' => ['variants.attributes.code' => $attr]],
+                                    ['term' => ['variants.attributes.slug' => $filters[$attr]]]
+                                ]
+                            ]
+                        ]
+                    ]
+                ];
+            }
+        }
+        
+        if (!empty($attributeFilters)) {
+            $query[] = [
+                'nested' => [
+                    'path' => 'variants',
+                    'query' => [
+                        'bool' => [
+                            'must' => $attributeFilters
+                        ]
+                    ],
+                    'inner_hits' => [
+                        '_source' => true
+                    ]
+                ]
+            ];
+        }
         return $query;
     }
 
@@ -63,7 +87,12 @@ trait ElasticSearchTrait
             if (isset($filters['max_price'])) $range['lte'] = (float)$filters['max_price'];
             
             return [[
-                'range' => ['list_price' => $range]
+                'nested' => [
+                    'path' => 'variants',
+                    'query' => [
+                        'range' => ['variants.price' => $range]
+                    ]
+                ]
             ]];
         }
         return [];
@@ -72,23 +101,33 @@ trait ElasticSearchTrait
     public function getSortTrait(string $sorting = ''): array
     {
         if($sorting == 'price_asc' || $sorting == 'price_desc'){
-            return [
-                'list_price' => [
-                    'order' => $sorting == 'price_asc' ? 'asc' : 'desc'
+            return [[
+                'variants.price' => [
+                    'order' => $sorting == 'price_asc' ? 'asc' : 'desc',
+                    'mode'  => 'min',
+                    'nested' => [
+                        'path' => 'variants'
+                    ]
                 ]
-            ];
+            ]];
         }
         else if($sorting == 'stock_quantity_asc' || $sorting == 'stock_quantity_desc'){
-            return [
-                'stock_quantity' => [
-                    'order' => $sorting == 'stock_quantity_asc' ? 'asc' : 'desc'
+            return [[
+                'variants.stock_quantity' => [
+                    'order' => $sorting == 'stock_quantity_asc' ? 'asc' : 'desc',
+                    'mode'  => 'sum',
+                    'nested' => [
+                        'path' => 'variants'
+                    ]
                 ]
-            ];
+            ]];
         }
+    
         return [
             '_score' => ['order' => 'desc']
         ];
     }
+    
 
     public function getStoreFilterTrait(array $filters): array
     {
@@ -105,10 +144,10 @@ trait ElasticSearchTrait
     public function mergeFiltersTrait(array $filters): array
     {
         return array_merge(
-            $this->getGameFilterTrait($filters),
             $this->getCategoryFilterTrait($filters),
             $this->getPriceFilterTrait($filters),
-            $this->getStoreFilterTrait($filters)
+            $this->getStoreFilterTrait($filters),
+
         );
     }
 }

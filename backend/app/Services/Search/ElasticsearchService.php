@@ -89,7 +89,7 @@ class ElasticsearchService
                     $searchQuery['bool']['must'][] = [
                         'multi_match' => [
                             'query' => $query,
-                            'fields' => ['title^2', 'author', 'store_name^2'],
+                            'fields' => ['title^2', 'category_ids', 'store_name^2'],
                             'fuzziness' => 'AUTO'
                         ],
                     ];

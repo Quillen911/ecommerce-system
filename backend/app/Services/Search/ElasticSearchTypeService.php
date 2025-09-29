@@ -7,11 +7,11 @@ class ElasticSearchTypeService
     public function filterType($request)
     {
         $filters = [];
-        if($request->filled('category_title')){
-            $filters['category_title'] = $request->input('category_title') ?? '';
-        }
         if($request->filled('category_ids')){
             $filters['category_ids'] = $request->input('category_ids') ?? '';
+        }
+        if($request->filled('gender')){
+            $filters['gender'] = $request->input('gender') ?? '';
         }
         if($request->filled('min_price')){
             $filters['min_price'] = $request->input('min_price') ?? '';
@@ -22,7 +22,12 @@ class ElasticSearchTypeService
         if($request->filled('store_id')){
             $filters['store_id'] = $request->input('store_id') ?? '';
         }
-        
+        if($request->filled('age')){
+            $filters['age'] = $request->input('age') ?? '';
+        }
+        if($request->filled('color')){
+            $filters['color'] = $request->input('color') ?? '';
+        }
         return $filters;
         
     }

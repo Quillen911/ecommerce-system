@@ -135,35 +135,6 @@ class MainController extends Controller
         ]);
     }
 
-    public function categoryFilter(Request $request, $category_slug)
-    {
-        $category = $this->mainService->getCategory($category_slug);
-
-        if (!$category) {
-            return ResponseHelper::notFound('Kategori bulunamadı.');
-        }
-
-        $request->merge(['category_title' => $category->category_title]);
-        $filters = $this->elasticSearchTypeService->filterType($request);
-
-        $data = $this->elasticSearchProductService->filterProducts(
-            $filters,
-            $request->input('page', 1),
-            $request->input('size', 12)
-        );
-
-        return ResponseHelper::success('Kategori Ürünleri', [
-            'products'   => ProductResource::collection($data['products']),
-            'filters'    => $filters,
-            'categories' => CategoryResource::collection($this->mainService->getCategories()),
-            'category'   => new CategoryResource($category),
-            'pagination' => [
-                'page' => $request->input('page', 1),
-                'size' => $request->input('size', 12)
-            ]
-        ]);
-    }
-
     public function filter(Request $request)
     {
         $filters = $this->elasticSearchTypeService->filterType($request);
