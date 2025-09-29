@@ -45,6 +45,10 @@ trait ElasticSearchTrait
 
         foreach (['color', 'age'] as $attr) {
             if (isset($filters[$attr])) {
+                $values = is_array($filters[$attr]) 
+                ? $filters[$attr] 
+                : explode(',', $filters[$attr]);
+                
                 $attributeFilters[] = [
                     'nested' => [
                         'path' => 'variants.attributes',
@@ -52,7 +56,7 @@ trait ElasticSearchTrait
                             'bool' => [
                                 'must' => [
                                     ['term' => ['variants.attributes.code' => $attr]],
-                                    ['term' => ['variants.attributes.slug' => $filters[$attr]]]
+                                    ['terms' => ['variants.attributes.slug' => $values]]
                                 ]
                             ]
                         ]

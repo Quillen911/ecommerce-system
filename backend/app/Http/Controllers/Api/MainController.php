@@ -102,39 +102,6 @@ class MainController extends Controller
         ]);
     }
 
-    public function search(Request $request)
-    {
-        $query   = $request->input('q', '');
-        $filters = $this->elasticSearchTypeService->filterType($request);
-        $sorting = $this->elasticSearchTypeService->sortingType($request);
-
-        $data = $this->elasticSearchProductService->searchProducts(
-            $query,
-            $filters,
-            $sorting,
-            $request->input('page', 1),
-            $request->input('size', 12)
-        );
-
-        if (!empty($data['products'])) {
-            return ResponseHelper::success('Ürünler Bulundu', [
-                'total'    => $data['results']['total'],
-                'page'     => $request->input('page', 1),
-                'size'     => $request->input('size', 12),
-                'query'    => $query ?: "null",
-                'products' => ProductResource::collection($data['products']),
-            ]);
-        }
-
-        return ResponseHelper::notFound('Ürün bulunamadı.', [
-            'total'    => 0,
-            'page'     => $request->input('page', 1),
-            'size'     => $request->input('size', 12),
-            'query'    => $query ?: "null",
-            'products' => []
-        ]);
-    }
-
     public function filter(Request $request)
     {
         $filters = $this->elasticSearchTypeService->filterType($request);

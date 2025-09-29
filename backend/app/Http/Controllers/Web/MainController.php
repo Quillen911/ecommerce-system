@@ -91,7 +91,7 @@ class MainController extends Controller
         
         $request->merge(['category_title' => $category->category_title]);
         $filters = $this->elasticSearchTypeService->filterType($request);
-        $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('page', 1), $request->input('size', 12));
+        $data = $this->elasticSearchProductService->filterProducts($filters, $request->input('sorting', ''), $request->input('page', 1), $request->input('size', 12));
         
         return view('main', array_merge($data, [
             'filters' => $filters,

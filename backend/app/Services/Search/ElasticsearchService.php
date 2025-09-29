@@ -79,23 +79,50 @@ class ElasticsearchService
         }
     }
 
-    public function searchProducts(string $query = '', array $filters = [], string $sorting = '', int $page = 1, int $size = 7): array
+    public function searchProducts(?string $query = '', array $filters = [], string $sorting = '', int $page = 1, int $size = 7): array
     {
         try{
             $from = ($page-1) * $size;
             $searchQuery = [];
             //search query
-                if(!empty($query)){
-                    $searchQuery['bool']['must'][] = [
-                        'multi_match' => [
-                            'query' => $query,
-                            'fields' => ['title^2', 'category_ids', 'store_name^2'],
-                            'fuzziness' => 'AUTO'
-                        ],
-                    ];
-                } else {
-                    $searchQuery['match_all'] = new \stdClass();
-                }
+            if (!empty($query)) {
+                $searchQuery['bool']['must'][] = [
+                    'bool' => [
+                        'should' => [
+                            [
+                                'multi_match' => [
+                                    'query'     => $query,
+                                    'fields'    => ['title^3', 'category_title^2', 'gender^2'],
+                                    'fuzziness' => 'AUTO'
+                                ]
+                            ],
+                            [
+                                'nested' => [
+                                    'path'  => 'variants',
+                                    'query' => [
+                                        'multi_match' => [
+                                            'query'  => $query,
+                                            'fields' => ['variants.sku', 'variants.attributes.value^2', 'variants.attributes.slug'],
+                                            'fuzziness' => 'AUTO'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ];
+            } else {
+                $searchQuery['bool']['filter'][] = [
+                    'nested' => [
+                        'path' => 'variants',
+                        'query' => [
+                            'term' => [
+                                'variants.is_popular' => true
+                            ]
+                        ]
+                    ]
+                ];
+            }
 
             if(!empty($filters)){
                 $searchQuery['bool']['filter'] = $this->mergeFiltersTrait($filters);
@@ -132,7 +159,7 @@ class ElasticsearchService
         }
     }
 
-    public function filterProducts(array $filters = [], int $page = 1, int $size = 7 ): array
+    public function filterProducts(array $filters = [], string $sorting = '', int $page = 1, int $size = 7 ): array
     {
         try {
             $from = ($page-1) * $size;
@@ -144,6 +171,8 @@ class ElasticsearchService
             } else {
                 $searchQuery['match_all'] = new \stdClass();
             }
+
+            $sortArray = $this->getSortTrait($sorting);
             
             $params = [
                 'index' => 'products',
@@ -151,9 +180,7 @@ class ElasticsearchService
                     'query' => $searchQuery,
                     'size' => $size,
                     'from' => $from,
-                    'sort' => [
-                        '_score' => ['order' => 'desc']
-                    ]              
+                    'sort' => $sortArray              
                 ]
             ];
             $response = $this->client->search($params);

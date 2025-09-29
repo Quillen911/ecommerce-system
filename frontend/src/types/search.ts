@@ -1,16 +1,11 @@
-import { Category, Product, ProductVariant, Attribute } from "./main"
-import { ProductImage, ProductVariantImage } from "./seller/product"
+import { Category, Product } from "./main"
 
 export interface SearchResponse {
-  message: string
-  data: {
-    results: any
-    total: number
-    page: number
-    size: number
-    query: string
-    products: Product[]
-  }
+  total: number
+  page: number
+  size: number
+  query: string
+  products: Product[]
 }
 
 export interface FilterResponse {

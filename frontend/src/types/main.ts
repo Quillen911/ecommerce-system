@@ -89,6 +89,15 @@ export interface Category {
   title: string
   slug: string
   parent_id: number | null
+  parent?: ParentCategory | null    
+  children?: Category[]       
+}
+
+export interface ParentCategory {
+  id: number
+  title: string
+  slug: string
+  parent_id: number | null
   parent?: Category | null    
   children?: Category[]       
 }

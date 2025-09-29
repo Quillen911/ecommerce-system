@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\ElasticSearch;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ use App\Services\MainService;
 use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\Category\CategoryResource;
 
-class CategoriesController extends Controller
+class CategoryFilterController extends Controller
 {
     protected $elasticSearchTypeService;
     protected $elasticSearchProductService;
@@ -39,9 +39,10 @@ class CategoriesController extends Controller
             'category_ids' => $categories->pluck('id')->toArray(),
         ]);
         $filters = $this->elasticSearchTypeService->filterType($request);
-
+        $filters['sorting'] = $request->input('sorting', '');
         $data = $this->elasticSearchProductService->filterProducts(
             $filters,
+            $filters['sorting'],
             $request->input('page', 1),
             $request->input('size', 12)
         );

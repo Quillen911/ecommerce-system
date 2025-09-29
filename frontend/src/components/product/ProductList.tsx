@@ -28,12 +28,10 @@ export default function ProductList() {
     )
   return (
     <div className="min-h-screen">
-      {/* Başlık grid dışında */}
       <h1 className="text-2xl font-bold mb-6 animate-fadeIn">
         {totalVariants} ürün bulundu
       </h1>
 
-      {/* Sadece ürünler grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-start items-start">
         {categoryProducts.flatMap((product, i) =>
           product.variants.map((variant, j) => (

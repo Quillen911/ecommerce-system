@@ -1,5 +1,3 @@
-// lib/api/searchApi.ts
-
 import axios from 'axios'
 import { SearchResponse, FilterResponse } from '@/types/search'
 
@@ -18,4 +16,6 @@ export const searchApi = {
 
   filter: (filters?: any, page = 1, size = 12) =>
     api.get<FilterResponse>('/filter', { params: { ...filters, page, size } }),
+  
+  getCategoryProducts: (category_slug: string, searchParams: string) => api.get<FilterResponse>(`/category/${category_slug}?${searchParams}`),
 }

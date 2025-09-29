@@ -39,16 +39,16 @@ export default function CategorySection() {
                     <Link 
                         key={category?.slug} 
                         href={`/${category?.slug}`}
-                        className="w-150 h-200 bg-var(--main-bg) cursor-pointer transition-all duration-400 transform hover:scale-101"
+                        className="bg-var(--main-bg) cursor-pointer transition-all duration-400 transform hover:scale-101 px-10"
                         >
-                            <div className='w-150 h-200'>
+                            <div className='w-full h-full'>
                                 <Image src={imageSrc} alt={category?.title} width={150} height={200} className='object-cover w-full h-full'/>
                             </div>
+                                    
+                            <p className="font-medium text-lg text-white mt-10">
+                            {category?.title}
+                            </p>
 
-                        
-                        <p className="font-medium text-lg text-white mt-10">
-                        {category?.title}
-                        </p>
                     </Link>
             )})}
 

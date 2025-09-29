@@ -14,16 +14,29 @@ class ElasticSearchProductService
 
     public function searchProducts($query, $filters, $sorting, $page = 1, $size = 12)
     {
+        if ($query) {
+            $lowerQuery = mb_strtolower($query, 'UTF-8');
+    
+            if (str_contains($lowerQuery, 'kız çocuk')) {
+                $filters['gender'] = 'Kız Çocuk';
+                $query = trim(str_ireplace('kız çocuk', 'çocuk', $query));
+            } elseif (str_contains($lowerQuery, 'erkek çocuk')) {
+                $filters['gender'] = 'Erkek Çocuk';
+                $query = trim(str_ireplace('erkek çocuk', 'çocuk', $query));
+            }
+        }
+    
         $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
+    
         return [
             'products' => collect($results['hits'])->pluck('_source')->toArray(),
-            'results' => $results
+            'results'  => $results
         ];
     }
 
-    public function filterProducts($filters, $page = 1, $size = 12)
+    public function filterProducts($filters, $sorting, $page = 1, $size = 12)
     {
-        $results = $this->elasticSearch->filterProducts($filters, $page, $size);
+        $results = $this->elasticSearch->filterProducts($filters, $sorting, $page, $size);
 
         $products = collect($results['hits'])->map(function ($hit) {
             $source = $hit['_source'];

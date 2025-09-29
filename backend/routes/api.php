@@ -12,7 +12,10 @@ use App\Http\Controllers\Api\Seller\CategoryController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 use App\Http\Controllers\Api\User\AddressesController;
-use App\Http\Controllers\Api\CategoriesController;
+
+use App\Http\Controllers\Api\ElasticSearch\CategoryFilterController;
+use App\Http\Controllers\Api\ElasticSearch\SearchController;
+
 use App\Http\Controllers\Api\Seller\Image\ProductImageController;
 use App\Http\Controllers\Api\Seller\Image\ProductVariantImageController;
 
@@ -26,10 +29,10 @@ Route::prefix('main')->group(function(){
 });
 
 Route::prefix('category')->group(function(){
-    Route::get('/{category_slug}', [CategoriesController::class, 'categoryFilter']);
+    Route::get('/{category_slug}', [CategoryFilterController::class, 'categoryFilter']);
 });
 
-Route::get('/search', [MainController::class, 'search']);
+Route::get('/search', [SearchController::class, 'search']);
 Route::get('/filter', [MainController::class, 'filter']);
 Route::get('/sorting', [MainController::class, 'sorting']);
 Route::get('/autocomplete', [MainController::class, 'autocomplete']);
