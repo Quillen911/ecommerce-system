@@ -15,6 +15,7 @@
   --border: #E5E7EB;
   --danger: #9b1818;
 }
+
 /* globals.css veya componentin css'ine ekle */
 .swiper-button-next::after,
 .swiper-button-prev::after {

@@ -12,6 +12,8 @@ export default function SearchProductList() {
     const sorting = searchParams.get("sorting") || undefined
     const filters = {
     gender: searchParams.get("gender") || undefined,
+    min_price: searchParams.get("min_price") || undefined,
+    max_price: searchParams.get("max_price") || undefined,
     age: searchParams.get("age")?.split(",") || undefined,
     color: searchParams.get("color")?.split(",") || undefined,
     }
@@ -22,12 +24,12 @@ export default function SearchProductList() {
     const totalVariants = products.reduce((acc, product) => acc + product.variants.length, 0)
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen">
+      return (
+        <div className="min-h-screen">
             <p className="text-center text-2xl font-bold justify-start items-start animate-pulse">Yükleniyor...</p>
             </div>
         )
-    }
+      }
     if (products.length === 0) {
         return (
             <div className="min-h-screen">
@@ -42,13 +44,17 @@ export default function SearchProductList() {
             </div>
         )
     }
-
+    
     return (
         <div className="min-h-screen">
-          <h1 className="text-2xl font-bold mb-6 animate-fadeIn">
-            {totalVariants} ürün bulundu
-          </h1>
-    
+          <div>
+            <p className="text-lg text-gray-500">
+              arama sonucu: {query} için
+            </p>
+            <h1 className="text-2xl font-bold mb-6 animate-fadeIn">
+              {totalVariants} ürün bulundu
+            </h1>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-start items-start">
             {products.flatMap((product, i) =>
               product.variants.map((variant, j) => (
