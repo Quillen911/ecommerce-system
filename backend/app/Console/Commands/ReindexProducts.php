@@ -40,6 +40,7 @@ class ReindexProducts extends Command
         $data['variants'] = $product->variants->map(function ($variant) {
             return [
                 'id'             => $variant->id,
+                'product_id'     => $variant->product_id,
                 'sku'            => $variant->sku,
                 'price'          => $variant->price,
                 'price_cents'    => $variant->price_cents,

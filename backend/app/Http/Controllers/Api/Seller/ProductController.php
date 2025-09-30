@@ -80,7 +80,6 @@ class ProductController extends Controller
             $product->load([
                 'category.parent',
                 'category.children',
-                'images',
                 'variants.variantAttributes.attribute',
                 'variants.variantImages',
                 'variants.variantAttributes.option'
@@ -99,7 +98,6 @@ class ProductController extends Controller
                 $product->load([
                     'category.parent',
                     'category.children',
-                    'images',
                     'variants.variantAttributes.attribute',
                     'variants.variantImages',
                     'variants.variantAttributes.option'
@@ -118,11 +116,7 @@ class ProductController extends Controller
 
             $data = $request->validated();
 
-            if ($request->hasFile('images')) {
-                $data['images'] = $request->file('images');
-            }
-
-            $variants = $request->input('variants', []); // varsayılan boş array
+            $variants = $request->input('variants', []);
 
             foreach ($variants as $i => $v) {
                 if ($request->hasFile("variants.$i.images")) {
@@ -136,7 +130,6 @@ class ProductController extends Controller
                 $product->load([
                     'category.parent',
                     'category.children',
-                    'images',
                     'variants.variantAttributes.attribute',
                     'variants.variantImages',
                     'variants.variantAttributes.option'
@@ -171,7 +164,6 @@ class ProductController extends Controller
                 collect($products)->load([
                     'category.parent',
                     'category.children',
-                    'images',
                     'variants.variantAttributes.attribute',
                     'variants.variantImages',
                     'variants.variantAttributes.option'
@@ -208,7 +200,6 @@ class ProductController extends Controller
                     'products' => ProductResource::collection(collect($data['products'])->load([
                         'category.parent',
                         'category.children',
-                        'images',
                         'variants.variantAttributes.attribute',
                         'variants.variantImages',
                         'variants.variantAttributes.option'

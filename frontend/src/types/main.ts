@@ -52,6 +52,7 @@ export interface CategoryResponse {
 
   export interface ProductVariant {
     id: number
+    product_id: number
     sku: string
     price: number
     price_cents: number

@@ -15,10 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->string('sku')->unique();
+            $table->string('slug')->unique();
             $table->decimal('price', 10, 2)->nullable();
             $table->bigInteger('price_cents')->default(0);
             $table->integer('stock_quantity')->default(0);
+            $table->integer('sold_quantity')->default(0);
             $table->boolean('is_popular')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

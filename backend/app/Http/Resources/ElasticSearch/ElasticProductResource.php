@@ -37,9 +37,11 @@ class ElasticProductResource extends JsonResource
                 return [
                     'id' => $variant['id'] ?? null,
                     'sku' => $variant['sku'] ?? null,
+                    'slug' => $variant['slug'] ?? null,
                     'price' => $variant['price'] ?? null,
                     'price_cents' => $variant['price_cents'] ?? null,
                     'stock_quantity' => $variant['stock_quantity'] ?? null,
+                    'sold_quantity' => $variant['sold_quantity'] ?? null,
                     'is_popular' => $variant['is_popular'] ?? null,
                     'images' => collect($variant['images'] ?? [])->map(function ($image) {
                         return [

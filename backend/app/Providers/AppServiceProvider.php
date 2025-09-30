@@ -60,11 +60,6 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\AttributeOptions\AttributeOptionsRepositoryInterface::class,
             \App\Repositories\Eloquent\AttributeOptions\AttributeOptionsRepository::class
         );
-        // Product Image Repository
-        $this->app->bind(
-            \App\Repositories\Contracts\Image\ProductImageRepositoryInterface::class,
-            \App\Repositories\Eloquent\Image\ProductImageRepository::class
-        );
 
         // Product Variant Image Repository
         $this->app->bind(

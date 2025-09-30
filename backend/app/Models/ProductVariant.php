@@ -5,25 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class ProductVariant extends Model
 {
     use HasFactory, SoftDeletes;
-
+    protected $guarded = ['id'];
     protected $fillable = [
         'product_id',
         'sku',
+        'slug',
         'price',
         'price_cents',
         'stock_quantity',
+        'sold_quantity',
         'is_popular',
+        'is_active',
     ];
 
     protected $casts = [
         'price' => 'float',
         'price_cents' => 'integer',
+        'sold_quantity' => 'integer',
         'stock_quantity' => 'integer',
+        'sold_quantity' => 'integer',
         'is_popular' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function product()
@@ -40,4 +47,5 @@ class ProductVariant extends Model
     {
         return $this->hasMany(ProductVariantImage::class, 'product_variant_id');
     }
+
 }

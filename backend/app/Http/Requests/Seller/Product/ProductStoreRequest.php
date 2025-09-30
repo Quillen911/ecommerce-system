@@ -18,9 +18,6 @@ class ProductStoreRequest extends FormRequest
             'category_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
             'meta_description' => 'nullable|string|max:160',
-            'list_price' => 'required|numeric|min:0',
-            'images' => 'sometimes|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
             // Varyantlar
             'variants' => 'required|array|min:1',
@@ -45,18 +42,9 @@ class ProductStoreRequest extends FormRequest
             'title.max' => 'Ürün adı en fazla 255 karakter olmalıdır.',
             'category_id.exists' => 'Geçersiz kategori.',
 
-            'list_price.required' => 'Liste fiyatı boş bırakılamaz.',
-            'list_price.numeric' => 'Liste fiyatı sayı olmalıdır.',
-            'list_price.min' => 'Liste fiyatı en az 0 olmalıdır.',
-
             'stock_quantity.required' => 'Stok miktarı boş bırakılamaz.',
             'stock_quantity.integer' => 'Stok miktarı sayı olmalıdır.',
             'stock_quantity.min' => 'Stok miktarı en az 0 olmalıdır.',
-
-            'images.array' => 'Resimler dizi olmalıdır.',
-            'images.*.image' => 'Resimler resim dosyası olmalıdır.',
-            'images.*.mimes' => 'Resimler jpeg, png, jpg, gif, svg formatında olmalıdır.',
-            'images.*.max' => 'Resimler en fazla 2MB olmalıdır.',
 
             'variants.required' => 'En az bir varyant eklenmelidir.',
             'variants.array' => 'Variants dizi olmalıdır.',

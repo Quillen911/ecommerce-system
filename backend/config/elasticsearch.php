@@ -95,9 +95,11 @@ return [
                     'properties' => [
                         'id' => ['type' => 'integer'],
                         'sku' => ['type' => 'keyword'],
+                        'slug' => ['type' => 'keyword'],
                         'price' => ['type' => 'float'],
                         'price_cents' => ['type' => 'integer'],
                         'stock_quantity' => ['type' => 'integer'],
+                        'sold_quantity' => ['type' => 'integer'],
                         'is_popular' => ['type' => 'boolean'],
                         'images' => [
                             'type' => 'nested',

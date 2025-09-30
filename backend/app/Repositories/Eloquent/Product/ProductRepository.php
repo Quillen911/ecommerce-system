@@ -27,7 +27,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 ->with([
                     'category.parent',
                     'category.children',
-                    'images',
                     'variants.variantImages',
                     'variants.variantAttributes.attribute',
                     'variants.variantAttributes.option',
@@ -46,7 +45,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ->with([
                 'category.parent',
                 'category.children',
-                'images',
                 'variants.variantImages',
                 'variants.variantAttributes.attribute',
                 'variants.variantAttributes.option',
@@ -62,7 +60,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model
             ->with([
                 'category',
-                'images',
                 'variants.variantAttributes.attribute',
                 'variants.variantImages',
                 'variants.variantAttributes.option',
@@ -82,10 +79,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function createProduct(array $productData)
     {
-        if (isset($productData['list_price'])) {
-            $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
-        }
-
         return $this->create($productData);
     }
 
@@ -94,10 +87,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
      */
     public function updateProduct(array $productData, $storeId, $id)
     {
-        if (isset($productData['list_price'])) {
-            $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
-        }
-
         $product = $this->model->where('store_id', $storeId)->where('id', $id)->first();
         
         if (!$product) {
@@ -118,14 +107,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         $created = [];
 
         foreach ($productsData as $productData) {
-            if (isset($productData['list_price'])) {
-                $productData['list_price_cents'] = (int)($productData['list_price'] * 100);
-            }
-
-            if (isset($productData['images']) && is_array($productData['images'])) {
-                $productData['images'] = $this->processImages($productData['images']);
-            }
-
             $product = $this->create($productData);
             $created[] = $product;
         }
@@ -144,30 +125,14 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             return false;
         }
 
-        // Ana ürün resimlerini sil
-        if ($product->images && is_array($product->images)) {
-            foreach ($product->images as $image) {
-                if (is_array($image)) {
-                    foreach ($image as $img) {
+        if ($product->variants && is_array($product->variants)) {
+            foreach ($product->variants as $variant) {
+                if (is_array($variant->variantImages)) {
+                    foreach ($variant->variantImages as $img) {
                         Storage::disk('public')->delete('productImages/' . $img);
                     }
                 } else {
-                    Storage::disk('public')->delete('productImages/' . $image);
-                }
-            }
-        }
-
-        // Varyant resimlerini sil
-        foreach ($product->variants as $variant) {
-            if ($variant->images && is_array($variant->images)) {
-                foreach ($variant->images as $image) {
-                    if (is_array($image)) {
-                        foreach ($image as $img) {
-                            Storage::disk('public')->delete('productImages/' . $img);
-                        }
-                    } else {
-                        Storage::disk('public')->delete('productImages/' . $image);
-                    }
+                    Storage::disk('public')->delete('productImages/' . $variant->variantImages);
                 }
             }
         }
@@ -183,7 +148,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model
             ->with([
                 'category',
-                'images',
                 'variants.variantImages',
                 'variants.variantAttributes.attribute',
                 'variants.variantAttributes.option',

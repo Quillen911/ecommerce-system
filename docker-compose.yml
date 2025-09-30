@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - ./backend:/var/www
+      - ./backend:/var/www:cached
       - /var/www/vendor
       - /var/www/node_modules
     depends_on:
@@ -58,7 +58,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app:cached
       - /app/node_modules
     environment:
       - NODE_ENV=development
@@ -178,25 +178,25 @@ services:
         limits:
           memory: 768M
 
-  # Kibana
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.8.0
-    container_name: kibana
-    restart: unless-stopped
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - XPACK_SECURITY_ENABLED=false
-    depends_on:
-      - elasticsearch
-    networks:
-      - app-network
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: 256M
+
+  #kibana:
+    #image: docker.elastic.co/kibana/kibana:8.8.0
+    #container_name: kibana
+    #restart: unless-stopped
+    #ports:
+      #- "5601:5601"
+    #environment:
+      #- ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      #- XPACK_SECURITY_ENABLED=false
+    #depends_on:
+      #- elasticsearch
+    #networks:
+      #- app-network
+    #deploy:
+      #resources:
+        #limits:
+          #cpus: "0.50"
+          #memory: 256M
 
 volumes:
   pgdata:

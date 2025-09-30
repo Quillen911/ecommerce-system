@@ -12,18 +12,13 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('store_id')->constrained('stores')->onDelete('cascade');
-            $table->string('store_name');
             $table->string('title');
-            $table->string('slug');
             $table->unsignedBigInteger('category_id')->nullable();
             $table->text('description')->nullable();
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
-            $table->decimal('list_price',10,2);
-            $table->bigInteger('list_price_cents')->default(0);
-            $table->integer('stock_quantity')->nullable();
             $table->boolean('is_published')->default(true);
-            $table->integer('sold_quantity')->default(0);
+            $table->integer('total_sold_quantity')->default(0);
             $table->timestamps();
             $table->softDeletes();
             

@@ -61,9 +61,11 @@ class IndexProductToElasticsearch implements ShouldQueue
             return [
                 'id'             => $variant->id,
                 'sku'            => $variant->sku,
+                'slug'           => $variant->slug,
                 'price'          => $variant->price,
                 'price_cents'    => $variant->price_cents,
                 'stock_quantity' => $variant->stock_quantity,
+                'sold_quantity'  => $variant->sold_quantity,
                 'images'         => $variant->variantImages->map(fn($image) => [
                     'id'    => $image->id,
                     'product_variant_id' => $image->product_variant_id,

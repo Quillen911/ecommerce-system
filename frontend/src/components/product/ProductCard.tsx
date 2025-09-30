@@ -2,6 +2,8 @@
 
 import { Product, ProductVariant } from "@/types/main"
 import { useMainData } from "@/hooks/useMainQuery"
+import ProductImageGallery from "../ui/ProductImageGallery"
+
 type ProductCardProps = {
   product: Product
   variant: ProductVariant
@@ -26,20 +28,14 @@ export default function ProductCard({ product, variant }: ProductCardProps) {
     mavi: "bg-blue-400",
     beyaz: "bg-gray-100 border",
   }
-  
-  
-  const primaryImage =
-    variant.images.find((img) => img.is_primary)?.image ||
-    variant.images[0]?.image ||
-    "/images/no-image.png"
- 
+
     return (
-      <div className="p-4 hover:shadow-lg transition cursor-pointer">
+      <div className="p-4 cursor-pointer">
         <div className="w-full h-100 overflow-hidden flex items-center justify-center">
-          <img
-            src={primaryImage}
+          <ProductImageGallery
+            images={variant.images}
             alt={product.title}
-            className="max-h-full max-w-full object-contain transition-all duration-500"
+            className="object-contain w-full h-120"
           />
         </div>
     
