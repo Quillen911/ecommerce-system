@@ -10,13 +10,13 @@ export default function ProductDetailPage() {
 
     if (!product) return <p className="text-center text-2xl font-bold text-white">Ürün bulunamadı</p>
     return (
-        <div className="min-h-screen grid grid-cols-12 gap-6 bg-[var(--bg)] p-8">
-            <div className="col-span-8 col-start-3">
-                <ProductDetail 
-                product={product} 
-                variant={product.variants[0]} 
-                />
-            </div>
+        <div className="min-h-screen bg-[var(--bg)] p-4 md:p-8">
+          <div className="container mx-auto">
+            <ProductDetail 
+              product={product} 
+              variant={product.variants[0]} 
+            />
+          </div>
         </div>
-    )
+      )
 }

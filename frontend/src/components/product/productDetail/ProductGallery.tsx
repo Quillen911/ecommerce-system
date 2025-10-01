@@ -14,9 +14,9 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col md:flex-row gap-4">
 
-      <div className="flex flex-col gap-2 justify-start overflow-y-auto">
+      <div className="flex md:flex-col gap-2 mt-2 md:mt-0 overflow-x-auto md:overflow-y-auto order-2 md:order-none">
         {images.map((img, index) => (
           <button
             key={img.id}
@@ -38,7 +38,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
         ))}
       </div>
 
-      <div className="flex-1 rounded-md overflow-hidden aspect-[4/5] bg-gray-50 cursor-pointer">
+      <div className="flex-1 rounded-md overflow-hidden aspect-[4/5] bg-gray-50 cursor-pointer order-1 md:order-none">
         <img
           src={images[currentIndex].image}
           onClick={() => setIsOpen(true)}
@@ -50,16 +50,15 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="flex gap-6 max-w-6xl w-full justify-start p-25">
-            <div className="flex flex-col gap-3 overflow-y-auto">
+          <div className="flex flex-col md:flex-row gap-6 max-w-6xl w-full h-full p-4">
+            
+            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto order-2 md:order-none">
               {images.map((img, index) => (
                 <button
                   key={img.id}
                   onClick={() => setCurrentIndex(index)}
-                  className={`relative rounded-md overflow-hidden h-20 w-20 flex items-center justify-center ${
-                    currentIndex === index
-                      ? "opacity-100"
-                      : "opacity-50"
+                  className={`relative rounded-md overflow-hidden h-20 w-20 flex-shrink-0 flex items-center justify-center ${
+                    currentIndex === index ? "opacity-100" : "opacity-50"
                   }`}
                 >
                   <img
@@ -71,10 +70,8 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
               ))}
             </div>
 
-            <div className="flex-1 flex items-center justify-center cursor-pointer">
-              <ZoomableImage
-                src={images[currentIndex].image}
-              />
+            <div className="flex-1 flex items-center justify-center">
+              <ZoomableImage src={images[currentIndex].image} />
             </div>
           </div>
 
@@ -86,6 +83,7 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
           </button>
         </div>
       )}
+
     </div>
   );
 }

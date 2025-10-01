@@ -13,7 +13,7 @@ export default function ZoomableImage({ src }: { src: string }) {
 
   return (
     <div
-      className="relative w-[800px] h-[1000px] overflow-hidden rounded-lg shadow-lg"
+      className="relative w-full max-w-[800px] h-auto aspect-[4/5] overflow-hidden rounded-lg shadow-lg"
       onMouseEnter={() => setIsZoomed(true)}
       onMouseLeave={() => setIsZoomed(false)}
       onMouseMove={handleMouseMove}

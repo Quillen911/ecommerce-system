@@ -4,3 +4,4 @@ export { default as ProductDetail } from "./ProductDetail";
 //export { default as ProductVariants } from "./ProductVariants";
 //export { default as ProductAddtoBag } from "./ProductAddtoBag";
 //export { default as ProductGallery } from "./ProductGallery";
+//export { default as ProductSizeSelector } from "./ProductSizeSelector";
