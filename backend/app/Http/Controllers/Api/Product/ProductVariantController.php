@@ -22,8 +22,19 @@ class ProductVariantController extends Controller
         if (!$variant) {
             return ResponseHelper::notFound('Varyant bulunamadı');
         }
-        return new ProductResource(
-            $variant->product->load('variants.variantImages', 'variants.variantAttributes.attribute', 'variants.variantAttributes.option')
+        $product = $variant->product->load(
+            'category',
+            'category.parent'
         );
+    
+        $product->setRelation('variants', collect([
+            $variant->load(
+                'variantImages',
+                'variantAttributes.attribute',
+                'variantAttributes.option'
+            )
+        ]));
+    
+        return new ProductResource($product);
     }
 }

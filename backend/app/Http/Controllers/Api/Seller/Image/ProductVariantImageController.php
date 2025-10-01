@@ -24,7 +24,7 @@ class ProductVariantImageController extends Controller
     public function store(Product $product, ProductVariantImageStoreRequest $request, $id)
     {
         try {
-            $image = $this->productVariantImageService->store($request->validated(), $product->slug, $id);
+            $image = $this->productVariantImageService->store($request->validated(), $product->id, $id);
             return ResponseHelper::success('Resim başarıyla oluşturuldu', new ProductVariantImageResource($image));
         } catch (AppException $e) {
             return ResponseHelper::error($e->getMessage(), 403);
@@ -33,7 +33,7 @@ class ProductVariantImageController extends Controller
 
     public function destroy(Product $product, $variantId, $id)
     {
-        $this->productVariantImageService->destroy($product->slug, $variantId, $id);
+        $this->productVariantImageService->destroy($product->id, $variantId, $id);
         return ResponseHelper::success('Resim başarıyla silindi');
     }
     
@@ -41,7 +41,7 @@ class ProductVariantImageController extends Controller
     {
         try {
             $data = $request->validated()['images'];
-            $this->productVariantImageService->reorder($data, $product->slug, $variantId);
+            $this->productVariantImageService->reorder($data, $product->id, $variantId);
             return ResponseHelper::success('Resimler başarıyla sıralandı');
         } catch (AppException $e) {
             return ResponseHelper::error($e->getMessage(), 403);

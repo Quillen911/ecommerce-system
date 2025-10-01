@@ -28,13 +28,13 @@ class ProductVariantImageService
         $this->productRepository = $productRepository;
     }
 
-    public function store(array $data, $productSlug, $productVariantId)
+    public function store(array $data, $productId, $productVariantId)
     {
         $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
             throw new AppException('Satıcı bulunamadı');
         }
-        $product = $this->productRepository->getProductBySlugAndStore($seller->store->id, $productSlug);
+        $product = $this->productRepository->getProductByStore($seller->store->id, $productId);
         if(!$product){
             throw new AppException('Ürün bulunamadı veya bu ürüne erişim yetkiniz yok');
         }
@@ -45,13 +45,13 @@ class ProductVariantImageService
         return $this->productVariantImageRepository->store($data, $productVariant->id);
     }
 
-    public function destroy($productSlug, $productVariantId, $id)
+    public function destroy($productId, $productVariantId, $id)
     {
         $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
             throw new AppException('Satıcı bulunamadı');
         }
-        $product = $this->productRepository->getProductBySlugAndStore($seller->store->id, $productSlug);
+        $product = $this->productRepository->getProductByStore($seller->store->id, $productId);
         if(!$product){
             throw new AppException('Ürün bulunamadı veya bu ürüne erişim yetkiniz yok');
         }
@@ -68,13 +68,13 @@ class ProductVariantImageService
         return true;
     }
 
-    public function reorder($data, $productSlug, $productVariantId)
+    public function reorder($data, $productId, $productVariantId)
     {
         $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
             throw new AppException('Satıcı bulunamadı');
         }
-        $product = $this->productRepository->getProductBySlugAndStore($seller->store->id, $productSlug);
+        $product = $this->productRepository->getProductByStore($seller->store->id, $productId);
         if(!$product){
             throw new AppException('Ürün bulunamadı veya bu ürüne erişim yetkiniz yok');
         }

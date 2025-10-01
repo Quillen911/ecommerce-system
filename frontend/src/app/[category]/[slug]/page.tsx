@@ -1,11 +1,11 @@
-"use client"
+/* "use client"
 
 import ProductDetail from "@/components/product/productDetail/ProductDetail";
 import { useParams } from "next/navigation";
 import { useProductDetail } from "@/hooks/useVariantQuery";
 
 export default function ProductDetailPage() {
-    const { slug } = useParams()
+    const { slug, category } = useParams()
     const { data: product } = useProductDetail(slug as string)
 
     if (!product) return <p className="text-center text-2xl font-bold text-white">Ürün bulunamadı</p>
@@ -17,4 +17,4 @@ export default function ProductDetailPage() {
             />
         </div>
     )
-}
+} */

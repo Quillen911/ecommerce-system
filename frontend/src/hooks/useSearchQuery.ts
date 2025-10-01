@@ -25,7 +25,7 @@ export const useFilterQuery = (filters?: any, page = 1, size = 12) => {
 }
 
 export const useCategoryProducts = (
-  category_slug: string
+  category_slug: string,
 ) => {
   const searchParams = useSearchParams()
   return useQuery<FilterResponse>({

@@ -3,6 +3,7 @@
 import { Product, ProductVariant } from "@/types/main"
 import { useMainData } from "@/hooks/useMainQuery"
 import ProductImageGallery from "../ui/ProductImageGallery"
+import { useRouter } from "next/navigation"
 
 type ProductCardProps = {
   product: Product
@@ -10,6 +11,7 @@ type ProductCardProps = {
 }
 
 export default function ProductCard({ product, variant }: ProductCardProps) {
+  const router = useRouter()
   const { data: mainData, isLoading, error } = useMainData()
   const category = mainData?.categories.find((c) => c.id === product.category_id)
   const parentCategory = mainData?.categories.find((c) => c.id === category?.parent_id)
@@ -29,6 +31,10 @@ export default function ProductCard({ product, variant }: ProductCardProps) {
     beyaz: "bg-gray-100 border",
   }
 
+  const handleProductDetail = (slug: string) => {
+    router.push(`/product/${slug}`)
+  }
+
     return (
       <div className="p-4 cursor-pointer">
         <div className="w-full h-100 overflow-hidden flex items-center justify-center">
@@ -36,6 +42,7 @@ export default function ProductCard({ product, variant }: ProductCardProps) {
             images={variant.images}
             alt={product.title}
             className="object-contain w-full h-120"
+            onClick={() => handleProductDetail(variant.slug)}
           />
         </div>
     
@@ -55,7 +62,7 @@ export default function ProductCard({ product, variant }: ProductCardProps) {
             ))}
           </div>
           <p className="text-sm text-gray-500">{parentCategory?.title} {category?.title}</p>
-          <p className="font-bold text-lg">{variant.price.toLocaleString()} ₺</p>
+          <p className="font-bold text-lg">₺{variant.price.toLocaleString()}</p>
         </div>
       </div>
     )

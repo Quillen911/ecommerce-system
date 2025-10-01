@@ -18,7 +18,7 @@ export default function SearchProductList() {
     color: searchParams.get("color")?.split(",") || undefined,
     }
 
-    const { data: searchProducts, isLoading, error } = useSearchQuery(query, filters, sorting, 1, 12)
+    const { data: searchProducts, isLoading, error } = useSearchQuery(query, filters, sorting, 1, 1000)
 
     const products = searchProducts?.products || []
     const totalVariants = products.reduce((acc, product) => acc + product.variants.length, 0)

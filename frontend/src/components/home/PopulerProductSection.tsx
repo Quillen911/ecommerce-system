@@ -6,9 +6,15 @@ import ProductImageGallery from '../ui/ProductImageGallery'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
+import { useRouter } from 'next/navigation'
 
 export default function PopulerProductSection() {
   const {data: mainData, isLoading, error} = useMainData()
+  const router = useRouter()
+
+  const handleProductDetail = (slug: string) => {
+    router.push(`/product/${slug}`)
+  }
 
   const populerProductVariants = mainData?.products.flatMap((product: Product) =>
     product.variants
@@ -27,6 +33,7 @@ export default function PopulerProductSection() {
           price: variant.price,
           image: primaryImage,
           images: variant.images,
+          slug: variant.slug,
         }
       })
   ) ?? []
@@ -73,13 +80,14 @@ export default function PopulerProductSection() {
                   images={variant.images}
                   alt={variant.title}
                   className="object-contain w-full h-80"
+                  onClick={() => handleProductDetail(variant.slug)}
                 />
               </div>
               <h3 className="mt-3 text-base font-semibold text-white line-clamp-1 px-10">
                 {variant.title}
               </h3>
               <p className="text-sm text-white px-10">{variant.category}</p>
-              <p className="text-lg font-bold mt-1 text-white px-10">{variant.price} ₺</p>
+              <p className="text-lg font-bold mt-1 text-white px-10"> ₺{variant.price}</p>
             </div>
           </SwiperSlide>
         ))}

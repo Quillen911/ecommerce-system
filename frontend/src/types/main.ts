@@ -1,4 +1,4 @@
-import { ProductImage, ProductVariantImage } from "./seller/product"
+import { ProductVariantImage } from "./seller/product"
 
 export interface Attribute {
     id: number
@@ -54,9 +54,12 @@ export interface CategoryResponse {
     id: number
     product_id: number
     sku: string
+    slug: string
     price: number
     price_cents: number
     stock_quantity: number
+    sold_quantity: number
+    is_active: boolean
     is_popular: boolean
     images: ProductVariantImage[]
     attributes: ProductAttribute[]
@@ -64,19 +67,15 @@ export interface CategoryResponse {
   
   export interface Product {
     id: number
+    store_id: number
     title: string
-    slug: string
     category_id: number
     category: Category
     description: string
     meta_title: string
     meta_description: string
-    list_price: number
-    list_price_cents: number
-    stock_quantity: number
-    sold_quantity: number
     is_published: boolean
-    images: ProductImage[]
+    total_sold_quantity: number
     variants: ProductVariant[]
     created_at: string
     updated_at: string

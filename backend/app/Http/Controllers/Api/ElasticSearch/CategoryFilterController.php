@@ -44,7 +44,7 @@ class CategoryFilterController extends Controller
             $filters,
             $filters['sorting'],
             $request->input('page', 1),
-            $request->input('size', 12)
+            $request->input('size', 1000)
         );
 
         return response()->json([
@@ -55,7 +55,7 @@ class CategoryFilterController extends Controller
             'total' => $data['results']['total'],
             'pagination' => [
                 'page' => $request->input('page', 1),
-                'size' => $request->input('size', 12)
+                'size' => $request->input('size', 1000)
             ]
         ]);
     }

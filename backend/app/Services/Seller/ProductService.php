@@ -80,11 +80,11 @@ class ProductService
                         ]);
                     }
                 }
+                $variant->update([
+                    'slug' => $this->generateSlug($product, $variant->fresh()),
+                ]);
             }
 
-            $variant->update([
-                'slug' => $this->generateSlug($product, $variant->fresh()),
-            ]);
             return $product->load([
                     'variants.variantAttributes.attribute',
                     'variants.variantImages',
@@ -106,15 +106,33 @@ class ProductService
                 throw new \Exception('Ürün bulunamadı');
             }
     
-            $oldTitle = $product->title; // 🔑 eski başlığı tut
+            $oldTitle = $product->title;
     
             $productData = $request;
             $productData['store_id'] = $store->id;
             $this->productRepository->updateProduct($productData, $store->id, $id);
+
+            if (!empty($request['variants'])) {
+                foreach ($request['variants'] as $variantData) {
+                    $variant = $product->variants()->find($variantData['id']);
+                    if ($variant) {
+                        $variant->update($variantData);
+        
+                        if (!empty($variantData['attributes'])) {
+                            foreach ($variantData['attributes'] as $attrData) {
+                                $variant->variantAttributes()
+                                    ->updateOrCreate(
+                                        ['attribute_id' => $attrData['attribute_id']],
+                                        $attrData
+                                    );
+                            }
+                        }
+                    }
+                }
+            }
     
             $product->refresh();
     
-            // 🔑 Eski ve yeni title karşılaştır
             if ($oldTitle !== $product->title) {
                 foreach ($product->variants as $variant) {
                     $variant->loadMissing(['variantAttributes.attribute', 'variantAttributes.option']);
@@ -124,8 +142,6 @@ class ProductService
                 }
             }
     
-            // Varyant update logic’in burada devam edebilir...
-    
             return $product->fresh()->load(
                 'variants.variantAttributes.attribute',
                 'variants.variantAttributes.option',
@@ -133,10 +149,6 @@ class ProductService
             );
         });
     }
-    
-    
-
-
 
     public function deleteProduct($sellerId, $id)
     {

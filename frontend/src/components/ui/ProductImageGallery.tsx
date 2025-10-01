@@ -4,12 +4,14 @@ import { useState, useRef } from 'react'
 
 interface ProductImageGalleryProps {
   images: { id?: number; image?: string; is_primary?: boolean }[] | null | undefined
+  onClick?: () => void
   alt?: string
   className?: string
 }
 
 export default function ProductImageGallery({
   images,
+  onClick,
   alt = 'Product image',
   className = ''
 }: ProductImageGalleryProps) {
@@ -41,7 +43,8 @@ export default function ProductImageGallery({
       ref={containerRef}
       className={`relative ${className}`}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => setCurrentIndex(0)} // mouse çıkınca ilk resme dön
+      onMouseLeave={() => setCurrentIndex(0)}
+      onClick={onClick}
     >
       <Image
         src={currentImage}

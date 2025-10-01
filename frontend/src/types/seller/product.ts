@@ -1,13 +1,5 @@
 import { Category } from "./category"
 
-export interface ProductImage {
-    id: number
-    product_id: number
-    image: string
-    is_primary: boolean
-    sort_order: number
-}
-
 export interface ProductVariantImage {
     id: number
     product_variant_id: number
@@ -27,29 +19,30 @@ export interface ProductVariantAttribute {
 
 export interface ProductVariant {
     id: number
+    product_id: number
     sku: string
+    slug: string
     price: number
     price_cents: number
     stock_quantity: number
+    sold_quantity: number
     is_popular: boolean
+    is_active: boolean
     images: ProductVariantImage[]
     attributes: ProductVariantAttribute[]
 }
 
 export interface Product {
     id: number
+    store_id: number
     title: string
-    slug: string
-    category_id: Category[]
+    category_id: number
+    category: Category
     description: string
     meta_title: string
     meta_description: string
-    list_price: number
-    list_price_cents: number
-    stock_quantity: number
-    sold_quantity: number
+    total_sold_quantity: number
     is_published: boolean
-    images: ProductImage[]
     variants: ProductVariant[]
     created_at: string
     updated_at: string
@@ -60,9 +53,7 @@ export interface StoreProductRequest {
     category_id?: number | null
     description?: string | null
     meta_description?: string | null
-    list_price: number
-    stock_quantity: number
-    images?: File[] 
+    total_sold_quantity?: number
     variants: StoreProductVariantRequest[]
 }
   
@@ -90,11 +81,8 @@ export interface UpdateProductRequest {
     author?: string | null
     description?: string | null
     meta_description?: string | null
-    list_price?: number
-    stock_quantity?: number
-    sold_quantity?: number
+    total_sold_quantity?: number
   
-    images?: File[]  
     variants?: UpdateVariantRequest[]
 }
   
@@ -127,9 +115,7 @@ export interface BulkProductStoreRequest {
 export interface BulkProductRequest {
     title: string
     category_id?: number | null
-    list_price: number
-    stock_quantity: number
-    images: File[]
+    total_sold_quantity?: number
 }
 
 export interface BulkProductResponse {

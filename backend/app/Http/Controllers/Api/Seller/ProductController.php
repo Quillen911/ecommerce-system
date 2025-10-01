@@ -60,7 +60,6 @@ class ProductController extends Controller
             return ProductResource::collection($products->load([
                 'category.parent',
                 'category.children',
-                'images',
                 'variants.variantAttributes.attribute',
                 'variants.variantImages',
                 'variants.variantAttributes.option'
