@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Product;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductResource;
+use App\Http\Resources\Product\ProductVariantResource;
+use App\Http\Resources\Product\ProductVariantSummaryResource;
 use App\Services\Product\ProductVariantService;
 use App\Helpers\ResponseHelper;
 
@@ -22,19 +24,28 @@ class ProductVariantController extends Controller
         if (!$variant) {
             return ResponseHelper::notFound('Varyant bulunamadı');
         }
+
         $product = $variant->product->load(
             'category',
             'category.parent'
         );
     
-        $product->setRelation('variants', collect([
-            $variant->load(
-                'variantImages',
-                'variantAttributes.attribute',
-                'variantAttributes.option'
-            )
-        ]));
-    
-        return new ProductResource($product);
+        $selectedVariant = $variant->load(
+            'variantImages',
+            'variantAttributes.attribute',
+            'variantAttributes.option'
+        );
+
+        $allVariants = $product->variants()
+            ->where('product_id', $variant->product_id)
+            ->with('variantImages')
+            ->get();
+        
+        return response()->json([
+            'data' => new ProductResource($product->setRelation('variants', collect([$selectedVariant]))),
+            'selected_variant_id' => $variant->id,
+            'all_variants' => ProductVariantSummaryResource::collection($allVariants)
+        ]);
     }
+    
 }

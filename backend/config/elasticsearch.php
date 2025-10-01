@@ -46,14 +46,6 @@ return [
             'properties' => [
                 'id' => ['type' => 'integer'],
                 'store_id' => ['type' => 'integer'],
-                'store_name' => [
-                    'type' => 'text',
-                    'analyzer' => 'autocomplete_analyzer',
-                    'search_analyzer' => 'autocomplete_search_analyzer',
-                    'fields' => [
-                        'keyword' => ['type' => 'keyword']
-                    ]
-                ],
                 'title' => [
                     'type' => 'text',
                     'analyzer' => 'autocomplete_analyzer',
@@ -66,8 +58,6 @@ return [
                 'description' => ['type' => 'text'],
                 'meta_title' => ['type' => 'text'],
                 'meta_description' => ['type' => 'text'],
-                'list_price' => ['type' => 'float'],
-                'list_price_cents' => ['type' => 'integer'],
                 'category_id' => ['type' => 'integer'],
                 'category_title' => [
                     'type' => 'text',
@@ -77,8 +67,7 @@ return [
                         'keyword' => ['type' => 'keyword']
                     ]
                 ],
-                'stock_quantity' => ['type' => 'integer'],
-                'sold_quantity' => ['type' => 'integer'],
+                'total_sold_quantity' => ['type' => 'integer'],
                 'images' => [
                     'type' => 'nested',
                     'properties' => [

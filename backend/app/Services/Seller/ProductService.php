@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -157,29 +158,21 @@ class ProductService
             throw new \Exception('Mağaza bulunamadı');
         }
 
-        return $this->productRepository->deleteProduct($store->id, $id);
-    }
-
-    private function processImages($images): array
-    {
-        $processed = [];
-
-        foreach ($images as $image) {
-            if ($image instanceof \Illuminate\Http\UploadedFile) {
-                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $path = $image->storeAs('productImages', $filename, 'public');
-
-                if ($path) {
-                    $processed[] = $filename;
-                }
-            } elseif (is_string($image)) {
-                $processed[] = $image;
-            } else {
-                \Log::warning("Unsupported image type", ['image' => $image]);
-            }
+        $product = $this->productRepository->getProductByStore($store->id, $id);
+        if (!$product) {
+            throw new \Exception('Ürün bulunamadı');
         }
 
-        return $processed;
+        foreach ($product->variants as $variant) {
+            foreach ($variant->variantImages as $image) {
+                Storage::disk('public')->delete('productImages/' . $image->image);
+            }
+            $variant->variantImages()->delete();
+            $variant->variantAttributes()->delete();
+            $variant->delete();
+        }
+
+        return $product->delete();
     }
 
     private function generateMetaTitle($request, $store)

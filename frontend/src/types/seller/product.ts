@@ -44,6 +44,7 @@ export interface Product {
     total_sold_quantity: number
     is_published: boolean
     variants: ProductVariant[]
+    selected_variant_id?: number
     created_at: string
     updated_at: string
 }

@@ -10,14 +10,14 @@ class DeleteProductToElasticsearch implements ShouldQueue
 {
     use Queueable;
 
-    protected $product;
+    protected $productId;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(array $product)
+    public function __construct(int $productId)
     {
-        $this->product = $product;
+        $this->productId = $productId;
     }
 
     /**
@@ -27,6 +27,6 @@ class DeleteProductToElasticsearch implements ShouldQueue
     {
         $elasticsearchService = app(ElasticsearchService::class);
 
-        $elasticsearchService->deleteDocument('products', $this->product['id']);
+        $elasticsearchService->deleteDocument('products', $this->productId);
     }
 }

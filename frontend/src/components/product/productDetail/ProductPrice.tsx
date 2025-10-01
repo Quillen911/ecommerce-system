@@ -5,7 +5,7 @@ interface ProductPriceProps {
 export default function ProductPrice({ price }: ProductPriceProps) {
     return (
         <div className="product-price">
-            <p>{price} ₺</p>
+            <p className="text-xl font-bold font-sans">₺{price}</p>
         </div>
     )
 }

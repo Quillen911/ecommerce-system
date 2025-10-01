@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Product } from '@/types/main'
+import { ProductDetailResponse } from '@/types/variant'
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -11,5 +11,5 @@ const api = axios.create({
 })
 
 export const variantApi = {
-    getProductDetail: (slug: string) => api.get<{data: Product}>(`/variant/${slug}`),
+    getProductDetail: (slug: string) => api.get<ProductDetailResponse>(`/variant/${slug}`),
 }
