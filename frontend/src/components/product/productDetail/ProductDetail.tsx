@@ -12,12 +12,17 @@ interface ProductDetailProps {
 
 const ProductDetail = ({ product, variant }: ProductDetailProps) => {
     return (
-      <div className="product-detail">
-        <ProductGallery images={variant.images} />
-        <ProductTitle title={product.title} />
-        <ProductPrice price={variant.price} />
-        <ProductVariants product={product} variants={product.variants} />
-        <ProductAddtoBag variantId={product.variants[0]?.id} />
+      <div className="product-detail grid grid-cols-12 gap-8">
+        <div className="col-span-6">
+          <ProductGallery images={variant.images} />
+        </div>
+        <div className="col-span-6 flex flex-col gap-4">
+          <ProductTitle title={product.title} />
+          <ProductPrice price={variant.price} />
+          <ProductVariants product={product} variants={product.variants} />
+          <ProductAddtoBag variantId={product.variants[0]?.id} />
+        </div>
+
       </div>
     );
   };
