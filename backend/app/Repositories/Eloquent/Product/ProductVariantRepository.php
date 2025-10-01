@@ -18,4 +18,9 @@ class ProductVariantRepository extends BaseRepository implements ProductVariantR
         return $this->model->where('id', $productVariantId)->first();
     }
 
+    public function getProductVariantBySlug($slug)
+    {
+        return $this->model->where('slug', $slug)->with('product', 'variantImages', 'variantAttributes.attribute', 'variantAttributes.option')->first();
+    }
+
 }

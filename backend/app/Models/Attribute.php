@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Jobs\IndexAttributeToElasticsearch;
 
 class Attribute extends Model
 {
@@ -28,5 +29,6 @@ class Attribute extends Model
     {
         return $this->hasMany(AttributeOption::class);
     }
+
 
 }

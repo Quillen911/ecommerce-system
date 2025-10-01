@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use App\Jobs\IndexProductToElasticsearch;
+use App\Jobs\DeleteProductToElasticsearch;
 
 class ProductVariant extends Model
 {
@@ -46,6 +48,19 @@ class ProductVariant extends Model
     public function variantImages()
     {
         return $this->hasMany(ProductVariantImage::class, 'product_variant_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($variant) {
+            dispatch(new IndexProductToElasticsearch($variant->product_id));
+        });
+
+        static::deleted(function ($variant) {
+            dispatch(new DeleteProductToElasticsearch($variant->product_id));
+        });
     }
 
 }

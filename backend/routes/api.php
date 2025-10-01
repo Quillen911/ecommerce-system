@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ElasticSearch\CategoryFilterController;
 use App\Http\Controllers\Api\ElasticSearch\SearchController;
 
 use App\Http\Controllers\Api\Seller\Image\ProductVariantImageController;
+use App\Http\Controllers\Api\Product\ProductVariantController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -26,6 +27,8 @@ Route::prefix('main')->group(function(){
     Route::get('/', [MainController::class, 'main']);
     Route::get('/product/{product:slug}', [MainController::class, 'productDetail']);
 });
+
+Route::get('/variant/{variant:slug}', [ProductVariantController::class, 'variantDetail']);
 
 Route::prefix('category')->group(function(){
     Route::get('/{category_slug}', [CategoryFilterController::class, 'categoryFilter']);

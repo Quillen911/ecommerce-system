@@ -42,9 +42,13 @@ class ReindexProducts extends Command
                 'id'             => $variant->id,
                 'product_id'     => $variant->product_id,
                 'sku'            => $variant->sku,
+                'slug'           => $variant->slug,
                 'price'          => $variant->price,
                 'price_cents'    => $variant->price_cents,
                 'stock_quantity' => $variant->stock_quantity,
+                'sold_quantity'  => $variant->sold_quantity,
+                'is_popular'     => $variant->is_popular,
+                'is_active'      => $variant->is_active,
                 'images'         => $variant->variantImages->map(fn($image) => [
                     'id'                => $image->id,
                     'product_variant_id'=> $image->product_variant_id,
@@ -52,7 +56,6 @@ class ReindexProducts extends Command
                     'is_primary'        => $image->is_primary,
                     'sort_order'        => $image->sort_order
                 ])->toArray(),
-                'is_popular'     => $variant->is_popular,
                 'attributes'     => $variant->variantAttributes->map(function ($attr) {
                     return [
                         'attribute_id' => $attr->attribute->id,

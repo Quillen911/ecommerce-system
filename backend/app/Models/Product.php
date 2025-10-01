@@ -57,6 +57,10 @@ class Product extends Model
     {
         return $query->where('is_published', true);
     }
+    public function getTotalStockQuantity()
+    {
+        return $this->variants->sum('stock_quantity');
+    }
 
     // Model Events Elasticsearch için
     protected static function boot()

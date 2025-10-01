@@ -8,7 +8,6 @@ services:
     volumes:
       - ./backend:/var/www:cached
       - /var/www/vendor
-      - /var/www/node_modules
     depends_on:
       - postgres
       - redis

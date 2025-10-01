@@ -16,17 +16,11 @@ class IndexProductToElasticsearch implements ShouldQueue
 
     protected $productId;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(int $productId)
     {
         $this->productId = $productId;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         $product = Product::with([
@@ -36,7 +30,6 @@ class IndexProductToElasticsearch implements ShouldQueue
             'variants.variantAttributes.option'
         ])->find($this->productId);
 
-        // Ürün silinmişse job'u iptal et
         if (!$product) {
             return;
         }
@@ -47,14 +40,11 @@ class IndexProductToElasticsearch implements ShouldQueue
         $elasticsearchService->indexDocument('products', $product->id, $data);
     }
 
-    /**
-     * Elasticsearch için veriyi hazırla
-     */
     private function prepareElasticsearchData(Product $product): array
     {
         $data = $product->toArray();
         $data['category_title'] = $product->category?->category_title ?? '';
-        $data['total_stock_quantity'] = $product->getTotalStockQuantity(); // Düzeltilmiş method kullanımı
+        $data['total_stock_quantity'] = $product->getTotalStockQuantity();
         $data['gender'] = $product->category?->parent?->category_title ?? '';
 
         $data['variants'] = $product->variants->map(function ($variant) {
@@ -89,9 +79,6 @@ class IndexProductToElasticsearch implements ShouldQueue
         return $data;
     }
 
-    /**
-     * Job başarısız olduğunda
-     */
     public function failed(\Throwable $exception): void
     {
         \Log::error('Elasticsearch indexing failed for product ID: ' . $this->productId, [

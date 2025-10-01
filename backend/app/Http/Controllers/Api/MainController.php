@@ -82,7 +82,6 @@ class MainController extends Controller
             fn() => $product->load(
                 'category:id,category_title,category_slug,parent_id',
                 'store:id,name',
-                'images',
                 'variants.variantAttributes.attribute',
                 'variants.variantAttributes.option',
                 'variants.images'
