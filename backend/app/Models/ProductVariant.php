@@ -50,17 +50,4 @@ class ProductVariant extends Model
         return $this->hasMany(ProductVariantImage::class, 'product_variant_id');
     }
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::saved(function ($variant) {
-            dispatch(new IndexProductToElasticsearch($variant->product_id));
-        });
-
-        static::deleted(function ($variant) {
-            dispatch(new DeleteProductToElasticsearch($variant->product_id));
-        });
-    }
-
 }

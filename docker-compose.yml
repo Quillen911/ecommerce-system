@@ -5,6 +5,7 @@ services:
     container_name: laravel-api
     restart: unless-stopped
     working_dir: /var/www
+    user: "${UID}:${GID}"
     volumes:
       - ./backend:/var/www:cached
       - /var/www/vendor

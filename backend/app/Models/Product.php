@@ -62,17 +62,4 @@ class Product extends Model
         return $this->variants->sum('stock_quantity');
     }
 
-    // Model Events Elasticsearch için
-    protected static function boot()
-    {
-        parent::boot();
-        
-        static::saved(function ($product) {
-            dispatch(new IndexProductToElasticsearch($product->id));
-        });
-        
-        static::deleted(function ($product) {
-            dispatch(new DeleteProductToElasticsearch($product->id));
-        });
-    }
 }
