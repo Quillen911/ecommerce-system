@@ -5,23 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class CategoryGender extends Model
+class ProductCategory extends Model
 {
     use HasFactory;
-    //pivot model
-    protected $table = 'category_genders';
 
     protected $fillable = [
+        'product_id',
         'category_id',
-        'gender_id',
+        'is_primary',
     ];
+
+    protected $casts = [
+        'is_primary' => 'boolean',
+    ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
     
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    public function gender()
-    {
-        return $this->belongsTo(Gender::class, 'gender_id');
-    }
+    
 }

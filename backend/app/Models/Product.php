@@ -18,17 +18,27 @@ class Product extends Model
     protected $fillable = [
         'store_id',
         'title',
+        'slug',
+        'brand',
         'category_id',  
+        'gender_id',
         'description',
         'meta_title',
         'meta_description',
-        'total_sold_quantity',
         'is_published',
+        'total_sold_quantity'
     ];
     
     protected $casts = [
         'total_sold_quantity' => 'integer',
         'is_published' => 'boolean',
+        'slug' => 'string',
+        'brand' => 'string',
+        'category_id' => 'integer',
+        'gender_id' => 'integer',
+        'description' => 'string',
+        'meta_title' => 'string',
+        'meta_description' => 'string',
     ];
 
     // Relations
@@ -37,9 +47,22 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
-    public function variantImages()
+    public function allVariantImages()
     {
-        return $this->hasMany(ProductVariantImage::class, 'product_id');
+        return $this->hasManyThrough(
+            ProductVariantImage::class, 
+            ProductVariant::class,
+            'product_id', // Foreign key on ProductVariant table
+            'product_variant_id', // Foreign key on ProductVariantImage table  
+            'id', // Local key on Product table
+            'id' // Local key on ProductVariant table
+        );
+    }
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class, 'campaign_products', 'product_id', 'campaign_id')
+                    ->withTimestamps();
     }
 
     public function category()
@@ -47,9 +70,28 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'product_categories', 'product_id', 'category_id')
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+
+    public function primaryCategory()
+    {
+        return $this->belongsToMany(Category::class, 'product_categories', 'product_id', 'category_id')
+            ->wherePivot('is_primary', true)
+            ->withTimestamps();
+    }
+
     public function store()
     {
         return $this->belongsTo(Store::class, 'store_id');
+    }
+    
+    public function gender()
+    {
+        return $this->belongsTo(Gender::class, 'gender_id');
     }
     
     // Scopes
@@ -57,9 +99,16 @@ class Product extends Model
     {
         return $query->where('is_published', true);
     }
+
+
     public function getTotalStockQuantity()
     {
-        return $this->variants->sum('stock_quantity');
+        return $this->variants->with('variantSizes.inventory')->get()
+            ->sum(function($variant) {
+                return $variant->variantSizes->sum(function($size) {
+                    return $size->inventory ? $size->inventory->on_hand : 0;
+                });
+            });
     }
 
 }

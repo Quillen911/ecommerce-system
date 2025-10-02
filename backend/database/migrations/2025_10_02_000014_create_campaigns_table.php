@@ -11,17 +11,17 @@ return new class extends Migration
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('store_id')->constrained('stores');
-            $table->string('store_name')->nullable();
-            $table->enum('type', ['percentage', 'fixed','x_buy_y_pay']);     
-            $table->text('description')->nullable();
+            $table->string('code')->unique()->nullable();
+            $table->enum('type', ['percentage', 'fixed', 'x_buy_y_pay']);
+            $table->decimal('discount_value', 10, 2)->nullable();
+            $table->integer('min_quantity')->nullable();
+            $table->integer('usage_limit')->nullable();
+            $table->integer('usage_count')->default(0);
             $table->boolean('is_active')->default(true);
-            $table->json('priority')->nullable();
-            $table->unsignedInteger('usage_limit')->nullable();
-            $table->unsignedInteger('usage_limit_for_user')->default(0);
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
     }

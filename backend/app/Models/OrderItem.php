@@ -6,8 +6,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Enums\PaymentStatus;
-use App\Enums\OrderItemStatus;
 
 class OrderItem extends Model
 {
@@ -17,41 +15,39 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
-        'product_title',
-        'product_category_title',
+        'variant_size_id',
         'store_id',
         'store_name',
+        'product_title',
+        'product_category_title',
+        'selected_options',
+        'size_name',
+        'color_name',
         'quantity',
         'refunded_quantity',
-        'list_price',
-        'list_price_cents',
-        'discount_price',
+        'price_cents',
         'discount_price_cents',
-        'paid_price',
         'paid_price_cents',
+        'tax_rate',
+        'tax_amount_cents',
         'payment_transaction_id',
-        'payment_status',
         'status',
-        'refunded_price',
         'refunded_price_cents',
+        'payment_status',
         'refunded_at',
-        'canceled_at',
-        'deleted_at',
     ];
 
     protected $casts = [
-        'list_price' => 'float',
-        'list_price_cents' => 'integer',
-        'discount_price' => 'float',
+        'price_cents' => 'integer',
         'discount_price_cents' => 'integer',
-        'paid_price' => 'float',
         'paid_price_cents' => 'integer',
-        'refunded_price' => 'float',
+        'tax_rate' => 'integer',
+        'tax_amount_cents' => 'integer',
         'refunded_price_cents' => 'integer',
         'quantity' => 'integer',
         'refunded_quantity' => 'integer',
-        'payment_status' => PaymentStatus::class,
-        'status' => OrderItemStatus::class,
+        'payment_status' => 'string',
+        'status' => 'string',
     ];
 
     public function order()
@@ -62,8 +58,16 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Product::class ,'product_id');
     }
+    public function variantSize()
+    {
+        return $this->belongsTo(VariantSize::class, 'variant_size_id');
+    }
     public function shippingItem()
     {
         return $this->hasOne(ShippingItems::class, 'order_item_id');
+    }
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
     }
 }

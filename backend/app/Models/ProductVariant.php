@@ -17,20 +17,17 @@ class ProductVariant extends Model
         'product_id',
         'sku',
         'slug',
-        'price',
+        'color_name',
+        'color_code',
         'price_cents',
-        'stock_quantity',
-        'sold_quantity',
         'is_popular',
         'is_active',
     ];
 
     protected $casts = [
-        'price' => 'float',
+        'color_name' => 'string',
+        'color_code' => 'string',
         'price_cents' => 'integer',
-        'sold_quantity' => 'integer',
-        'stock_quantity' => 'integer',
-        'sold_quantity' => 'integer',
         'is_popular' => 'boolean',
         'is_active' => 'boolean',
     ];
@@ -48,6 +45,23 @@ class ProductVariant extends Model
     public function variantImages()
     {
         return $this->hasMany(ProductVariantImage::class, 'product_variant_id');
+    }
+
+    public function variantSizes()
+    {
+        return $this->hasMany(VariantSize::class, 'product_variant_id');
+    }
+
+    public function inventories()
+    {
+        return $this->hasManyThrough(
+            Inventory::class,
+            VariantSize::class,
+            'product_variant_id', // Foreign key on VariantSize table
+            'variant_size_id', // Foreign key on Inventory table
+            'id', // Local key on ProductVariant table
+            'id' // Local key on VariantSize table
+        );
     }
 
 }

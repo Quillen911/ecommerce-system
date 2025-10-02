@@ -17,8 +17,10 @@ class User extends Authenticatable
         'last_name',
         'username',
         'email',
+        'email_verified_at',
         'password',
         'phone',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -26,12 +28,31 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function creditCard()
-    {
-        return $this->hasMany(CreditCard::class);
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'is_active' => 'boolean',
+    ];
+    
     public function addresses()
     {
-        return $this->hasMany(UserAddress::class);
+        return $this->hasMany(UserAddress::class, 'user_id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+    
+    public function bag()
+    {
+        return $this->hasOne(Bag::class, 'bag_user_id');
+    }
+    
+    
+    public function paymentMethods()
+    {
+        return $this->hasMany(PaymentMethod::class, 'user_id');
+    }
+    
+    
 }

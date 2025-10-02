@@ -2,16 +2,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class BagItem extends Model 
 {
+    use HasFactory;
+
     protected $fillable = [
         'bag_id', 
         'product_id', 
+        'variant_size_id',
         'product_title',
+        'selected_options',
         'quantity',
-        'store_id',
-        'store_name'
+        'unit_price_cents',
+        'store_id'
+    ];
+
+    protected $casts = [
+        'selected_options' => 'array',
+        'unit_price_cents' => 'integer',
     ];
 
     public function store()
@@ -25,5 +34,10 @@ class BagItem extends Model
     
     public function product() {
         return $this->belongsTo(Product::class ,'product_id');
+    }
+
+    public function variantSize()
+    {
+        return $this->belongsTo(VariantSize::class, 'variant_size_id');
     }
 }

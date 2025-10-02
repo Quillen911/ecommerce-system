@@ -4,24 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ProductVariantImage extends Model
 {
-    protected $fillable = ['product_variant_id', 'image', 'is_primary', 'sort_order'];
+    use HasFactory;
 
-    public function variant()
+    protected $fillable = [
+        'product_variant_id',
+        'image',
+        'is_primary',
+        'sort_order',
+    ];
+
+    protected $casts = [
+        'is_primary' => 'boolean',
+        'sort_order' => 'integer',
+    ];
+
+    public function productVariant()
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 
-    public function getImageUrlAttribute()
+    public function getImageUrl()
     {
         return $this->image
             ? asset('storage/productImages/' . $this->image)
             : asset('images/no-image.png');
     }
 
-    public function setImageAttribute($value)
+    public function setImage($value)
     {
         if ($value instanceof UploadedFile) {
             $filePath = $value->store('productImages', 'public');

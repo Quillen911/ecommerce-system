@@ -11,38 +11,40 @@ class Campaign extends Model
 
     protected $fillable = [
         'name',
-        'store_id',
-        'store_name',
-        'description',
+        'code',
         'type',
-        'is_active',
-        'priority',
+        'discount_value',
+        'min_quantity',
         'usage_limit',
-        'usage_limit_for_user',
+        'usage_count',
+        'is_active',
         'starts_at',
         'ends_at',
     ];
 
-    public function store()
-    {
-        return $this->belongsTo(Store::class, 'store_id');
-    }
+    protected $casts = [
+        'is_active' => 'boolean',
+        'discount_value' => 'integer',
+        'min_quantity' => 'integer',
+        'usage_limit' => 'integer',
+        'usage_count' => 'integer',
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+    ];
 
-    public function conditions()
-    {
-        return $this->hasMany(CampaignCondition::class, 'campaign_id');
-    }
-
-    public function discounts()
-    {
-        return $this->hasMany(CampaignDiscount::class, 'campaign_id');
-    }
-    public function campaign_user_usages()
-    {
-        return $this->hasMany(CampaignUserUsage::class, 'campaign_id');
-    }
     public function orders()
     {
         return $this->hasMany(Order::class, 'campaign_id');
     }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'campaign_products', 'campaign_id', 'product_id');
+    }
+
+    public function campaignProducts()
+    {
+        return $this->hasMany(CampaignProduct::class, 'campaign_id');
+    }
+
 }

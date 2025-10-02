@@ -4,24 +4,34 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-class CampaignDiscount extends Model
+
+class CampaignUsage extends Model
 {
     use HasFactory;
-    protected $table = 'campaign_discounts';
 
     protected $fillable = [
         'campaign_id',
-        'discount_type',
-        'discount_value',
-        'applies_to',
+        'user_id',
+        'order_id',
+        'discount_amount',
     ];
 
     protected $casts = [
-        'discount_value' => 'json',
+        'discount_amount' => 'integer',
     ];
 
     public function campaign()
     {
         return $this->belongsTo(Campaign::class, 'campaign_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
     }
 }
