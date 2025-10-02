@@ -28,7 +28,17 @@ class ProductStoreRequest extends FormRequest
             'variants.*.is_popular' => 'sometimes|boolean',
 
             // Varyant attribute validasyonu
-            'variants.*.attributes' => 'required|array|min:1',
+            'variants.*.attributes' => [
+                'required',
+                'array',
+                'min:1',
+                function ($attribute, $value, $fail) {
+                    $attributeIds = collect($value)->pluck('attribute_id');
+                    if ($attributeIds->count() !== $attributeIds->unique()->count()) {
+                        $fail('Her attribute bir varyantta yalnızca bir kez seçilebilir.');
+                    }
+                }
+            ],
             'variants.*.attributes.*.attribute_id' => 'required|exists:attributes,id',
             'variants.*.attributes.*.option_id' => 'required|exists:attribute_options,id',
         ];

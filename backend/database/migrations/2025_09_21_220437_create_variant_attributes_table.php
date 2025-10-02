@@ -18,7 +18,10 @@ return new class extends Migration
             $table->foreignId('option_id')->constrained('attribute_options')->nullOnDelete();
             $table->string('value')->nullable();
             $table->timestamps();
+
+            $table->unique(['variant_id', 'attribute_id']);
         });
+
     }
 
     /**

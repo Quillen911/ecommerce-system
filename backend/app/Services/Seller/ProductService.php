@@ -203,10 +203,6 @@ class ProductService
 
         $metaDescription = $title;
 
-        if ($author) {
-            $metaDescription .= " kitabını {$author} yazmıştır.";
-        }
-
         if ($description) {
             $shortDesc = strlen($description) > 100 ? substr($description, 0, 97) . '...' : $description;
             $metaDescription .= " {$shortDesc}";
@@ -224,11 +220,10 @@ class ProductService
     private function generateSku($product, $variantData, $index): string
     {
         $prefix = strtoupper(Str::slug(substr($product->title, 0, 3)));
-        $attrs = collect($variantData['attributes'] ?? [])
-            ->map(fn($a) => strtoupper(Str::slug($a['option_id'])))
-            ->implode('-');
+        $color = collect($variantData['attributes'])->firstWhere('attribute.code', 'color')['value'] ?? 'NA';
+        $variantId = $variantData['id'] ?? $index;
         $productId = $product->id;
-        return $prefix . '-' . $attrs . '-' . $productId;
+        return "{$prefix}-{$color}-{$variantId}-{$productId}";
     }
 
     private function generateSlug($product, $variant)

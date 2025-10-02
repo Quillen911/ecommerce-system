@@ -28,7 +28,16 @@ class ProductUpdateRequest extends FormRequest
             'variants.*.is_popular' => 'sometimes|boolean',
             'variants.*.is_active' => 'sometimes|boolean',
 
-            'variants.*.attributes' => 'sometimes|array|min:1',
+            'variants.*.attributes' => [
+                'sometimes',
+                'array',
+                function ($attribute, $value, $fail) {
+                    $attributeIds = collect($value)->pluck('attribute_id');
+                    if ($attributeIds->count() !== $attributeIds->unique()->count()) {
+                        $fail('Bir varyant içinde aynı attribute birden fazla kez seçilemez.');
+                    }
+                },
+            ],
             'variants.*.attributes.*.attribute_id' => 'sometimes|exists:attributes,id',
             'variants.*.attributes.*.option_id' => 'nullable|exists:attribute_options,id',
             'variants.*.attributes.*.value' => 'nullable|string|max:255',

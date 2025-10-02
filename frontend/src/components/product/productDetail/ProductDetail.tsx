@@ -40,10 +40,12 @@ const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) =>
 
         <ProductAddtoBag variantId={variant.id} />
 
-        <ProductSizeSelector
-          product={product}
-          variants={product.variants}
-        />
+          <div className="md:col-span-6 flex flex-row">
+            <ProductSizeSelector
+              product={product}
+              variants={allVariants}
+            />
+        </div>
       </div>
     </div>
   );
