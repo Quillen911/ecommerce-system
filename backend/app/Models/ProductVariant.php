@@ -52,6 +52,11 @@ class ProductVariant extends Model
         return $this->hasMany(VariantSize::class, 'product_variant_id');
     }
 
+    public function getPriceAttribute()
+    {
+        return number_format($this->price_cents / 100, 2, ',', '.') . ' TL';
+    }
+
     public function inventories()
     {
         return $this->hasManyThrough(

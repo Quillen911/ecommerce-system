@@ -9,22 +9,6 @@ class AttributeOptionSeeder extends Seeder
 {
     public function run()
     {
-        // Renkler
-        $colors = [
-            ['Kırmızı', 'kirmizi'],
-            ['Mavi', 'mavi'],
-            ['Yeşil', 'yesil'],
-            ['Siyah', 'siyah'],
-        ];
-
-        foreach ($colors as $color) {
-            AttributeOption::create([
-                'attribute_id' => 1, // Renk
-                'value' => $color[0],
-                'slug'  => $color[1],
-            ]);
-        }
-
         // Yaş Aralıkları / Bedenler
         $ages = [
             ['6 Yaş', '6-yas'],
@@ -42,7 +26,7 @@ class AttributeOptionSeeder extends Seeder
 
         foreach ($ages as $age) {
             AttributeOption::create([
-                'attribute_id' => 2, // Yaş Aralığı
+                'attribute_id' => 1, // Yaş Aralığı
                 'value' => $age[0],
                 'slug'  => $age[1],
             ]);

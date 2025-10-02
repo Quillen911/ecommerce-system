@@ -70,4 +70,8 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Store::class, 'store_id');
     }
+    public function getPriceAttribute()
+    {
+        return number_format($this->price_cents / 100, 2, ',', '.') . ' TL';
+    }
 }

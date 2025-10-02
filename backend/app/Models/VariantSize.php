@@ -36,5 +36,9 @@ class VariantSize extends Model
     {
         return $this->hasOne(Inventory::class, 'variant_size_id');
     }
-    
+     
+    public function getPriceAttribute()
+    {
+        return number_format($this->price_cents / 100, 2, ',', '.') . ' TL';
+    }
 }

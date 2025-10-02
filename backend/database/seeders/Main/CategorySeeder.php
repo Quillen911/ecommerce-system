@@ -15,32 +15,23 @@ class CategorySeeder extends Seeder
             ['title' => 'Kız Çocuk', 'slug' => 'kiz-cocuk', 'parent_id' => null],
             
             // ✅ GENEL ÜRÜN KATEGORİLERİ (Tüm çocuklar için)
-            ['title' => 'Jean Pantolon', 'slug' => 'jean-pantolon', 'parent_id' => null],
-            ['title' => 'Keten Pantolon', 'slug' => 'keten-pantolon', 'parent_id' => null],
+            ['title' => 'Jean', 'slug' => 'jean', 'parent_id' => null],
+            ['title' => 'Keten', 'slug' => 'keten', 'parent_id' => null],
             ['title' => 'Eşofman Takım', 'slug' => 'esofman-takim', 'parent_id' => null],
             
             // ✅ ERKEK ÇOCUK ALT KATEGORİLERİ
-            ['title' => 'Jean Pantolon', 'slug' => 'erkek-cocuk-jean-pantolon', 'parent_id' => 1],
-            ['title' => 'Keten Pantolon', 'slug' => 'erkek-cocuk-keten-pantolon', 'parent_id' => 1],
+            ['title' => 'Jean', 'slug' => 'erkek-cocuk-jean', 'parent_id' => 1],
+            ['title' => 'Keten', 'slug' => 'erkek-cocuk-keten', 'parent_id' => 1],
             ['title' => 'Eşofman Takım', 'slug' => 'erkek-cocuk-esofman-takim', 'parent_id' => 1],
             
             // ✅ KIZ ÇOCUK ALT KATEGORİLERİ  
-            ['title' => 'Jean Pantolon', 'slug' => 'kiz-cocuk-jean-pantolon', 'parent_id' => 2],
-            ['title' => 'Keten Pantolon', 'slug' => 'kiz-cocuk-keten-pantolon', 'parent_id' => 2],
+            ['title' => 'Jean', 'slug' => 'kiz-cocuk-jean', 'parent_id' => 2],
+            ['title' => 'Keten', 'slug' => 'kiz-cocuk-keten', 'parent_id' => 2],
             ['title' => 'Eşofman Takım', 'slug' => 'kiz-cocuk-esofman-takim', 'parent_id' => 2],
         ];
 
         foreach ($categories as $category) {
             Category::create($category);
         }
-
-        // ✅ PRODUCT_CATEGORIES İLİŞKİSİNİ KUR (ÇOKLU KATEGORİ)
-        $this->assignProductCategories();
-    }
-
-    private function assignProductCategories()
-    {
-        // Bu methodu ProductSeeder'da kullanacağız
-        // Ürünleri hem genel hem cinsiyet kategorilerine bağlayacağız
     }
 }

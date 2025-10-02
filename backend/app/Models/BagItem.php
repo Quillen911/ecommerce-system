@@ -40,4 +40,8 @@ class BagItem extends Model
     {
         return $this->belongsTo(VariantSize::class, 'variant_size_id');
     }
+    public function getPriceAttribute()
+    {
+        return number_format($this->unit_price_cents / 100, 2, ',', '.') . ' TL';
+    }
 }

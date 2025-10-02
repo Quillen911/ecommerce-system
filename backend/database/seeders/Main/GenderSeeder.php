@@ -10,8 +10,8 @@ class GenderSeeder extends Seeder
     public function run()
     {
         $genders = [
-            ['title' => 'Erkek', 'slug' => 'erkek'],
-            ['title' => 'Kız', 'slug' => 'kiz'],
+            ['title' => 'Erkek Çocuk', 'slug' => 'erkek-cocuk'],
+            ['title' => 'Kız Çocuk', 'slug' => 'kiz-cocuk'],
         ];
 
         foreach ($genders as $gender) {

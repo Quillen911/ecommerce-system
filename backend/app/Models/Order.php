@@ -76,4 +76,8 @@ class Order extends Model
     {
         return $this->belongsTo(UserAddress::class, 'user_billing_address_id');
     }
+    public function getPriceAttribute()
+    {
+        return number_format($this->grand_total_cents / 100, 2, ',', '.') . ' TL';
+    }
 }
