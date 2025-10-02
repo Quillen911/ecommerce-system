@@ -17,20 +17,14 @@ class DatabaseSeeder extends Seeder
 
         
         $this->call([
-            \Database\Seeders\SellerSeeder::class,
-            \Database\Seeders\StoreSeeder::class,
-            \Database\Seeders\Main\UserSeeder::class,
             \Database\Seeders\Main\GenderSeeder::class,
             \Database\Seeders\Main\CategorySeeder::class,
             \Database\Seeders\Main\AttributeSeeder::class,
-            \Database\Seeders\Main\AttributeOptionSeeder::class,
+            \Database\Seeders\Main\WarehouseSeeder::class,
+            \Database\Seeders\SellerSeeder::class,
+            \Database\Seeders\StoreSeeder::class,
             \Database\Seeders\Main\ProductSeeder::class,
-            \Database\Seeders\Main\ProductVariantSeeder::class,
-            \Database\Seeders\Main\VariantAttributeSeeder::class,
-            \Database\Seeders\Main\ProductVariantImageSeeder::class,
-            \Database\Seeders\Campaigns\CampaignSeeder::class,
-            \Database\Seeders\Campaigns\CampaignConditionSeeder::class,
-            \Database\Seeders\Campaigns\CampaignDiscountSeeder::class,
+            \Database\Seeders\Main\UserSeeder::class,
         ]);
     }
 }

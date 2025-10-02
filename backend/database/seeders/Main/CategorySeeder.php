@@ -4,48 +4,43 @@ namespace Database\Seeders\Main;
 
 use Illuminate\Database\Seeder;
 use App\Models\Category;
-use App\Models\Gender;
-use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
     public function run()
     {
-        $erkek = Gender::where('slug', 'erkek')->first();
-        $kiz   = Gender::where('slug', 'kiz')->first();
-
-        $erkekCocuk = Category::create([
-            'category_title' => 'Erkek Çocuk',
-            'category_slug'  => 'erkek-cocuk',
-        ]);
-        $erkekCocuk->genders()->attach($erkek->id);
-
-        $kizCocuk = Category::create([
-            'category_title' => 'Kız Çocuk',
-            'category_slug'  => 'kiz-cocuk',
-        ]);
-        $kizCocuk->genders()->attach($kiz->id);
-
-        $altKategoriler = [
-            'Jean',
-            'Eşofman Takım',
-            'Keten Pantolon'
+        $categories = [
+            // ✅ ANA KATEGORİLER
+            ['title' => 'Erkek Çocuk', 'slug' => 'erkek-cocuk', 'parent_id' => null],
+            ['title' => 'Kız Çocuk', 'slug' => 'kiz-cocuk', 'parent_id' => null],
+            
+            // ✅ GENEL ÜRÜN KATEGORİLERİ (Tüm çocuklar için)
+            ['title' => 'Jean Pantolon', 'slug' => 'jean-pantolon', 'parent_id' => null],
+            ['title' => 'Keten Pantolon', 'slug' => 'keten-pantolon', 'parent_id' => null],
+            ['title' => 'Eşofman Takım', 'slug' => 'esofman-takim', 'parent_id' => null],
+            
+            // ✅ ERKEK ÇOCUK ALT KATEGORİLERİ
+            ['title' => 'Jean Pantolon', 'slug' => 'erkek-cocuk-jean-pantolon', 'parent_id' => 1],
+            ['title' => 'Keten Pantolon', 'slug' => 'erkek-cocuk-keten-pantolon', 'parent_id' => 1],
+            ['title' => 'Eşofman Takım', 'slug' => 'erkek-cocuk-esofman-takim', 'parent_id' => 1],
+            
+            // ✅ KIZ ÇOCUK ALT KATEGORİLERİ  
+            ['title' => 'Jean Pantolon', 'slug' => 'kiz-cocuk-jean-pantolon', 'parent_id' => 2],
+            ['title' => 'Keten Pantolon', 'slug' => 'kiz-cocuk-keten-pantolon', 'parent_id' => 2],
+            ['title' => 'Eşofman Takım', 'slug' => 'kiz-cocuk-esofman-takim', 'parent_id' => 2],
         ];
 
-        foreach ($altKategoriler as $alt) {
-            $slug = Str::slug($alt);
-
-            $erkekAlt = $erkekCocuk->children()->create([
-                'category_title' => $alt,
-                'category_slug'  => $slug,
-            ]);
-            $erkekAlt->genders()->attach($erkek->id);
-
-            $kizAlt = $kizCocuk->children()->create([
-                'category_title' => $alt,
-                'category_slug'  => $slug,
-            ]);
-            $kizAlt->genders()->attach($kiz->id);
+        foreach ($categories as $category) {
+            Category::create($category);
         }
+
+        // ✅ PRODUCT_CATEGORIES İLİŞKİSİNİ KUR (ÇOKLU KATEGORİ)
+        $this->assignProductCategories();
+    }
+
+    private function assignProductCategories()
+    {
+        // Bu methodu ProductSeeder'da kullanacağız
+        // Ürünleri hem genel hem cinsiyet kategorilerine bağlayacağız
     }
 }
