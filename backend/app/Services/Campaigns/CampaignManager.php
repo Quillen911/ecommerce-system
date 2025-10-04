@@ -1,16 +1,20 @@
 <?php 
-
+/*
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
 use App\Models\CampaignDiscount;
 use App\Services\Campaigns\CampaignRegistry;
-
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use App\Traits\GetUser;
 class CampaignManager 
 {
     private $registry;
-    public function __construct(CampaignRegistry $registry)
+    private $authenticationRepository;
+    use GetUser;
+    public function __construct(CampaignRegistry $registry, AuthenticationRepositoryInterface $authenticationRepository)
     {
+        $this->authenticationRepository = $authenticationRepository;
         $this->registry = $registry;
     }
     public function getBestCampaigns(array $products, $campaigns)
@@ -41,20 +45,20 @@ class CampaignManager
 
     public function userEligible(Campaign $campaign)
     {
-        $usage_count = $campaign->campaign_user_usages()->where('user_id', auth()->user()->id)->first();
+        $usage_count = $campaign->campaign_user_usages()->where('user_id', $this->getUser()->id)->first();
         if($usage_count){
             if($campaign->usage_limit_for_user <= $usage_count->usage_count){
                 return false;
             }
             $campaign->campaign_user_usages()->create([
-                'user_id' => auth()->user()->id,
+                'user_id' => $this->getUser()->id,
                 'campaign_id' => $campaign->id,
                 'campaign_name' => $campaign->name,
                 'used_at' => now(),
             ]);
         }else{
             $campaign->campaign_user_usages()->create([
-                'user_id' => auth()->user()->id,
+                'user_id' => $this->getUser()->id,
                 'campaign_id' => $campaign->id,
                 'campaign_name' => $campaign->name,
                 'used_at' => now(),
@@ -65,7 +69,7 @@ class CampaignManager
     }
     public function decreaseUserUsageCount(Campaign $campaign)
     {
-        $campaign->campaign_user_usages()->where('campaign_id', $campaign->id)->where('user_id', auth()->user()->id)->first()->delete();
+        $campaign->campaign_user_usages()->where('campaign_id', $campaign->id)->where('user_id', $this->getUser()->id)->first()->delete();
         $campaign->save();
     }
     public function decreaseUsageLimit(Campaign $campaign)
@@ -85,3 +89,4 @@ class CampaignManager
         $campaign->save();
     }
 }
+*/

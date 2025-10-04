@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Services\Campaigns\Handlers;
 
 use App\Services\Campaigns\BaseCampaign;
@@ -105,3 +105,4 @@ class PercentageCampaign extends BaseCampaign
     }
     
 }
+    */

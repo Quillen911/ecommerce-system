@@ -5,6 +5,7 @@ import ProductTitle from "./ProductTitle";
 import ProductVariants from "./ProductVariants";
 import ProductAddtoBag from "./ProductAddtoBag";
 import ProductSizeSelector from "./ProductSizeSelector";
+import { useState } from "react";
 
 interface ProductDetailProps {
   product: Product;
@@ -17,6 +18,7 @@ interface ProductDetailProps {
 }
 
 const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) => {
+  const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null)
   return (
     <div className="product-detail grid grid-cols-1 md:grid-cols-12 gap-8">
       <div className="md:col-span-5">
@@ -38,12 +40,13 @@ const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) =>
 
         <ProductVariants product={product} variants={allVariants} />
 
-        <ProductAddtoBag variantId={variant.id} />
+        <ProductAddtoBag variantSizeId={variant?.sizes?.[0]?.size_option_id} />
 
           <div className="md:col-span-6 flex flex-row">
             <ProductSizeSelector
               product={product}
               variants={product.variants}
+              onSizeSelect={sizeId => setSelectedSizeId(sizeId)}
             />
         </div>
       </div>

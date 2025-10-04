@@ -8,8 +8,7 @@ class BagItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'bag_id', 
-        'product_id', 
+        'bag_id',
         'variant_size_id',
         'product_title',
         'quantity',
@@ -30,14 +29,15 @@ class BagItem extends Model
         return $this->belongsTo(Bag::class ,'bag_id');
     }
     
-    public function product() {
-        return $this->belongsTo(Product::class ,'product_id');
+    public function variant() {
+        return $this->belongsTo(ProductVariant::class ,'variant_id');
     }
 
     public function variantSize()
     {
         return $this->belongsTo(VariantSize::class, 'variant_size_id');
     }
+    
     public function getPriceAttribute()
     {
         return number_format($this->unit_price_cents / 100, 2, ',', '.') . ' TL';

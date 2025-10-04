@@ -8,7 +8,11 @@ import { Navigation } from 'swiper/modules'
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 import { useRouter } from 'next/navigation'
 
-export default function PopulerProductSection() {
+export interface PopulerProductSectionProps {
+    className?: string
+}
+
+export default function PopulerProductSection({ className }: PopulerProductSectionProps) {
   const {data: mainData, isLoading, error} = useMainData()
   const router = useRouter()
 
@@ -17,6 +21,7 @@ export default function PopulerProductSection() {
   }
 
   const populerProductVariants = mainData?.products
+  console.log(populerProductVariants)
 
   if (isLoading) return <p>Yükleniyor...</p>
   if (error) return <p>Hata oluştu</p>
@@ -52,24 +57,25 @@ export default function PopulerProductSection() {
         slidesPerView={3}
       >
         {populerProductVariants?.map((product) => (
-          <SwiperSlide key={product.id}>
+          product.variants?.map((variant) => (
+          <SwiperSlide key={variant.id}>
             <div className="cursor-pointer">
               <div className="bg-var(--main-bg) flex items-center justify-center py-15">
                 <ProductImageGallery 
-                  images={product.variants[0].images}
+                  images={variant.images}
                   alt={product.title}
                   className="object-contain w-full h-80"
-                  onClick={() => handleProductDetail(product.slug)}
+                  onClick={() => handleProductDetail(variant.slug)}
                 />
               </div>
               <h3 className="mt-3 text-base font-semibold text-white line-clamp-1 px-10">
                 {product.title}
               </h3>
               <p className="text-sm text-white px-10">{product.category.title}</p>
-              <p className="text-lg font-bold mt-1 text-white px-10"> ₺{product.variants[0].price_cents/100}</p>
+              <p className="text-lg font-bold mt-1 text-white px-10"> ₺{variant.price_cents/100}</p>
             </div>
           </SwiperSlide>
-        ))}
+        ))))}
       </Swiper>
     </div>
   )

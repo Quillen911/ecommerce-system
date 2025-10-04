@@ -6,7 +6,9 @@ import { useProductDetail } from "@/hooks/useVariantQuery";
 
 export default function ProductDetailPage() {
   const { slug } = useParams()
-  const { data: response } = useProductDetail(slug as string)
+  const { data: response , isLoading , error } = useProductDetail(slug as string)
+
+  if (isLoading) return <p className="text-center text-2xl font-bold text-white">Yükleniyor...</p>
 
   if (!response) return <p className="text-center text-2xl font-bold text-white">Ürün bulunamadı</p>
 

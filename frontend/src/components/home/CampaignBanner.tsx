@@ -1,7 +1,11 @@
 'use client'
 import { useMainData } from '@/hooks/useMainQuery'
 
-export default function CampaignBanner() {
+export interface CampaignBannerProps {
+    className?: string
+}
+
+export default function CampaignBanner({ className }: CampaignBannerProps) {
     const { data: mainData, isLoading, error } = useMainData()
     
     if (error) {

@@ -1,14 +1,15 @@
 import { Product, ProductVariant } from "@/types/seller/product"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useState } from "react"
 
 interface ProductSizeSelectorProps {
     product: Product
     variants: ProductVariant[]
+    onSizeSelect: (sizeId: number) => void
 }
 
-export default function ProductSizeSelector({ product, variants }: ProductSizeSelectorProps) {
-    const params = useParams()
+export default function ProductSizeSelector({ product, variants, onSizeSelect }: ProductSizeSelectorProps) {
+    
     const [selectedSize, setSelectedSize] = useState<string | null>(null)
     const sizes = product.variants.flatMap((variant) => 
         variant.sizes.map((size) => {
@@ -24,8 +25,9 @@ export default function ProductSizeSelector({ product, variants }: ProductSizeSe
         index === self.findIndex((s) => s.slug === size.slug)
     )
 
-    const handleSizeClick = (size: string) => {
-        setSelectedSize(size)
+    const handleSizeClick = (size: number) => {
+        setSelectedSize(size.toString())
+        onSizeSelect(size)
     }
 
     return (
@@ -34,13 +36,13 @@ export default function ProductSizeSelector({ product, variants }: ProductSizeSe
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
                 {uniqueSizes.map((size) => (
                     <button 
-                        key={size.slug} 
+                        key={size.id} 
                         className="border border-gray-400 font-semibold font-sans py-3 px-10 rounded hover:border-black hover:bg-gray-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={() => handleSizeClick(size.value)}
+                        onClick={() => handleSizeClick(size.id)}
                         disabled={!size.available}
                         style={{
-                            backgroundColor: selectedSize === size.value ? "black" : "white",
-                            color: selectedSize === size.value ? "white" : "black",
+                            backgroundColor: selectedSize === size.id.toString() ? "black" : "white",
+                            color: selectedSize === size.id.toString() ? "white" : "black",
                         }}
                     >
                         {size.value}

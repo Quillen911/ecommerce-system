@@ -1,7 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
-export default function HeroSection() {
+
+export interface HeroSectionProps {
+    className?: string
+}
+
+export default function HeroSection({ className }: HeroSectionProps) {
     const [currentSlide, setCurrentSlide] = useState(0)
     
     // Örnek resimler (gerçek resimler eklenebilir)

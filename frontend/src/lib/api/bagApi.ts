@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { 
-    BagIndexResponse,
+    GetBagItems,
     BagStoreRequest, 
     BagStoreResponse,
     BagUpdateRequest,
@@ -31,7 +31,7 @@ api.interceptors.request.use((config) => {
 })
 
 export const bagApi = {
-    index: () => api.get<BagIndexResponse>('bags'),
+    index: () => api.get<GetBagItems>('bags'),
     store: (data: BagStoreRequest) => api.post<BagStoreResponse>('bags', data),
     update: (id: number, data: BagUpdateRequest) => api.put<BagUpdateResponse>(`bags/${id}`, data),
     destroy: (id: number) => api.delete<BagDestroyResponse>(`bags/${id}`),

@@ -13,7 +13,7 @@ export const useBagIndex = (userId?: number) => {
         queryKey: bagKeys.index(userId),
         queryFn: async () => {
             const response = await bagApi.index()
-            return response.data
+            return response.data.data
         },
         enabled: !!userId,
     })
@@ -27,7 +27,7 @@ export const useBagStore = (userId?: number) => {
             const response = await bagApi.store(data)
             return response.data.data
         },
-        onSuccess: (data: any) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: bagKeys.index(userId) })
         },
         onError: (error: any) => {

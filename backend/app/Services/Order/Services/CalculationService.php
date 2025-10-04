@@ -18,7 +18,7 @@ class CalculationService implements CalculationInterface
     public function calculateTotal($products): float
     {
         return $products->sum(function($items) {
-            return $items->quantity * $items->product->list_price;
+            return $items->quantity * $items->unit_price_cents;
         });
     }
 

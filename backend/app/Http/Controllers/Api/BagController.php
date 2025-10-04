@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\BagStoreRequest;
 use App\Helpers\ResponseHelper;
 use App\Services\Bag\Contracts\BagInterface;
+use App\Http\Resources\Bag\BagResource;
 
 class BagController extends Controller
 {
@@ -23,12 +24,21 @@ class BagController extends Controller
         if(empty($bagData['products']) || $bagData['products']->isEmpty()){
             return ResponseHelper::success('Sepetiniz boş!', []);
         }
+        Cache::flush();
         
-        return ResponseHelper::success('Sepetiniz', $bagData);
+        return ResponseHelper::success(
+            'Sepetiniz',
+            [
+                'products' => BagResource::collection($bagData['products']),
+                'total' => $bagData['total'],
+                'cargoPrice' => $bagData['cargoPrice'],
+                'finalPrice' => $bagData['finalPrice']
+            ]
+        );
     }
     public function store(BagStoreRequest $request)
     {
-        $productItem = $this->bagService->addToBag($request->product_id);
+        $productItem = $this->bagService->addToBag($request->variant_size_id, $request->quantity);
 
         
         if (is_array($productItem) && isset($productItem['error'])) {
@@ -40,7 +50,16 @@ class BagController extends Controller
         }
         
         Cache::flush();
-        return ResponseHelper::success('Ürün sepete eklendi.', $productItem);
+        $bagData = $this->bagService->getBag();
+        return ResponseHelper::success(
+            'Sepet güncellendi',
+            [
+                'products'   => BagResource::collection($bagData['products']),
+                'total'      => $bagData['total'],
+                'cargoPrice' => $bagData['cargoPrice'],
+                'finalPrice' => $bagData['finalPrice'],
+            ]
+        );
     }
 
     public function show($id)
@@ -49,7 +68,7 @@ class BagController extends Controller
         if(!$bagItem){
             return ResponseHelper::error('Ürün bulunamadı!', 404);
         }
-        
+        Cache::flush();
         return ResponseHelper::success('Ürün', $bagItem);
     }
 
@@ -79,6 +98,7 @@ class BagController extends Controller
             return ResponseHelper::error($result['error'], 400);
         }
 
+        Cache::flush();
         return ResponseHelper::success($result['message'] ?? 'Ürün sepetten silindi.');
     }
 }

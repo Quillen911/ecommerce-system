@@ -15,10 +15,18 @@ class BagStoreRequest extends FormRequest
 
     public function rules(): array
     {
-        return [ 
-            'product_id' => 'required|exists:products,id',
+        return [
             'variant_size_id' => 'required|exists:variant_sizes,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'sometimes|integer|min:1',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'variant_size_id.required' => 'Variant size zorunlu!',
+            'variant_size_id.exists' => 'Variant size bulunamadı!',
+            'quantity.integer' => 'Ürün adedi sayısal değer olmalıdır!',
         ];
     }
 

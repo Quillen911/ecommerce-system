@@ -1,37 +1,49 @@
-import { Product } from "./main"
+import { VariantInventory, VariantSize, ProductVariantImage } from "./seller/product"
 
 export interface BagItem {
   id: number
   bag_id: number
-  product_id: number
+  variant_size_id: number
   product_title: string
   quantity: number
+  unit_price_cents: number
   store_id: number
   created_at: string
   updated_at: string
-  product: Product
+  sizes: VariantSizeInBag
 }
 
-export interface BestCampaign {
-  eligible_products: BagItem[]
-  eligible_total: number
-  description: string
-  discount: number
-  per_product_discount: {
-    product: Product
-    quantity: number
-    discount: number
-  }[]
-  campaign_id: number
-  store_id: number
-  store_name: string
+export interface VariantSizeInBag {
+  id: number
+  product_variant_id: number
+  size_option_id: number
+  sku: string
+  price_cents: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  variants: ProductVariantInBag
+  inventory: VariantInventory
 }
 
-export interface BagIndexResponse {
+export interface ProductVariantInBag {
+  id: number
+  product_id: number
+  sku: string
+  slug: string
+  color_name: string
+  color_code: string
+  is_active: boolean
+  is_popular: boolean
+  created_at: string
+  updated_at: string
+  images: ProductVariantImage[]
+}
+
+export interface GetBagItems {
   message: string
   data: {
     products: BagItem[]
-    bestCampaign?: BestCampaign
     total: number
     cargoPrice: number
     discount: number
@@ -40,7 +52,8 @@ export interface BagIndexResponse {
 }
 
 export interface BagStoreRequest {
-  product_id: number
+  variant_size_id: number
+  quantity?: number | null
 }
 
 export interface BagStoreResponse {
@@ -48,10 +61,11 @@ export interface BagStoreResponse {
   data: {
     id: number
     bag_id: number
-    product_id: number
+    variant_size_id: number
     product_title: string
-    quantity: number
+    unit_price_cents: number
     store_id: number
+    quantity: number
   }
 }
 
@@ -64,10 +78,11 @@ export interface BagUpdateResponse {
   data: {
     id: number
     bag_id: number
-    product_id: number
+    variant_size_id: number
     product_title: string
-    quantity: number
+    unit_price_cents: number
     store_id: number
+    quantity: number
   }
 }
 

@@ -3,7 +3,11 @@ import { useMainData } from '@/hooks/useMainQuery'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default function CategorySection() {
+export interface CategoryProps {
+    className?: string
+}
+
+export default function CategorySection({ className }: CategoryProps) {
     const { data: mainData, isLoading, error } = useMainData()
     
     if (error) return null
@@ -28,9 +32,9 @@ export default function CategorySection() {
                 let imageSrc = "/images/categories/default.png"
 
                 if (category.title === "Jean") {
-                imageSrc = "/images/categories/Jean.png"
+                    imageSrc = "/images/categories/Jean.png"
                 } else if (category.title === "Eşofman Takım") {
-                imageSrc = "/images/categories/EsofmanTakim.png"
+                    imageSrc = "/images/categories/EsofmanTakim.png"
                 } else if (category.title === "Keten") {
                 imageSrc = "/images/categories/KetenPantolon.png"
                 }

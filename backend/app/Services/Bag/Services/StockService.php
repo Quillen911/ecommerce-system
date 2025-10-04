@@ -4,53 +4,45 @@ namespace App\Services\Bag\Services;
 
 use App\Services\Bag\Contracts\StockInterface;
 use App\Exceptions\InsufficientStockException;
-use App\Models\Product;
+use App\Models\Inventory;
 
 class StockService implements StockInterface
 {
-   public function checkStockAvailability($bag, $productId, $quantity = 1)
+   public function checkStockAvailability($bag, $variantSizeId, $quantity = 1)
    {
-      $product = Product::find($productId);
-      if(!$product){
-         throw new InsufficientStockException('Ürün bulunamadı!', null, 0, 0);
-      }
-      
-      $productItem = $bag->bagItems()->where('product_id', $productId)->first();
-      
-      
-      $currentQuantity = $productItem ? $productItem->quantity : 0;
-      
-      if($product->stock_quantity < ($currentQuantity + $quantity)){
+      $stock = Inventory::where('variant_size_id', $variantSizeId)->first();
+
+      $itemInTheBag = $bag->bagItems()->where('variant_size_id', $variantSizeId)->first();
+      $currentQuantity = $itemInTheBag ? $itemInTheBag->quantity : 0;
+
+      if($stock->available < ($currentQuantity + $quantity)){
          throw new InsufficientStockException(
             'Stokta yeterli ürün yok!', 
-            $product, 
-            $currentQuantity + $quantity, 
-            $product->stock_quantity
+            $stock, 
+            $quantity, 
+            $currentQuantity
          );
       }
       
-      return $productItem;
+      return [
+         'stock' => $stock,
+         'itemInTheBag' => $itemInTheBag,
+      ];
    }
 
-   public function reserveStock($bag, $productId, $quantity = 1)
+   public function reserveStock($itemInTheBag= null, $stock, $bag, $variantSizeId, $quantity = 1)
    {
-      $product = Product::find($productId);
-      if(!$product){
-         throw new InsufficientStockException('Ürün bulunamadı!', null, 0, 0);
-      }
-
-      $productItem = $bag->bagItems()->where('product_id', $productId)->first();
-
-      if($productItem){
-         $productItem->quantity += $quantity;
-         $productItem->save();
-         return $productItem;
+      if($itemInTheBag){
+         $itemInTheBag->quantity += $quantity;
+         $itemInTheBag->save();
+         return $itemInTheBag;
       } else {
          return $bag->bagItems()->create([
-            'product_id' => $productId,
-            'product_title' => $product->title,
+            'variant_size_id' => $variantSizeId,
+            'product_title' => $stock->variantSize->productVariant->product->title,
             'quantity' => $quantity,
-            'store_id' => $product->store_id
+            'unit_price_cents' => $stock->variantSize->productVariant->price_cents,
+            'store_id' => $stock->variantSize->productVariant->product->store_id
          ]);
       }
    }

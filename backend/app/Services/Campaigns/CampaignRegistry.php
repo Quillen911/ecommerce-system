@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
@@ -40,3 +40,4 @@ class CampaignRegistry
         $this->handlers['x_buy_y_pay'] = new XBuyYPayCampaign(new Campaign());
     }
 }
+*/

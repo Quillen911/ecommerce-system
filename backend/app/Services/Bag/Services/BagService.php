@@ -33,47 +33,46 @@ class BagService implements BagInterface
     {
         $user = $this->getUser();
         $bag = $this->bagRepository->getBag($user);
-        $bagItems = $bag ? $bag->bagItems()->with('product.category')->orderBy('id')->get() : collect();
-        
+        $bagItems = $bag ? $bag->bagItems()->with('variantSize.productVariant.variantImages')->orderBy('id')->get() : collect();
         $bagItems = $this->checkProductAvailability($bagItems, $bag);
         
         if($bagItems->isEmpty()){
             return ['products' => $bagItems, 'bestCampaign' => null, 'total' => 0, 'cargoPrice' => 0, 'discount' => 0, 'finalPrice' => 0];
         }
         
-        $bestCampaign = $this->bagCalculationService->getBestCampaign($bagItems);
+        //$bestCampaign = $this->bagCalculationService->getBestCampaign($bagItems);
         $total = $this->bagCalculationService->calculateTotal($bagItems);
         $cargoPrice = $this->bagCalculationService->calculateCargoPrice($total);
-        $discount = $this->bagCalculationService->calculateDiscount($bestCampaign);
-        $finalPrice = $total + $cargoPrice - $discount;
+        //$discount = $this->bagCalculationService->calculateDiscount($bestCampaign);
+        //$finalPrice = $total + $cargoPrice - $discount;
+        $finalPrice = $total + $cargoPrice;
 
         return [
             'products' => $bagItems, 
-            'bestCampaign' => $bestCampaign, 
-            'total' => $total, 
-            'cargoPrice' => $cargoPrice, 
-            'discount' => $discount, 
-            'finalPrice' => $finalPrice
+           // 'bestCampaign' => $bestCampaign, 
+            'total_cents' => $total, 
+            'total' => $total/100, 
+            'cargoPrice_cents' => $cargoPrice, 
+            'cargoPrice' => $cargoPrice/100, 
+            //'discount' => $discount, 
+            'finalPrice_cents' => $finalPrice,
+            'finalPrice' => $finalPrice/100
         ];
     }
 
-    public function addToBag($productId, $quantity = 1)
+    public function addToBag($variantSizeId, $quantity = 1)
     {
         try {
             $user = $this->getUser();
             if(!$user){
-                return false;
+                throw new \Exception('Kullanıcı bulunamadı!');
             }
             $bag = $this->bagRepository->createBag($user);
             if(!$bag){
-                return ['error' => 'Sepet bulunamadı!'];
+                throw new \Exception('Sepet bulunamadı!');
             }
-            $productItem = $this->stockService->checkStockAvailability($bag, $productId, $quantity);
-            
-            if($productItem == null){
-                return $this->stockService->reserveStock($bag, $productId, $quantity);
-            }
-            return $this->stockService->reserveStock($bag, $productId, $quantity);
+            $productItem = $this->stockService->checkStockAvailability($bag, $variantSizeId, $quantity);
+            return $this->stockService->reserveStock($productItem['itemInTheBag'], $productItem['stock'], $bag, $variantSizeId, $quantity);
         } catch (InsufficientStockException $e) {
             return ['error' => $e->getMessage()];
         }
@@ -86,14 +85,15 @@ class BagService implements BagInterface
         if(!$bag){
             return null;
         }
-        return $bag->bagItems()->where('id', $bagItemId)
-                            ->where('bag_id', $bag->id)
-                            ->first();
+        return $bag->bagItems()
+                ->with('variantSize.productVariant.product')
+                ->where('id', $bagItemId)
+                ->where('bag_id', $bag->id)
+                ->first();
     }
 
     public function updateBagItem($bagItemId, $quantity)
     {
-        $user = $this->getUser();
         $bagItem = $this->showBagItem($bagItemId);
         if($bagItem){
             $bagItem->quantity = $quantity;
@@ -107,7 +107,6 @@ class BagService implements BagInterface
 
     public function destroyBagItem($bagItemId)
     {
-        $user = $this->getUser();
         $bagItem = $this->showBagItem($bagItemId);
         if($bagItem){
             $bagItem->delete();
@@ -121,10 +120,12 @@ class BagService implements BagInterface
     {
         $bagItems = $bagItems->filter(function($item) use ($bag) {
             if (!$item->product || $item->product->deleted_at !== null) {
-                $item->delete();
-                return false;
+                if(!$item->variantSize->productVariant || $item->variantSize->productVariant->deleted_at !== null){
+                    $item->delete();
+                    return false;
+                }
             }
-            if($item->product->stock_quantity == 0){
+            if($item->variantSize->inventory->available == 0){
                 $item->delete();
                 return false;
             }

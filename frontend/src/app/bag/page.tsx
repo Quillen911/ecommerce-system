@@ -1,6 +1,6 @@
 "use client"
 
-import { useBagIndex, useBagUpdate, useBagDestroy } from '@/hooks/useBagQuery'
+import { useBagIndex, useBagUpdate, useBagDestroy, bagKeys } from '@/hooks/useBagQuery'
 import { useMe } from '@/hooks/useAuthQuery'
 import { BagItem } from '@/types/bag'
 import { ProductCardImage } from '@/components/ui/ProductImage'
@@ -18,18 +18,18 @@ export default function BagPage() {
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Sepet yüklenirken hata oluştu</div>
 
-  const bag = data?.data
+  const bag = data 
   const bagItems: BagItem[] = bag?.products || []
-
+  
   const handleIncrease = (item: BagItem) => {
-    if (item.quantity < item.product.stock_quantity) {
+    if (item.quantity < item.sizes.inventory.on_hand) {
       const toastId = toast.loading('Ürün güncelleniyor...')
       updateBag.mutate(
         { id: item.id, data: { quantity: item.quantity + 1 } },
         {
           onSuccess: () => {
             toast.success(`"${item.product_title}" adedi arttı`, { id: toastId })
-            queryClient.invalidateQueries({ queryKey: ['bags'] })
+            queryClient.invalidateQueries({ queryKey: bagKeys.index(me?.id) })
           },
           onError: () => {
             toast.error('Ürün güncellenemedi', { id: toastId })
@@ -49,7 +49,7 @@ export default function BagPage() {
         {
           onSuccess: () => {
             toast.success(`"${item.product_title}" adedi azaltıldı`, { id: toastId })
-            queryClient.invalidateQueries({ queryKey: ['bags'] })
+            queryClient.invalidateQueries({ queryKey: bagKeys.index(me?.id) })
           },
           onError: () => {
             toast.error('Ürün güncellenemedi', { id: toastId })
@@ -66,7 +66,7 @@ export default function BagPage() {
     destroyBag.mutate(item.id, {
       onSuccess: () => {
         toast.success(`"${item.product_title}" sepetten kaldırıldı`, { id: toastId })
-        queryClient.invalidateQueries({ queryKey: ['bags'] })
+        queryClient.invalidateQueries({ queryKey: bagKeys.index(me?.id) })
       },
       onError: () => {
         toast.error('Ürün kaldırılamadı', { id: toastId })
@@ -105,14 +105,13 @@ export default function BagPage() {
             >
               <div className="w-20 h-20 flex-shrink-0">
                 <ProductCardImage
-                  product={item.product}
+                  product={item.sizes.variants}
                   alt={item.product_title}
                   className="!w-full !h-full object-cover rounded"
                 />
               </div>
               <div className="flex-1">
                 <h2 className="font-semibold line-clamp-2">{item.product_title}</h2>
-                <p className="text-sm text-gray-600">{item.product?.store_name}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <button
                     onClick={() => handleDecrease(item)}
@@ -130,7 +129,7 @@ export default function BagPage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-bold">{item.product?.list_price} ₺</p>
+                <p className="font-bold">₺{item.sizes.price_cents/100}</p>
               </div>
               <button 
                 onClick={() => handleDestroy(item)}
@@ -162,14 +161,6 @@ export default function BagPage() {
               <span>{bag?.finalPrice?.toFixed(2)} ₺</span>
             </div>
           </div>
-          {bag?.bestCampaign && bag.bestCampaign.discount > 0 && (
-            <div className="mt-4 p-3 rounded-lg bg-[var(--sand)] text-sm">
-              <p className="font-medium">{bag.bestCampaign.description}</p>
-              <p className="text-green-600">
-                Kampanya indirimi: {bag.bestCampaign.discount.toFixed(2)} ₺
-              </p>
-            </div>
-          )}
           <button className="w-full mt-6 py-3 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-dark)] transition">
             Alışverişi Tamamla
           </button>

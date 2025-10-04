@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
@@ -10,6 +10,7 @@ use App\Services\Campaigns\CampaignInterface;
 
 abstract class BaseCampaign implements CampaignInterface
 {
+    
     protected $campaign;
     protected $conditions = [];
 
@@ -98,5 +99,6 @@ abstract class BaseCampaign implements CampaignInterface
         return CampaignDiscount::where('campaign_id', $this->campaign->id)->first();
     }
 
-
-}
+    
+   
+} */
