@@ -23,4 +23,14 @@ class ProductVariantRepository extends BaseRepository implements ProductVariantR
         return $this->model->where('slug', $slug)->with('product', 'variantImages', 'variantAttributes.attribute', 'variantAttributes.option')->first();
     }
 
+    public function getPopularAllVariants()
+    {
+        return $this->model->with(
+            'product',
+            'variantImages',
+            'variantSizes.inventory',
+            'variantSizes.sizeOption',
+        )->where('is_popular', true)->get();
+    }
+
 }

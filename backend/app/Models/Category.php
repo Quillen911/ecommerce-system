@@ -12,6 +12,7 @@ class Category extends Model
     protected $fillable = [
         'title',
         'slug',
+        'gender_id',
         'parent_id',
     ];
     public function parent()
@@ -22,9 +23,9 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
-    public function genders()
+    public function gender()
     {
-        return $this->belongsToMany(Gender::class, 'category_genders');
+        return $this->belongsTo(Gender::class, 'gender_id');
     }
     public function products()
     {

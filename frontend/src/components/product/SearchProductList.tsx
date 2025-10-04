@@ -1,6 +1,5 @@
 'use client'
 
-import { Product } from "@/types/main"
 import { useSearchQuery } from "@/hooks/useSearchQuery"
 import { useSearchParams  } from "next/navigation"
 import ProductCard from "./ProductCard"
@@ -14,7 +13,7 @@ export default function SearchProductList() {
     gender: searchParams.get("gender") || undefined,
     min_price: searchParams.get("min_price") || undefined,
     max_price: searchParams.get("max_price") || undefined,
-    age: searchParams.get("age")?.split(",") || undefined,
+    sizes: searchParams.get("sizes")?.split(",") || undefined,
     color: searchParams.get("color")?.split(",") || undefined,
     }
 
@@ -56,7 +55,7 @@ export default function SearchProductList() {
             </h1>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-start items-start">
-            {products.flatMap((product, i) =>
+          {products.flatMap((product, i) =>
               product.variants.map((variant, j) => (
                 <motion.div
                   key={variant.id}

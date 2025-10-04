@@ -1,5 +1,5 @@
 "use client"
-import { Product } from "@/types/main"
+import { ProductWithVariant } from "@/types/search"
 import { useCategoryProducts } from "@/hooks/useSearchQuery"
 import { useParams } from "next/navigation"
 import ProductCard from "./ProductCard"
@@ -10,9 +10,8 @@ export default function ProductList() {
   const { category } = useParams()
   const { data: filteredProducts, isLoading } = useCategoryProducts(category as string)
 
-  const categoryProducts: Product[] = filteredProducts?.products ?? []
-  const totalVariants = categoryProducts.reduce((acc, product) => acc + product.variants.length, 0)
-
+  const categoryProducts: ProductWithVariant[] = filteredProducts?.products ?? []
+  
   if (isLoading) {
     return (
       <div className="min-h-screen">
@@ -29,22 +28,20 @@ export default function ProductList() {
   return (
     <div className="min-h-screen">
       <h1 className="text-2xl font-bold mb-6 animate-fadeIn">
-        {totalVariants} ürün bulundu
+        {categoryProducts.length} ürün bulundu
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-start items-start">
-        {categoryProducts.flatMap((product, i) =>
-          product.variants.map((variant, j) => (
-            <motion.div
-              key={variant.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: (i + j) * 0.1 }}
-            >
-              <ProductCard product={product} variant={variant} />
-            </motion.div>
-          ))
-        )}
+        {categoryProducts.map((item, i) => (
+          <motion.div
+            key={item.variant.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.1 }}
+          >
+            <ProductCard product={item.product} variant={item.variant} />
+          </motion.div>
+        ))}
       </div>
     </div>
   )

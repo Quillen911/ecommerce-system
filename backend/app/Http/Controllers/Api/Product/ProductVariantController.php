@@ -32,13 +32,15 @@ class ProductVariantController extends Controller
     
         $selectedVariant = $variant->load(
             'variantImages',
-            'variantAttributes.attribute',
-            'variantAttributes.option'
+            'variantSizes.sizeOption',
+            'variantSizes.inventory'    
         );
 
         $allVariants = $product->variants()
             ->where('product_id', $variant->product_id)
             ->with('variantImages')
+            ->with('variantSizes.sizeOption')
+            ->with('variantSizes.inventory')
             ->get();
         
         return response()->json([

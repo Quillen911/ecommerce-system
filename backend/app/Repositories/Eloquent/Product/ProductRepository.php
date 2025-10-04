@@ -27,9 +27,10 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 ->with([
                     'category.parent',
                     'category.children',
+                    'category.gender',
                     'variants.variantImages',
-                    'variants.variantAttributes.attribute',
-                    'variants.variantAttributes.option',
+                    'variants.variantSizes.sizeOption',
+                    'variants.variantSizes.inventory',
                 ])
                 ->orderBy('id')
                 ->paginate($perpage);
@@ -45,9 +46,10 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ->with([
                 'category.parent',
                 'category.children',
+                'category.gender',
                 'variants.variantImages',
-                'variants.variantAttributes.attribute',
-                'variants.variantAttributes.option',
+                'variants.variantSizes.sizeOption',
+                'variants.variantSizes.inventory',
             ])
             ->find($id);
     }
@@ -60,6 +62,9 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model
             ->with([
                 'category',
+                'category.parent',
+                'category.children',
+                'category.gender',
                 'variants.variantAttributes.attribute',
                 'variants.variantImages',
                 'variants.variantAttributes.option',
@@ -148,6 +153,9 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model
             ->with([
                 'category',
+                'category.parent',
+                'category.children',
+                'category.gender',
                 'variants.variantImages',
                 'variants.variantAttributes.attribute',
                 'variants.variantAttributes.option',

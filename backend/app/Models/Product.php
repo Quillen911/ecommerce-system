@@ -94,6 +94,17 @@ class Product extends Model
         return $this->belongsTo(Gender::class, 'gender_id');
     }
     
+    // Accessor: gender bilgisini otomatik al (önce kendi gender_id, sonra category.gender)
+    public function getGenderInfoAttribute()
+    {
+        // Eğer direkt gender_id varsa onu kullan
+        if ($this->gender_id) {
+            return $this->gender;
+        }
+        // Yoksa category.gender'dan al
+        return $this->category?->gender;
+    }
+    
     // Scopes
     public function scopePublished($query) 
     {

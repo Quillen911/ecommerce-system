@@ -16,6 +16,6 @@ class Gender extends Model
     ];
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'category_genders');
+        return $this->hasMany(Category::class, 'gender_id');
     }
 }

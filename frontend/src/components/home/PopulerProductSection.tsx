@@ -1,6 +1,6 @@
 'use client'
 import { useMainData } from '@/hooks/useMainQuery'
-import { Product } from '@/types/main'
+import { Product } from '@/types/seller/product'
 import ProductImageGallery from '../ui/ProductImageGallery'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -16,28 +16,7 @@ export default function PopulerProductSection() {
     router.push(`/product/${slug}`)
   }
 
-  const populerProductVariants = mainData?.products.flatMap((product: Product) =>
-    product.variants
-      .filter((variant) => variant.is_popular)
-      .map((variant) => {
-        const primaryImage =
-          variant.images.find((img) => img.is_primary)?.image ||
-          variant.images[0]?.image ||
-          "/images/no-image.png"
-        return {
-          id: variant.id,
-          title: product.title,
-          category: 
-            (product.category?.parent ? product.category.parent.title + " " : "") 
-            + product.category?.title,
-          price: variant.price,
-          image: primaryImage,
-          images: variant.images,
-          slug: variant.slug,
-        }
-      })
-  ) ?? []
-
+  const populerProductVariants = mainData?.products
 
   if (isLoading) return <p>Yükleniyor...</p>
   if (error) return <p>Hata oluştu</p>
@@ -72,22 +51,22 @@ export default function PopulerProductSection() {
         spaceBetween={20}
         slidesPerView={3}
       >
-        {populerProductVariants.map((variant) => (
-          <SwiperSlide key={variant.id}>
+        {populerProductVariants?.map((product) => (
+          <SwiperSlide key={product.id}>
             <div className="cursor-pointer">
               <div className="bg-var(--main-bg) flex items-center justify-center py-15">
                 <ProductImageGallery 
-                  images={variant.images}
-                  alt={variant.title}
+                  images={product.variants[0].images}
+                  alt={product.title}
                   className="object-contain w-full h-80"
-                  onClick={() => handleProductDetail(variant.slug)}
+                  onClick={() => handleProductDetail(product.slug)}
                 />
               </div>
               <h3 className="mt-3 text-base font-semibold text-white line-clamp-1 px-10">
-                {variant.title}
+                {product.title}
               </h3>
-              <p className="text-sm text-white px-10">{variant.category}</p>
-              <p className="text-lg font-bold mt-1 text-white px-10"> ₺{variant.price}</p>
+              <p className="text-sm text-white px-10">{product.category.title}</p>
+              <p className="text-lg font-bold mt-1 text-white px-10"> ₺{product.variants[0].price_cents/100}</p>
             </div>
           </SwiperSlide>
         ))}

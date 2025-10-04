@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
-use App\Http\Requests\BaseApiRequest;
+use App\Http\Requests\BagStoreRequest;
 use App\Helpers\ResponseHelper;
 use App\Services\Bag\Contracts\BagInterface;
 
@@ -26,7 +26,7 @@ class BagController extends Controller
         
         return ResponseHelper::success('Sepetiniz', $bagData);
     }
-    public function store(BaseApiRequest $request)
+    public function store(BagStoreRequest $request)
     {
         $productItem = $this->bagService->addToBag($request->product_id);
 

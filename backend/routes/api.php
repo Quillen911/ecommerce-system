@@ -25,7 +25,6 @@ Route::post('/seller/login', [AuthController::class, 'sellerLogin']);
 
 Route::prefix('main')->group(function(){
     Route::get('/', [MainController::class, 'main']);
-    Route::get('/product/{product:slug}', [MainController::class, 'productDetail']);
 });
 
 Route::get('/variant/{variant:slug}', [ProductVariantController::class, 'variantDetail']);

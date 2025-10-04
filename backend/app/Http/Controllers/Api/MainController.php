@@ -10,13 +10,7 @@ use App\Services\Search\ElasticSearchTypeService;
 use App\Services\Search\ElasticSearchProductService;
 use App\Services\MainService;
 use App\Http\Resources\Product\ProductResource;
-use App\Http\Resources\Category\CategoryResource;
-use App\Models\Product;
-use App\Http\Resources\Product\AttributeResource;
-use App\Http\Resources\Product\AttributeOptionResource;
-use App\Http\Resources\Campaign\CampaignResource;
 use App\Http\Resources\MainResource;
-use Illuminate\Support\Facades\Cache;
 
 class MainController extends Controller
 {
@@ -39,65 +33,12 @@ class MainController extends Controller
 
     public function main(Request $request)
     {
-        $products   = $this->mainService->getProducts();
+        $products   = $this->mainService->getProductsPopularVariants();
         $categories = $this->mainService->getCategories();
-        $campaigns  = $this->mainService->getCampaigns();
-        $attributes = $this->mainService->getAttributes();
-        $attributeOptions = $this->mainService->getAttributeOptions();
 
         return new MainResource([
             'products' => $products,
             'categories' => $categories,
-            'campaigns' => $campaigns,
-            'attributes' => $attributes,
-            'attributeOptions' => $attributeOptions,
-        ]);
-    }
-
-    public function show($id)
-    {
-        $product = $this->mainService->getProduct($id);
-        if (!$product) {
-            return ResponseHelper::notFound('Ürün bulunamadı.');
-        }
-        return ResponseHelper::success('Ürün', new ProductResource($product));
-    }
-
-    public function productDetail($slug)
-    {
-        $product = Product::where('slug', $slug)->first();
-
-        if (!$product) {
-            $category = $this->mainService->getCategory($slug);
-            if ($category) {
-                return $this->categoryFilter(request(), $slug);
-            }
-            return ResponseHelper::notFound('Sayfa bulunamadı');
-        }
-
-        abort_unless($product->is_published, 404);
-
-        $product = Cache::remember("product:{$product->id}:detail",
-            now()->addMinutes(15),
-            fn() => $product->load(
-                'category:id,category_title,category_slug,parent_id',
-                'store:id,name',
-                'variants.variantAttributes.attribute',
-                'variants.variantAttributes.option',
-                'variants.images'
-            )
-        );
-
-        $similar = Product::published()
-            ->where('category_id', $product->category_id)
-            ->whereKeyNot($product->id)
-            ->latest()
-            ->take(20)
-            ->get(['id', 'slug', 'title', 'list_price', 'images']);
-
-        return ResponseHelper::success('Ürün Detayı', [
-            'product' => new ProductResource($product),
-            'similar' => ProductResource::collection($similar)
         ]);
     }
 

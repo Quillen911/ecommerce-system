@@ -50,7 +50,6 @@ class CategoryFilterController extends Controller
         return response()->json([
             'products'   => $data['products'],
             'filters'    => $filters,
-            'cat'   => $categories,
             'categories'   =>CategoryResource::collection($categories),
             'total' => $data['results']['total'],
             'pagination' => [

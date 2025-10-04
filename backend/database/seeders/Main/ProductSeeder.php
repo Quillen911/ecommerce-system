@@ -5,6 +5,7 @@ namespace Database\Seeders\Main;
 use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\ProductVariantImage;
 use App\Models\VariantSize;
 use App\Models\Inventory;
 use App\Models\ProductCategory;
@@ -18,8 +19,8 @@ class ProductSeeder extends Seeder
             'title' => 'Erkek Çocuk Eşofman Takımı',
             'slug' => 'erkek-cocuk-esofman-takimi',
             'brand' => 'Nike',
-            'category_id' => 8, // erkek-cocuk-esofman-takim
-            'gender_id' => 1, // erkek-cocuk
+            'category_id' => 6, // erkek-cocuk-esofman-takim (ID 6)
+            'gender_id' => null, // category.gender_id'den alınacak
             'description' => 'Kaliteli pamuklu erkek çocuk eşofman takımı',
             'is_published' => true,
             'total_sold_quantity' => 0,
@@ -52,6 +53,18 @@ class ProductSeeder extends Seeder
         $this->createVariantSizes(1, 'ESF-ERK-001-MAV', 34900);
         // Varyant 2 için bedenler (id=2)
         $this->createVariantSizes(2, 'ESF-ERK-001-SYH', 34900);
+        
+        // Varyant 1 ve 2 için resimler
+        $this->createVariantImages(1, [
+            ['image' => 'xxllWS3ES9cgshwd6asqwHlqXL1TA9a4FtdFx6rC.png', 'is_primary' => true, 'sort_order' => 1],
+            ['image' => 'QAEAY6rHh0RPTh4qo96scasAYhaXELtA3RoBaMeu.png', 'is_primary' => false, 'sort_order' => 2],
+        ]);
+        
+        $this->createVariantImages(2, [
+            ['image' => 'esofman.png', 'is_primary' => true, 'sort_order' => 1],
+            ['image' => 'esofman1.png', 'is_primary' => false, 'sort_order' => 2],
+            ['image' => 'esofman2.png', 'is_primary' => false, 'sort_order' => 3],
+        ]);
 
         // ÜRÜN 2: Kız Çocuk Jean Pantolon - 3 Varyant
         $product2 = Product::create([
@@ -59,8 +72,8 @@ class ProductSeeder extends Seeder
             'title' => 'Kız Çocuk Jean Pantolon',
             'slug' => 'kiz-cocuk-jean-pantolon',
             'brand' => 'H&M',
-            'category_id' => 9, // kiz-cocuk-jean
-            'gender_id' => 2, // kiz-cocuk
+            'category_id' => 7, // kiz-cocuk-jean (ID 7)
+            'gender_id' => null, // category.gender_id'den alınacak
             'description' => 'Şık ve rahat kız jean pantolonu',
             'is_published' => true,
             'total_sold_quantity' => 0,
@@ -99,20 +112,50 @@ class ProductSeeder extends Seeder
             'is_active' => true,
         ]);
 
+        // Varyant 3 için bedenler (id=3) - Açık Mavi Jean
+        $this->createVariantSizes(3, 'JEAN-KIZ-001-AMAV', 27900);
+        // Varyant 4 için bedenler (id=4) - Koyu Mavi Jean
+        $this->createVariantSizes(4, 'JEAN-KIZ-001-KMAV', 27900);
+        // Varyant 5 için bedenler (id=5) - Siyah Jean
+        $this->createVariantSizes(5, 'JEAN-KIZ-001-SYH', 27900);
+        
+        // Varyant 3, 4, 5 için resimler (placeholder)
+        $this->createVariantImages(3, [
+            ['image' => 'jean-acik-mavi.png', 'is_primary' => true, 'sort_order' => 1],
+        ]);
+        
+        $this->createVariantImages(4, [
+            ['image' => 'jean-koyu-mavi.png', 'is_primary' => true, 'sort_order' => 1],
+        ]);
+        
+        $this->createVariantImages(5, [
+            ['image' => 'jean-siyah.png', 'is_primary' => true, 'sort_order' => 1],
+        ]);
+
+        // Product 1 için çoklu kategori ilişkileri
         ProductCategory::create([
             'product_id' => $product1->id,
-            'category_id' => 1, // Erkek Çocuk (ana kategori)
+            'category_id' => 6, // erkek-cocuk-esofman-takim (spesifik)
             'is_primary' => true,
         ]);
         
         ProductCategory::create([
             'product_id' => $product1->id,
-            'category_id' => 8, // erkek-cocuk-esofman-takim (alt kategori)
+            'category_id' => 3, // esofman-takim (genel/parent)
+            'is_primary' => false,
+        ]);
+        
+        // Product 2 için çoklu kategori ilişkileri
+        ProductCategory::create([
+            'product_id' => $product2->id,
+            'category_id' => 7, // kiz-cocuk-jean (spesifik)
+            'is_primary' => true,
         ]);
         
         ProductCategory::create([
-            'product_id' => $product1->id,
-            'category_id' => 5, // genel kategori: esofman-takim
+            'product_id' => $product2->id,
+            'category_id' => 1, // jean (genel/parent)
+            'is_primary' => false,
         ]);
     }
 
@@ -137,6 +180,18 @@ class ProductSeeder extends Seeder
                 'reserved' => $reserved,
                 'available' => $onHand - $reserved,
                 'min_stock_level' => 5,
+            ]);
+        }
+    }
+
+    private function createVariantImages($variantId, $images)
+    {
+        foreach ($images as $imageData) {
+            ProductVariantImage::create([
+                'product_variant_id' => $variantId,
+                'image' => $imageData['image'],
+                'is_primary' => $imageData['is_primary'],
+                'sort_order' => $imageData['sort_order'],
             ]);
         }
     }

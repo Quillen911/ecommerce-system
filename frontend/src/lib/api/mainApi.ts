@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MainData, Product } from '@/types/main'
+import { MainData } from '@/types/main'
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {

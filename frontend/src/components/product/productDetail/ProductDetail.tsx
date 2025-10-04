@@ -1,4 +1,4 @@
-import { Product, ProductVariant } from "@/types/main";
+import { Product, ProductVariant } from "@/types/seller/product";
 import ProductGallery from "./ProductGallery";
 import ProductPrice from "./ProductPrice";
 import ProductTitle from "./ProductTitle";
@@ -34,7 +34,7 @@ const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) =>
           variant={variant}
         />
 
-        <ProductPrice price={variant.price} />
+        <ProductPrice price_cents={variant.price_cents} />
 
         <ProductVariants product={product} variants={allVariants} />
 
@@ -43,7 +43,7 @@ const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) =>
           <div className="md:col-span-6 flex flex-row">
             <ProductSizeSelector
               product={product}
-              variants={allVariants}
+              variants={product.variants}
             />
         </div>
       </div>

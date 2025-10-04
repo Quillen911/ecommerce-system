@@ -12,7 +12,7 @@ export default function CategorySection() {
     const categories = [
         ...new Map(
           mainData?.categories
-            .filter((c) => c.parent_id !== null)
+            .filter((c) => c.parent_id === null && c.children?.length !== 0)
             .map((c) => [c.slug, c])
         ).values()
       ]
@@ -31,7 +31,7 @@ export default function CategorySection() {
                 imageSrc = "/images/categories/Jean.png"
                 } else if (category.title === "Eşofman Takım") {
                 imageSrc = "/images/categories/EsofmanTakim.png"
-                } else if (category.title === "Keten Pantolon") {
+                } else if (category.title === "Keten") {
                 imageSrc = "/images/categories/KetenPantolon.png"
                 }
 

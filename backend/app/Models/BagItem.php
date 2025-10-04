@@ -12,14 +12,12 @@ class BagItem extends Model
         'product_id', 
         'variant_size_id',
         'product_title',
-        'selected_options',
         'quantity',
         'unit_price_cents',
         'store_id'
     ];
 
     protected $casts = [
-        'selected_options' => 'array',
         'unit_price_cents' => 'integer',
     ];
 

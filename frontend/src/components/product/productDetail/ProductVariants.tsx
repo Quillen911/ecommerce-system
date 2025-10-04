@@ -1,4 +1,4 @@
-import { Product } from "@/types/main"
+import { Product } from "@/types/seller/product"
 import { useParams, useRouter } from "next/navigation"
 
 interface VariantSummary {
@@ -21,7 +21,7 @@ interface VariantSummary {
   
     return (
       <div className="product-variants">
-        <h2 className="text-md text-black mb-3 font-semibold font-sans">{product.variants[0].attributes.find(a => a.code === "color")?.value}</h2>
+        <h2 className="text-md text-black mb-3 font-semibold font-sans">{product.variants[0].color_name}</h2>
   
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
           {variants.map((variant) => {

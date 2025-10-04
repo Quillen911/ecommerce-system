@@ -124,19 +124,80 @@ class ElasticsearchService
                 ];
             }
 
-            if(!empty($filters)){
-                $searchQuery['bool']['filter'] = $this->mergeFiltersTrait($filters);
+            $categoryFilters = $this->getCategoryFilterTrait($filters);
+            
+            $variantMustQueries = [];
+            
+            if(isset($filters['min_price']) || isset($filters['max_price'])) {
+                $range = [];
+                if (isset($filters['min_price'])) $range['gte'] = (int)($filters['min_price'] * 100);
+                if (isset($filters['max_price'])) $range['lte'] = (int)($filters['max_price'] * 100);
+                
+                $variantMustQueries[] = [
+                    'range' => ['variants.price_cents' => $range]
+                ];
             }
+            
+            if (isset($filters['sizes'])) {
+                $sizes = is_array($filters['sizes']) ? $filters['sizes'] : explode(',', $filters['sizes']);
+                $variantMustQueries[] = [
+                    'nested' => [
+                        'path' => 'variants.sizes',
+                        'query' => [
+                            'nested' => [
+                                'path' => 'variants.sizes.size_option',
+                                'query' => [
+                                    'terms' => [
+                                        'variants.sizes.size_option.slug' => $sizes
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ];
+            }
+            
+            if (isset($filters['color'])) {
+                $colors = is_array($filters['color']) ? $filters['color'] : explode(',', $filters['color']);
+                $variantMustQueries[] = [
+                    'terms' => ['variants.color_code' => $colors]
+                ];
+            }
+            
+            $variantQuery = empty($variantMustQueries) 
+                ? ['match_all' => new \stdClass()]
+                : ['bool' => ['must' => $variantMustQueries]];
 
             $sortArray = $this->getSortTrait($sorting);
+            
+            $boolQuery = [
+                'filter' => array_merge(
+                    $categoryFilters,
+                    [[
+                        'nested' => [
+                            'path' => 'variants',
+                            'query' => $variantQuery,
+                            'inner_hits' => [
+                                'size' => 100
+                            ]
+                        ]
+                    ]]
+                )
+            ];
+            
+            if (!empty($searchQuery['bool']['must'])) {
+                $boolQuery['must'] = $searchQuery['bool']['must'];
+            }
             
             $params = [
                 'index' => 'products',
                 'body' => [
-                    'query' => $searchQuery,
+                    'query' => [
+                        'bool' => $boolQuery
+                    ],
                     'size' => $size,
                     'from' => $from,
-                    'sort' => $sortArray
+                    'sort' => $sortArray              
                 ]
             ];
             
@@ -163,21 +224,72 @@ class ElasticsearchService
     {
         try {
             $from = ($page-1) * $size;
-            $searchQuery = [];
             
-            //filter search
-            if(!empty($filters)){
-                $searchQuery['bool']['filter'] = $this->mergeFiltersTrait($filters);                
-            } else {
-                $searchQuery['match_all'] = new \stdClass();
+            $categoryFilters = $this->getCategoryFilterTrait($filters);
+            
+            $variantMustQueries = [];
+            
+            if(isset($filters['min_price']) || isset($filters['max_price'])) {
+                $range = [];
+                if (isset($filters['min_price'])) $range['gte'] = (int)($filters['min_price'] * 100);
+                if (isset($filters['max_price'])) $range['lte'] = (int)($filters['max_price'] * 100);
+                
+                $variantMustQueries[] = [
+                    'range' => ['variants.price_cents' => $range]
+                ];
             }
-
+            
+            if (isset($filters['sizes'])) {
+                $sizes = is_array($filters['sizes']) ? $filters['sizes'] : explode(',', $filters['sizes']);
+                $variantMustQueries[] = [
+                    'nested' => [
+                        'path' => 'variants.sizes',
+                        'query' => [
+                            'nested' => [
+                                'path' => 'variants.sizes.size_option',
+                                'query' => [
+                                    'terms' => [
+                                        'variants.sizes.size_option.slug' => $sizes
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ];
+            }
+            
+            if (isset($filters['color'])) {
+                $colors = is_array($filters['color']) ? $filters['color'] : explode(',', $filters['color']);
+                $variantMustQueries[] = [
+                    'terms' => ['variants.color_code' => $colors]
+                ];
+            }
+            
+            $variantQuery = empty($variantMustQueries) 
+                ? ['match_all' => new \stdClass()]
+                : ['bool' => ['must' => $variantMustQueries]];
+            
             $sortArray = $this->getSortTrait($sorting);
             
             $params = [
                 'index' => 'products',
                 'body' => [
-                    'query' => $searchQuery,
+                    'query' => [
+                        'bool' => [
+                            'filter' => array_merge(
+                                $categoryFilters,
+                                [[
+                                    'nested' => [
+                                        'path' => 'variants',
+                                        'query' => $variantQuery,
+                                        'inner_hits' => [
+                                            'size' => 100
+                                        ]
+                                    ]
+                                ]]
+                            )
+                        ]
+                    ],
                     'size' => $size,
                     'from' => $from,
                     'sort' => $sortArray              
@@ -201,7 +313,6 @@ class ElasticsearchService
             ];
         }
     }
-
 
     public function sortProducts(string $sorting = '', int $page = 1, int $size = 7 ): array
     {

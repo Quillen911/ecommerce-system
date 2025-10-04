@@ -88,6 +88,7 @@ class ProductService
                     'sku'            => $sku,
                     'slug'           => $this->generateVariantSlug($product, $variantData['color_name'], $index),
                     'price_cents'    => $variantData['price_cents'],
+                    'is_popular'     => $variantData['is_popular'] ?? false,
                 ]);
 
                 $variant->update([

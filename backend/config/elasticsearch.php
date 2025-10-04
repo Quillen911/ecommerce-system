@@ -58,7 +58,32 @@ return [
                 'description' => ['type' => 'text'],
                 'meta_title' => ['type' => 'text'],
                 'meta_description' => ['type' => 'text'],
-                'category_id' => ['type' => 'integer'],
+                'category' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'id' => ['type' => 'integer'],
+                        'title' => ['type' => 'text'],
+                        'slug' => ['type' => 'keyword'],
+                        'gender_id' => ['type' => 'integer'],
+                        'parent_id' => ['type' => 'integer'],
+                        'gender' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'id' => ['type' => 'integer'],
+                                'title' => ['type' => 'text'],
+                                'slug' => ['type' => 'keyword'],
+                            ]
+                        ],
+                        'parent' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'id' => ['type' => 'integer'],
+                                'title' => ['type' => 'text'],
+                                'slug' => ['type' => 'keyword'],
+                            ]
+                        ]
+                    ]
+                ],
                 'category_title' => [
                     'type' => 'text',
                     'analyzer' => 'autocomplete_analyzer',
@@ -67,29 +92,17 @@ return [
                         'keyword' => ['type' => 'keyword']
                     ]
                 ],
-                'total_sold_quantity' => ['type' => 'integer'],
-                'images' => [
-                    'type' => 'nested',
-                    'properties' => [
-                        'id' => ['type' => 'integer'],
-                        'product_id' => ['type' => 'integer'],
-                        'image' => ['type' => 'keyword'],
-                        'is_primary' => ['type' => 'boolean'],
-                        'sort_order' => ['type' => 'integer'],
-                    ]
-                ],
-
                 'variants' => [
                     'type' => 'nested',
                     'properties' => [
                         'id' => ['type' => 'integer'],
                         'sku' => ['type' => 'keyword'],
                         'slug' => ['type' => 'keyword'],
-                        'price' => ['type' => 'float'],
+                        'color_name' => ['type' => 'keyword'],
+                        'color_code' => ['type' => 'keyword'],
                         'price_cents' => ['type' => 'integer'],
-                        'stock_quantity' => ['type' => 'integer'],
-                        'sold_quantity' => ['type' => 'integer'],
                         'is_popular' => ['type' => 'boolean'],
+                        'is_active' => ['type' => 'boolean'],
                         'images' => [
                             'type' => 'nested',
                             'properties' => [
@@ -100,21 +113,35 @@ return [
                                 'sort_order' => ['type' => 'integer'],
                             ]
                         ],
-                        'attributes' => [
+                        'sizes' => [
                             'type' => 'nested',
                             'properties' => [
-                                'attribute_id' => ['type' => 'integer'],
-                                'code'         => ['type' => 'keyword'],
-                                'name'         => ['type' => 'text'],
-                                'value' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'autocomplete_analyzer',
-                                    'search_analyzer' => 'autocomplete_search_analyzer',
-                                    'fields' => [
-                                        'keyword' => ['type' => 'keyword']
+                                'product_variant_id' => ['type' => 'integer'],
+                                'size_option_id' => ['type' => 'integer'],
+                                'size_option' => [
+                                    'type' => 'nested',
+                                    'properties' => [
+                                        'id' => ['type' => 'integer'],
+                                        'attribute_id' => ['type' => 'integer'],
+                                        'value' => ['type' => 'text'],
+                                        'slug' => ['type' => 'keyword'],
                                     ]
                                 ],
-                                'slug'         => ['type' => 'keyword'],
+                                'sku' => ['type' => 'keyword'],
+                                'price_cents' => ['type' => 'integer'],
+                                'is_active' => ['type' => 'boolean'],
+                                'inventory' => [
+                                    'type' => 'nested',
+                                    'properties' => [
+                                        'id' => ['type' => 'integer'],
+                                        'variant_size_id' => ['type' => 'integer'],
+                                        'warehouse_id' => ['type' => 'integer'],
+                                        'on_hand' => ['type' => 'integer'],
+                                        'reserved' => ['type' => 'integer'],
+                                        'available' => ['type' => 'integer'],
+                                        'min_stock_level' => ['type' => 'integer'],
+                                    ]
+                                ]
                             ]
                         ]
                     ]

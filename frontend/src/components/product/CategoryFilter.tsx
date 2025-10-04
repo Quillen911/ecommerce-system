@@ -52,7 +52,7 @@ export default function CategoryFilter({ isOpen }: { isOpen: boolean, handleOpen
   const categories = [
     ...new Map(
       mainData?.categories
-        .filter((c) => c.parent_id !== null)
+        .filter((c) => c.parent_id === null && c.children?.length !== 0)
         .map((c) => [c.slug, c])
     ).values()
   ]
@@ -116,7 +116,7 @@ export default function CategoryFilter({ isOpen }: { isOpen: boolean, handleOpen
           <AccordionContent className="space-y-2">
           {["6","7","8","9","10","11","12","13","14","15","16"].map((age) => {
             const slug = `${age}-yas`
-            const selected = (searchParams.get("age") || "")
+            const selected = (searchParams.get("sizes") || "")
               .split(",")
               .includes(slug)
 
@@ -125,7 +125,7 @@ export default function CategoryFilter({ isOpen }: { isOpen: boolean, handleOpen
                 <input
                   type="checkbox"
                   className="w-5 h-5 mr-2 rounded-lg"
-                  onChange={() => updateFilter("age", slug, true)}
+                  onChange={() => updateFilter("sizes", slug, true)}
                   checked={selected}
                 />
                 <span className="text-sm">{age} Yaş</span>
@@ -148,27 +148,27 @@ export default function CategoryFilter({ isOpen }: { isOpen: boolean, handleOpen
           <AccordionTrigger className="text-lg font-semibold">Renk</AccordionTrigger>
           <AccordionContent className="grid grid-cols-3 gap-3 p-2">
             {[
-              { slug: "siyah", value: "Siyah", color: "bg-black" },
-              { slug: "mavi", value: "Mavi", color: "bg-blue-500" },
-              { slug: "yesil", value: "Yeşil", color: "bg-green-500" },
-              { slug: "kirmizi", value: "Kırmızı", color: "bg-red-500" },
+              { color_name: "siyah", color_code: "#000000", color: "bg-black" },
+              { color_name: "mavi", color_code: "#0000FF", color: "bg-blue-500" },
+              { color_name: "yesil", color_code: "#00FF00", color: "bg-green-500" },
+              { color_name: "kirmizi", color_code: "#FF0000", color: "bg-red-500" },
             ].map((clr) => {
-              const selected = (searchParams.get("color") || "").split(",").includes(clr.slug)
+              const selected = (searchParams.get("color") || "").split(",").includes(clr.color_code)
 
               const toggleColor = () => {
                 const current = (searchParams.get("color") || "").split(",").filter(Boolean)
                 let updated: string[]
                 if (selected) {
-                  updated = current.filter((c) => c !== clr.slug) // kaldır
+                  updated = current.filter((c) => c !== clr.color_code) // kaldır
                 } else {
-                  updated = [...current, clr.slug] // ekle
+                  updated = [...current, clr.color_code] // ekle
                 }
                 updateFilter("color", updated.join(","))
               }
 
               return (
                 <div
-                  key={clr.slug}
+                  key={clr.color_code}
                   onClick={toggleColor}
                   className={`flex flex-col items-center cursor-pointer`}
                 >
@@ -179,7 +179,7 @@ export default function CategoryFilter({ isOpen }: { isOpen: boolean, handleOpen
                   >
                     {selected && <span className="w-3 h-3 bg-white rounded-full" />}
                   </span>
-                  <span className="text-xs mt-1">{clr.value}</span>
+                  <span className="text-xs mt-1">{clr.color_name}</span>
                 </div>
               )
             })}

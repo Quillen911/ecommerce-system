@@ -1,5 +1,20 @@
 import { Category } from "./category"
 
+export interface Product {
+    id: number
+    store_id: number
+    title: string
+    slug: string
+    category: Category
+    description: string
+    meta_title: string
+    meta_description: string
+    is_published: boolean
+    variants: ProductVariant[]
+    created_at: string
+    updated_at: string
+}
+
 export interface ProductVariantImage {
     id: number
     product_variant_id: number
@@ -8,47 +23,50 @@ export interface ProductVariantImage {
     sort_order: number
 }
 
-export interface ProductVariantAttribute {
-    id: number
-    attribute_id: number
-    code: string
-    name: string
-    value: string
-    slug: string
-}
 
 export interface ProductVariant {
     id: number
     product_id: number
     sku: string
     slug: string
-    price: number
+    color_name: string
+    color_code: string
     price_cents: number
-    stock_quantity: number
-    sold_quantity: number
     is_popular: boolean
     is_active: boolean
     images: ProductVariantImage[]
-    attributes: ProductVariantAttribute[]
+    sizes: VariantSize[]
 }
 
-export interface Product {
+export interface VariantSize {
     id: number
-    store_id: number
-    title: string
-    category_id: number
-    category: Category
-    description: string
-    meta_title: string
-    meta_description: string
-    total_sold_quantity: number
-    is_published: boolean
-    variants: ProductVariant[]
-    selected_variant_id?: number
-    created_at: string
-    updated_at: string
+    product_variant_id: number
+    size_option_id: number
+    size_option: AttributeOption
+    sku: string
+    price_cents: number
+    is_active: boolean
+    inventory: VariantInventory
 }
 
+export interface AttributeOption {
+    id: number
+    attribute_id: number
+    value: string
+    slug: string
+}
+
+export interface VariantInventory {
+    id: number
+    variant_size_id: number
+    warehouse_id: number
+    on_hand: number
+    reserved: number
+    available: number
+    min_stock_level: number
+}
+    
+    
 export interface StoreProductRequest {
     title: string
     category_id?: number | null

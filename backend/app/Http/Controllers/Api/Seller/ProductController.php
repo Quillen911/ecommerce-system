@@ -109,6 +109,7 @@ class ProductController extends Controller
     {
         return [
             'category.parent',
+            'category.gender',
             'variants.variantAttributes.attribute',
             'variants.variantImages',
             'variants.variantAttributes.option',

@@ -8,4 +8,5 @@ interface ProductVariantRepositoryInterface extends BaseRepositoryInterface
 {
     public function getProductVariantById($productVariantId);
     public function getProductVariantBySlug($slug);
+    public function getPopularAllVariants();
 }

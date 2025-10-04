@@ -18,10 +18,11 @@ class ReindexProducts extends Command
         $indexer = app(ProductIndexerService::class);
     
         Product::with([
-            'category',
+            'category.parent',
+            'category.gender',
             'variants.variantImages',
-            'variants.variantAttributes.attribute',
-            'variants.variantAttributes.option'
+            'variants.variantSizes.sizeOption',
+            'variants.variantSizes.inventory'
         ])->chunk(100, function ($products) use ($service, $indexer) {
             foreach ($products as $product) {
                 $data = $indexer->prepare($product);

@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class BaseApiRequest extends FormRequest
+class BagStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,7 +15,11 @@ class BaseApiRequest extends FormRequest
 
     public function rules(): array
     {
-        return [ 'product_id' => 'required|exists:products,id' ];
+        return [ 
+            'product_id' => 'required|exists:products,id',
+            'variant_size_id' => 'required|exists:variant_sizes,id',
+            'quantity' => 'required|integer|min:1',
+        ];
     }
 
     protected function failedValidation(Validator $validator)

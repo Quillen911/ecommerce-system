@@ -1,4 +1,5 @@
-import { Category, Product } from "./main"
+import { Product, ProductVariant } from "./seller/product"
+import { Category } from "./seller/category"
 
 export interface SearchResponse {
   total: number
@@ -9,13 +10,18 @@ export interface SearchResponse {
 }
 
 export interface FilterResponse {
-  products: Product[]
+  products: ProductWithVariant[]
   filters: Record<string, any>
   categories: Category[]
-  cat: Category
   total: number
   pagination: {
     page: number
     size: number
   }
 }
+
+export interface ProductWithVariant {
+  variant: ProductVariant
+  product: Product
+}
+

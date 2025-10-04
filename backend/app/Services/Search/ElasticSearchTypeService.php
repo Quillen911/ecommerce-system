@@ -19,14 +19,11 @@ class ElasticSearchTypeService
         if($request->filled('max_price')){
             $filters['max_price'] = $request->input('max_price') ?? '';
         }
-        if($request->filled('store_id')){
-            $filters['store_id'] = $request->input('store_id') ?? '';
-        }
-        if($request->filled('age')){
-            $filters['age'] = $request->input('age') ?? '';
-        }
         if($request->filled('color')){
             $filters['color'] = $request->input('color') ?? '';
+        }
+        if($request->filled('sizes')){
+            $filters['sizes'] = $request->input('sizes') ?? '';
         }
         return $filters;
         

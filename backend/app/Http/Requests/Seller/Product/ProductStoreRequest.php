@@ -11,6 +11,26 @@ class ProductStoreRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $variants = $this->input('variants', []);
+    
+        foreach ($variants as $i => $variant) {
+            if (array_key_exists('is_popular', $variant)) {
+                $value = $variant['is_popular'];
+    
+                // Normalize
+                if (in_array($value, [true, 1, "1", "true", "on", "yes"], true)) {
+                    $variants[$i]['is_popular'] = true;
+                } else {
+                    $variants[$i]['is_popular'] = false;
+                }
+            }
+        }
+    
+        $this->merge(['variants' => $variants]);
+    }
+
     public function rules(): array
     {
         return [
@@ -54,6 +74,8 @@ class ProductStoreRequest extends FormRequest
             'variants.*.color_name.required' => 'Varyant renk adı zorunludur.',
             'variants.*.color_name.string' => 'Varyant renk adı metin olmalıdır.',
             'variants.*.color_name.max' => 'Varyant renk adı en fazla 255 karakter olmalıdır.',
+            'variants.*.is_popular.boolean' => 'Boolean olmalıdır.',
+
             'variants.*.sizes.required' => 'Varyant için en az bir beden eklenmelidir.',
             'variants.*.sizes.array' => 'Varyant bedenleri dizi olmalıdır.',
             'variants.*.sizes.*.size_option_id.required' => 'Beden seçimi zorunludur.',

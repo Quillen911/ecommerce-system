@@ -7,6 +7,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use App\Services\Search\ElasticsearchService;
 use App\Models\Product;
 use App\Services\Search\ProductIndexerService;
+use Illuminate\Support\Facades\Log;
 
 class IndexProductToElasticsearch implements ShouldQueue
 {
@@ -27,8 +28,8 @@ class IndexProductToElasticsearch implements ShouldQueue
         $product = Product::with([
             'category.parent', 
             'variants.variantImages', 
-            'variants.variantAttributes.attribute', 
-            'variants.variantAttributes.option'
+            'variants.variantSizes.sizeOption', 
+            'variants.variantSizes.inventory'
         ])->find($this->productId);
 
         if (!$product) {
@@ -43,7 +44,7 @@ class IndexProductToElasticsearch implements ShouldQueue
     
     public function failed(\Throwable $exception): void
     {
-        \Log::error('Elasticsearch indexing failed for product ID: ' . $this->productId, [
+        Log::error('Elasticsearch indexing failed for product ID: ' . $this->productId, [
             'error' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString()
         ]);

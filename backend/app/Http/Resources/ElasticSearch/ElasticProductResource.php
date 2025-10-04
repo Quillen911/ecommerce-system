@@ -12,21 +12,36 @@ class ElasticProductResource extends JsonResource
             'id' => $this['id'] ?? null,
             'store_id' => $this['store_id'] ?? null,
             'title' => $this['title'] ?? null,
-            'category_id' => $this['category_id'] ?? null,
+            'slug' => $this['slug'] ?? null,
+            'category' => isset($this['category']) ? [
+                'id' => $this['category']['id'] ?? null,
+                'title' => $this['category']['title'] ?? null,
+                'slug' => $this['category']['slug'] ?? null,
+                'gender_id' => $this['category']['gender_id'] ?? null,
+                'parent_id' => $this['category']['parent_id'] ?? null,
+                'gender' => isset($this['category']['gender']) ? [
+                    'id' => $this['category']['gender']['id'] ?? null,
+                    'title' => $this['category']['gender']['title'] ?? null,
+                    'slug' => $this['category']['gender']['slug'] ?? null,
+                ] : null,
+                'parent' => isset($this['category']['parent']) ? [
+                    'id' => $this['category']['parent']['id'] ?? null,
+                    'title' => $this['category']['parent']['title'] ?? null,
+                    'slug' => $this['category']['parent']['slug'] ?? null,
+                ] : null,
+            ] : null,
             'description' => $this['description'] ?? null,
             'meta_title' => $this['meta_title'] ?? null,
             'meta_description' => $this['meta_description'] ?? null,
-            'total_sold_quantity' => $this['total_sold_quantity'] ?? null,
             'is_published' => $this['is_published'] ?? null,
             'variants' => collect($this['variants'] ?? [])->map(function ($variant) {
                 return [
                     'id' => $variant['id'] ?? null,
                     'sku' => $variant['sku'] ?? null,
                     'slug' => $variant['slug'] ?? null,
-                    'price' => $variant['price'] ?? null,
                     'price_cents' => $variant['price_cents'] ?? null,
-                    'stock_quantity' => $variant['stock_quantity'] ?? null,
-                    'sold_quantity' => $variant['sold_quantity'] ?? null,
+                    'color_name' => $variant['color_name'] ?? null,
+                    'color_code' => $variant['color_code'] ?? null,
                     'is_popular' => $variant['is_popular'] ?? null,
                     'is_active' => $variant['is_active'] ?? null,
                     'images' => collect($variant['images'] ?? [])->map(function ($image) {
@@ -38,13 +53,29 @@ class ElasticProductResource extends JsonResource
                             'sort_order' => $image['sort_order'] ?? null,
                         ];
                     })->toArray(),
-                    'attributes' => collect($variant['attributes'] ?? [])->map(function ($attribute) {
+                    'sizes' => collect($variant['sizes'] ?? [])->map(function ($size) {
                         return [
-                            'attribute_id' => $attribute['attribute_id'] ?? null,
-                            'code' => $attribute['code'] ?? null,
-                            'name' => $attribute['name'] ?? null,
-                            'value' => $attribute['value'] ?? null,
-                            'slug' => $attribute['slug'] ?? null,
+                            'id' => $size['id'] ?? null,
+                            'product_variant_id' => $size['product_variant_id'] ?? null,
+                            'size_option_id' => $size['size_option_id'] ?? null,
+                            'size_option' => isset($size['size_option']) ? [
+                                'id' => $size['size_option']['id'] ?? null,
+                                'attribute_id' => $size['size_option']['attribute_id'] ?? null,
+                                'value' => $size['size_option']['value'] ?? null,
+                                'slug' => $size['size_option']['slug'] ?? null,
+                            ] : null,
+                            'sku' => $size['sku'] ?? null,
+                            'price_cents' => $size['price_cents'] ?? null,
+                            'is_active' => $size['is_active'] ?? null,
+                            'inventory' => isset($size['inventory']) ? [
+                                'id' => $size['inventory']['id'] ?? null,
+                                'variant_size_id' => $size['inventory']['variant_size_id'] ?? null,
+                                'warehouse_id' => $size['inventory']['warehouse_id'] ?? null,
+                                'on_hand' => $size['inventory']['on_hand'] ?? null,
+                                'reserved' => $size['inventory']['reserved'] ?? null,
+                                'available' => $size['inventory']['available'] ?? null,
+                                'min_stock_level' => $size['inventory']['min_stock_level'] ?? null,
+                            ] : null,
                         ];
                     })->toArray(),
                 ];
@@ -54,7 +85,6 @@ class ElasticProductResource extends JsonResource
 
             'category_title' => $this['category_title'] ?? null,
             'gender' => $this['gender'] ?? null,
-            'total_stock_quantity' => $this['total_stock_quantity'] ?? null,
         ];
     }
 }
