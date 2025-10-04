@@ -27,14 +27,14 @@ class ProductVariantImage extends Model
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 
-    public function getImageUrl()
+    public function getImageUrlAttribute()
     {
         return $this->image
             ? asset('storage/productImages/' . $this->image)
             : asset('images/no-image.png');
     }
 
-    public function setImage($value)
+    public function setImageAttribute($value)
     {
         if ($value instanceof UploadedFile) {
             $filePath = $value->store('productImages', 'public');

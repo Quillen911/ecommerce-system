@@ -10,8 +10,8 @@ class CategoryResource extends JsonResource
     {
         return [
             'id'       => $this->id,
-            'title'    => $this->category_title,
-            'slug'     => $this->category_slug,
+            'title'    => $this->title,
+            'slug'     => $this->slug,
             'parent_id'=> $this->parent_id,
             'parent'   => new CategoryResource($this->whenLoaded('parent')),
             'children' => CategoryResource::collection($this->whenLoaded('children')),

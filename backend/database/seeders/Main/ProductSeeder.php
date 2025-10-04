@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\VariantSize;
 use App\Models\Inventory;
-
+use App\Models\ProductCategory;
 class ProductSeeder extends Seeder
 {
     public function run(): void
@@ -99,17 +99,25 @@ class ProductSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Varyant 3 için bedenler (id=3)
-        $this->createVariantSizes(3, 'JEAN-KIZ-001-AMAV', 27900);
-        // Varyant 4 için bedenler (id=4)
-        $this->createVariantSizes(4, 'JEAN-KIZ-001-KMAV', 27900);
-        // Varyant 5 için bedenler (id=5)
-        $this->createVariantSizes(5, 'JEAN-KIZ-001-SYH', 27900);
+        ProductCategory::create([
+            'product_id' => $product1->id,
+            'category_id' => 1, // Erkek Çocuk (ana kategori)
+            'is_primary' => true,
+        ]);
+        
+        ProductCategory::create([
+            'product_id' => $product1->id,
+            'category_id' => 8, // erkek-cocuk-esofman-takim (alt kategori)
+        ]);
+        
+        ProductCategory::create([
+            'product_id' => $product1->id,
+            'category_id' => 5, // genel kategori: esofman-takim
+        ]);
     }
 
     private function createVariantSizes($variantId, $skuPrefix, $priceCents)
     {
-        // 6-16 yaş için attribute_option_id 1-11
         for ($i = 1; $i <= 11; $i++) {
             $variantSize = VariantSize::create([
                 'product_variant_id' => $variantId,

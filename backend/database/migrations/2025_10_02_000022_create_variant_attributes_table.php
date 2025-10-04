@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('value')->nullable();
             $table->timestamps();
 
-            $table->unique(['variant_id', 'attribute_id']);
         });
 
     }

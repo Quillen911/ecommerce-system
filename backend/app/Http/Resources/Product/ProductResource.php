@@ -4,6 +4,7 @@ namespace App\Http\Resources\Product;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Category\CategoryResource;
+use App\Http\Resources\Category\ProductCategoriesResource;
 
 class ProductResource extends JsonResource
 {
@@ -13,6 +14,7 @@ class ProductResource extends JsonResource
             'id'               => $this->id,
             'store_id'         => $this->store_id,
             'title'            => $this->title,
+            'slug'             => $this->slug,
             'category'         => new CategoryResource($this->whenLoaded('category')),
             'description'      => $this->description,
             'meta_title'       => $this->meta_title,

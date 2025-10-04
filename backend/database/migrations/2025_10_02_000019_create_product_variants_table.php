@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->string('sku')->unique();
             $table->string('slug')->unique();
-            $table->string('color_name')->nullable();
+            $table->string('color_name');
             $table->string('color_code')->nullable();
             $table->bigInteger('price_cents')->default(0);
             $table->boolean('is_popular')->default(false);

@@ -70,14 +70,14 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function categories()
+    public function productCategories()
     {
         return $this->belongsToMany(Category::class, 'product_categories', 'product_id', 'category_id')
             ->withPivot('is_primary')
             ->withTimestamps();
     }
 
-    public function primaryCategory()
+    public function primaryProductCategory()
     {
         return $this->belongsToMany(Category::class, 'product_categories', 'product_id', 'category_id')
             ->wherePivot('is_primary', true)
