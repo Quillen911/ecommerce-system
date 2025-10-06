@@ -21,4 +21,31 @@ class PaymentMethodRepository extends BaseRepository implements PaymentMethodRep
             ->where('is_active', true)
             ->first();
     }
+
+    public function createPaymentMethod(array $stored)
+    {
+        return $this->model->create($stored);
+    }
+
+    public function findByProviderToken($provider, $token)
+    {
+        return $this->model
+            ->where('provider', $provider)
+            ->where('provider_payment_method_id', $token)
+            ->first();
+    }
+
+    public function saveFromGateway(array $attributes)
+    {
+        return tap(
+            $this->model->updateOrCreate(
+                [
+                    'provider'                 => $attributes['provider'],
+                    'provider_payment_method_id' => $attributes['provider_payment_method_id'],
+                ],
+                $attributes
+            )
+        );
+    }
+    
 }

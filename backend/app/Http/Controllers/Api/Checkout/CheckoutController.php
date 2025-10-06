@@ -8,7 +8,7 @@ use App\Traits\GetUser;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Checkout\CheckoutSessionService;
-use App\Services\Checkout\CheckoutOrderService;
+use App\Services\Checkout\Orders\OrderPlacementService;
 
 use App\Http\Requests\Checkout\GetSessionRequest;
 use App\Http\Requests\Checkout\UpdateShippingRequest;
@@ -23,16 +23,19 @@ class CheckoutController extends Controller
     protected $bagService;
     protected $authenticationRepository;
     protected $checkoutSessionService;
+    protected $orderPlacementService;
 
     public function __construct(
         BagInterface $bagService, 
         AuthenticationRepositoryInterface $authenticationRepository,
         CheckoutSessionService $checkoutSessionService,
+        OrderPlacementService $orderPlacementService,
     )
     {
         $this->bagService = $bagService;
         $this->authenticationRepository = $authenticationRepository;
         $this->checkoutSessionService = $checkoutSessionService;
+        $this->orderPlacementService = $orderPlacementService;
     }
     
     public function createSession() {
@@ -90,8 +93,7 @@ class CheckoutController extends Controller
         $user = $this->getUser();
         
         $session = $this->checkoutSessionService->createPaymentIntent($user ,$request->validated());
-        $order = app(CheckoutOrderService::class)
-            ->createOrderFromSession($user, $session);
+
         return response()->json([
             'session_id'    => $session->id,
             'status'        => $session->status,
@@ -109,10 +111,8 @@ class CheckoutController extends Controller
                 'message' => 'Ödeme doğrulanamadı veya 3D işlemi başarısız.'
             ], 422);
         }
-        
-        //$order = app(\App\Services\Checkout\CheckoutOrderService::class)
-          //  ->createOrderFromSession($user, $session);
-
+        $user = $this->getUser();
+        $order = $this->orderPlacementService->placeFromSession($user, $session);
         return response()->json([
             'order_id'    => $order->id ?? 1,
             'order_number'=> $order->order_number ?? 1,

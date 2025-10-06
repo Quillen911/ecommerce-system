@@ -5,6 +5,7 @@ namespace App\Services\Checkout;
 use App\Repositories\Contracts\User\AddressesRepositoryInterface;
 use App\Repositories\Contracts\Payment\PaymentMethodRepositoryInterface;
 use App\Services\Checkout\CheckoutPaymentService;
+use App\Services\Checkout\Orders\OrderPlacementService;
 
 use App\Models\User;
 use App\Models\CheckoutSession;
@@ -21,6 +22,7 @@ class CheckoutSessionService
         private readonly AddressesRepositoryInterface $addressesRepository,
         private readonly PaymentMethodRepositoryInterface $paymentMethods,
         private readonly CheckoutPaymentService $checkoutPaymentService,
+        private readonly OrderPlacementService $orderPlacementService
     ) {
     }
 
@@ -87,7 +89,6 @@ class CheckoutSessionService
         if ($session->status === 'confirmed') {
             throw new \RuntimeException('Checkout oturumu zaten onaylandı.');
         }
-        $rememberCard = ($data['save_card'] ? true : false);
 
         if ($data['payment_method'] === 'saved_card') {
             $paymentMethod = $this->paymentMethods->getPaymentMethodForUser($user->id, $data['payment_method_id']);
@@ -99,7 +100,6 @@ class CheckoutSessionService
 
         } elseif ($data['payment_method'] === 'new_card') {
             $paymentMethod = $this->checkoutPaymentService->buildTemporaryMethodFromData($user, $data);
-
         } else {
             throw new \InvalidArgumentException('Desteklenmeyen ödeme yöntemi.');
 
@@ -137,6 +137,8 @@ class CheckoutSessionService
             $session->status = 'pending_3ds';
         } else {
             $session->status = 'confirmed';
+
+            $this->orderPlacementService->placeFromSession($user, $session);
         }
         $session->save();
 
@@ -234,4 +236,5 @@ class CheckoutSessionService
             ],
         ];
     }
+
 }

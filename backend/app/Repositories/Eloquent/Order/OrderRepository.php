@@ -12,23 +12,26 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     {
         $this->model = $model;
     }
-    public function getUserOrderById($userId, $id)
-    {
-        return $this->model->where('user_id', $userId)->find($id);
-    }
 
     public function getOrdersBySeller($sellerId)
     {
         return $this->model->where('seller_id', $sellerId)->get();
     }
-    public function getOrdersforUser($userId)
+
+    public function create(array $attributes): Order
+    {
+        return $this->model->create($attributes);
+    }
+    public function getOrdersforUser(int|string $id, $userId): Order
     {
         return $this->model->with('orderItems.product.category')->where('user_id', $userId)->orderByDesc('id')->get();
     }
 
-    public function getOneOrderforUser($userId, $id)
+    public function latest(): ?Order
     {
-        return $this->model->with('orderItems.product.category')->where('user_id', $userId)->where('id', $id)->first();
+        return $this->model->newQuery()
+            ->latest('id')
+            ->first();
     }
 
 }

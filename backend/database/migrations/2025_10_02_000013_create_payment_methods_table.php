@@ -17,9 +17,6 @@ return new class extends Migration {
 
             $table->string('brand')->nullable();
             $table->char('last4', 4)->nullable();
-            $table->char('exp_month', 2)->nullable();
-            $table->char('exp_year', 4)->nullable();
-            $table->string('card_holder_name')->nullable();
             $table->string('fingerprint')->nullable();
 
             $table->boolean('is_default')->default(false);

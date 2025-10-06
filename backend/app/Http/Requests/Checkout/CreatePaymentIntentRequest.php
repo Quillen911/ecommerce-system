@@ -17,8 +17,8 @@ class CreatePaymentIntentRequest extends FormRequest
         return [
             'session_id'        => ['required', 'uuid'],
             'payment_method'    => ['required', Rule::in(['saved_card', 'new_card', 'cash_on_delivery'])],
-            'provider'          => ['required_if:payment_method,new_card', Rule::in(['iyzico'])],
             'payment_method_id' => ['required_if:payment_method,saved_card', 'nullable', 'integer'],
+            'provider'          => ['required_if:payment_method,new_card', Rule::in(['iyzico'])],
             'card_alias'        => ['required_if:payment_method,new_card', 'nullable', 'string', 'max:191'],
             'card_number'       => ['required_if:payment_method,new_card', 'nullable', 'digits_between:12,19'],
             'card_holder_name'  => ['required_if:payment_method,new_card', 'nullable', 'string', 'max:191'],

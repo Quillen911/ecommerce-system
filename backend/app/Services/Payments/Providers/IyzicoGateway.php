@@ -122,11 +122,11 @@ class IyzicoGateway implements PaymentGatewayInterface
         $request->setShippingAddress($shippingAddress);
 
         $billingAddress = new Address();
-        $billingAddress->setContactName($shipping['first_name'] ?? 'Test');
-        $billingAddress->setCity($shipping['city'] ?? 'İstanbul');
-        $billingAddress->setCountry($shipping['country'] ?? 'Türkiye');
-        $billingAddress->setAddress($shipping['address_line_1'] ?? 'Adres');
-        $billingAddress->setZipCode($shipping['postal_code'] ?? '34000');
+        $billingAddress->setContactName($billing['first_name'] ?? 'Test');
+        $billingAddress->setCity($billing['city'] ?? 'İstanbul');
+        $billingAddress->setCountry($billing['country'] ?? 'Türkiye');
+        $billingAddress->setAddress($billing['address_line_1'] ?? 'Adres');
+        $billingAddress->setZipCode($billing['postal_code'] ?? '34000');
         $request->setBillingAddress($billingAddress);
 
         $basketItems = [];
@@ -177,6 +177,7 @@ class IyzicoGateway implements PaymentGatewayInterface
                 'conversation_id'        => $initialize->getConversationId(),
                 'payment_transaction_id' => $itemTransactions,
                 'amount_cents'           => $session->bag_snapshot['totals']['final_cents'],
+                'card'                   => null,
                 'currency'               => 'TRY',
                 'status'                 => $initialize->getStatus(),
                 'requires_3ds'           => true,
@@ -186,6 +187,12 @@ class IyzicoGateway implements PaymentGatewayInterface
         } else {
 
             $payment = Payment::create($request, $this->options);
+
+            $cardDetails = [
+                'type'        => $payment->getCardType(),        // CREDIT_CARD, DEBIT_CARD
+                'association' => $payment->getCardAssociation(), // VISA, MASTER_CARD
+                'family'      => $payment->getCardFamily(),      // Bonus, World vb.
+            ];
 
             if ($payment->getStatus() !== 'success') {
                 throw new \RuntimeException(
@@ -244,6 +251,12 @@ class IyzicoGateway implements PaymentGatewayInterface
         
 
         $payment = ThreedsPayment::create($request, $this->options);
+        
+        $cardDetails = [
+            'type'        => $payment->getCardType(),        // CREDIT_CARD, DEBIT_CARD
+            'association' => $payment->getCardAssociation(), // VISA, MASTER_CARD
+            'family'      => $payment->getCardFamily(),      // Bonus, World vb.
+        ];
 
 
         if ($payment->getStatus() !== 'success') {
@@ -258,33 +271,29 @@ class IyzicoGateway implements PaymentGatewayInterface
             'payment_id'              => $payment->getPaymentId(),
             'conversation_id'         => $payment->getConversationId(),
             'authorized_amount_cents' => $payment->getPaidPrice(),
+            'card'                    => $cardDetails,
             'currency'                => $payment->getCurrency(),
             'raw'                     => $payment->getRawResult(),
         ];
     }
 
-    public function storePaymentMethod(
-        User $user,
-        PaymentMethod $method,
-        array $gatewayPayload = []
-    ): PaymentMethod {
-        
+    public function storePaymentMethod(User $user, $method, array $payload): PaymentMethod 
+    {
         $request = new CreateCardRequest();
         $request->setLocale(Locale::TR);
         $request->setConversationId('card_' . $user->id . '_' . time());
-        $request->setEmail($method['email'] ?? 'test@test.com');
+        $request->setEmail($user->email);
         $request->setExternalId((string) $user->id);
 
         $cardInformation = new CardInformation();
-        $cardInformation->setCardAlias($method['card_alias'] ?? 'Kredi Kartım');
-        $cardInformation->setCardHolderName($method['card_holder_name']);
-        $cardInformation->setCardNumber($method['card_number']);
-        $cardInformation->setExpireMonth($method['expire_month']);
-        $cardInformation->setExpireYear($method['expire_year']);
+        $cardInformation->setCardAlias($payload['card_alias'] ?? 'Kredi Kartım');
+        $cardInformation->setCardHolderName($payload['card_holder_name']);
+        $cardInformation->setCardNumber($payload['card_number']);
+        $cardInformation->setExpireMonth($payload['expire_month']);
+        $cardInformation->setExpireYear($payload['expire_year']);
         $request->setCard($cardInformation);
 
         $card = Card::create($request, $this->options);
-
         if ($card->getStatus() !== 'success') {
             throw new \RuntimeException($card->getErrorMessage() ?: 'Kart kaydedilemedi.', $card->getErrorCode());
         }
@@ -292,7 +301,12 @@ class IyzicoGateway implements PaymentGatewayInterface
         $method->fill([
             'provider_customer_id'       => $card->getCardUserKey(),
             'provider_payment_method_id' => $card->getCardToken(),
-            'metadata'                  => null,
+            'metadata'               =>array_merge(
+                $method->metadata ?? [],
+                [
+                    'card_family' => $payload['card']['family'] ?? null
+                ] 
+            ),
         ])->save();
 
         return $method;

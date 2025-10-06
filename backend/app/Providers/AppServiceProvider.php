@@ -75,6 +75,13 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\Image\ProductVariantImageRepository::class
         );
 
+        $this->app->bind(
+            \App\Repositories\Contracts\Inventory\InventoryRepositoryInterface::class,
+            \App\Repositories\Eloquent\Inventory\InventoryRepository::class
+        );
+
+
+
         // Store Repository
         $this->app->bind(
             \App\Repositories\Contracts\Store\StoreRepositoryInterface::class,

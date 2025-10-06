@@ -3,6 +3,7 @@
 namespace App\Repositories\Eloquent\OrderItem;
 
 use App\Models\OrderItem;
+use Illuminate\Support\Collection;
 use App\Repositories\Eloquent\BaseRepository;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 
@@ -36,4 +37,20 @@ class OrderItemRepository extends BaseRepository implements OrderItemRepositoryI
                         })
                         ->get();
     }
+    public function create(array $attributes): OrderItem
+    {
+        return $this->model->newQuery()->create($attributes);
+    }
+
+    public function createMany(array $items): Collection
+    {
+        $created = collect();
+
+        foreach ($items as $item) {
+            $created->push($this->create($item));
+        }
+
+        return $created;
+    }
+
 }

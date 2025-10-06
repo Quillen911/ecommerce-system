@@ -6,8 +6,13 @@ use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\Payment\PaymentMethodRepositoryInterface;
 use App\Repositories\Eloquent\Payment\PaymentMethodRepository;
+
 use App\Repositories\Contracts\Payment\PaymentProviderRepositoryInterface;
 use App\Repositories\Eloquent\Payment\PaymentProviderRepository;
+
+use App\Repositories\Contracts\Payment\PaymentRepositoryInterface;
+use App\Repositories\Eloquent\Payment\PaymentRepository;
+
 
 class CheckoutServiceProvider extends ServiceProvider
 {
@@ -26,6 +31,11 @@ class CheckoutServiceProvider extends ServiceProvider
         $this->app->bind(
             PaymentProviderRepositoryInterface::class,
             PaymentProviderRepository::class
+        );
+
+        $this->app->bind(
+            PaymentRepositoryInterface::class,
+            PaymentRepository::class
         );
     }
 
