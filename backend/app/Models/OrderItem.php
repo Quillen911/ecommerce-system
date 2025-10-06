@@ -17,7 +17,6 @@ class OrderItem extends Model
         'product_id',
         'variant_size_id',
         'store_id',
-        'store_name',
         'product_title',
         'product_category_title',
         'selected_options',

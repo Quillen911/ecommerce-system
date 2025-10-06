@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\Main\ProductVariantImageSeeder::class,
             \Database\Seeders\Main\VariantAttributeSeeder::class,
             \Database\Seeders\Main\UserSeeder::class,
+
+            \Database\Seeders\PaymentProviders\Iyzico::class,
         ]);
     }
 }

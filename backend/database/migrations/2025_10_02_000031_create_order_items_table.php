@@ -15,7 +15,6 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('variant_size_id')->nullable();
             $table->unsignedBigInteger('store_id');
-            $table->string('store_name');
             $table->string('product_title')->nullable();
             $table->string('product_category_title')->nullable();
             $table->json('selected_options')->nullable();

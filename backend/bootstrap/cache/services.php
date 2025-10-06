@@ -39,8 +39,10 @@
     35 => 'App\\Providers\\MyOrderServiceProvider',
     36 => 'App\\Providers\\BagServiceProvider',
     37 => 'App\\Providers\\CampaignServiceProvider',
-    38 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
-    39 => 'App\\Providers\\AppServiceProvider',
+    38 => 'App\\Providers\\CheckoutServiceProvider',
+    39 => 'App\\Services\\Payments\\PaymentServiceProvider',
+    40 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
+    41 => 'App\\Providers\\AppServiceProvider',
   ),
   'eager' => 
   array (
@@ -68,8 +70,10 @@
     21 => 'App\\Providers\\MyOrderServiceProvider',
     22 => 'App\\Providers\\BagServiceProvider',
     23 => 'App\\Providers\\CampaignServiceProvider',
-    24 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
-    25 => 'App\\Providers\\AppServiceProvider',
+    24 => 'App\\Providers\\CheckoutServiceProvider',
+    25 => 'App\\Services\\Payments\\PaymentServiceProvider',
+    26 => 'VladimirYuldashev\\LaravelQueueRabbitMQ\\LaravelQueueRabbitMQServiceProvider',
+    27 => 'App\\Providers\\AppServiceProvider',
   ),
   'deferred' => 
   array (

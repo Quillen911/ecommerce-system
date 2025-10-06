@@ -8,7 +8,7 @@
     "require": {
         "php": "^8.2",
         "elasticsearch/elasticsearch": "^8.0",
-        "iyzico/iyzipay-php": "^2.0",
+        "iyzico/iyzipay-php": "^2.0.59",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.1",
         "laravel/tinker": "^2.10.1",

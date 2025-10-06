@@ -22,7 +22,7 @@ export default function BagPage() {
   const bagItems: BagItem[] = bag?.products || []
   
   const handleIncrease = (item: BagItem) => {
-    if (item.quantity < item.sizes.inventory.on_hand) {
+    if (item.quantity < item.sizes.inventory.available) {
       const toastId = toast.loading('Ürün güncelleniyor...')
       updateBag.mutate(
         { id: item.id, data: { quantity: item.quantity + 1 } },

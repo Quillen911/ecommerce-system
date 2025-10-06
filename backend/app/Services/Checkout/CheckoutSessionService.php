@@ -1,0 +1,200 @@
+<?php
+
+namespace App\Services\Checkout;
+
+use App\Repositories\Contracts\User\AddressesRepositoryInterface;
+use App\Repositories\Contracts\Payment\PaymentMethodRepositoryInterface;
+use App\Services\Checkout\CheckoutPaymentService;
+
+use App\Models\User;
+use App\Models\CheckoutSession;
+use App\Models\Payment;
+use App\Models\PaymentEvent;
+
+use Illuminate\Support\Str;
+
+
+class CheckoutSessionService
+{
+    public function __construct(
+        private readonly AddressesRepositoryInterface $addressesRepository,
+        private readonly PaymentMethodRepositoryInterface $paymentMethods,
+        private readonly CheckoutPaymentService $checkoutPaymentService,
+    ) {
+    }
+
+    public function createSession($user, array $bagData, array $data): CheckoutSession
+    {
+        $session = CheckoutSession::create([
+            'id' => (string) Str::uuid(),
+            'user_id' => $user->id,
+            'bag_id'         => optional($bagData['products']->first())->bag_id,
+            'bag_snapshot' => $this->prepareBagSnapshot($bagData),
+            'status' => 'pending',
+            'expires_at' => now()->addHours(1),
+        ]);
+
+        return $session;
+    }
+
+    public function getSession($user, $sessionId)
+    {
+        return $this->findSessionForUser($sessionId, $user->id);
+    }
+    
+    public function updateShipping($user, array $data): CheckoutSession
+    {
+
+        $session = $this->findSessionForUser($data['session_id'], $user->id);
+        $shippingAddress = $this->addressesRepository->getAddressById($data['shipping_address_id'], $user->id);
+        if (!$shippingAddress) {
+            throw new ModelNotFoundException('Teslimat adresi size ait değil.');
+        }
+        $billingAddress = null;
+        if (!empty($data['billing_address_id'])) {
+            $billingAddress = $this->addressesRepository->getAddressById($data['billing_address_id'], $user->id);
+
+            if (!$billingAddress) {
+                throw new ModelNotFoundException('Fatura adresi size ait değil.');
+            }
+        }
+
+        $session->shipping_data = [
+            'shipping_address_id' => $shippingAddress->id,
+            'delivery_method' => $data['delivery_method'],
+            'notes' => $data['notes'] ?? null,
+        ];
+
+        $session->billing_data = $billingAddress ? [
+            'billing_address_id' => $billingAddress->id,
+        ] : null;
+
+        $session->status = 'shipping_selected';
+        $session->save();
+
+        return $session->fresh();
+
+    }
+
+    public function createPaymentIntent(User $user, array $data): CheckoutSession
+    {
+        $session = $this->findSessionForUser($data['session_id'], $user->id);
+        $rememberCard = ($data['save_card'] ? true : false);
+
+        if ($data['payment_method'] === 'saved_card') {
+            $paymentMethod = $this->paymentMethods->getPaymentMethodForUser($user->id, $data['payment_method_id']);
+
+            if (! $paymentMethod) {
+                throw new ModelNotFoundException('Geçerli bir ödeme yöntemi bulunamadı.');
+
+            }
+
+        } elseif ($data['payment_method'] === 'new_card') {
+            $paymentMethod = $this->checkoutPaymentService->buildTemporaryMethodFromData($user, $data);
+
+        } else {
+            throw new \InvalidArgumentException('Desteklenmeyen ödeme yöntemi.');
+
+        }
+
+        $intent = $this->checkoutPaymentService->createPaymentIntent(
+            $user,
+            $session,
+            $paymentMethod,
+            $data
+        );
+
+
+        $paymentData = $session->payment_data ?? [];
+        $paymentData['provider']            = $intent['provider'];
+        $paymentData['method']              = $data['payment_method'];
+        $paymentData['payment_method_id']   = $paymentMethod->id ?? null;
+        $paymentData['installment']         = $data['installment'] ?? 1;
+        $paymentData['intent']              = $intent;
+        $paymentData['status']              = $intent['status'] ?? 'payment_pending';
+        $paymentData['save_card']           = (bool) ($data['save_card'] ?? false);
+        $paymentData['new_card_payload']    = ($paymentData['save_card'] && ! $paymentMethod->exists)
+            ? [
+                'card_holder_name' => $data['card_holder_name'] ?? null,
+                'card_number'      => $data['card_number']      ?? null,
+                'expire_month'     => $data['expire_month']     ?? null,
+                'expire_year'      => $data['expire_year']      ?? null,
+                'card_alias'       => $data['card_alias']       ?? null,
+                'email'            => $data['email']            ?? $user->email,
+            ]
+            : null;
+
+        $session->payment_data = $paymentData;
+        if (!empty($intent['three_ds_html'])) {
+            $session->status = 'confirmed';
+        } else {
+            $session->status = 'payment_pending';
+        }
+        $session->save();
+
+        return $session->fresh();
+    }
+
+    public function confirmPaymentIntent(CheckoutSession $session, array $data): CheckoutSession
+    {
+        $result  = $this->checkoutPaymentService->confirmPaymentIntent($session, $data);
+
+        $paymentData = $session->payment_data ?? [];
+        $paymentData['intent_result'] = $result;
+        $paymentData['status']        = $result['status'];
+
+        if (($paymentData['save_card'] ?? false) && ($paymentData['new_card_payload'] ?? null)) {
+            $payload = $paymentData['new_card_payload'];
+            $payload['result'] = $result;
+            $paymentData['new_card_payload'] = $payload;
+        }
+
+        $session->payment_data = $paymentData;
+        $session->status = 'confirmed';
+        $session->save();
+
+        return $session->fresh();
+    }
+
+    private function findSessionForUser($sessionId, $user)
+    {
+        $session = CheckoutSession::where('id', $sessionId)
+            ->where('user_id', $user)
+            ->first();
+
+        if (!$session) {
+            throw new ModelNotFoundException('Checkout oturumu bulunamadı.');
+        }
+
+        if ($session->expires_at && $session->expires_at->isPast()) {
+            throw new \RuntimeException('Checkout oturumunun süresi doldu.'); // 410 Gone gibi dönebilirsin
+        }
+
+        return $session;
+    }
+
+    private function prepareBagSnapshot(array $bagData): array
+    {
+        $items = $bagData['products']->map(function ($item) {
+            return [
+                'bag_item_id'        => $item->id,
+                'store_id'           => $item->store_id,
+                'variant_size_id'    => $item->variant_size_id,
+                'product_id'         => $item->variantSize->productVariant->product_id,
+                'product_title'      => $item->variantSize->productVariant->color_name . ' ' . $item->variantSize->productVariant->product->title,
+                'quantity'           => $item->quantity,
+                'unit_price_cents'   => $item->variantSize->price_cents,
+                'total_price_cents'  => $item->variantSize->price_cents * $item->quantity,
+            ];
+        })->toArray();
+
+        return [
+            'items'             => $items,
+            'totals' => [
+                'total_cents'       => $bagData['total_cents'],
+                'cargo_cents'       => $bagData['cargoPrice_cents'],
+                'final_cents'       => $bagData['finalPrice_cents'],
+            ],
+        ];
+    }
+}

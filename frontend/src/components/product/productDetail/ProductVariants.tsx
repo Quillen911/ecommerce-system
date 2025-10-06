@@ -18,7 +18,7 @@ interface VariantSummary {
     const handleVariantClick = (slug: string) => {
         router.push(`/product/${slug}`)
     }
-  
+  console.log(product)
     return (
       <div className="product-variants">
         <h2 className="text-md text-black mb-3 font-semibold font-sans">{product.variants[0].color_name}</h2>
