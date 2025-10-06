@@ -33,7 +33,7 @@ class CheckoutPaymentService
         return $gateway->processPayment($user, $session, $paymentMethod, $data);
     }
 
-    public function confirmPaymentIntent(User $user, CheckoutSession $session, array $payload): array
+    public function confirmPaymentIntent(CheckoutSession $session, array $payload): array
     {
         $provider = $this->resolveProvider($session->payment_data['provider'] ?? null);
 

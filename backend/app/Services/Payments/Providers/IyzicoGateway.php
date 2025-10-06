@@ -70,7 +70,7 @@ class IyzicoGateway implements PaymentGatewayInterface
         PaymentMethod $method,
         array $data
     ): array {
-
+        
         $request = new CreatePaymentRequest();
 
         $request->setLocale(Locale::TR);
@@ -91,6 +91,7 @@ class IyzicoGateway implements PaymentGatewayInterface
             $paymentCard->setExpireMonth($data['expire_month']);
             $paymentCard->setExpireYear($data['expire_year']);
             $paymentCard->setCvc($data['cvv']);
+            $paymentCard->setRegisterCard($data['save_card'] ? 1 : 0);
         }
         $request->setPaymentCard($paymentCard);
 
@@ -101,7 +102,7 @@ class IyzicoGateway implements PaymentGatewayInterface
         $buyer->setId((string) $user->id);
         $buyer->setName($user->first_name);
         $buyer->setSurname($user->last_name);
-        $buyer->setGsmNumber($user->phone);
+        $buyer->setGsmNumber('+90' . ltrim($user->phone, '0'));
         $buyer->setEmail($user->email);
         $buyer->setIdentityNumber('74300864791');
         $buyer->setLastLoginDate(now()->subDays(1)->format('Y-m-d H:i:s'));
@@ -143,57 +144,107 @@ class IyzicoGateway implements PaymentGatewayInterface
             $basketItem->setName($item['product_title']);
             $basketItem->setCategory1('Genel');
             $basketItem->setItemType(BasketItemType::PHYSICAL);
-            $basketItem->setPrice(number_format($price, 2, '.', ''));
+            $basketItem->setPrice(sprintf('%.2f', $price));
 
             $basketItems[] = $basketItem;
             $total += $price;
         }
 
         $request->setBasketItems($basketItems);
-        $request->setPrice(number_format($total, 2, '.', ''));
-        $request->setPaidPrice(number_format($total, 2, '.', ''));
+        $request->setPrice(sprintf('%.2f', $total));
+        $request->setPaidPrice(sprintf('%.2f', $total));
         $request->setCallbackUrl('https://nonseriately-uncoded-elba.ngrok-free.dev/api/proxy/iyzico-callback');
 
 
+        if (!empty($data['requires_3ds']) && $data['requires_3ds'] === true) {
+            $initialize = ThreedsInitialize::create($request, $this->options);
 
-        $initialize = ThreedsInitialize::create($request, $this->options);
+            if ($initialize->getStatus() !== 'success') {
+                throw new \RuntimeException(
+                    $initialize->getErrorMessage() ?? '3D ödeme isteği oluşturulamadı.',
+                    (int) $initialize->getErrorCode()
+                );
+            }
+            
+            $itemTransactions = [];
+            foreach ($initialize->getPaymentItems() as $item) {
+                $itemTransactions[$item->getItemId()] = $item->getPaymentTransactionId();
+            }
 
-        if ($initialize->getStatus() !== 'success') {
-            throw new \RuntimeException(
-                $initialize->getErrorMessage() ?? 'Ödeme isteği oluşturulamadı.',
-                (int) $initialize->getErrorCode()
-            );
+            return [
+                'provider'               => $this->provider->code,
+                'payment_id'             => $initialize->getPaymentId(),
+                'conversation_id'        => $initialize->getConversationId(),
+                'payment_transaction_id' => $itemTransactions,
+                'amount_cents'           => $session->bag_snapshot['totals']['final_cents'],
+                'currency'               => 'TRY',
+                'status'                 => $initialize->getStatus(),
+                'requires_3ds'           => true,
+                'three_ds_html'          => $initialize->getHtmlContent(),
+                'raw'                    => $initialize->getRawResult(),
+            ];
+        } else {
+
+            $payment = Payment::create($request, $this->options);
+
+            if ($payment->getStatus() !== 'success') {
+                throw new \RuntimeException(
+                    $payment->getErrorMessage() ?? 'Ödeme başarısız.',
+                    (int) $payment->getErrorCode()
+                );
+            }
+
+            $itemTransactions = [];
+            foreach ($payment->getPaymentItems() as $item) {
+                $itemTransactions[$item->getItemId()] = $item->getPaymentTransactionId();
+            }
+
+            return [
+                'provider'               => $this->provider->code,
+                'payment_id'             => $payment->getPaymentId(),
+                'conversation_id'        => $payment->getConversationId(),
+                'payment_transaction_id' => $itemTransactions,
+                'amount_cents'           => $session->bag_snapshot['totals']['final_cents'],
+                'currency'               => 'TRY',
+                'status'                 => $payment->getStatus(),
+                'requires_3ds'           => false,
+                'raw'                    => $payment->getRawResult(),
+            ];
         }
-
-        return [
-            'provider'          => $this->provider->code,
-            'payment_intent_id' => $initialize->getPaymentId(),
-            'conversation_id'   => $initialize->getConversationId(),
-            'amount_cents'      => $session->bag_snapshot['totals']['final_cents'],
-            'currency'          => 'TRY',
-            'status'            => $initialize->getStatus(),
-            'requires_3ds'      => true,
-            'three_ds_html'     => $initialize->getHtmlContent(),
-            'raw'               => $initialize->getRawResult(),
-        ];
     }
 
 
     public function confirmPayment(CheckoutSession $session, array $payload): array
     {
-        \Log::debug('Iyzico confirm payload', $payload);
-        if (($payload['mdStatus'] ?? null) !== '1') {
+        if (
+            isset($payload['smsVerified']) && $payload['smsVerified'] !== '1'
+            && ($payload['mdStatus'] ?? '0') !== '1'
+            && ($payload['status'] ?? '') !== 'success'
+        ) {
             throw new \RuntimeException('3D doğrulama başarısız.');
-
         }
+
 
         $request = new CreateThreedsPaymentRequest();
         $request->setLocale(Locale::TR);
-        $request->setConversationId($payload['conversation_id']);
-        $request->setPaymentId($payload['payment_intent_id']);
-        $request->setConversationData($payload['conversationData'] ?? null);
+        $conversationId = $payload['conversationId'] ?? ($session->payment_data['intent']['conversation_id'] ?? null);
+        $paymentId = $payload['paymentId'] ?? ($session->payment_data['intent']['payment_id'] ?? null);
+
+        if (!$paymentId || !$conversationId) {
+            throw new \RuntimeException('Hatalı Iyzico callback oturum bilgileri.');
+
+        }
+
+        $request->setConversationId($conversationId);
+        $request->setPaymentId($paymentId);
+
+        if (!empty($payload['conversationData'])) {
+            $request->setConversationData($payload['conversationData']);
+        }
+        
 
         $payment = ThreedsPayment::create($request, $this->options);
+
 
         if ($payment->getStatus() !== 'success') {
             throw new \RuntimeException(
@@ -201,11 +252,11 @@ class IyzicoGateway implements PaymentGatewayInterface
                 (int) $payment->getErrorCode()
             );
         }
-        \Log::debug('Iyzico confirm payload', $payload);
+
         return [
             'status'                  => 'authorized',
             'payment_id'              => $payment->getPaymentId(),
-            'conversation_id'         => $payload['conversation_id'],
+            'conversation_id'         => $payment->getConversationId(),
             'authorized_amount_cents' => $payment->getPaidPrice(),
             'currency'                => $payment->getCurrency(),
             'raw'                     => $payment->getRawResult(),
@@ -221,15 +272,15 @@ class IyzicoGateway implements PaymentGatewayInterface
         $request = new CreateCardRequest();
         $request->setLocale(Locale::TR);
         $request->setConversationId('card_' . $user->id . '_' . time());
-        $request->setEmail($cardData['email'] ?? 'test@test.com');
+        $request->setEmail($method['email'] ?? 'test@test.com');
         $request->setExternalId((string) $user->id);
 
         $cardInformation = new CardInformation();
-        $cardInformation->setCardAlias($cardData['card_alias'] ?? 'Kredi Kartım');
-        $cardInformation->setCardHolderName($cardData['card_holder_name']);
-        $cardInformation->setCardNumber($cardData['card_number']);
-        $cardInformation->setExpireMonth($cardData['expire_month']);
-        $cardInformation->setExpireYear($cardData['expire_year']);
+        $cardInformation->setCardAlias($method['card_alias'] ?? 'Kredi Kartım');
+        $cardInformation->setCardHolderName($method['card_holder_name']);
+        $cardInformation->setCardNumber($method['card_number']);
+        $cardInformation->setExpireMonth($method['expire_month']);
+        $cardInformation->setExpireYear($method['expire_year']);
         $request->setCard($cardInformation);
 
         $card = Card::create($request, $this->options);

@@ -47,6 +47,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Bag::class, 'bag_user_id');
     }
+
+    public function checkoutSessions()
+    {
+        return $this->hasMany(CheckoutSession::class, 'user_id');
+    }
     
     
     public function paymentMethods()

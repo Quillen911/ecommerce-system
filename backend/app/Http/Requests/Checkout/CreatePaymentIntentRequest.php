@@ -27,6 +27,7 @@ class CreatePaymentIntentRequest extends FormRequest
             'cvv'               => ['required_if:payment_method,new_card', 'nullable', 'digits_between:3,4'],
             'save_card'         => ['required_if:payment_method,new_card','nullable', 'boolean'],
             'installment'       => ['nullable', 'integer', 'min:1', 'max:12'],
+            'requires_3ds'       => ['required', 'boolean'],
         ];
     }
 

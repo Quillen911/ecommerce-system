@@ -18,6 +18,19 @@ class CheckoutSession extends Model
     public $incrementing = false;
 
     protected $guarded = [];
+    
+    protected $fillable = [
+        'id',
+        'user_id',
+        'bag_id',
+        'bag_snapshot',
+        'shipping_data',
+        'billing_data',
+        'payment_data',
+        'meta',
+        'status',
+        'expires_at',
+    ];
 
     protected $casts = [
         'bag_snapshot'  => 'array',
@@ -27,4 +40,9 @@ class CheckoutSession extends Model
         'meta'          => 'array',
         'expires_at'    => 'datetime',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

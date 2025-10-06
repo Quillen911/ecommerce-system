@@ -1,5 +1,9 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BagController;
@@ -39,19 +43,6 @@ Route::get('/search', [SearchController::class, 'search']);
 Route::get('/filter', [MainController::class, 'filter']);
 Route::get('/sorting', [MainController::class, 'sorting']);
 Route::get('/autocomplete', [MainController::class, 'autocomplete']);
-Route::post('proxy/iyzico-callback', function (Request $req) {
-    $client = new \GuzzleHttp\Client();
-    $client->post('https://nonseriately-uncoded-elba.ngrok-free.dev/api/checkout/confirm', [
-        'form_params' => $req->all(),
-        'headers' => [
-            'User-Agent' => 'curl/7.88.1', // ngrok warning atlaması için
-            'ngrok-skip-browser-warning' => 'true'
-        ]
-    ]);
-    return response()->json(['ok' => true]);
-});
-
-Route::post('checkout/confirm', [CheckoutController::class, 'confirmOrder'])->withoutMiddleware('auth:sanctum')->name('checkout.confirm');
 Route::middleware('auth:user')->group(function(){
 
     Route::apiResource('bags', BagController::class)->only(['index','store','show', 'update', 'destroy']);
@@ -114,3 +105,20 @@ Route::middleware('auth:seller')->group(function(){
     });
     
 });
+
+Route::post('proxy/iyzico-callback', function (Request $request) {
+    Log::debug('Iyzico mock callback received', $request->all());
+
+    $client = new \GuzzleHttp\Client();
+    $client->post('https://nonseriately-uncoded-elba.ngrok-free.dev/api/checkout/confirm', [
+        'form_params' => $request->all(),
+        'headers' => [
+            'User-Agent' => 'curl/7.88.1',
+            'ngrok-skip-browser-warning' => 'true'
+        ]
+    ]);
+
+    return response()->json(['received' => true]);
+});
+
+Route::post('checkout/confirm', [CheckoutController::class, 'confirmOrder'])->withoutMiddleware('auth:sanctum')->name('checkout.confirm');

@@ -8,10 +8,11 @@ use App\Services\Checkout\CheckoutPaymentService;
 
 use App\Models\User;
 use App\Models\CheckoutSession;
-use App\Models\Payment;
-use App\Models\PaymentEvent;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class CheckoutSessionService
@@ -23,7 +24,7 @@ class CheckoutSessionService
     ) {
     }
 
-    public function createSession($user, array $bagData, array $data): CheckoutSession
+    public function createSession($user, array $bagData): CheckoutSession
     {
         $session = CheckoutSession::create([
             'id' => (string) Str::uuid(),
@@ -46,6 +47,9 @@ class CheckoutSessionService
     {
 
         $session = $this->findSessionForUser($data['session_id'], $user->id);
+        if ($session->status === 'confirmed') {
+            throw new \RuntimeException('Checkout oturumu zaten onaylandı.');
+        }
         $shippingAddress = $this->addressesRepository->getAddressById($data['shipping_address_id'], $user->id);
         if (!$shippingAddress) {
             throw new ModelNotFoundException('Teslimat adresi size ait değil.');
@@ -79,6 +83,10 @@ class CheckoutSessionService
     public function createPaymentIntent(User $user, array $data): CheckoutSession
     {
         $session = $this->findSessionForUser($data['session_id'], $user->id);
+
+        if ($session->status === 'confirmed') {
+            throw new \RuntimeException('Checkout oturumu zaten onaylandı.');
+        }
         $rememberCard = ($data['save_card'] ? true : false);
 
         if ($data['payment_method'] === 'saved_card') {
@@ -125,18 +133,47 @@ class CheckoutSessionService
             : null;
 
         $session->payment_data = $paymentData;
-        if (!empty($intent['three_ds_html'])) {
-            $session->status = 'confirmed';
+        if (!empty($intent['requires_3ds'])) {
+            $session->status = 'pending_3ds';
         } else {
-            $session->status = 'payment_pending';
+            $session->status = 'confirmed';
         }
         $session->save();
 
         return $session->fresh();
     }
 
-    public function confirmPaymentIntent(CheckoutSession $session, array $data): CheckoutSession
+    public function confirmPaymentIntent(array $data): CheckoutSession
     {
+        $session = null;
+
+        if (!empty($data['conversationId'])) {
+            preg_match('/session_([a-zA-Z0-9\-]+)_/', $data['conversationId'], $matches);
+            if ($sessionId = $matches[1] ?? null) {
+                $session = CheckoutSession::find($sessionId);
+            }
+        }
+
+        if (!$session && !empty($data['paymentId'])) {
+            $session = CheckoutSession::where(
+                'payment_data->intent->payment_id',
+                $data['paymentId']
+            )->first();
+        }
+
+        if (!$session && config('app.env') !== 'production') {
+            $session = CheckoutSession::where('status', 'confirmed')
+                ->where('payment_data->provider', 'iyzico')
+                ->latest()
+                ->first();
+                
+            Log::warning('MOCK MODE: Using latest session');
+        }
+
+        if (!$session) {
+            throw new \RuntimeException("Checkout oturumu bulunamadı");
+        }
+
         $result  = $this->checkoutPaymentService->confirmPaymentIntent($session, $data);
 
         $paymentData = $session->payment_data ?? [];

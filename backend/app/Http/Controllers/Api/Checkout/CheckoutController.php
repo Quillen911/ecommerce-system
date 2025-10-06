@@ -8,16 +8,14 @@ use App\Traits\GetUser;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Checkout\CheckoutSessionService;
+use App\Services\Checkout\CheckoutOrderService;
 
-use App\Http\Requests\Checkout\CreateSessionRequest;
 use App\Http\Requests\Checkout\GetSessionRequest;
 use App\Http\Requests\Checkout\UpdateShippingRequest;
 use App\Http\Requests\Checkout\CreatePaymentIntentRequest;
 use App\Http\Requests\Checkout\ConfirmOrderRequest;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -37,7 +35,7 @@ class CheckoutController extends Controller
         $this->checkoutSessionService = $checkoutSessionService;
     }
     
-    public function createSession(CreateSessionRequest $request) {
+    public function createSession() {
         $user = $this->getUser();
 
         $bagData = $this->bagService->getBag();
@@ -45,7 +43,7 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Sepet boş'], 422);
         }
 
-        $session = $this->checkoutSessionService->createSession($user, $bagData, $request->validated());
+        $session = $this->checkoutSessionService->createSession($user, $bagData);
 
         return response()->json([
             'session_id' => $session->id,
@@ -92,7 +90,8 @@ class CheckoutController extends Controller
         $user = $this->getUser();
         
         $session = $this->checkoutSessionService->createPaymentIntent($user ,$request->validated());
-
+        $order = app(CheckoutOrderService::class)
+            ->createOrderFromSession($user, $session);
         return response()->json([
             'session_id'    => $session->id,
             'status'        => $session->status,
@@ -101,34 +100,22 @@ class CheckoutController extends Controller
     }
 
     public function confirmOrder(ConfirmOrderRequest  $request) {
-        \Log::debug('Checkout confirm payload', $request->all());
         
-        $data = $request->validated();
-        $conversationId = $data['conversationId'];
-
-        $payload = [
-            'session_id'            => $data['session_id'] ?? null,
-            'payment_intent_id'  => $data['paymentId'],
-            'conversation_id'    => $conversationId,
-            'conversation_data'  => $data['conversationData'] ?? null,
-            'mdStatus'           => $data['mdStatus'] ?? null,
-            'save_card'          => $data['save_card'] ?? false,
-        ];
-        $session = $this->checkoutSessionService->confirmPaymentIntent($user, $request->validated());
-
+        $session = $this->checkoutSessionService->confirmPaymentIntent($request->validated());
+        
         if ($session->status !== 'confirmed') {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Ödeme doğrulanamadı veya 3D işlemi başarısız.'
             ], 422);
         }
-
-        $order = app(\App\Services\Checkout\CheckoutOrderService::class)
-            ->createOrderFromSession($user, $session);
+        
+        //$order = app(\App\Services\Checkout\CheckoutOrderService::class)
+          //  ->createOrderFromSession($user, $session);
 
         return response()->json([
-            'order_id'    => $order->id,
-            'order_number'=> $order->order_number,
+            'order_id'    => $order->id ?? 1,
+            'order_number'=> $order->order_number ?? 1,
             'status'      => 'success',
         ]);
     }

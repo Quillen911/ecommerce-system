@@ -8,26 +8,26 @@ class ConfirmOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // auth middleware zaten kontrol ediyor
+        return true;
     }
 
     public function rules(): array
     {
+        // iyzico mock veya gerçek 3D callback yapısına göre
         return [
-            'status'           => ['required', 'string'],
-            'paymentId'        => ['required', 'string'],
-            'conversationId'   => ['required', 'string'],
-            'mdStatus'         => ['nullable', 'string'],
-            'conversationData' => ['nullable', 'string'],
+            'orderId'     => ['required', 'string'],
+            'bin'         => ['nullable', 'string'],
+            'PaReq'       => ['nullable', 'string'],
+            'smsVerified' => ['nullable', 'string'],
+            'Xid'         => ['nullable', 'string'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'session_id.required'        => 'Checkout oturumu belirtilmelidir.',
-            'session_id.uuid'            => 'Geçersiz session id formatı.',
-            'payment_intent_id.required' => 'Ödeme bilgisi eksik.',
+            'orderId.required' => 'orderId (sipariş kimliği) zorunludur.',
         ];
     }
+
 }

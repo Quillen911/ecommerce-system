@@ -13,14 +13,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 use App\Services\Checkout\CheckoutSessionService;
-use App\Services\Checkout\Payments\Providers\IyzicoGateway;
+use App\Services\Payments\Contracts\PaymentGatewayInterface;
 
 class CheckoutOrderService
 {
     
     public function __construct(
         private readonly CheckoutSessionService $checkoutSessionService,
-        private readonly IyzicoGateway $iyzicoGateway,
     ) {
     }
 
@@ -37,10 +36,14 @@ class CheckoutOrderService
                 'bag_id'                  => $session->bag_id,
                 'user_shipping_address_id'=> $ship['shipping_address_id'],
                 'user_billing_address_id' => $bill['billing_address_id'] ?? $ship['shipping_address_id'],
+                'campaign_id'             => null,
+                'campaign_info'           => null,
                 'order_number'            => Str::upper(Str::random(10)),
                 'subtotal_cents'          => $bag['totals']['total_cents'],
                 'discount_cents'          => $bag['totals']['discount_cents'] ?? 0,
+                'tax_total_cents'         => $bag['totals']['tax_total_cents'] ?? 0,
                 'cargo_price_cents'       => $bag['totals']['cargo_cents'],
+                'campaign_price_cents'    => $bag['totals']['campaign_price_cents'] ?? 0,
                 'grand_total_cents'       => $bag['totals']['final_cents'],
                 'currency'                => 'TRY',
                 'status'                  => 'pending',
@@ -49,21 +52,25 @@ class CheckoutOrderService
             foreach ($bag['items'] as $item) {
                 OrderItem::create([
                     'order_id'               => $order->id,
-                    'store_id'               => $item['store_id'],
                     'product_id'             => $item['product_id'],
                     'variant_size_id'        => $item['variant_size_id'],
-                    'quantity'               => $item['quantity'],
-                    'price_cents'            => $item['unit_price_cents'],
-                    'paid_price_cents'       => $item['total_price_cents'],
+                    'store_id'               => $item['store_id'],
                     'product_title'          => $item['product_title'],
                     'product_category_title' => $item['category_title'] ?? null,
+                    'quantity'               => $item['quantity'],
+                    'price_cents'            => $item['unit_price_cents'],
+                    'discount_price_cents'   => $item['discount_price_cents'] ?? 0,
+                    'paid_price_cents'       => $item['total_price_cents'],
+                    'tax_rate'               => $item['tax_rate'] ?? 0,
+                    'tax_amount_cents'       => $item['tax_amount_cents'] ?? 0,
+                    'payment_transaction_id' => $item['payment_data']['intent']['payment_transaction_id'],
                     'status'                 => 'pending',
                     'payment_status'         => 'paid',
                 ]);
             }
 
-            if (! empty($pay['intent_result'])) {
-                $result = $pay['intent_result'];
+            if (! empty($pay['intent'])) {
+                $result = $pay['intent'];
 
                 $payment = Payment::create([
                     'order_id'                => $order->id,
@@ -86,7 +93,9 @@ class CheckoutOrderService
                 ]);
 
                 if (($pay['save_card'] ?? false) && ($pay['new_card_payload'] ?? null)) {
-                    $storedMethod = $this->iyzicoGateway->storePaymentMethod(
+
+                    $storedMethod = app(PaymentGatewayInterface::class, ['provider' => $provider])->storePaymentMethod(
+                        
                         $user,
                         new PaymentMethod([
                             'provider' => $pay['provider'],
@@ -103,9 +112,6 @@ class CheckoutOrderService
                     $session->save();
                 }
             }
-
-            $session->status = 'confirmed';
-            $session->save();
 
             return $order;
         });

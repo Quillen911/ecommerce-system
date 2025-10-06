@@ -16,14 +16,13 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('bag_id')->nullable()->constrained()->nullOnDelete();
 
-
             $table->json('bag_snapshot')->nullable();      // sepetin o anki görüntüsü (ürünler, fiyatlar)
             $table->json('shipping_data')->nullable();     // seçilen adres, kargo servisi, tahmini teslim
             $table->json('billing_data')->nullable();      // fatura adresi, vergi bilgileri
             $table->json('payment_data')->nullable();      // seçilen payment_method, intent id, taksit
             $table->json('meta')->nullable();              // kupon, notlar, KVKK onayı vb.
 
-            $table->enum('status', ['pending','shipping_selected','payment_pending','confirmed','cancelled','expired'])
+            $table->enum('status', ['pending','shipping_selected','payment_pending','pending_3ds','confirmed','cancelled','expired'])
                 ->default('pending');
 
             $table->timestamp('expires_at')->nullable();   // 15-30 dk gibi TTL
