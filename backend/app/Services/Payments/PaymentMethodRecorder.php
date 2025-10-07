@@ -40,7 +40,6 @@ class PaymentMethodRecorder
             'type'             => 'card',
             'brand'            => $raw['cardAssociation'] ?? null,
             'last4'            => substr($payload['new_card_payload']['card_number'] ?? '', -4),
-            'card_holder_name' => $payload['new_card_payload']['card_holder_name'] ?? null,
             'metadata' => [
                 'card_family' => $raw['cardFamily'] ?? null,
                 'card_type'   => $raw['cardType'] ?? null,

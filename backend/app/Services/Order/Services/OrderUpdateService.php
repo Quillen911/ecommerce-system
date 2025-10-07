@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\MyOrder\Services;
+namespace App\Services\Order\Services;
 
-use App\Services\MyOrder\Contracts\MyOrderUpdateInterface;
+use App\Services\Order\Contracts\OrderUpdateInterface;
 use App\Services\Campaigns\CampaignManager;
 use App\Models\Campaign;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
-class MyOrderUpdateService implements MyOrderUpdateInterface
+class OrderUpdateService implements OrderUpdateInterface
 {
     protected $productRepository;
 

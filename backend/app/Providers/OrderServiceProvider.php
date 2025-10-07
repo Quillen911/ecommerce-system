@@ -3,37 +3,30 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\Order\Contracts\CalculationInterface;
-use App\Services\Order\Contracts\PaymentInterface;
-use App\Services\Order\Contracts\InventoryInterface;
-use App\Services\Order\Services\CalculationService;
-use App\Services\Order\Services\PaymentService;
-use App\Services\Order\Services\InventoryService;
-use App\Services\Order\Contracts\OrderServiceInterface;
+use App\Services\Order\Contracts\OrderInterface;
+use App\Services\Order\Contracts\OrderRefundInterface;
+use App\Services\Order\Contracts\OrderCheckInterface;
+use App\Services\Order\Contracts\OrderCalculationInterface;
+use App\Services\Order\Contracts\OrderUpdateInterface;
 use App\Services\Order\Services\OrderService;
-use App\Services\Order\Contracts\OrderCreationInterface;
-use App\Services\Order\Services\OrderCreationService;
-use App\Services\Shipping\Contracts\ShippingServiceInterface;
-use App\Services\Shipping\Services\MNGService;
+use App\Services\Order\Services\OrderRefundService;
+use App\Services\Order\Services\OrderCheckService;
+use App\Services\Order\Services\OrderCalculationService;
+use App\Services\Order\Services\OrderUpdateService;
 
 class OrderServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->bind(OrderCreationInterface::class, OrderCreationService::class);
-        $this->app->bind(OrderServiceInterface::class, OrderService::class);
-        $this->app->bind(CalculationInterface::class, CalculationService::class);
-        $this->app->bind(PaymentInterface::class, PaymentService::class);
-        $this->app->bind(InventoryInterface::class, InventoryService::class);
-        $this->app->bind(ShippingServiceInterface::class, MNGService::class);
-
-        $this->app->singleton(OrderService::class);
+        $this->app->bind(OrderInterface::class, OrderService::class);
+        $this->app->bind(OrderRefundInterface::class, OrderRefundService::class);
+        $this->app->bind(OrderCheckInterface::class, OrderCheckService::class);
+        $this->app->bind(OrderCalculationInterface::class, OrderCalculationService::class);
+        $this->app->bind(OrderUpdateInterface::class, OrderUpdateService::class);
     }
 
     public function boot()
     {
-        $this->publishes([
-            __DIR__.'/../config/order.php' => config_path('order.php'),
-        ], 'order-config');
+        //
     }
 }

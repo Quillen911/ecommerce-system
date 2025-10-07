@@ -26,12 +26,12 @@ class OrderItem extends Model
         'refunded_quantity',
         'price_cents',
         'discount_price_cents',
+        'refunded_price_cents',
         'paid_price_cents',
         'tax_rate',
         'tax_amount_cents',
         'payment_transaction_id',
         'status',
-        'refunded_price_cents',
         'payment_status',
         'refunded_at',
     ];

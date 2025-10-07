@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\MyOrder\Contracts;
+namespace App\Services\Order\Contracts;
 
-interface MyOrderCheckInterface
+interface OrderCheckInterface
 {
     public function checkOrder($orderId): array;
 

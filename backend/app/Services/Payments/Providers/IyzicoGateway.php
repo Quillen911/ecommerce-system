@@ -157,6 +157,7 @@ class IyzicoGateway implements PaymentGatewayInterface
 
 
         if (!empty($data['requires_3ds']) && $data['requires_3ds'] === true) {
+            
             $initialize = ThreedsInitialize::create($request, $this->options);
 
             if ($initialize->getStatus() !== 'success') {

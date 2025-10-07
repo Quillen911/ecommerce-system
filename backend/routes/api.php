@@ -5,11 +5,11 @@ use Illuminate\Support\Facades\Log;
 
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BagController;
-use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\Order\OrderController;
 use App\Http\Controllers\Api\MainController;
-use App\Http\Controllers\Api\MyOrdersController;
 use App\Http\Controllers\Api\Seller\CampaignController;
 use App\Http\Controllers\Api\Seller\ProductController;
 use App\Http\Controllers\Api\Seller\CategoryController;
@@ -57,10 +57,9 @@ Route::middleware('auth:user')->group(function(){
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);   
     
-    Route::apiResource('myorders', MyOrdersController::class)->only(['index','show','destroy']);
     Route::apiResource('creditcard', CreditCardController::class);
     
-    Route::post('/myorders/{id}/refund', [MyOrdersController::class, 'refundItems']);
+   // Route::post('/myorders/{id}/refund', [MyOrdersController::class, 'refundItems']);
 
 
     Route::get('/me', [AuthController::class, 'me']);

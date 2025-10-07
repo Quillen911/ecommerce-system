@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\MyOrder\Services;
+namespace App\Services\Order\Services;
 
-use App\Services\MyOrder\Contracts\MyOrderCheckInterface;
+use App\Services\Order\Contracts\OrderCheckInterface;
 use App\Repositories\Contracts\Order\OrderRepositoryInterface;
 use App\Traits\GetUser;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
-class MyOrderCheckService implements MyOrderCheckInterface
+class OrderCheckService implements OrderCheckInterface
 {
     use GetUser;
     protected $orderRepository;

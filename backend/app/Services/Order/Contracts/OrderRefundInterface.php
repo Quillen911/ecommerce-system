@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\MyOrder\Contracts;
+namespace App\Services\Order\Contracts;
 
 use App\Services\Campaigns\CampaignManager;
 
-interface MyOrderRefundInterface
+interface OrderRefundInterface
 {
     public function refundSelectedItems($orderId, array $refundQuantitiesByItemId, CampaignManager $campaignManager): array;
 }

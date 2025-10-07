@@ -17,22 +17,24 @@ class PaymentMethod extends Model
         'type',
         'brand',
         'last4',
-        'exp_month',
-        'exp_year',
-        'card_holder_name',
         'fingerprint',
         'is_default',
         'is_active',
         'billing_address_id',
         'metadata',
     ];
-
     protected $casts = [
-        'is_default' => 'boolean',
-        'is_active' => 'boolean',
-        'metadata' => 'array',
+        'is_default'              => 'boolean',
+        'is_active'               => 'boolean',
+        'metadata'                => 'array',
+        'provider_customer_id'    => 'encrypted',
+        'provider_payment_method_id' => 'encrypted',
     ];
-    
+
+    protected $hidden = [
+        'provider_customer_id',
+        'provider_payment_method_id',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

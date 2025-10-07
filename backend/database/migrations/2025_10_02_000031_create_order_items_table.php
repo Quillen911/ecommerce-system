@@ -24,12 +24,12 @@ return new class extends Migration
             $table->integer('refunded_quantity')->default(0);
             $table->bigInteger('price_cents')->default(0);
             $table->bigInteger('discount_price_cents')->default(0);
+            $table->bigInteger('refunded_price_cents')->default(0);
             $table->bigInteger('paid_price_cents')->default(0);
             $table->integer('tax_rate')->default(1800);
             $table->bigInteger('tax_amount_cents')->default(0);
             $table->string('payment_transaction_id')->nullable();
             $table->enum('status', ['pending','confirmed','shipped','delivered','refunded','Müşteri İade Etti','Satıcı İade Etti','Başarısız Ödeme']);
-            $table->bigInteger('refunded_price_cents')->default(0);
             $table->enum('payment_status', ['paid','partial_refunded','refunded','failed','canceled']);
             $table->timestamp('refunded_at')->nullable();
             $table->timestamps();

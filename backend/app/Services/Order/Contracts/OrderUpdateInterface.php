@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\MyOrder\Contracts;
+namespace App\Services\Order\Contracts;
 
 use App\Services\Campaigns\CampaignManager;
 
-interface MyOrderUpdateInterface
+interface OrderUpdateInterface
 {
     public function updateOrderItem($item, int $refundedAmountCents, int $refundedQuantity): void;
     public function updateProductStock($productId, $refundedQuantity): void;

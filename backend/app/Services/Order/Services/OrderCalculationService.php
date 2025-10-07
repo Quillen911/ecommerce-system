@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\MyOrder\Services;
+namespace App\Services\Order\Services;
 
-use App\Services\MyOrder\Contracts\MyOrderCalculationInterface;
+use App\Services\Order\Contracts\OrderCalculationInterface;
 use Illuminate\Support\Facades\Log;
 
-class MyOrderCalculationService implements MyOrderCalculationInterface
+class OrderCalculationService implements OrderCalculationInterface
 {
     
     public function calculateRefundableItems($items, array $refundQuantitiesByItemId): array

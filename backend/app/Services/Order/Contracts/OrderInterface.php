@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\MyOrder\Contracts;
+namespace App\Services\Order\Contracts;
 
-interface MyOrderInterface
+interface OrderInterface
 {
     public function getOrdersforUser();
     public function getOneOrderforUser($orderId);
