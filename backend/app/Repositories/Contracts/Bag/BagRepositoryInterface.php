@@ -8,4 +8,5 @@ interface BagRepositoryInterface extends BaseRepositoryInterface
 {
     public function getBag($user);
     public function createBag($user);
+    public function clearBagItems($bag);
 }

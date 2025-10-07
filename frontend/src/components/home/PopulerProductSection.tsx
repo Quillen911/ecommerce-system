@@ -21,7 +21,6 @@ export default function PopulerProductSection({ className }: PopulerProductSecti
   }
 
   const populerProductVariants = mainData?.products
-  console.log(populerProductVariants)
 
   if (isLoading) return <p>Yükleniyor...</p>
   if (error) return <p>Hata oluştu</p>

@@ -20,4 +20,9 @@ class BagRepository extends BaseRepository implements BagRepositoryInterface
     {
         return $this->model->firstOrCreate(['bag_user_id' => $user->id]);
     }
+    
+    public function clearBagItems($bag)
+    {
+        return $bag->bagItems()->delete();
+    }
 }

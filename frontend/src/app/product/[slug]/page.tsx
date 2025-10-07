@@ -14,7 +14,6 @@ export default function ProductDetailPage() {
 
   const product = response.data
   const selectedVariant = product.variants[0]
-
   if (!selectedVariant) return <p className="text-center text-xl text-red-500">Seçili varyant bulunamadı</p>
 
   return (

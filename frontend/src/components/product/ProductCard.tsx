@@ -24,7 +24,6 @@ export default function ProductCard({ product, variant }: ProductCardProps) {
   const handleProductDetail = (slug: string) => {
     router.push(`/product/${slug}`)
   }
-  console.log(product)
 
   return (
     <div className="p-4 cursor-pointer">

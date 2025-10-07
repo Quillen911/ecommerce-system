@@ -125,7 +125,8 @@ class BagService implements BagInterface
                     return false;
                 }
             }
-            if($item->variantSize->inventory->available == 0){
+
+            if($item->variantSize->inventory->available <= 0){
                 $item->delete();
                 return false;
             }
@@ -133,4 +134,5 @@ class BagService implements BagInterface
         });
         return $bagItems;
     }
+
 }

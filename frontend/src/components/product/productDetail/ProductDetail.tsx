@@ -40,13 +40,13 @@ const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) =>
 
         <ProductVariants product={product} variants={allVariants} />
 
-        <ProductAddtoBag variantSizeId={variant?.sizes?.[0]?.size_option_id} />
+        <ProductAddtoBag variantSizeId={selectedSizeId} />
 
           <div className="md:col-span-6 flex flex-row">
             <ProductSizeSelector
               product={product}
               variants={product.variants}
-              onSizeSelect={sizeId => setSelectedSizeId(sizeId)}
+              onSizeSelect={variantSizeId => setSelectedSizeId(variantSizeId)}
             />
         </div>
       </div>

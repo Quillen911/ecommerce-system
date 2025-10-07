@@ -31,4 +31,17 @@ class InventoryRepository extends BaseRepository implements InventoryRepositoryI
         $inventory->decrement('on_hand', $quantity);
         $inventory->decrement('available', $quantity);
     }
+
+    public function checkStock(int $variantSizeId, int $quantity): bool
+    {
+        $inventory = $this->model->where('variant_size_id', $variantSizeId)
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        if ($inventory->available < $quantity) {
+            return false;
+        }
+
+        return true;    
+    }
 }

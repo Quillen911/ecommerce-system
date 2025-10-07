@@ -60,6 +60,7 @@ export default function BagPage() {
       handleDestroy(item)
     }
   }
+  console.log(bagItems)
 
   const handleDestroy = (item: BagItem) => {
     const toastId = toast.loading('Ürün sepetten kaldırılıyor...')

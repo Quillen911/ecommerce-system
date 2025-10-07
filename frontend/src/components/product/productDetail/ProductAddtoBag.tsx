@@ -5,7 +5,7 @@ import { useCallback } from "react"
 import { toast } from "sonner"
 
 interface ProductAddtoBagProps {
-  variantSizeId: number
+  variantSizeId: number | null
 }
 
 export default function ProductAddtoBag({ variantSizeId }: ProductAddtoBagProps) {

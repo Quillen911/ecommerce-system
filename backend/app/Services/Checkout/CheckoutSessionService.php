@@ -6,6 +6,7 @@ use App\Repositories\Contracts\User\AddressesRepositoryInterface;
 use App\Repositories\Contracts\Payment\PaymentMethodRepositoryInterface;
 use App\Services\Checkout\CheckoutPaymentService;
 use App\Services\Checkout\Orders\OrderPlacementService;
+use App\Repositories\Contracts\Inventory\InventoryRepositoryInterface;
 
 use App\Models\User;
 use App\Models\CheckoutSession;
@@ -22,12 +23,18 @@ class CheckoutSessionService
         private readonly AddressesRepositoryInterface $addressesRepository,
         private readonly PaymentMethodRepositoryInterface $paymentMethods,
         private readonly CheckoutPaymentService $checkoutPaymentService,
-        private readonly OrderPlacementService $orderPlacementService
+        private readonly OrderPlacementService $orderPlacementService,
+        private readonly InventoryRepositoryInterface $inventories
+
     ) {
     }
 
     public function createSession($user, array $bagData): CheckoutSession
     {
+        $stock = $this->checkStock($bagData);
+        if ($stock === false) {
+            throw new \RuntimeException('Stoklar yetersiz. Lütfen sepeti kontrol ediniz.');
+        }
         $session = CheckoutSession::create([
             'id' => (string) Str::uuid(),
             'user_id' => $user->id,
@@ -235,6 +242,25 @@ class CheckoutSessionService
                 'final_cents'       => $bagData['finalPrice_cents'],
             ],
         ];
+    }
+
+    private function checkStock(array $bagData): bool
+    {
+       $items = $bagData['products']->map(function ($item) {
+            return [
+                'variant_size_id'    => $item->variant_size_id,
+                'quantity'           => $item->quantity,
+
+            ];
+        })->toArray(); 
+
+        foreach ($items as $item) {
+            if ($this->inventories->checkStock($item['variant_size_id'], $item['quantity']) === false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }
