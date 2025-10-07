@@ -9,6 +9,7 @@ class BagItem extends Model
 
     protected $fillable = [
         'bag_id',
+        'variant_id',
         'variant_size_id',
         'product_title',
         'quantity',

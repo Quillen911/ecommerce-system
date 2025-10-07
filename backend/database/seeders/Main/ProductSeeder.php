@@ -133,30 +133,7 @@ class ProductSeeder extends Seeder
         ]);
 
         // Product 1 için çoklu kategori ilişkileri
-        ProductCategory::create([
-            'product_id' => $product1->id,
-            'category_id' => 6, // erkek-cocuk-esofman-takim (spesifik)
-            'is_primary' => true,
-        ]);
-        
-        ProductCategory::create([
-            'product_id' => $product1->id,
-            'category_id' => 3, // esofman-takim (genel/parent)
-            'is_primary' => false,
-        ]);
-        
-        // Product 2 için çoklu kategori ilişkileri
-        ProductCategory::create([
-            'product_id' => $product2->id,
-            'category_id' => 7, // kiz-cocuk-jean (spesifik)
-            'is_primary' => true,
-        ]);
-        
-        ProductCategory::create([
-            'product_id' => $product2->id,
-            'category_id' => 1, // jean (genel/parent)
-            'is_primary' => false,
-        ]);
+
     }
 
     private function createVariantSizes($variantId, $skuPrefix, $priceCents)

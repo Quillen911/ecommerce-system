@@ -11,6 +11,7 @@ class BagResource extends JsonResource
         return [
             'id' => $this->id,
             'bag_id' => $this->bag_id,
+            'variant_id' => $this->variant_id,
             'variant_size_id' => $this->variant_size_id,
             'product_title' => $this->product_title,
             'quantity' => $this->quantity,
@@ -20,13 +21,13 @@ class BagResource extends JsonResource
             'updated_at' => $this->updated_at,
             'sizes' => $this->whenLoaded('variantSize', function () {
                 $variantSize = $this->variantSize->toArray();
-                
-                // Resimleri düzenle
-                if (isset($variantSize['variants']['images'])) {
-                    $variantSize['variants']['images'] = array_map(function ($image) {
+
+                if (isset($variantSize['product_variant']['variant_images'])) {
+                    $variantSize['product_variant']['variant_images'] = array_map(function ($image) {
                         $image['image_url'] = asset('storage/productImages/' . $image['image']);
+                        unset($image['image']);
                         return $image;
-                    }, $variantSize['variants']['images']);
+                    }, $variantSize['product_variant']['variant_images']);
                 }
                 
                 return $variantSize;

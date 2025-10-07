@@ -11,7 +11,6 @@ class StockService implements StockInterface
    public function checkStockAvailability($bag, $variantSizeId, $quantity = 1)
    {
       $stock = Inventory::where('variant_size_id', $variantSizeId)->first();
-
       $itemInTheBag = $bag->bagItems()->where('variant_size_id', $variantSizeId)->first();
       $currentQuantity = $itemInTheBag ? $itemInTheBag->quantity : 0;
 
@@ -37,7 +36,9 @@ class StockService implements StockInterface
          $itemInTheBag->save();
          return $itemInTheBag;
       } else {
+         $d = $stock->variantSize->productVariant->id;
          return $bag->bagItems()->create([
+            'variant_id' => $stock->variantSize->productVariant->id,
             'variant_size_id' => $variantSizeId,
             'product_title' => $stock->variantSize->productVariant->product->title,
             'quantity' => $quantity,

@@ -7,11 +7,13 @@ use App\Services\Order\Services\CalculationService;
 
 class BagCalculationService implements BagCalculationInterface
 {
-    protected $calculationService;
+    private $cargoThreshold;
+    protected $cargoPrice;
     
-    public function __construct( CalculationService $calculationService)
+    public function __construct()
     {
-        $this->calculationService = $calculationService;
+        $this->cargoThreshold = config('order.cargo.threshold');
+        $this->cargoPrice = config('order.cargo.price');
     }
 
     public function getBestCampaign($bagItems)
@@ -24,14 +26,14 @@ class BagCalculationService implements BagCalculationInterface
 
     public function calculateTotal($bagItems)
     {
-        $total = $this->calculationService->calculateTotal($bagItems);
-        return $total;
+        return $bagItems->sum(function($items) {
+            return $items->quantity * $items->unit_price_cents;
+        });
     }
 
     public function calculateCargoPrice($total)
     {
-        $cargoPrice = $this->calculationService->calculateCargoPrice($total);
-        return $cargoPrice;
+        return $total >= $this->cargoThreshold ? 0 : $this->cargoPrice;
     }
 
     public function calculateDiscount($bestCampaign)

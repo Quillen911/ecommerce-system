@@ -72,7 +72,9 @@ class BagService implements BagInterface
                 throw new \Exception('Sepet bulunamadı!');
             }
             $productItem = $this->stockService->checkStockAvailability($bag, $variantSizeId, $quantity);
-            return $this->stockService->reserveStock($productItem['itemInTheBag'], $productItem['stock'], $bag, $variantSizeId, $quantity);
+            
+            $a = $this->stockService->reserveStock($productItem['itemInTheBag'], $productItem['stock'], $bag, $variantSizeId, $quantity);
+            return $a;
         } catch (InsufficientStockException $e) {
             return ['error' => $e->getMessage()];
         }
