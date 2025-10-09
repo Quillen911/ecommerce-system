@@ -9,7 +9,13 @@ use App\Services\Order\Contracts\Refund\OrderUpdateInterface;
 use App\Services\Order\Services\Refund\RefundPlacementService;
 use App\Services\Payments\IyzicoPaymentService;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use App\Services\Order\Contracts\Refund\ReverseShipmentGatewayInterface;
+
 use App\Traits\GetUser;
+
+use App\Models\Order;
+use App\Models\OrderRefund;
+use Illuminate\Support\Facades\Log;
 
 
 class OrderRefundService implements OrderRefundInterface
@@ -21,7 +27,8 @@ class OrderRefundService implements OrderRefundInterface
         private OrderCheckInterface $orderCheckService,
         private OrderUpdateInterface $orderUpdateService,
         private RefundPlacementService $refundPlacementService,
-        private AuthenticationRepositoryInterface $authenticationRepository
+        private AuthenticationRepositoryInterface $authenticationRepository,
+        private ReverseShipmentGatewayInterface $reverseShipmentGateway
     ) {
     }
 
@@ -30,7 +37,7 @@ class OrderRefundService implements OrderRefundInterface
         $user = $this->getUser();
 
         if (! $user) {
-            throw new \Exception('Kullanıcı bulunamadı');
+            throw new \RuntimeException('Kullanıcı bulunamadı');
         }
 
         $orderModel   = $this->orderCheckService->checkOrder($order->id, $user->id);
@@ -42,45 +49,114 @@ class OrderRefundService implements OrderRefundInterface
 
         $items = $calculations['items'] ?? array_filter($calculations, 'is_array');
 
-        $refund = $this->refundPlacementService
-            ->placeRefund($payload, $items, $orderModel);
+        $refund = $this->refundPlacementService->placeRefund($payload, $items, $orderModel);
+
+        $this->requestReverseShipment($refund, $orderModel);
 
         return $refund;
     }
 
-
-    public function markShipping($order, $refund, array $payload)
+    public function handleShipmentWebhook(array $payload): void
     {
-        if ($refund->order_id !== $order->id) {
-            throw new \InvalidArgumentException('İade kaydı belirtilen siparişe ait değil.');
-        }
+        $refund = $this->resolveRefundByTracking($payload['tracking_number']);
+        match ($payload['status']) {
+            'PICKED_UP'  => $this->markPickup($refund, $payload),
+            'IN_TRANSIT' => $this->markInTransit($refund, $payload),
+            'DELIVERED'  => $this->markReceived($refund, $payload),
+            default      => Log::info('Shipment status ignored', $payload),
+        };
+    }
 
-        if ($refund->status !== 'requested') {
-            throw new \RuntimeException('Bu iade zaten kargo sürecine alınmış.');
-        }
+    public function handlePaymentWebhook(array $payload): void
+    {
+        $refund = $this->resolveRefundByPaymentReference($payload['reference']);
 
-        $refund->fill([
-            'status'            => 'awaiting_pickup',
-            'shipping_provider' => $payload['shipping_provider'] ?? $refund->shipping_provider,
-            'tracking_number'   => $payload['tracking_number'] ?? $refund->tracking_number,
-            'approved_at'       => $payload['approved_at'] ?? $refund->approved_at,
+        if ($payload['status'] === 'SUCCESS') {
+            $this->markCompleted($refund, $payload);
+        } else {
+            $this->markPaymentFailed($refund, $payload);
+        }
+    }
+
+    private function markPickup(OrderRefund $refund, array $payload): void
+    {
+        $refund->update([
+            'status'       => OrderRefund::STATUS_PICKED_UP,
+            'picked_up_at' => $payload['timestamp'] ?? now(),
         ]);
-
-        $refund->save();
-
-        return $refund->fresh();
     }
-    public function markReceived($order, $refund, array $payload)
-    {
 
+    private function markInTransit(OrderRefund $refund, array $payload): void
+    {
+        $refund->update([
+            'status'        => OrderRefund::STATUS_IN_TRANSIT,
+            'in_transit_at' => $payload['timestamp'] ?? now(),
+        ]);
     }
-    public function markCompleted($order, $refund, array $payload)
-    {
 
+    private function markReceived(OrderRefund $refund, array $payload)
+    {
+        $refund->update([
+            'status'          => OrderRefund::STATUS_RECEIVED,
+            'received_at'     => $payload['timestamp'] ?? now(),
+        ]);
     }
-    public function markRejected($order, $refund, array $payload)
+    public function markCompleted(OrderRefund $refund, array $payload)
     {
+        $refund->update([
+            'status'       => OrderRefund::STATUS_COMPLETED,
+            'refunded_at'  => $payload['timestamp'] ?? now(),
+            'payment_meta' => $payload,
+        ]);
+    }
+    public function markPaymentFailed(OrderRefund $refund, array $payload)
+    {
+        $refund->update([
+            'status'       => OrderRefund::STATUS_PAYMENT_FAILED,
+            'payment_meta' => $payload,
+        ]);
+    }
 
+
+    private function requestReverseShipment(OrderRefund $refund, Order $order): void
+    {
+        try {
+            $response = $this->reverseShipmentGateway->createReverseShipment([
+                'order_number' => $order->order_number,
+                'refund_id' => $refund->id,
+                'customer' => $order->user->only(['first_name', 'last_name', 'phone_number']),
+                'address'      => $order->shippingAddress?->toArray(),
+                'items'        => $refund->items->map(fn ($item) => [
+                    'order_item_id' => $item->order_item_id,
+                    'quantity'      => $item->quantity,
+                ])->all(),
+            ]);
+            
+            $refund->update([
+                'status'            => OrderRefund::STATUS_AWAITING_PICKUP,
+                'shipping_provider' => $response['provider'],
+                'tracking_number'   => $response['tracking_number'],
+                'label_url'         => $response['label_url'] ?? null,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Reverse shipment create failed', [
+                'refund_id' => $refund->id,
+                'error'     => $e->getMessage(),
+            ]);
+
+            $refund->update(['status' => OrderRefund::STATUS_SHIPMENT_FAILED]);
+        }
+    }
+
+    private function resolveRefundByTracking(string $trackingNumber): OrderRefund
+    {
+        return OrderRefund::where('tracking_number', $trackingNumber)->firstOrFail();
+    }
+
+    private function resolveRefundByPaymentReference(string $reference): OrderRefund
+    {
+        return OrderRefund::where('payment_reference', $reference)->firstOrFail();
     }
 
 

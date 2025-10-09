@@ -65,14 +65,13 @@ Route::middleware('auth:user')->group(function(){
     }); 
 
     Route::prefix('orders/{order}/refunds')->group(function () {
-        Route::get('/', [OrderRefundController::class, 'index']);        // opsiyonel listeleme
-        Route::post('/', [OrderRefundController::class, 'store']);       // iade talebini aç
+        Route::get('/', [OrderRefundController::class, 'index']);    
+        Route::post('/', [OrderRefundController::class, 'store']);     
     });
 
-    // Otomatik akış (kargo + ödeme sağlayıcısı webhookları)
     Route::prefix('refunds/webhooks')->group(function () {
-        Route::post('/shipment', [OrderRefundWebhookController::class, 'handleShipmentStatus']);
-        Route::post('/payment', [OrderRefundWebhookController::class, 'handlePaymentStatus']);
+        Route::post('/shipment', [OrderRefundWebhookController::class, 'handleShipmentStatus'])->middleware('verify.refund-webhook:shipment');
+        Route::post('/payment', [OrderRefundWebhookController::class, 'handlePaymentStatus'])->middleware('verify.refund-webhook:payment');
     });
     
     Route::apiResource('creditcard', CreditCardController::class);

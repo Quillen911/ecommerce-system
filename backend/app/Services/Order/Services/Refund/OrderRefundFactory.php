@@ -20,11 +20,7 @@ class OrderRefundFactory
             'status'            => $payload['status'] ?? 'requested',
             'reason'            => $payload['reason'],
             'customer_note'     => $payload['customer_note'] ?? null,
-            'shipping_provider' => $payload['shipping_provider'] ?? null,
-            'tracking_number'   => $payload['tracking_number'] ?? null,
-            'refund_total_cents'=> $payload['refund_total_cents'] ?? 0,
-            'approved_at'       => $payload['approved_at'] ?? null,
-            'rejected_at'       => $payload['rejected_at'] ?? null,
+            'refund_total_cents'=> $payload['refund_total_cents'],
         ]);
     }
 }

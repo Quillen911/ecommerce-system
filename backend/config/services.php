@@ -40,11 +40,15 @@ return [
         'base_url' => env('IYZICO_BASE_URL', 'https://sandbox-api.iyzipay.com'),
     ],
 
-    'mng' => [
-        'api_base' => env('MNG_TEST_API_BASE', 'https://testapi.mngkargo.com.tr/mngapi/api'),
-        'secret_key' => env('MNG_TEST_SECRET_KEY'),
-        'api_key' => env('MNG_TEST_API_KEY'),
-        'test_mode' => env('MNG_TEST_MODE', true), // Default olarak test modu aktif
+    'refund_webhooks' => [
+        'providers' => [
+            'shipment' => [
+                'secret' => env('REFUND_SHIPMENT_WEBHOOK_SECRET'),
+            ],
+            'payment' => [
+                'secret' => env('REFUND_PAYMENT_WEBHOOK_SECRET'),
+            ],
+        ],
     ],
 
     'slack' => [

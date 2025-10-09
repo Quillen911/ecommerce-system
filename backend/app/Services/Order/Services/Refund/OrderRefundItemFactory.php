@@ -16,6 +16,9 @@ class OrderRefundItemFactory
             if (! is_array($item) || empty($item['itemId'])) {
                 continue;
             }
+            if (!$item['canRefund']) {
+                continue;
+            }
 
             $this->orderRefundItemRepository->create([
                 'order_refund_id'     => $orderRefundId,

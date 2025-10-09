@@ -18,7 +18,6 @@ class Kernel extends HttpKernel
     protected $middlewareGroups = [
         'web' => [
             \App\Http\Middleware\SellerRedirect::class,
-            \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
@@ -41,6 +40,8 @@ class Kernel extends HttpKernel
         'DevelopmentOnly' => \App\Http\Middleware\DevelopmentOnly::class, 
         'register.limit' => \App\Http\Middleware\RegisterRateLimit::class,
         'login.limit' => \App\Http\Middleware\LoginRateLimit::class,
+        'verify.refund-webhook' => \App\Http\Middleware\Refund\VerifyWebhookSignature::class,
+
     ];
 
     protected $commands = [

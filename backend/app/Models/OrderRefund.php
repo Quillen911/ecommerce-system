@@ -23,6 +23,7 @@ class OrderRefund extends Model
         'status',
         'reason',
         'customer_note',
+        'payment_reference',
         'shipping_provider',
         'tracking_number',
         'refund_total_cents',

@@ -21,6 +21,7 @@ return new class extends Migration
             ])->default('requested');
             $table->string('reason')->nullable();
             $table->text('customer_note')->nullable();
+            $table->string('payment_reference')->nullable();
             $table->string('shipping_provider')->nullable();
             $table->string('tracking_number')->nullable();
             $table->bigInteger('refund_total_cents')->default(0);
