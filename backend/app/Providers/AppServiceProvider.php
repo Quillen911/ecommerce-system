@@ -100,6 +100,18 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\OrderItem\OrderItemRepository::class
         );
 
+        // Order Refund Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\RefundOrder\RefundOrderRepositoryInterface::class,
+            \App\Repositories\Eloquent\RefundOrder\RefundOrderRepository::class
+        );
+
+        // Order Refund Item Repository
+        $this->app->bind(
+            \App\Repositories\Contracts\RefundOrder\RefundOrderItemRepositoryInterface::class,
+            \App\Repositories\Eloquent\RefundOrder\RefundOrderItemRepository::class
+        );
+
         // Campaign Repository
         $this->app->bind(
             \App\Repositories\Contracts\Campaign\CampaignRepositoryInterface::class,

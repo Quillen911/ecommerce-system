@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\MyOrders;
+namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -27,6 +27,17 @@ class RefundRequest extends FormRequest
             'message' => 'Geçersiz istek.',
             'errors' => $validator->errors(),
         ], 422));
+    }
+
+    public function messages()
+    {
+        return [
+            'refund_quantities.required' => 'Iade edilecek ürün seçiniz.',
+            'refund_quantities.array' => 'Iade edilecek ürün seçiniz.',
+            'refund_quantities.min' => 'Iade edilecek ürün seçiniz.',
+            'refund_quantities.*.integer' => 'Iade edilecek ürün seçiniz.',
+            'refund_quantities.*.min' => 'Iade edilecek ürün seçiniz.',
+        ];
     }
 }
 

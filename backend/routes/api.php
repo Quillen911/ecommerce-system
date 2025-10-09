@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BagController;
-use App\Http\Controllers\Api\Order\OrderController;
 use App\Http\Controllers\Api\MainController;
 use App\Http\Controllers\Api\Seller\CampaignController;
 use App\Http\Controllers\Api\Seller\ProductController;
@@ -16,6 +15,10 @@ use App\Http\Controllers\Api\Seller\CategoryController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 use App\Http\Controllers\Api\User\AddressesController;
+
+use App\Http\Controllers\Api\Order\OrderController;
+use App\Http\Controllers\Api\Order\OrderRefundController;
+use App\Http\Controllers\Api\Order\OrderRefundWebhookController;
 
 use App\Http\Controllers\Api\ElasticSearch\CategoryFilterController;
 use App\Http\Controllers\Api\ElasticSearch\SearchController;
@@ -54,14 +57,26 @@ Route::middleware('auth:user')->group(function(){
         Route::post('payment-intent', [CheckoutController::class, 'createPaymentIntent']);
     });
 
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);   
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index']);
+        Route::get('/{order}', [OrderController::class, 'show']);
+        Route::post('/{order}/refund', [OrderController::class, 'refundItems']); 
+
+    }); 
+
+    Route::prefix('orders/{order}/refunds')->group(function () {
+        Route::get('/', [OrderRefundController::class, 'index']);        // opsiyonel listeleme
+        Route::post('/', [OrderRefundController::class, 'store']);       // iade talebini aç
+    });
+
+    // Otomatik akış (kargo + ödeme sağlayıcısı webhookları)
+    Route::prefix('refunds/webhooks')->group(function () {
+        Route::post('/shipment', [OrderRefundWebhookController::class, 'handleShipmentStatus']);
+        Route::post('/payment', [OrderRefundWebhookController::class, 'handlePaymentStatus']);
+    });
     
     Route::apiResource('creditcard', CreditCardController::class);
-    
-   // Route::post('/myorders/{id}/refund', [MyOrdersController::class, 'refundItems']);
-
-
+     
     Route::get('/me', [AuthController::class, 'me']);
 
     Route::prefix('account')->group(function(){

@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Services\Order\Services;
+namespace App\Services\Order\Services\Refund;
 
-use App\Services\Order\Contracts\OrderUpdateInterface;
-use App\Services\Campaigns\CampaignManager;
-use App\Models\Campaign;
+use App\Services\Order\Contracts\Refund\OrderUpdateInterface;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 class OrderUpdateService implements OrderUpdateInterface
 {
@@ -37,7 +35,7 @@ class OrderUpdateService implements OrderUpdateInterface
         }
     }
 
-    public function updateOrderStatus($order, $refundResults, CampaignManager $campaignManager): array
+    public function updateOrderStatus($order, $refundResults): array
     {
         $successfulRefunds = array_filter($refundResults, fn($r) => $r['success']);
         
@@ -50,7 +48,7 @@ class OrderUpdateService implements OrderUpdateInterface
         $totalRefunded = $order->orderItems()->where('payment_status', 'refunded')->count();
 
         if ($totalRefunded === $totalItems) {
-            $this->handleFullRefund($order, $campaignManager);
+            $this->handleFullRefund($order);
             return ['success' => true, 'message' => 'Siparişin tamamı iade edildi.'];
         } else {
             $order->update([
@@ -62,13 +60,8 @@ class OrderUpdateService implements OrderUpdateInterface
         }
     }
     
-    private function handleFullRefund($order, $campaignManager): void
+    private function handleFullRefund($order): void
     {
-        if ($order->campaign_id && ($campaign = Campaign::find($order->campaign_id))) {
-            $campaignManager->decreaseUserUsageCount($campaign);
-            $campaignManager->increaseUsageLimit($campaign);
-        }
-
         $order->update([
             'payment_status' => 'refunded',
             'status' => 'İade Edildi',

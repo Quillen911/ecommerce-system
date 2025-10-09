@@ -4,15 +4,15 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Services\Order\Contracts\OrderInterface;
-use App\Services\Order\Contracts\OrderRefundInterface;
-use App\Services\Order\Contracts\OrderCheckInterface;
-use App\Services\Order\Contracts\OrderCalculationInterface;
-use App\Services\Order\Contracts\OrderUpdateInterface;
+use App\Services\Order\Contracts\Refund\OrderRefundInterface;
+use App\Services\Order\Contracts\Refund\OrderCheckInterface;
+use App\Services\Order\Contracts\Refund\OrderCalculationInterface;
+use App\Services\Order\Contracts\Refund\OrderUpdateInterface;
 use App\Services\Order\Services\OrderService;
-use App\Services\Order\Services\OrderRefundService;
-use App\Services\Order\Services\OrderCheckService;
-use App\Services\Order\Services\OrderCalculationService;
-use App\Services\Order\Services\OrderUpdateService;
+use App\Services\Order\Services\Refund\OrderRefundService;
+use App\Services\Order\Services\Refund\OrderCheckService;
+use App\Services\Order\Services\Refund\OrderCalculationService;
+use App\Services\Order\Services\Refund\OrderUpdateService;
 
 class OrderServiceProvider extends ServiceProvider
 {
