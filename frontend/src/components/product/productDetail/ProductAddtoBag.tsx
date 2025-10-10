@@ -1,15 +1,17 @@
 "use client"
 import { useBagStore } from "@/hooks/useBagQuery"
 import { BagStoreRequest } from "@/types/bag"
-import { useCallback } from "react"
+import { use, useCallback } from "react"
 import { toast } from "sonner"
+import { useMe } from "@/hooks/useAuthQuery"
 
 interface ProductAddtoBagProps {
   variantSizeId: number | null
 }
 
 export default function ProductAddtoBag({ variantSizeId }: ProductAddtoBagProps) {
-  const bagStore = useBagStore()
+  const {data: me} = useMe()
+  const bagStore = useBagStore(me?.id)
 
   const handleAddToBag = useCallback(() => {
     if (!variantSizeId) {

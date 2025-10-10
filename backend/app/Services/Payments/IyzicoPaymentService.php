@@ -33,6 +33,7 @@ use Iyzipay\Model\Card;
 use Iyzipay\Model\CardInformation;
 use Iyzipay\Request\CreateCardRequest;
 
+//kapalı
 class IyzicoPaymentService implements PaymentInterface
 {
     private Options $options;

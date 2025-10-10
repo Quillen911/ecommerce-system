@@ -5,6 +5,8 @@ namespace App\Services\Payments;
 use App\Models\Order;
 use App\Models\CreditCard;
 use App\Models\Store;
+//Kapalı
+
 interface PaymentInterface 
 {
     public function processPayment(Order $order, CreditCard $creditCard, float $amount, array $tempCardData = null): array;
