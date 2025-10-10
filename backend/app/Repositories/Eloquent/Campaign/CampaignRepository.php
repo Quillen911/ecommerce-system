@@ -14,15 +14,20 @@ class CampaignRepository extends BaseRepository implements CampaignRepositoryInt
     }
     public function getActiveCampaigns()
     {
-        return $this->model->with(['conditions', 'discounts'])->where('is_active', 1)->orderBy('id')->get();
+        return $this->model->where('is_active', 1)->orderBy('id')->get();
     }
+    public function getActiveCampaign($campaignId)
+    {
+        return $this->model->where('is_active', 1)->where('id', $campaignId)->get();
+    }
+    
     public function getCampaignsByStoreId($storeId)
     {
-        return $this->model->with(['conditions', 'discounts'])->where('store_id', $storeId)->orderBy('id')->get();
+        return $this->model->where('store_id', $storeId)->orderBy('id')->get();
     }
     public function getCampaignByStoreId($storeId,$id)
     {
-        return $this->model->with(['conditions', 'discounts'])->where('store_id', $storeId)->find($id);
+        return $this->model->where('store_id', $storeId)->find($id);
     }
     public function createCampaign(array $campaignData)
     {

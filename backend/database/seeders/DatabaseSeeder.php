@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\Main\UserSeeder::class,
 
             \Database\Seeders\PaymentProviders\Iyzico::class,
+
+            \Database\Seeders\Campaigns\CampaignSeeder::class,
+            \Database\Seeders\Campaigns\CampaignProductSeeder::class,
         ]);
     }
 }

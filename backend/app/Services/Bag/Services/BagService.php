@@ -6,27 +6,20 @@ use App\Services\Bag\Contracts\BagInterface;
 use App\Exceptions\InsufficientStockException;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
+use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
 use App\Traits\GetUser;
 
 class BagService implements BagInterface
 {
     use GetUser;
-    protected $authenticationRepository;
-    protected $stockService;
-    protected $bagCalculationService;
-    protected $bagRepository;
 
     public function __construct(
-        StockService $stockService, 
-        BagCalculationService $bagCalculationService, 
-        AuthenticationRepositoryInterface $authenticationRepository, 
-        BagRepositoryInterface $bagRepository
-    )
-    {
-        $this->authenticationRepository = $authenticationRepository;
-        $this->stockService = $stockService;
-        $this->bagCalculationService = $bagCalculationService;
-        $this->bagRepository = $bagRepository;
+        private readonly StockService $stockService, 
+        private readonly BagCalculationService $bagCalculationService, 
+        private readonly AuthenticationRepositoryInterface $authenticationRepository, 
+        private readonly BagRepositoryInterface $bagRepository,
+        private readonly CampaignRepositoryInterface $campaignRepository
+    ) {
     }
 
     public function getBag()
@@ -40,7 +33,7 @@ class BagService implements BagInterface
             return ['products' => $bagItems, 'bestCampaign' => null, 'total' => 0, 'cargoPrice' => 0, 'discount' => 0, 'finalPrice' => 0];
         }
         
-        //$bestCampaign = $this->bagCalculationService->getBestCampaign($bagItems);
+        //$selectedCampaign = $this->bagCalculationService->getBestCampaign($bagItems, $user);
         $total = $this->bagCalculationService->calculateTotal($bagItems);
         $cargoPrice = $this->bagCalculationService->calculateCargoPrice($total);
         //$discount = $this->bagCalculationService->calculateDiscount($bestCampaign);
@@ -49,7 +42,7 @@ class BagService implements BagInterface
 
         return [
             'products' => $bagItems, 
-           // 'bestCampaign' => $bestCampaign, 
+           // 'selectedCampaign' => $selectedCampaign, 
             'total_cents' => $total, 
             'total' => $total/100, 
             'cargoPrice_cents' => $cargoPrice, 
@@ -78,6 +71,16 @@ class BagService implements BagInterface
         } catch (InsufficientStockException $e) {
             return ['error' => $e->getMessage()];
         }
+    }
+
+    public function selectCampaign($campaignId)
+    {
+        $user = $this->getUser();
+        if(!$user){
+            throw new \Exception('Kullanıcı bulunamadı!');
+        }
+        return $this->campaignRepository->getActiveCampaign($campaignId);
+        
     }
     
     public function showBagItem($bagItemId)
@@ -136,5 +139,7 @@ class BagService implements BagInterface
         });
         return $bagItems;
     }
+
+
 
 }

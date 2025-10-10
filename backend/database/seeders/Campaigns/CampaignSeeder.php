@@ -2,86 +2,62 @@
 
 namespace Database\Seeders\Campaigns;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use App\Models\Campaign;
 
 class CampaignSeeder extends Seeder
 {
     public function run(): void
     {
-        Campaign::create([
-            'store_id' => 1,
-            'store_name' => 'i&d',
-            'name' => 'Sabahattin Ali Romanlarında 2 Al 1 Öde',
-            'type' => 'x_buy_y_pay',
-            'description' => 'Sabahattin Ali Romanlarında 2 Al 1 Öde',
-            'is_active' => true,
-            'usage_limit_for_user' => 3,
-            'usage_limit' => 10,
-            'starts_at' => now(),
-            'ends_at' => now()->addHours(24),
-        ]);
+        $now = Carbon::now();
 
-        Campaign::create([
-            'store_id' => 1,
-            'store_name' => 'i&d',
-            'name' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
-            'type' => 'percentage',
-            'description' => '200 TL ve üzeri alışverişlerde sipariş toplamına %5 indirim',
-            'is_active' => true,
-            'usage_limit_for_user' => 1,
-            'usage_limit' => 50,
-            'starts_at' => now(),
-            'ends_at' => now()->addHours(24),
-        ]);
-        Campaign::create([
-            'store_id' => 1,
-            'store_name' => 'i&d',
-            'name' => 'Yerli Yazarlarda %5 indirim',
-            'type' => 'percentage',
-            'description' => 'Yerli Yazarlarda %5 indirim',
-            'is_active' => true,
-            'usage_limit_for_user' => 5,
-            'usage_limit' => 100,
-            'starts_at' => now(),
-            'ends_at' => now()->addHours(24),
-        ]);
-        Campaign::create([
-            'store_id' => 2,
-            'store_name' => 'Ahmet Kitapçı',
-            'name' => '200 TL ve üzeri alışverişlerde sipariş toplamına %10 indirim',
-            'type' => 'percentage',
-            'description' => '200 TL ve üzeri alışverişlerde sipariş toplamına %10 indirim',
-            'is_active' => true,
-            'usage_limit_for_user' => 1,
-            'usage_limit' => 100,
-            'starts_at' => now(),
-            'ends_at' => now()->addHours(24),
-        ]);
-        Campaign::create([
-            'store_id' => 2,
-            'store_name' => 'Ahmet Kitapçı',
-            'name' => 'Dostoyevski Kitaplarında 2 Al 1 Öde',
-            'type' => 'x_buy_y_pay',
-            'description' => 'Dostoyevski Kitaplarında 2 Al 1 Öde',
-            'is_active' => true,
-            'usage_limit_for_user' => 1,
-            'usage_limit' => 100,
-            'starts_at' => now(),
-            'ends_at' => now()->addHours(24),
-        ]);
-        Campaign::create([
-            'store_id' => 1,
-            'store_name' => 'i&d',
-            'name' => 'Kişisel Gelişim Kategorisinde 200 TL indirim',
-            'type' => 'fixed',
-            'description' => 'Kişisel Gelişim Kategorisinde 200 TL indirim',
-            'is_active' => true,
-            'usage_limit_for_user' => 1,
-            'usage_limit' => 10,
-            'starts_at' => now(),
-            'ends_at' => now()->addHours(24),
+        Campaign::insert([
+            [
+                'name'           => 'Kışa Özel %20',
+                'store_id'       => 1,
+                'code'           => null,
+                'type'           => 'percentage',
+                'discount_value' => 20,
+                'min_quantity'   => null,
+                'usage_limit'    => 500,
+                'usage_count'    => 0,
+                'is_active'      => true,
+                'starts_at'      => $now->copy()->subWeek(),
+                'ends_at'        => $now->copy()->addMonth(),
+                'created_at'     => $now,
+                'updated_at'     => $now,
+            ],
+            [
+                'name'           => '250 TL Sepet İndirimi',
+                'store_id'       => 1,
+                'code'           => null,
+                'type'           => 'fixed',
+                'discount_value' => 250,
+                'min_quantity'   => null,
+                'usage_limit'    => 200,
+                'usage_count'    => 0,
+                'is_active'      => true,
+                'starts_at'      => $now,
+                'ends_at'        => $now->copy()->addMonths(2),
+                'created_at'     => $now,
+                'updated_at'     => $now,
+            ],
+            [
+                'name'           => '3 Al 2 Öde',
+                'store_id'       => 1,
+                'code'           => null,
+                'type'           => 'x_buy_y_pay',
+                'discount_value' => null,
+                'min_quantity'   => 3,
+                'usage_limit'    => null,
+                'usage_count'    => 0,
+                'is_active'      => true,
+                'starts_at'      => $now,
+                'ends_at'        => null,
+                'created_at'     => $now,
+                'updated_at'     => $now,
+            ],
         ]);
     }
 }

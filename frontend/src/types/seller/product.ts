@@ -18,7 +18,7 @@ export interface Product {
 export interface ProductVariantImage {
     id: number
     product_variant_id: number
-    image: string
+    image_url: string
     is_primary: boolean
     sort_order: number
 }

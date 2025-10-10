@@ -22,7 +22,7 @@ export interface VariantSizeInBag {
   is_active: boolean
   created_at: string
   updated_at: string
-  variants: ProductVariantInBag
+  product_variant: ProductVariantInBag  
   inventory: VariantInventory
 }
 
@@ -37,7 +37,7 @@ export interface ProductVariantInBag {
   is_popular: boolean
   created_at: string
   updated_at: string
-  images: ProductVariantImage[]
+  variant_images: ProductVariantImage[]
 }
 
 export interface GetBagItems {

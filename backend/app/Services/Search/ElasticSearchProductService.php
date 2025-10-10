@@ -94,4 +94,5 @@ class ElasticSearchProductService
             'results' => $results
         ];
     }
+
 }

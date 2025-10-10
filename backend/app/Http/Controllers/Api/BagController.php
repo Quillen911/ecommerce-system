@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
-use App\Http\Requests\BagStoreRequest;
+use App\Http\Requests\Bag\BagStoreRequest;
+use App\Http\Requests\Bag\SelectBagCampaignRequest;
 use App\Helpers\ResponseHelper;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Http\Resources\Bag\BagResource;
@@ -60,6 +61,13 @@ class BagController extends Controller
                 'finalPrice' => $bagData['finalPrice'],
             ]
         );
+    }
+
+    public function select(SelectBagCampaignRequest $request)
+    {
+        $campaignId = $request->integer('campaign_id');
+
+        $result = $this->bagService->selectCampaign($campaignId);
     }
 
     public function show($id)

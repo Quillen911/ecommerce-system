@@ -1,7 +1,7 @@
 "use client"
 
 import { BagItem } from "@/types/bag"
-import { ProductCardImage } from "@/components/ui/ProductImage"
+import  Image from "@/components/ui/ProductImage"
 
 interface BagItemRowProps {
   item: BagItem
@@ -10,7 +10,6 @@ interface BagItemRowProps {
   onRemove: (item: BagItem) => void
   disabled?: boolean
 }
-
 export function BagItemRow({
   item,
   onIncrease,
@@ -18,11 +17,14 @@ export function BagItemRow({
   onRemove,
   disabled,
 }: BagItemRowProps) {
+  const image =
+  item?.sizes?.product_variant?.variant_images?.find((img) => img.is_primary)?.image_url ??
+  item?.sizes?.product_variant?.variant_images?.[0]?.image_url
   return (
     <div className="flex items-center gap-4 p-4 rounded-lg surface border border-color shadow-sm animate-slideInFromLeft">
       <div className="w-20 h-20 flex-shrink-0">
-        <ProductCardImage
-          product={item.sizes.variants}
+        <Image 
+          product={image}
           alt={item.product_title}
           className="!w-full !h-full object-cover rounded"
         />

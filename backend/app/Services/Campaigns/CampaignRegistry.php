@@ -1,5 +1,5 @@
 <?php
-/*
+
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
@@ -18,7 +18,7 @@ class CampaignRegistry
         $this->registerDefaultHandlers();
     }
 
-    public function create(String $type, Campaign $campaign): CampaignInterface
+    public function create(String $type, Campaign $campaign)
     {
         if(!isset($this->handlers[$type])){
             Log::warning("Campaign handler not found for type: {$type}");
@@ -40,4 +40,3 @@ class CampaignRegistry
         $this->handlers['x_buy_y_pay'] = new XBuyYPayCampaign(new Campaign());
     }
 }
-*/

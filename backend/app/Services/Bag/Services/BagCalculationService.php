@@ -16,10 +16,10 @@ class BagCalculationService implements BagCalculationInterface
         $this->cargoPrice = config('order.cargo.price');
     }
 
-    public function getBestCampaign($bagItems)
+    public function getBestCampaign($bagItems, $user)
     {/*
         $campaigns = Campaign::where('is_active', 1)->get();
-        $bestCampaign = $this->campaignManager->getBestCampaigns($bagItems->all(), $campaigns);
+        $bestCampaign = $this->campaignManager->getBestCampaigns($bagItems->all(), $campaigns, $user);
         return $bestCampaign;
         */
     }

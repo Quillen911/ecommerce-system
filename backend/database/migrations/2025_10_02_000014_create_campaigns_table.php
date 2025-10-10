@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('store_id')->constrained('stores')->cascadeOnDelete();
             $table->string('name');
             $table->string('code')->unique()->nullable();
             $table->enum('type', ['percentage', 'fixed', 'x_buy_y_pay']);

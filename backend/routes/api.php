@@ -25,7 +25,7 @@ use App\Http\Controllers\Api\ElasticSearch\SearchController;
 
 use App\Http\Controllers\Api\Seller\Image\ProductVariantImageController;
 use App\Http\Controllers\Api\Product\ProductVariantController;
-
+use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -46,10 +46,13 @@ Route::get('/search', [SearchController::class, 'search']);
 Route::get('/filter', [MainController::class, 'filter']);
 Route::get('/sorting', [MainController::class, 'sorting']);
 Route::get('/autocomplete', [MainController::class, 'autocomplete']);
-Route::middleware('auth:user')->group(function(){
+
+Route::middleware('auth:user')->middleware(ApiAuthenticate::class)->group(function(){
 
     Route::apiResource('bags', BagController::class)->only(['index','store','show', 'update', 'destroy']);
-    
+
+    Route::get('/bags/{bag}/campaign', [BagController::class, 'select']);
+
     Route::prefix('checkout')->group(function () {
         Route::post('session', [CheckoutController::class, 'createSession']);
         Route::get('session', [CheckoutController::class, 'getSession']);
@@ -87,7 +90,7 @@ Route::middleware('auth:user')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:seller')->group(function(){
+Route::middleware('auth:seller')->middleware(ApiAuthenticate::class)->group(function(){
 
     Route::post('/seller-logout', [AuthController::class, 'sellerLogout']);
     Route::get('/my-seller', [AuthController::class, 'mySeller']);

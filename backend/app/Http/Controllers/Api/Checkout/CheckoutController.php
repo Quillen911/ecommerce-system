@@ -42,7 +42,8 @@ class CheckoutController extends Controller
         $user = $this->getUser();
 
         $bagData = $this->bagService->getBag();
-        if (empty($bagData['products'])) {
+        
+        if (empty($bagData['products']['items'])) {
             return response()->json(['message' => 'Sepet boş'], 422);
         }
 

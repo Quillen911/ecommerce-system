@@ -3,10 +3,7 @@
 import { useBagIndex, useBagUpdate, useBagDestroy, bagKeys } from '@/hooks/useBagQuery'
 import { useMe } from '@/hooks/useAuthQuery'
 import { BagItem } from '@/types/bag'
-import { ProductCardImage } from '@/components/ui/ProductImage'
-import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import Link from 'next/link'
 
 import { BagItemRow } from "@/components/bag/BagItemRow"
 import { BagSummary } from "@/components/bag/BagSummary"
@@ -15,7 +12,7 @@ import { EmptyBagState } from "@/components/bag/EmptyBagState"
 export default function BagPage() {
   const { data: me } = useMe()
   const { data, isLoading, error } = useBagIndex(me?.id)
-  const queryClient = useQueryClient()
+
   const updateBag = useBagUpdate(me?.id)
   const destroyBag = useBagDestroy(me?.id)
 
@@ -24,7 +21,7 @@ export default function BagPage() {
 
   const bag = data 
   const bagItems: BagItem[] = bag?.products || []
-  
+
   const handleIncrease = (item: BagItem) => {
     if (item.quantity < item.sizes.inventory.available) {
       const toastId = toast.loading('Ürün güncelleniyor...')

@@ -13,6 +13,7 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \Illuminate\Http\Middleware\HandleCors::class,
+        
     ];
     
     protected $middlewareGroups = [
@@ -36,7 +37,8 @@ class Kernel extends HttpKernel
         ],
     ];
 
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
+        'auth.api' => \App\Http\Middleware\ApiAuthenticate::class,
         'DevelopmentOnly' => \App\Http\Middleware\DevelopmentOnly::class, 
         'register.limit' => \App\Http\Middleware\RegisterRateLimit::class,
         'login.limit' => \App\Http\Middleware\LoginRateLimit::class,

@@ -1,5 +1,5 @@
 <?php 
-/*
+
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
@@ -17,7 +17,7 @@ class CampaignManager
         $this->authenticationRepository = $authenticationRepository;
         $this->registry = $registry;
     }
-    public function getBestCampaigns(array $products, $campaigns)
+    public function getBestCampaigns(array $products, $campaigns, $user)
     {  
         $best = ['discount' => 0, 'description' => '', 'campaign_id' => null, 'store_name' => null];
         foreach ($campaigns as $campaign) {
@@ -89,4 +89,4 @@ class CampaignManager
         $campaign->save();
     }
 }
-*/
+

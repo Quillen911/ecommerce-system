@@ -21,18 +21,12 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                
-                if ($guard === 'user_web' || $guard === 'user') {
-                    return redirect()->route('main');
-                }
-                if ($guard === 'seller_web' || $guard === 'seller') {
-                    return redirect()->route('seller');
-                }
-                
-                
-                return redirect(RouteServiceProvider::HOME);
+                return response()->json([
+                    'message' => 'Zaten oturum açmış durumdasınız.',
+                ], 409);
             }
         }
+
 
         return $next($request);
     }
