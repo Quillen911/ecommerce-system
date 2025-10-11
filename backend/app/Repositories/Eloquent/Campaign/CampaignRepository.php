@@ -23,11 +23,11 @@ class CampaignRepository extends BaseRepository implements CampaignRepositoryInt
     
     public function getCampaignsByStoreId($storeId)
     {
-        return $this->model->where('store_id', $storeId)->orderBy('id')->get();
+        return $this->model->with('campaignProducts', 'campaignCategories')->where('store_id', $storeId)->orderBy('id')->get();
     }
     public function getCampaignByStoreId($storeId,$id)
     {
-        return $this->model->where('store_id', $storeId)->find($id);
+        return $this->model->with('campaignProducts', 'campaignCategories')->where('store_id', $storeId)->where('id', $id)->first();
     }
     public function createCampaign(array $campaignData)
     {

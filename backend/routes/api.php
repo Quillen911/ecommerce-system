@@ -91,7 +91,7 @@ Route::middleware('auth:user')->middleware(ApiAuthenticate::class)->group(functi
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:seller')->middleware(ApiAuthenticate::class)->group(function(){
+Route::middleware('auth:seller')->group(function(){
 
     Route::post('/seller-logout', [AuthController::class, 'sellerLogout']);
     Route::get('/my-seller', [AuthController::class, 'mySeller']);

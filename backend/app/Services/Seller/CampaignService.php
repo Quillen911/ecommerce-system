@@ -2,26 +2,27 @@
 
 namespace App\Services\Seller;
 
-use App\Http\Requests\Seller\Campaign\CampaignStoreRequest;
-use App\Http\Requests\Seller\Campaign\CampaignUpdateRequest;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Log;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 
 class CampaignService
 {
-    protected $storeRepository;
-    protected $campaignRepository;
-    public function __construct(StoreRepositoryInterface $storeRepository, CampaignRepositoryInterface $campaignRepository)
-    {
-        $this->storeRepository = $storeRepository;
-        $this->campaignRepository = $campaignRepository;
+    public function __construct(
+        private readonly StoreRepositoryInterface $storeRepository, 
+        private readonly CampaignRepositoryInterface $campaignRepository,
+        private readonly AuthenticationRepositoryInterface $authenticationRepository
+
+    ) {    
     }
 
-    public function getCampaigns($sellerId)
+    public function getCampaigns()
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Seller bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
@@ -29,27 +30,42 @@ class CampaignService
         
     }
 
-    public function createCampaign($sellerId, array $campaignData)
+    public function createCampaign(array $campaignData)
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Seller bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if (!$store) {
             throw new \Exception('Mağaza bulunamadı');
         }
 
+        $productIds = $campaignData['product_ids'] ?? [];
+        $categoryIds = $campaignData['category_ids'] ?? [];
+        unset($campaignData['product_ids'], $campaignData['category_ids']);
         $campaignData['store_id'] = $store->id;
-        $campaignData['store_name'] = $store->name;
-
         $campaign = $this->campaignRepository->createCampaign($campaignData);
-        
-        $this->createCampaignConditions($campaign, $campaignData['conditions'] ?? []);
-        $this->createCampaignDiscount($campaign, $campaignData);
-
-        return $campaign;
-        
+        if ($productIds) {
+            $campaign->products()->sync($productIds);
+        }
+    
+        if ($categoryIds) {
+            $campaign->campaignCategories()->delete();
+            $campaign->campaignCategories()->createMany(
+                collect($categoryIds)->map(fn ($id) => ['category_id' => $id])->all()
+            );
+        }
+        return $campaign->load('campaignProducts', 'campaignCategories'); 
     }
-    public function showCampaign($sellerId, $id)
+
+    public function showCampaign($id)
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Seller bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
 
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
@@ -62,34 +78,55 @@ class CampaignService
         return $campaign;
 
     }
-    public function updateCampaign($sellerId, array $campaignData, $id)
+    
+    public function updateCampaign(array $campaignData, $id)
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
-        if(!$store){
+        $seller = $this->authenticationRepository->getSeller();
+        if (!$seller) {
+            throw new \Exception('Seller bulunamadı');
+        }
+    
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
+        if (!$store) {
             throw new \Exception('Mağaza bulunamadı');
         }
+    
         $campaign = $this->campaignRepository->getCampaignByStoreId($store->id, $id);
-
-        if(!$campaign){
+        if (!$campaign) {
             throw new \Exception('Kampanya bulunamadı');
         }
-        
-        $updateResult = $this->campaignRepository->updateCampaign($campaignData, $id);
-        if(!$updateResult){
+    
+        $productIds = $campaignData['product_ids'] ?? null;
+        $categoryIds = $campaignData['category_ids'] ?? null;
+    
+        unset($campaignData['product_ids'], $campaignData['category_ids']);
+    
+        if (!$this->campaignRepository->updateCampaign($campaignData, $id)) {
             throw new \Exception('Kampanya güncellenemedi');
         }
-        
-        $conditions = $campaignData['existing_conditions'] ?? $campaignData['conditions'] ?? [];
-        
-        $this->updateCampaignConditions($campaign, $conditions);
-        $this->updateCampaignDiscount($campaign, $campaignData);
-        
-        return $this->campaignRepository->getCampaignByStoreId($store->id, $id);
+    
+        if ($productIds !== null) {
+            $campaign->products()->sync($productIds);
+        }
+    
+        if ($categoryIds !== null) {
+            $campaign->campaignCategories()->delete();
+            $campaign->campaignCategories()->createMany(
+                collect($categoryIds)->map(fn ($catId) => ['category_id' => $catId])->all()
+            );
+        }
+    
+        return $campaign->load('campaignProducts', 'campaignCategories');
     }
+    
 
-    public function deleteCampaign($sellerId, $id)
+    public function deleteCampaign($id)
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Seller bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
@@ -98,112 +135,6 @@ class CampaignService
             throw new \Exception('Kampanya bulunamadı');
         }
         $campaign->delete();
-        return $campaign;
+        return true;
     }
-
-    private function createCampaignConditions($campaign, array $conditions)
-    {
-        foreach ($conditions as $condition) {
-            $campaign->conditions()->create([
-                'condition_type' => $condition['condition_type'],
-                'condition_value' => $condition['condition_value'],
-                'operator' => $condition['operator']
-            ]);
-        }
-    }
-
-    private function createCampaignDiscount($campaign, array $campaignData)
-    {
-        // Tek indirim sistemi - tip bazlı işleme
-        $type = $campaignData['type'] ?? null;
-        $discountValue = $campaignData['discount_value'] ?? null;
-        
-        if (!$type || !$discountValue) {
-            return;
-        }
-        
-        // discount_value'yu doğru formatta kaydet
-        $formattedValue = $this->formatDiscountValue($discountValue, $type);
-        
-        $campaign->discounts()->create([
-            'discount_type' => $type,
-            'discount_value' => $formattedValue,
-        ]);
-    }
-    private function updateCampaignConditions($campaign, array $conditions)
-    {
-        foreach ($conditions as $condition) {
-            if (isset($condition['id'])) {
-                $existingCondition = $campaign->conditions()->find($condition['id']);
-                if ($existingCondition) {
-                    $existingCondition->update([
-                        'condition_type' => $condition['condition_type'],
-                        'condition_value' => $condition['condition_value'],
-                        'operator' => $condition['operator']
-                    ]);
-                }
-            }
-        }
-    }
-    private function updateCampaignDiscount($campaign, array $campaignData)
-    {
-
-        
-        // Tek indirim sistemi - tip bazlı işleme
-        $type = $campaignData['type'] ?? null;
-        $discountValue = $campaignData['discount_value'] ?? null;
-        
-        if (!$type || !$discountValue) {
-            return;
-        }
-        
-        // Mevcut indirimi bul veya oluştur
-        $existingDiscount = $campaign->discounts()->first();
-        
-        if ($existingDiscount) {
-            // Mevcut indirimi güncelle
-            $formattedValue = $this->formatDiscountValue($discountValue, $type);
-            
-            $existingDiscount->update([
-                'discount_type' => $type,
-                'discount_value' => $formattedValue,
-            ]);
-        } else {
-            // Yeni indirim oluştur
-            $this->createCampaignDiscount($campaign, $campaignData);
-        }
-    }
-    
-    private function formatDiscountValue($value, $type)
-    {
-    
-        if (is_string($value)) {
-            $decoded = json_decode($value, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                return $decoded; 
-            }
-        }
-        
-        if (is_array($value)) {
-            return $value;
-        }
-        
-        return $value;
-    }
-
-    private function formatValue($value)
-    {
-        
-        if (is_string($value) && json_decode($value) !== null) {
-            return $value;
-        }
-        
-        if (is_array($value)) {
-            return json_encode($value, JSON_UNESCAPED_UNICODE);
-        }
-        
-        return json_encode($value, JSON_UNESCAPED_UNICODE);
-    }
-
-
 }
