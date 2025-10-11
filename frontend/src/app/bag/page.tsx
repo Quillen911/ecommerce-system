@@ -1,6 +1,6 @@
 "use client"
 
-import { useBagIndex, useBagUpdate, useBagDestroy, bagKeys } from '@/hooks/useBagQuery'
+import { useBagIndex, useBagUpdate, useBagDestroy } from '@/hooks/useBagQuery'
 import { useMe } from '@/hooks/useAuthQuery'
 import { BagItem, BagTotals,BagCampaign } from '@/types/bag'
 import { toast } from 'sonner'
@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { BagItemRow } from "@/components/bag/BagItemRow"
 import { BagSummary } from "@/components/bag/BagSummary"
 import { EmptyBagState } from "@/components/bag/EmptyBagState"
+import { BagCampaignSelector } from "@/components/bag/BagCampaignSelector"
 
 export default function BagPage() {
   const { data: me } = useMe()
@@ -22,7 +23,6 @@ export default function BagPage() {
   const bagItems: BagItem[] = data?.products || []
   const bagTotals: BagTotals | null = data?.totals ?? null;
   const bagCampaign: BagCampaign | null = data?.applied_campaign ?? null;
-  console.log(bagCampaign,bagTotals)
   const handleIncrease = (item: BagItem) => {
     if (item.quantity < item.sizes.inventory.available) {
       const toastId = toast.loading('Ürün güncelleniyor...')
@@ -99,6 +99,11 @@ export default function BagPage() {
           finalPrice={bagTotals?.final}
           onCheckout={() => toast.info("Ödeme akışı henüz hazır değil")}
         />
+        <BagCampaignSelector
+          activeCampaign={bagCampaign}
+          campaigns={data?.campaigns ?? []}
+        />
+
       </div>
     </div>
   )

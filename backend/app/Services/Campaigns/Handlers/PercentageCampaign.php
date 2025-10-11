@@ -72,18 +72,28 @@ class PercentageCampaign extends BaseCampaign
     protected function perItemDiscount(Collection $items, float $rate): Collection
     {
         return $items->map(function ($item) use ($rate) {
-            $discountCents = (int) round($this->unitPriceCents($item) * $rate)
-                * (int) $item->quantity;
+            $unitCents   = $this->unitPriceCents($item);
+            $quantity    = (int) $item->quantity;
+            $lineCents   = $unitCents * $quantity;
+            $discountCents = min((int) round($lineCents * $rate), $lineCents);
 
             return [
-                'bag_item_id'    => $item->id,
-                'product_id'     => optional($item->product)->id,
-                'quantity'       => (int) $item->quantity,
-                'discount_cents' => max($discountCents, 0),
-                'discount'       => max($discountCents, 0) / 100,
+                'bag_item_id'             => $item->id,
+                'product_id'              => $item->product_id
+                    ?? optional($item->product)->id
+                    ?? optional($item->variant)->product_id
+                    ?? optional($item->variantSize->productVariant)->product_id,
+                'quantity'                => $quantity,
+                'unit_price_cents'        => $unitCents,
+                'line_total_cents'        => $lineCents,
+                'discount_cents'          => $discountCents,
+                'discount'                => $discountCents / 100,
+                'discounted_total_cents'  => $lineCents - $discountCents,
+                'discounted_total'        => ($lineCents - $discountCents) / 100,
             ];
         });
     }
+
 
     protected function emptyResult(): array
     {

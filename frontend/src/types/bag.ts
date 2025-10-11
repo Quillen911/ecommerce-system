@@ -22,7 +22,7 @@ export interface VariantSizeInBag {
   is_active: boolean
   created_at: string
   updated_at: string
-  product_variant: ProductVariantInBag  
+  product_variant: ProductVariantInBag
   inventory: VariantInventory
 }
 
@@ -40,21 +40,27 @@ export interface ProductVariantInBag {
   variant_images: ProductVariantImage[]
 }
 
-export interface GetBagItems {
-  products: BagItem[]
-  totals: BagTotals
-  applied_campaign: BagCampaign | null
+export interface BagDiscountItem {
+  bag_item_id: number
+  product_id: number
+  quantity: number
+  unit_price_cents: number
+  line_total_cents: number
+  discount_cents: number
+  discount: number
+  discounted_total_cents: number
+  discounted_total: number
 }
 
 export interface BagTotals {
-  total: number
   total_cents: number
-  cargo: number
+  total: number
   cargo_cents: number
-  discount: number
+  cargo: number
   discount_cents: number
-  final: number
+  discount: number
   final_cents: number
+  final: number
 }
 
 export interface BagCampaign {
@@ -65,14 +71,20 @@ export interface BagCampaign {
   discount_cents: number
   discount: number
   ends_at: string | null
+  items?: BagDiscountItem[]
 }
 
+export interface GetBagItems {
+  products: BagItem[]
+  totals: BagTotals
+  applied_campaign: BagCampaign | null
+  campaigns: BagCampaign[]
+}
 
 export interface BagStoreRequest {
   variant_size_id: number
   quantity?: number | null
 }
-  
 
 export interface BagUpdateRequest {
   quantity: number
@@ -93,5 +105,5 @@ export interface BagUpdateResponse {
 
 export interface BagDestroyResponse {
   message: string
-  data: {}
+  data: Record<string, never>
 }

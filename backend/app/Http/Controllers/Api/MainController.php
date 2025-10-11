@@ -35,10 +35,11 @@ class MainController extends Controller
     {
         $products   = $this->mainService->getProductsPopularVariants();
         $categories = $this->mainService->getCategories();
-
+        $campaigns  = $this->mainService->getCampaigns();
         return new MainResource([
             'products' => $products,
             'categories' => $categories,
+            'campaigns' => $campaigns
         ]);
     }
 

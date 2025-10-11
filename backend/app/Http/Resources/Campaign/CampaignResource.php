@@ -11,20 +11,15 @@ class CampaignResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'store_id' => $this->store_id,
-            'store_name' => $this->store_name,
-            'description' => $this->description,
+            'code' => $this->code,
             'type' => $this->type,
+            'discount_value' => $this->discount_value,
+            'description' => $this->description,
             'is_active' => $this->is_active,
-            'priority' => $this->priority,
-            'usage_limit' => $this->usage_limit,
-            'usage_limit_for_user' => $this->usage_limit_for_user,
             'starts_at' => $this->starts_at,
             'ends_at' => $this->ends_at,
-            'conditions' => CampaignConditionResource::collection($this->whenLoaded('conditions')),
-            'discounts' => CampaignDiscountResource::collection($this->whenLoaded('discounts')),
         ];
     }
 }

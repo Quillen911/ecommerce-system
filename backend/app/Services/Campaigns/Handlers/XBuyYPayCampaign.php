@@ -22,9 +22,7 @@ class XBuyYPayCampaign extends BaseCampaign
             return false;
         }
 
-        $totalQty = $items->sum('quantity');
-
-        return $totalQty >= $x;
+        return $items->sum('quantity') >= $x;
     }
 
     public function calculateDiscount(array $bagItems): array
@@ -50,9 +48,8 @@ class XBuyYPayCampaign extends BaseCampaign
             return $this->emptyResult();
         }
 
-        $sorted = $this->expandItemsByUnitPrice($items);
-
-        $freeLines = $sorted->slice(0, $freeCount);
+        $sorted       = $this->expandItemsByUnitPrice($items);
+        $freeLines    = $sorted->slice(0, $freeCount);
         $discountCents = (int) $freeLines->sum('unit_price_cents');
 
         return [
@@ -72,6 +69,14 @@ class XBuyYPayCampaign extends BaseCampaign
         return collect($this->productEligible($bagItems));
     }
 
+    protected function resolveProductId($item): ?int
+    {
+        return $item->product_id
+            ?? optional($item->product)->id
+            ?? optional($item->variant)->product_id
+            ?? optional($item->variantSize->productVariant)->product_id;
+    }
+
     protected function expandItemsByUnitPrice(Collection $items): Collection
     {
         return $items
@@ -80,7 +85,7 @@ class XBuyYPayCampaign extends BaseCampaign
 
                 return array_fill(0, (int) $item->quantity, [
                     'bag_item_id'      => $item->id,
-                    'product_id'       => optional($item->product)->id,
+                    'product_id'       => $this->resolveProductId($item),
                     'unit_price_cents' => $unit,
                     'unit_price'       => $unit / 100,
                 ]);

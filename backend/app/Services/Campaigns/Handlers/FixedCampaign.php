@@ -18,11 +18,9 @@ class FixedCampaign extends BaseCampaign
             return false;
         }
 
-        $minSubtotal = $this->campaign->min_quantity; // TL cinsinden eşik
-        if ($minSubtotal) {
-            if ($this->subtotal($items) < (float) $minSubtotal) {
-                return false;
-            }
+        $minSubtotal = $this->campaign->min_quantity;
+        if ($minSubtotal && $this->subtotal($items) < (float) $minSubtotal) {
+            return false;
         }
 
         return true;
@@ -61,8 +59,7 @@ class FixedCampaign extends BaseCampaign
 
     protected function subtotal(Collection $items): float
     {
-        return $items->sum(fn ($item) =>
-            $this->unitPrice($item) * (int) $item->quantity);
+        return $items->sum(fn ($item) => $this->unitPrice($item) * (int) $item->quantity);
     }
 
     protected function unitPrice($item): float
@@ -71,25 +68,39 @@ class FixedCampaign extends BaseCampaign
             ?? ($item->unit_price_cents / 100 ?? optional($item->product)->list_price ?? 0.0);
     }
 
+    protected function resolveProductId($item): ?int
+    {
+        return $item->product_id
+            ?? optional($item->product)->id
+            ?? optional($item->variant)->product_id
+            ?? optional($item->variantSize->productVariant)->product_id;
+    }
+
     protected function splitDiscount(Collection $items, float $discount): Collection
     {
         $total = $this->subtotal($items);
 
         return $items->map(function ($item) use ($discount, $total) {
-            $lineTotal = $this->unitPrice($item) * (int) $item->quantity;
-            $share = $total > 0 ? ($lineTotal / $total) : 0;
-
-            $lineDiscount = (float) $discount * $share;
+            $unitCents  = (int) round($this->unitPrice($item) * 100);
+            $quantity   = (int) $item->quantity;
+            $lineCents  = $unitCents * $quantity;
+            $share      = $total > 0 ? ($lineCents / ($total * 100)) : 0;
+            $lineDiscountCents = (int) round($discount * 100 * $share);
 
             return [
-                'bag_item_id'    => $item->id,
-                'product_id'     => optional($item->product)->id,
-                'quantity'       => (int) $item->quantity,
-                'discount'       => $lineDiscount,
-                'discount_cents' => (int) round($lineDiscount * 100),
+                'bag_item_id'            => $item->id,
+                'product_id'             => $this->resolveProductId($item),
+                'quantity'               => $quantity,
+                'unit_price_cents'       => $unitCents,
+                'line_total_cents'       => $lineCents,
+                'discount_cents'         => $lineDiscountCents,
+                'discount'               => $lineDiscountCents / 100,
+                'discounted_total_cents' => max($lineCents - $lineDiscountCents, 0),
+                'discounted_total'       => max($lineCents - $lineDiscountCents, 0) / 100,
             ];
         });
     }
+
 
     protected function emptyResult(float $subtotal = 0): array
     {

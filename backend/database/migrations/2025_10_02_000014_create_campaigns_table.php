@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('store_id')->constrained('stores')->cascadeOnDelete();
             $table->string('name');
             $table->string('code')->unique()->nullable();
+            $table->text('description')->nullable();
             $table->enum('type', ['percentage', 'fixed', 'x_buy_y_pay']);
             $table->decimal('discount_value', 10, 2)->nullable();
             $table->integer('min_quantity')->nullable();

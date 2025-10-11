@@ -8,10 +8,12 @@ class BagSummaryResource extends JsonResource
 {
     public function toArray($request)
     {
-        $totalCents    = (int) ($this->resource['total_cents'] ?? 0);
-        $cargoCents    = (int) ($this->resource['cargo_price_cents'] ?? 0);
-        $discountCents = (int) ($this->resource['discount_cents'] ?? 0);
-        $finalCents    = (int) ($this->resource['final_price_cents'] ?? 0);
+        $data = $this->resource;
+
+        $totalCents    = (int) ($data['total_cents'] ?? 0);
+        $cargoCents    = (int) ($data['cargo_price_cents'] ?? $data['cargo_cents'] ?? 0);
+        $discountCents = (int) ($data['discount_cents'] ?? 0);
+        $finalCents    = (int) ($data['final_price_cents'] ?? $data['final_cents'] ?? 0);
 
         return [
             'total_cents'    => $totalCents,

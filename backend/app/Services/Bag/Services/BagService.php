@@ -28,30 +28,57 @@ class BagService implements BagInterface
     public function getBag()
     {
         $user = $this->getUser();
-        $bag = $this->bagRepository->getBag($user)->load('campaign');
-        $bagItems = $bag ? $bag->bagItems()->with('variantSize.productVariant.variantImages')->orderBy('id')->get() : collect();
-        $bagItems = $this->checkProductAvailability($bagItems, $bag);
-        
-        if($bagItems->isEmpty()){
-            return ['products' => $bagItems, 'bestCampaign' => null, 'total' => 0, 'cargo_price' => 0, 'discount' => 0, 'final_price' => 0];
+        $bag  = $this->bagRepository->getBag($user);
+
+        if (! $bag) {
+            throw new \RuntimeException('Sepet bulunamadı!');
         }
-        
+
+        $bag->load('campaign');
+
+        $bagItems = $bag->bagItems()
+            ->with(['variantSize.productVariant.variantImages'])
+            ->orderBy('id')
+            ->get();
+
+        $bagItems = $this->checkProductAvailability($bagItems, $bag);
+
+        if ($bagItems->isEmpty()) {
+            throw new \RuntimeException('Sepet Boş!');
+        }
+
         $total = $this->bagCalculationService->calculateTotal($bagItems);
         $cargo = $this->bagCalculationService->calculateCargoPrice($total);
-        $discount = $bag?->campaign_discount_cents ?? 0;
+        $discount = $bag->campaign_discount_cents ?? 0;
         $final = max($total + $cargo - $discount, 0);
 
+        $discountItems = collect();
+
+        if ($bag->campaign) {
+            $handler = $this->campaignManager->resolveHandler($bag->campaign->load('campaignProducts'));
+
+            if ($handler && $handler->isApplicable($bagItems->all())) {
+                $CalcResult   = $handler->calculateDiscount($bagItems->all());
+                $discountItems = collect($CalcResult['items'] ?? []);
+
+                // istersen buradaki $CalcResult['discount_cents'] ile bag->campaign_discount_cents
+                // değerini senkron tutabilirsin
+            }
+        }
+
         return [
-            'products'              => $bagItems,
-            'applied_campaign'       => $bag?->campaign,
-            'total_cents'           => $total,
-            'total'                 => $total / 100,
-            'cargo_price_cents'      => $cargo,
-            'cargo_price'            => $cargo / 100,
-            'discount_cents'        => $bag?->campaign_discount_cents ?? 0,
-            'discount'              => ($bag?->campaign_discount_cents ?? 0) / 100,
-            'final_price_cents'      => $final,
-            'final_price'            => $final / 100,
+            'products'          => $bagItems,
+            'applied_campaign'  => $bag->campaign,
+            'total_cents'       => $total,
+            'total'             => $total / 100,
+            'cargo_price_cents' => $cargo,
+            'cargo_price'       => $cargo / 100,
+            'discount_cents'    => $discount,
+            'discount'          => $discount / 100,
+            'final_price_cents' => $final,
+            'final_price'       => $final / 100,
+            'discount_items'    => $discountItems,
+            'campaigns'         => $this->allCampaigns(),
         ];
     }
 
@@ -87,12 +114,18 @@ class BagService implements BagInterface
             throw new \RuntimeException('Sepet bulunamadı!');
         }
 
-        $bagItems = $bag->bagItems()->with('variantSize.productVariant.variantImages')->get();
+        $bagItems = $bag->bagItems()
+            ->with(['variantSize.productVariant.variantImages'])
+            ->get();
+
         if ($bagItems->isEmpty()) {
             throw new \RuntimeException('Sepetiniz boş, kampanya uygulanamaz.');
         }
 
-        $campaign = $this->campaignRepository->getActiveCampaign($campaignId, $bag->store_id);
+        $campaign = $this->campaignRepository
+            ->getActiveCampaign($campaignId, $bag->store_id)
+            ->load('campaignProducts');
+
         if (! $campaign) {
             throw new \RuntimeException('Kampanya bulunamadı veya geçerli değil.');
         }
@@ -116,17 +149,20 @@ class BagService implements BagInterface
             'campaign_discount_cents' => $discount,
         ]);
 
+        $bag->load('campaign');
+
         return [
-            'products'         => $bagItems,
-            'applied_campaign'  => $campaign,
-            'total_cents'      => $total,
-            'total'            => $total / 100,
+            'products'          => $bagItems,
+            'applied_campaign'  => $bag->campaign,
+            'total_cents'       => $total,
+            'total'             => $total / 100,
             'cargo_price_cents' => $cargo,
             'cargo_price'       => $cargo / 100,
-            'discount_cents'   => $discount,
-            'discount'         => $discount / 100,
+            'discount_cents'    => $discount,
+            'discount'          => $discount / 100,
             'final_price_cents' => $final,
             'final_price'       => $final / 100,
+            'discount_items'    => $result['items'] ?? collect(),
         ];
     }
 
@@ -163,6 +199,11 @@ class BagService implements BagInterface
             'finalPrice_cents'      => $final,
             'finalPrice'            => $final / 100,
         ];
+    }
+
+    public function allCampaigns()
+    {
+        return $this->campaignRepository->getActiveCampaigns();
     }
 
     public function showBagItem($bagItemId)

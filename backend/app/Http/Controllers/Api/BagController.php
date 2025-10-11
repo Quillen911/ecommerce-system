@@ -27,20 +27,10 @@ class BagController extends Controller
         $bag = $this->bagService->getBag();
 
         if ($bag['products']->isEmpty()) {
-            return ResponseHelper::success('Sepetiniz boş!', [
-                'products' => [],
-                'totals'   => new BagSummaryResource($bag),
-            ]);
+            return new BagResource($bag);
         }
 
-        return [
-            'products'         => BagItemResource::collection($bag['products']),
-            'totals'           => new BagSummaryResource($bag),
-            'applied_campaign' => new AppliedCampaignResource([
-                'campaign'       => $bag['applied_campaign'],
-                'discount_cents' => $bag['discount_cents'] ?? 0,
-            ]),
-        ];
+        return new BagResource($bag);
     }
     public function store(BagStoreRequest $request)
     {
@@ -57,14 +47,7 @@ class BagController extends Controller
         
         Cache::flush();
         $bagData = $this->bagService->getBag();
-        return [
-            'products'         => BagItemResource::collection($bagData['products']),
-            'totals'           => new BagSummaryResource($bagData),
-            'applied_campaign' => new AppliedCampaignResource([
-                'campaign'       => $bagData['applied_campaign'],
-                'discount_cents' => $bagData['discount_cents'] ?? 0,
-            ]),
-        ];
+        return new BagResource($bagData);
     }
 
     public function select(SelectBagCampaignRequest $request)
@@ -73,18 +56,13 @@ class BagController extends Controller
 
         $result = $this->bagService->selectCampaign($campaignId);
 
-        return response()->json($result);
+        return new BagResource($result);
     }
 
     public function unSelectCampaign()
     {
         $result = $this->bagService->unSelectCampaign();
-
-        return [
-            'products'         => BagItemResource::collection($result['products']),
-            'totals'           => new BagSummaryResource($result),
-            'applied_campaign' => null,
-        ];
+        return new BagResource($result);
     }
 
     public function show($id)

@@ -49,10 +49,10 @@ Route::get('/autocomplete', [MainController::class, 'autocomplete']);
 
 Route::middleware('auth:user')->middleware(ApiAuthenticate::class)->group(function(){
 
+    
+    Route::post('bags/campaign', [BagController::class, 'select']);
+    Route::delete('bags/campaign', [BagController::class, 'unSelectCampaign']);
     Route::apiResource('bags', BagController::class)->only(['index','store','show', 'update', 'destroy']);
-
-    Route::post('/bags/{bag}/campaign', [BagController::class, 'select']);
-    Route::delete('/bags/{bag}/campaign', [BagController::class, 'unSelectCampaign']);
 
     Route::prefix('checkout')->group(function () {
         Route::post('session', [CheckoutController::class, 'createSession']);

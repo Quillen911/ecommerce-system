@@ -13,7 +13,7 @@ class BagItemResource extends JsonResource
             'variant_id'       => $this->variant_id,
             'variant_size_id'  => $this->variant_size_id,
             'product_title'    => $this->product_title,
-            'quantity'         => $this->quantity,
+            'quantity'         => (int) $this->quantity,
             'unit_price_cents' => (int) $this->unit_price_cents,
             'store_id'         => $this->store_id,
             'sizes'            => $this->whenLoaded('variantSize', function () {

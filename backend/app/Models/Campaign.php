@@ -14,6 +14,7 @@ class Campaign extends Model
         'store_id',
         'code',
         'type',
+        'description',
         'discount_value',
         'min_quantity',
         'usage_limit',
