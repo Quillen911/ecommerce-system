@@ -19,20 +19,20 @@ export function BagSummary({
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
           <span>Ürün Toplamı</span>
-          <span>{total.toFixed(2)} ₺</span>
+          <span>{(total / 100).toFixed(2)} ₺</span>
         </div>
         <div className="flex justify-between">
           <span>İndirim</span>
-          <span className="text-green-600">- {discount.toFixed(2)} ₺</span>
+          <span className="text-green-600">- {(discount / 100).toFixed(2)} ₺</span>
         </div>
         <div className="flex justify-between">
           <span>Kargo</span>
-          <span>{cargoPrice.toFixed(2)} ₺</span>
+          <span>{(cargoPrice / 100).toFixed(2)} ₺</span>
         </div>
         <hr className="my-3 border-color" />
         <div className="flex justify-between font-bold text-lg">
           <span>Ödenecek Tutar</span>
-          <span>{finalPrice.toFixed(2)} ₺</span>
+          <span>{(finalPrice / 100).toFixed(2)} ₺</span>
         </div>
       </div>
       <button

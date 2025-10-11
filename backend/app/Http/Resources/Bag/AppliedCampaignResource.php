@@ -9,8 +9,8 @@ class AppliedCampaignResource extends JsonResource
     public function toArray($request)
     {
         $campaign      = $this->resource['campaign'] ?? $this->resource;
-        $discountCents = (int) ($this->resource['discount_cents'] ?? 0);
-        $items         = collect($this->resource['items'] ?? []);
+        $discountCents = $this->resource['discount_cents'] ?? 0;
+        $discountItems = $this->resource['items'] ?? [];
 
         if (! $campaign) {
             return null;
@@ -22,9 +22,8 @@ class AppliedCampaignResource extends JsonResource
             'type'           => $campaign->type,
             'description'    => $campaign->description,
             'discount_cents' => $discountCents,
-            'discount'       => $discountCents / 100,
-            'ends_at'        => optional($campaign->ends_at)->toIso8601String(),
-            'items'          => BagDiscountItemResource::collection($items),
+            'ends_at'        => $campaign->ends_at ? $campaign->ends_at->toIso8601String() : null,
+            'discount_items' => $discountItems,
         ];
     }
 }

@@ -93,10 +93,10 @@ export default function BagPage() {
           ))}
         </div>
         <BagSummary
-          total={bagTotals?.total}
-          discount={bagTotals?.discount}
-          cargoPrice={bagTotals?.cargo}
-          finalPrice={bagTotals?.final}
+          total={bagTotals?.total_cents}
+          discount={bagTotals?.discount_cents}
+          cargoPrice={bagTotals?.cargo_cents}
+          finalPrice={bagTotals?.final_cents}
           onCheckout={() => toast.info("Ödeme akışı henüz hazır değil")}
         />
         <BagCampaignSelector

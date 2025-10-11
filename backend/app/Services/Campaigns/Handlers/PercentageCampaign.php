@@ -9,10 +9,10 @@ class PercentageCampaign extends BaseCampaign
 {
     public function isApplicable(array $bagItems): bool
     {
-        if (! $this->isCampaignActive()) {
+        if (! $this->isCampaignActive() || ! $this->eligibileMinBag($bagItems) ) {
             return false;
         }
-
+        
         return ! $this->eligibleItems($bagItems)->isEmpty();
     }
 
@@ -31,17 +31,13 @@ class PercentageCampaign extends BaseCampaign
         }
 
         $subtotalCents = $this->subtotalCents($items);
-        $discountCents = (int) round($subtotalCents * $rate);
+        $discountCents = round($subtotalCents * $rate);
+        $perProductDiscount = $this->perItemDiscount($items, $rate);
 
         return [
-            'campaign_id'          => $this->campaign->id,
-            'store_id'             => $this->campaign->store_id,
-            'description'          => $this->campaign->description,
             'discount_cents'       => max($discountCents, 0),
-            'discount'             => max($discountCents, 0) / 100,
             'eligible_total_cents' => $subtotalCents,
-            'eligible_total'       => $subtotalCents / 100,
-            'items'                => $this->perItemDiscount($items, $rate),
+            'items'                => $perProductDiscount,
         ];
     }
 
@@ -52,49 +48,22 @@ class PercentageCampaign extends BaseCampaign
 
     protected function subtotalCents(Collection $items): int
     {
-        return (int) round($items->sum(fn ($item) =>
-            $this->unitPriceCents($item) * (int) $item->quantity));
-    }
-
-    protected function unitPriceCents($item): int
-    {
-        if (isset($item->unit_price_cents)) {
-            return (int) $item->unit_price_cents;
-        }
-
-        if (isset($item->unit_price)) {
-            return (int) round($item->unit_price * 100);
-        }
-
-        return (int) round(optional($item->product)->list_price * 100);
+        return round($items->sum(fn ($item) =>
+            $item->unit_price_cents * $item->quantity));
     }
 
     protected function perItemDiscount(Collection $items, float $rate): Collection
     {
-        return $items->map(function ($item) use ($rate) {
-            $unitCents   = $this->unitPriceCents($item);
-            $quantity    = (int) $item->quantity;
-            $lineCents   = $unitCents * $quantity;
-            $discountCents = min((int) round($lineCents * $rate), $lineCents);
-
+        return $items->map(function($item) use ($rate) {
             return [
-                'bag_item_id'             => $item->id,
-                'product_id'              => $item->product_id
-                    ?? optional($item->product)->id
-                    ?? optional($item->variant)->product_id
-                    ?? optional($item->variantSize->productVariant)->product_id,
-                'quantity'                => $quantity,
-                'unit_price_cents'        => $unitCents,
-                'line_total_cents'        => $lineCents,
-                'discount_cents'          => $discountCents,
-                'discount'                => $discountCents / 100,
-                'discounted_total_cents'  => $lineCents - $discountCents,
-                'discounted_total'        => ($lineCents - $discountCents) / 100,
+                'discount_item_id' => $item->id,
+                'discount_item_product_id' => $item->variant->product_id,
+                'quantity' => $item->quantity,
+                'discount' => ($item->unit_price_cents * $item->quantity * $rate) 
             ];
         });
     }
-
-
+    
     protected function emptyResult(): array
     {
         return [

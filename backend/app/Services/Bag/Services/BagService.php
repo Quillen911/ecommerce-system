@@ -60,9 +60,6 @@ class BagService implements BagInterface
             if ($handler && $handler->isApplicable($bagItems->all())) {
                 $CalcResult   = $handler->calculateDiscount($bagItems->all());
                 $discountItems = collect($CalcResult['items'] ?? []);
-
-                // istersen buradaki $CalcResult['discount_cents'] ile bag->campaign_discount_cents
-                // değerini senkron tutabilirsin
             }
         }
 
@@ -70,13 +67,9 @@ class BagService implements BagInterface
             'products'          => $bagItems,
             'applied_campaign'  => $bag->campaign,
             'total_cents'       => $total,
-            'total'             => $total / 100,
             'cargo_price_cents' => $cargo,
-            'cargo_price'       => $cargo / 100,
             'discount_cents'    => $discount,
-            'discount'          => $discount / 100,
             'final_price_cents' => $final,
-            'final_price'       => $final / 100,
             'discount_items'    => $discountItems,
             'campaigns'         => $this->allCampaigns(),
         ];
@@ -123,7 +116,7 @@ class BagService implements BagInterface
         }
 
         $campaign = $this->campaignRepository
-            ->getActiveCampaign($campaignId, $bag->store_id)
+            ->getActiveCampaign($campaignId)
             ->load('campaignProducts');
 
         if (! $campaign) {
@@ -131,6 +124,7 @@ class BagService implements BagInterface
         }
 
         $handler = $this->campaignManager->resolveHandler($campaign);
+
         if (! $handler || ! $handler->isApplicable($bagItems->all())) {
             throw new \RuntimeException('Bu kampanya sepetiniz için uygun değil.');
         }
@@ -149,19 +143,13 @@ class BagService implements BagInterface
             'campaign_discount_cents' => $discount,
         ]);
 
-        $bag->load('campaign');
-
         return [
             'products'          => $bagItems,
             'applied_campaign'  => $bag->campaign,
             'total_cents'       => $total,
-            'total'             => $total / 100,
             'cargo_price_cents' => $cargo,
-            'cargo_price'       => $cargo / 100,
             'discount_cents'    => $discount,
-            'discount'          => $discount / 100,
             'final_price_cents' => $final,
-            'final_price'       => $final / 100,
             'discount_items'    => $result['items'] ?? collect(),
         ];
     }

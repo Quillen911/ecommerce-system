@@ -16,7 +16,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('type', ['percentage', 'fixed', 'x_buy_y_pay']);
             $table->decimal('discount_value', 10, 2)->nullable();
-            $table->integer('min_quantity')->nullable();
+            $table->unsignedInteger('buy_quantity')->nullable();
+            $table->unsignedInteger('pay_quantity')->nullable();
+            $table->integer('min_subtotal')->nullable();
             $table->integer('usage_limit')->nullable();
             $table->integer('usage_count')->default(0);
             $table->boolean('is_active')->default(true);

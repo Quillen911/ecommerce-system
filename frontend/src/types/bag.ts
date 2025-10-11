@@ -40,27 +40,18 @@ export interface ProductVariantInBag {
   variant_images: ProductVariantImage[]
 }
 
-export interface BagDiscountItem {
-  bag_item_id: number
-  product_id: number
-  quantity: number
-  unit_price_cents: number
-  line_total_cents: number
-  discount_cents: number
-  discount: number
-  discounted_total_cents: number
-  discounted_total: number
-}
-
 export interface BagTotals {
   total_cents: number
-  total: number
   cargo_cents: number
-  cargo: number
   discount_cents: number
-  discount: number
   final_cents: number
-  final: number
+}
+
+export interface BagDiscountItem {
+  discount_item_id: number
+  discount_item_product_id: number
+  quantity: number
+  discount: number
 }
 
 export interface BagCampaign {
@@ -68,10 +59,8 @@ export interface BagCampaign {
   name: string
   type: string
   description: string | null
-  discount_cents: number
-  discount: number
   ends_at: string | null
-  items?: BagDiscountItem[]
+  discount_items: BagDiscountItem
 }
 
 export interface GetBagItems {

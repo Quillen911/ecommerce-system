@@ -15,7 +15,6 @@ abstract class BaseCampaign implements CampaignInterface
 
     protected function isCampaignActive(): bool
     {
-        $now = now();
 
         if ($this->campaign->starts_at && $this->campaign->starts_at->isFuture()) {
             return false;
@@ -29,48 +28,55 @@ abstract class BaseCampaign implements CampaignInterface
         return (bool) $this->campaign->is_active;
     }
 
-    /**
-     * Sepetteki ürünler arasından kampanyanın mağazasına ait olanları döndür.
-     */
     protected function productEligible(array $bagItems): array
     {
-        $allowedProductIds = $this->campaign->relationLoaded('campaignProducts')
-            ? $this->campaign->campaignProducts->pluck('product_id')->filter()->all()
-            : [];
+        if($this->campaign->relationLoaded('campaignProducts')){
+            $allowedProductIds = $this->campaign->campaignProducts->pluck('product_id')->filter()->all();
+        }
+        if(!$allowedProductIds){
+            return [];
+        }
 
-        return collect($bagItems)
-            ->filter(function ($item) {
-                $storeId = $item->store_id
-                    ?? $item->product_id
-                    ?? optional($item->variant)->store_id
-                    ?? optional($item->variantSize->productVariant)->store_id;
-
-                return (int) $storeId === (int) $this->campaign->store_id;
+        return collect($bagItems)->filter(function ($item) {
+                $storeId = $item->store_id;
+                return $storeId === $this->campaign->store_id;
             })
             ->filter(function ($item) use ($allowedProductIds) {
                 if (empty($allowedProductIds)) {
                     return true;
                 }
 
-                $productId =
-                    $item->product_id ??
-                    optional($item->product)->id ??
-                    optional($item->variant)->product_id ??
-                    optional($item->variantSize->productVariant)->product_id;
+                $productId =$item->variant->product_id ;
 
-                return in_array((int) $productId, $allowedProductIds, true);
+                return in_array($productId, $allowedProductIds, true);
             })
             ->values()
             ->all();
     }
 
+    protected function discountRate(): float
+    {
+        return max($this->campaign->discount_value, 0) / 100;
+    }
+
+    protected function eligibileMinBag($bagItems)
+    {
+        $minSubTotal = $this->campaign->min_subtotal;
+        if($minSubTotal){
+            $total = collect($bagItems)->sum(function($item) {
+                return ($item->unit_price_cents * $item->quantity)/100;
+            });
+           
+            if($total < $minSubTotal){
+                $remaining = $minSubTotal - $total;
+                throw new \Exception('Sepet Tutarı Yetersiz. Kalan: ' . $remaining . 'TL');
+            }
+        }
+
+        return true;
+    }
 
     abstract public function isApplicable(array $bagItems): bool;
 
     abstract public function calculateDiscount(array $bagItems): array;
-
-    protected function discountRate(): float
-    {
-        return max((float) $this->campaign->discount_value, 0) / 100;
-    }
 }

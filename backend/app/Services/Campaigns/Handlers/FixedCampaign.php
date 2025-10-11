@@ -9,17 +9,12 @@ class FixedCampaign extends BaseCampaign
 {
     public function isApplicable(array $bagItems): bool
     {
-        if (! $this->isCampaignActive()) {
+        if (! $this->isCampaignActive() || !$this->eligibileMinBag($bagItems) ) {
             return false;
         }
 
         $items = $this->eligibleItems($bagItems);
         if ($items->isEmpty()) {
-            return false;
-        }
-
-        $minSubtotal = $this->campaign->min_quantity;
-        if ($minSubtotal && $this->subtotal($items) < (float) $minSubtotal) {
             return false;
         }
 

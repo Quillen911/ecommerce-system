@@ -11,13 +11,10 @@ class BagDiscountItemResource extends JsonResource
         return [
             'bag_item_id'            => $this['bag_item_id'],
             'product_id'             => $this['product_id'],
-            'quantity'               => (int) $this['quantity'],
-            'unit_price_cents'       => (int) $this['unit_price_cents'],
-            'line_total_cents'       => (int) $this['line_total_cents'],
-            'discount_cents'         => (int) $this['discount_cents'],
-            'discount'               => $this['discount_cents'] / 100,
-            'discounted_total_cents' => (int) $this['discounted_total_cents'],
-            'discounted_total'       => $this['discounted_total_cents'] / 100,
+            'quantity'               => $this['quantity'],
+            'unit_price_cents'       => $this['unit_price_cents'],
+            'line_total_cents'       => $this['unit_price_cents'] * $this['quantity'],
+            'discount_cents'         => $this['discount_cents'],
         ];
     }
 }
