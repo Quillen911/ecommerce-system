@@ -52,27 +52,47 @@ class BagService implements BagInterface
         $discount = $bag->campaign_discount_cents ?? 0;
         $final = max($total + $cargo - $discount, 0);
 
+        $discount = 0;
         $discountItems = collect();
-
+        $appliedCampaign = null;
+        
         if ($bag->campaign) {
-            $handler = $this->campaignManager->resolveHandler($bag->campaign->load('campaignProducts'));
-
+            $campaign = $bag->campaign->load('campaignProducts');
+            $handler  = $this->campaignManager->resolveHandler($campaign);
+        
             if ($handler && $handler->isApplicable($bagItems->all())) {
-                $CalcResult   = $handler->calculateDiscount($bagItems->all());
-                $discountItems = collect($CalcResult['items'] ?? []);
+                $calcResult     = $handler->calculateDiscount($bagItems->all());
+                $discount       = $calcResult['discount_cents'] ?? 0;
+                $discountItems  = collect($calcResult['items'] ?? []);
+                $appliedCampaign = $campaign;
+        
+                if ($bag->campaign_discount_cents !== $discount) {
+                    $bag->update(['campaign_discount_cents' => $discount]);
+                }
+            } else {
+                $bag->update([
+                    'campaign_id'             => null,
+                    'campaign_discount_cents' => 0,
+                ]);
+                $bag->unsetRelation('campaign');
             }
+        } else {
+            $bag->update(['campaign_discount_cents' => 0]);
         }
-
+        
+        $final = max($total + $cargo - $discount, 0);
+        
         return [
-            'products'          => $bagItems,
-            'applied_campaign'  => $bag->campaign,
-            'total_cents'       => $total,
-            'cargo_price_cents' => $cargo,
-            'discount_cents'    => $discount,
-            'final_price_cents' => $final,
-            'discount_items'    => $discountItems,
-            'campaigns'         => $this->allCampaigns(),
+            'products'         => $bagItems,
+            'applied_campaign' => $appliedCampaign,
+            'total_cents'      => $total,
+            'cargo_price_cents'=> $cargo,
+            'discount_cents'   => $discount,
+            'final_price_cents'=> $final,
+            'discount_items'   => $discountItems,
+            'campaigns'        => $this->allCampaigns(),
         ];
+        
     }
 
     public function addToBag($variantSizeId, $quantity = 1)

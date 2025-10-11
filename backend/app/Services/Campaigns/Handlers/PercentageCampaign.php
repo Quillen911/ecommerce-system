@@ -9,11 +9,21 @@ class PercentageCampaign extends BaseCampaign
 {
     public function isApplicable(array $bagItems): bool
     {
-        if (! $this->isCampaignActive() || ! $this->eligibileMinBag($bagItems) ) {
+        if (! $this->isCampaignActive()) {
             return false;
         }
-        
-        return ! $this->eligibleItems($bagItems)->isEmpty();
+    
+        $items = $this->eligibleItems($bagItems);
+    
+        if ($items->isEmpty()) {
+            return false;
+        }
+    
+        if (! $this->eligibleMinBag($items->all())) {
+            return false;
+        }
+    
+        return true;
     }
 
     public function calculateDiscount(array $bagItems): array

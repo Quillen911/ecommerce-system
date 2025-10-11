@@ -16,7 +16,7 @@ class Campaign extends Model
         'type',
         'description',
         'discount_value',
-        'min_quantity',
+        'min_subtotal',
         'usage_limit',
         'usage_count',
         'is_active',
@@ -25,6 +25,7 @@ class Campaign extends Model
     ];
 
     protected $casts = [
+        'min_subtotal' => 'float',
         'is_active' => 'boolean',
         'discount_value' => 'integer',
         'min_quantity' => 'integer',

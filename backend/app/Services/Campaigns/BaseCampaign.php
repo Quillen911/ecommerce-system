@@ -25,33 +25,7 @@ abstract class BaseCampaign implements CampaignInterface
             return false;
         }
 
-        return (bool) $this->campaign->is_active;
-    }
-
-    protected function productEligible(array $bagItems): array
-    {
-        if($this->campaign->relationLoaded('campaignProducts')){
-            $allowedProductIds = $this->campaign->campaignProducts->pluck('product_id')->filter()->all();
-        }
-        if(!$allowedProductIds){
-            return [];
-        }
-
-        return collect($bagItems)->filter(function ($item) {
-                $storeId = $item->store_id;
-                return $storeId === $this->campaign->store_id;
-            })
-            ->filter(function ($item) use ($allowedProductIds) {
-                if (empty($allowedProductIds)) {
-                    return true;
-                }
-
-                $productId =$item->variant->product_id ;
-
-                return in_array($productId, $allowedProductIds, true);
-            })
-            ->values()
-            ->all();
+        return $this->campaign->is_active;
     }
 
     protected function discountRate(): float
@@ -59,21 +33,52 @@ abstract class BaseCampaign implements CampaignInterface
         return max($this->campaign->discount_value, 0) / 100;
     }
 
-    protected function eligibileMinBag($bagItems)
+    protected function productEligible(array $bagItems): array
     {
-        $minSubTotal = $this->campaign->min_subtotal;
-        if($minSubTotal){
-            $total = collect($bagItems)->sum(function($item) {
-                return ($item->unit_price_cents * $item->quantity)/100;
-            });
-           
-            if($total < $minSubTotal){
-                $remaining = $minSubTotal - $total;
-                throw new \Exception('Sepet Tutarı Yetersiz. Kalan: ' . $remaining . 'TL');
-            }
+        $allowedProductIds = null;
+    
+        if ($this->campaign->relationLoaded('campaignProducts')) {
+            $allowedProductIds = $this->campaign->campaignProducts
+                ->pluck('product_id')
+                ->filter()
+                ->all();
         }
-
-        return true;
+    
+        return collect($bagItems)
+            ->filter(fn ($item) =>
+                ($item->store_id ?? optional($item->product)->store_id) === $this->campaign->store_id
+            )
+            ->filter(function ($item) use ($allowedProductIds) {
+                if (empty($allowedProductIds)) {
+                    return true;
+                }
+    
+                $productId = $item->product_id
+                    ?? optional($item->product)->id
+                    ?? optional($item->variant)->product_id
+                    ?? optional(optional($item->variantSize)->productVariant)->product_id;
+    
+                return $productId && in_array($productId, $allowedProductIds, true);
+            })
+            ->values()
+            ->all();
+    }
+    
+    protected function eligibleMinBag(array $items): bool
+    {
+        if (! $this->campaign->min_subtotal) {
+            return true;
+        }
+    
+        $totalCents = collect($items)->sum(function ($item) {
+            $unitCents = $item->unit_price_cents
+                ?? ($item->unit_price ? $item->unit_price * 100 : null)
+                ?? optional($item->product)->list_price * 100;
+    
+            return ($unitCents ?? 0) * (int) $item->quantity;
+        });
+    
+        return ($totalCents / 100) >= (float) $this->campaign->min_subtotal;
     }
 
     abstract public function isApplicable(array $bagItems): bool;

@@ -9,20 +9,21 @@ class XBuyYPayCampaign extends BaseCampaign
 {
     public function isApplicable(array $bagItems): bool
     {
-        if (! $this->isCampaignActive() || !$this->eligibileMinBag($bagItems) ) {
+        if (! $this->isCampaignActive()) {
             return false;
         }
-        
+    
         $items = $this->eligibleItems($bagItems);
-
-        $x = ($this->campaign->buy_quantity ?? 0);
-        $y = ($this->campaign->pay_quantity ?? 0);
-
-        if ($items->isEmpty() || $x <= 0 || $y <= 0 || $y > $x) {
+    
+        if ($items->isEmpty()) {
             return false;
         }
-
-        return $items->sum('quantity') >= $x;
+    
+        if (! $this->eligibleMinBag($items->all())) {
+            return false;
+        }
+    
+        return true;
     }
 
     public function calculateDiscount(array $bagItems): array
