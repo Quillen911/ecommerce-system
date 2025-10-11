@@ -10,6 +10,9 @@ use App\Http\Requests\Bag\SelectBagCampaignRequest;
 use App\Helpers\ResponseHelper;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Http\Resources\Bag\BagResource;
+use App\Http\Resources\Bag\BagItemResource;
+use App\Http\Resources\Bag\BagSummaryResource;
+use App\Http\Resources\Bag\AppliedCampaignResource;
 
 class BagController extends Controller
 {
@@ -21,21 +24,23 @@ class BagController extends Controller
     }
     public function index()
     {
-        $bagData = $this->bagService->getBag();
-        if(empty($bagData['products']) || $bagData['products']->isEmpty()){
-            return ResponseHelper::success('Sepetiniz boş!', []);
+        $bag = $this->bagService->getBag();
+
+        if ($bag['products']->isEmpty()) {
+            return ResponseHelper::success('Sepetiniz boş!', [
+                'products' => [],
+                'totals'   => new BagSummaryResource($bag),
+            ]);
         }
-        Cache::flush();
-        
-        return ResponseHelper::success(
-            'Sepetiniz',
-            [
-                'products' => BagResource::collection($bagData['products']),
-                'total' => $bagData['total'],
-                'cargoPrice' => $bagData['cargoPrice'],
-                'finalPrice' => $bagData['finalPrice']
-            ]
-        );
+
+        return [
+            'products'         => BagItemResource::collection($bag['products']),
+            'totals'           => new BagSummaryResource($bag),
+            'applied_campaign' => new AppliedCampaignResource([
+                'campaign'       => $bag['applied_campaign'],
+                'discount_cents' => $bag['discount_cents'] ?? 0,
+            ]),
+        ];
     }
     public function store(BagStoreRequest $request)
     {
@@ -52,15 +57,14 @@ class BagController extends Controller
         
         Cache::flush();
         $bagData = $this->bagService->getBag();
-        return ResponseHelper::success(
-            'Sepet güncellendi',
-            [
-                'products'   => BagResource::collection($bagData['products']),
-                'total'      => $bagData['total'],
-                'cargoPrice' => $bagData['cargoPrice'],
-                'finalPrice' => $bagData['finalPrice'],
-            ]
-        );
+        return [
+            'products'         => BagItemResource::collection($bagData['products']),
+            'totals'           => new BagSummaryResource($bagData),
+            'applied_campaign' => new AppliedCampaignResource([
+                'campaign'       => $bagData['applied_campaign'],
+                'discount_cents' => $bagData['discount_cents'] ?? 0,
+            ]),
+        ];
     }
 
     public function select(SelectBagCampaignRequest $request)
@@ -68,6 +72,19 @@ class BagController extends Controller
         $campaignId = $request->integer('campaign_id');
 
         $result = $this->bagService->selectCampaign($campaignId);
+
+        return response()->json($result);
+    }
+
+    public function unSelectCampaign()
+    {
+        $result = $this->bagService->unSelectCampaign();
+
+        return [
+            'products'         => BagItemResource::collection($result['products']),
+            'totals'           => new BagSummaryResource($result),
+            'applied_campaign' => null,
+        ];
     }
 
     public function show($id)

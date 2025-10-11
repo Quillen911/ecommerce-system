@@ -11,6 +11,7 @@ class Campaign extends Model
 
     protected $fillable = [
         'name',
+        'store_id',
         'code',
         'type',
         'discount_value',
@@ -32,6 +33,11 @@ class Campaign extends Model
         'ends_at' => 'datetime',
     ];
 
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
+    }
+
     public function orders()
     {
         return $this->hasMany(Order::class, 'campaign_id');
@@ -45,6 +51,16 @@ class Campaign extends Model
     public function campaignProducts()
     {
         return $this->hasMany(CampaignProduct::class, 'campaign_id');
+    }
+
+    public function campaignCategories()
+    {
+        return $this->hasMany(CampaignCategory::class, 'campaign_id');
+    }
+
+    public function campaign_usages()
+    {
+        return $this->hasMany(CampaignUsage::class, 'campaign_id');
     }
 
 }

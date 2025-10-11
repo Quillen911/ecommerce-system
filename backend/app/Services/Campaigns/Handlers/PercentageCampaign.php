@@ -1,108 +1,101 @@
 <?php
-/*
+
 namespace App\Services\Campaigns\Handlers;
 
 use App\Services\Campaigns\BaseCampaign;
+use Illuminate\Support\Collection;
 
 class PercentageCampaign extends BaseCampaign
 {
-
-    public function isApplicable(array $products): bool
+    public function isApplicable(array $bagItems): bool
     {
-        if(!$this->isCampaignActive()){
+        if (! $this->isCampaignActive()) {
             return false;
         }
 
-        $eligibleProducts = $this->productEligible($products);
-
-        $min_bag = $this->getConditionValue('min_bag');
-        if($min_bag){
-            $total = collect($eligibleProducts)->sum(function($item) use ($min_bag){
-                return $item->product->list_price * $item->quantity;
-            });
-            if($total < $min_bag){
-                return false;
-            }
-        }
-
-        $author = $this->getConditionValue('author');
-        if($author){
-            $eligible = collect($eligibleProducts)->filter(function($item) use ($author) {
-                return in_array($item->product->author, (array)$author);
-            });
-            if($eligible->sum('quantity') == 0){
-                return false;
-            }
-            
-        }
-
-        $category = $this->getConditionValue('category');
-        if($category){
-            $eligible = collect($eligibleProducts)->filter(function($item) use ($category) {
-                return $item->product->category?->category_title == $category;
-            }); 
-            if($eligible->sum('quantity') == 0){
-                return false;
-            }
-        }
-
-        return true;
+        return ! $this->eligibleItems($bagItems)->isEmpty();
     }
 
-    public function calculateDiscount(array $products): array 
+    public function calculateDiscount(array $bagItems): array
     {
+        $rate = $this->discountRate();
 
-        $discount_rule = $this->getDiscountRule();
-        if (!$discount_rule) {
-            return ['description' => '', 'discount' => 0];
+        if ($rate <= 0) {
+            return $this->emptyResult();
         }
 
+        $items = $this->eligibleItems($bagItems);
 
-
-        $discount_value = is_string($discount_rule->discount_value) ? json_decode($discount_rule->discount_value, true) : $discount_rule->discount_value;
-        $discount_rate = is_array($discount_value) ? ($discount_value['percentage'] / 100 ?? 0) : ((float)$discount_value / 100);
-
-        $eligible_products = $this->productEligible($products);
-        
-        $author = $this->getConditionValue('author');
-        if($author){
-            $eligible_products = collect($eligible_products)->filter(function($item) use ($author) {
-                return in_array($item->product->author, (array)$author);
-            });
+        if ($items->isEmpty()) {
+            return $this->emptyResult();
         }
 
-        $category = $this->getConditionValue('category');
-        if($category){
-            $eligible_products = collect($eligible_products)->filter(function($item) use ($category) {
-                return $item->product->category?->category_title == $category;
-            });
-        }
-        
-        $eligible_products = collect($eligible_products)->unique('id');
-        
-        $eligible_total = $eligible_products->sum(function($item) {
-            return $item->product->list_price * $item->quantity;
-        });
-        $discount = $eligible_total * $discount_rate;
-        
-        $perProductDiscount = $eligible_products->map(function($item) use ($discount_rate) {
-            return [
-                'product' => $item->product,
-                'quantity' => $item->quantity,
-                'discount' => ($item->product->list_price * $item->quantity * $discount_rate) 
-            ];
-        });
+        $subtotalCents = $this->subtotalCents($items);
+        $discountCents = (int) round($subtotalCents * $rate);
 
         return [
-            'eligible_products' => $eligible_products,
-            'eligible_total' => $eligible_total,
-            'description' => $this->campaign->description,
-            'discount' => $discount,
-            'per_product_discount' => $perProductDiscount,
-            'campaign_id' => $this->campaign->id,
-            'store_id' => $this->campaign->store_id
+            'campaign_id'          => $this->campaign->id,
+            'store_id'             => $this->campaign->store_id,
+            'description'          => $this->campaign->description,
+            'discount_cents'       => max($discountCents, 0),
+            'discount'             => max($discountCents, 0) / 100,
+            'eligible_total_cents' => $subtotalCents,
+            'eligible_total'       => $subtotalCents / 100,
+            'items'                => $this->perItemDiscount($items, $rate),
         ];
     }
-    
+
+    protected function eligibleItems(array $bagItems): Collection
+    {
+        return collect($this->productEligible($bagItems));
+    }
+
+    protected function subtotalCents(Collection $items): int
+    {
+        return (int) round($items->sum(fn ($item) =>
+            $this->unitPriceCents($item) * (int) $item->quantity));
+    }
+
+    protected function unitPriceCents($item): int
+    {
+        if (isset($item->unit_price_cents)) {
+            return (int) $item->unit_price_cents;
+        }
+
+        if (isset($item->unit_price)) {
+            return (int) round($item->unit_price * 100);
+        }
+
+        return (int) round(optional($item->product)->list_price * 100);
+    }
+
+    protected function perItemDiscount(Collection $items, float $rate): Collection
+    {
+        return $items->map(function ($item) use ($rate) {
+            $discountCents = (int) round($this->unitPriceCents($item) * $rate)
+                * (int) $item->quantity;
+
+            return [
+                'bag_item_id'    => $item->id,
+                'product_id'     => optional($item->product)->id,
+                'quantity'       => (int) $item->quantity,
+                'discount_cents' => max($discountCents, 0),
+                'discount'       => max($discountCents, 0) / 100,
+            ];
+        });
+    }
+
+    protected function emptyResult(): array
+    {
+        return [
+            'campaign_id'          => $this->campaign->id,
+            'store_id'             => $this->campaign->store_id,
+            'description'          => $this->campaign->description,
+            'discount_cents'       => 0,
+            'discount'             => 0.0,
+            'eligible_total_cents' => 0,
+            'eligible_total'       => 0.0,
+            'items'                => collect(),
+        ];
+    }
 }
-    */

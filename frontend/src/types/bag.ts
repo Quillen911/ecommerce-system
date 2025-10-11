@@ -41,33 +41,38 @@ export interface ProductVariantInBag {
 }
 
 export interface GetBagItems {
-  message: string
-  data: {
-    products: BagItem[]
-    total: number
-    cargoPrice: number
-    discount: number
-    finalPrice: number
-  }
+  products: BagItem[]
+  totals: BagTotals
+  applied_campaign: BagCampaign | null
 }
+
+export interface BagTotals {
+  total: number
+  total_cents: number
+  cargo: number
+  cargo_cents: number
+  discount: number
+  discount_cents: number
+  final: number
+  final_cents: number
+}
+
+export interface BagCampaign {
+  id: number
+  name: string
+  type: string
+  description: string | null
+  discount_cents: number
+  discount: number
+  ends_at: string | null
+}
+
 
 export interface BagStoreRequest {
   variant_size_id: number
   quantity?: number | null
 }
-
-export interface BagStoreResponse {
-  message: string
-  data: {
-    id: number
-    bag_id: number
-    variant_size_id: number
-    product_title: string
-    unit_price_cents: number
-    store_id: number
-    quantity: number
-  }
-}
+  
 
 export interface BagUpdateRequest {
   quantity: number

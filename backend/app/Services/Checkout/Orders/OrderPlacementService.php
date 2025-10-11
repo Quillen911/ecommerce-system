@@ -11,6 +11,7 @@ use App\Services\Inventory\InventoryService;
 use App\Services\Payments\PaymentRecorder;
 use App\Services\Payments\PaymentMethodRecorder;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
+use App\Services\Campaigns\CampaignManager;
 
 use App\Events\OrderPlaced;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,8 @@ class OrderPlacementService
         private readonly InventoryService $inventoryService,
         private readonly PaymentRecorder $paymentRecorder,
         private readonly PaymentMethodRecorder $PaymentMethodRecorder,
-        private readonly BagRepositoryInterface $bagRepository
+        private readonly BagRepositoryInterface $bagRepository,
+        private readonly CampaignManager $campaign
     ) {}
 
     public function placeFromSession(User $user, CheckoutSession $session): Order
@@ -34,6 +36,18 @@ class OrderPlacementService
             $this->inventoryService->decrementForOrderItems($items);
             $this->paymentRecorder->record($order, $session->payment_data);
             $this->PaymentMethodRecorder->store($user, $session->payment_data);
+
+            $bagPayload     = $session->bag_snapshot;
+            $campaignId     = data_get($bagPayload, 'applied_campaign.id');
+            $discountCents  = data_get($bagPayload, 'totals.discount_cents', 0);
+            
+            $this->campaign->logUsage(
+                $campaignId,
+                $user->id,
+                $order->id,
+                $discountCents
+            );
+
             $bag = $this->bagRepository->getBag($user);
             $this->bagRepository->clearBagItems($bag);
 

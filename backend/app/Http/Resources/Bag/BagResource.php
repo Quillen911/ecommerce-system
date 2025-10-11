@@ -9,29 +9,31 @@ class BagResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'bag_id' => $this->bag_id,
-            'variant_id' => $this->variant_id,
-            'variant_size_id' => $this->variant_size_id,
-            'product_title' => $this->product_title,
-            'quantity' => $this->quantity,
-            'unit_price_cents' => $this->unit_price_cents,
-            'store_id' => $this->store_id,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'sizes' => $this->whenLoaded('variantSize', function () {
-                $variantSize = $this->variantSize->toArray();
-
-                if (isset($variantSize['product_variant']['variant_images'])) {
-                    $variantSize['product_variant']['variant_images'] = array_map(function ($image) {
-                        $image['image_url'] = asset('storage/productImages/' . $image['image']);
-                        unset($image['image']);
-                        return $image;
-                    }, $variantSize['product_variant']['variant_images']);
-                }
-                
-                return $variantSize;
-            })
+            'id'                 => $this->id,
+            'products'           => BagItemResource::collection($this->whenLoaded('bagItems')),
+            'totals'             => [
+                'total_cents'      => (int) $this->total_cents,
+                'total'            => (float) $this->total,
+                'cargo_cents'      => (int) $this->cargo_price_cents,
+                'cargo'            => (float) $this->cargoPrice,
+                'discount_cents'   => (int) ($this->campaign_discount_cents ?? 0),
+                'discount'         => (float) (($this->campaign_discount_cents ?? 0) / 100),
+                'final_cents'      => (int) $this->final_price_cents,
+                'final'            => (float) $this->final_price,
+            ],
+            'applied_campaign'   => $this->when($this->relationLoaded('campaign') && $this->campaign, function () {
+                return [
+                    'id'          => $this->campaign->id,
+                    'name'        => $this->campaign->name,
+                    'type'        => $this->campaign->type,
+                    'description' => $this->campaign->description,
+                    'discount'    => [
+                        'cents'  => (int) ($this->campaign_discount_cents ?? 0),
+                        'amount' => (float) (($this->campaign_discount_cents ?? 0) / 100),
+                    ],
+                    'ends_at'     => optional($this->campaign->ends_at)->toIso8601String(),
+                ];
+            }),
         ];
     }
 }

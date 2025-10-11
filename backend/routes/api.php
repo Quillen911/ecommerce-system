@@ -51,7 +51,8 @@ Route::middleware('auth:user')->middleware(ApiAuthenticate::class)->group(functi
 
     Route::apiResource('bags', BagController::class)->only(['index','store','show', 'update', 'destroy']);
 
-    Route::get('/bags/{bag}/campaign', [BagController::class, 'select']);
+    Route::post('/bags/{bag}/campaign', [BagController::class, 'select']);
+    Route::delete('/bags/{bag}/campaign', [BagController::class, 'unSelectCampaign']);
 
     Route::prefix('checkout')->group(function () {
         Route::post('session', [CheckoutController::class, 'createSession']);

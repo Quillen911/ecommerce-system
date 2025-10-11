@@ -12,6 +12,8 @@ return new class extends Migration
         Schema::create('bags', function (Blueprint $table) {
             $table->id();   
             $table->unsignedBigInteger('bag_user_id')->nullable();
+            $table->foreignId('campaign_id')->nullable()->constrained()->nullOnDelete();
+            $table->integer('campaign_discount_cents')->default(0);
             $table->timestamps();
 
             $table->foreign('bag_user_id')->references('id')->on('users')->onDelete('cascade');

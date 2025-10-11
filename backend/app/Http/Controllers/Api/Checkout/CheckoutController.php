@@ -42,8 +42,8 @@ class CheckoutController extends Controller
         $user = $this->getUser();
 
         $bagData = $this->bagService->getBag();
-        
-        if (empty($bagData['products']['items'])) {
+  
+        if (empty($bagData['products'])) {
             return response()->json(['message' => 'Sepet boş'], 422);
         }
 
@@ -119,30 +119,6 @@ class CheckoutController extends Controller
             'order_number'=> $order->order_number ?? 1,
             'status'      => 'success',
         ]);
-    }
-
-    private function prepareBagSnapshot(array $bagData): array
-    {
-        $items = $bagData['products']->map(function ($item) {
-            return [
-                'bag_item_id'        => $item->id,
-                'variant_size_id'    => $item->variant_size_id,
-                'product_id'         => $item->variantSize->productVariant->product_id,
-                'product_title'      => $item->product->title ?? $item->variantSize->productVariant->product->title,
-                'quantity'           => $item->quantity,
-                'unit_price_cents'   => $item->variantSize->price_cents,
-                'total_price_cents'  => $item->variantSize->price_cents * $item->quantity,
-            ];
-        })->toArray();
-
-        return [
-            'items'             => $items,
-            'totals' => [
-                'total_cents'       => $bagData['total_cents'],
-                'cargo_cents'       => $bagData['cargoPrice_cents'],
-                'final_cents'       => $bagData['finalPrice_cents'],
-            ],
-        ];
     }
 
 }

@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 class Bag extends Model 
 {
     protected $fillable = [
-        'bag_user_id'
+        'bag_user_id',
+        'campaign_id',
+        'campaign_discount_cents'
     ];
     
     
@@ -16,5 +18,10 @@ class Bag extends Model
 
     public function bagItems() {
         return $this->hasMany(BagItem::class,'bag_id');
+    }
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class);
     }
 }

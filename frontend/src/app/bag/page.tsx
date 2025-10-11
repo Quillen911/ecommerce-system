@@ -2,7 +2,7 @@
 
 import { useBagIndex, useBagUpdate, useBagDestroy, bagKeys } from '@/hooks/useBagQuery'
 import { useMe } from '@/hooks/useAuthQuery'
-import { BagItem } from '@/types/bag'
+import { BagItem, BagTotals,BagCampaign } from '@/types/bag'
 import { toast } from 'sonner'
 
 import { BagItemRow } from "@/components/bag/BagItemRow"
@@ -19,9 +19,10 @@ export default function BagPage() {
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Sepet yüklenirken hata oluştu</div>
 
-  const bag = data 
-  const bagItems: BagItem[] = bag?.products || []
-
+  const bagItems: BagItem[] = data?.products || []
+  const bagTotals: BagTotals | null = data?.totals ?? null;
+  const bagCampaign: BagCampaign | null = data?.applied_campaign ?? null;
+  console.log(bagCampaign,bagTotals)
   const handleIncrease = (item: BagItem) => {
     if (item.quantity < item.sizes.inventory.available) {
       const toastId = toast.loading('Ürün güncelleniyor...')
@@ -92,10 +93,10 @@ export default function BagPage() {
           ))}
         </div>
         <BagSummary
-          total={bag?.total}
-          discount={bag?.discount}
-          cargoPrice={bag?.cargoPrice}
-          finalPrice={bag?.finalPrice}
+          total={bagTotals?.total}
+          discount={bagTotals?.discount}
+          cargoPrice={bagTotals?.cargo}
+          finalPrice={bagTotals?.final}
           onCheckout={() => toast.info("Ödeme akışı henüz hazır değil")}
         />
       </div>

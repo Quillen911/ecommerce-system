@@ -3,90 +3,57 @@
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
-use App\Models\CampaignDiscount;
-use App\Services\Campaigns\CampaignRegistry;
+
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
+use App\Services\Campaigns\Handlers\PercentageCampaign;
+use App\Services\Campaigns\Handlers\FixedCampaign;
+use App\Services\Campaigns\Handlers\XBuyYPayCampaign;
+
 use App\Traits\GetUser;
 class CampaignManager 
 {
-    private $registry;
     private $authenticationRepository;
     use GetUser;
-    public function __construct(CampaignRegistry $registry, AuthenticationRepositoryInterface $authenticationRepository)
+    public function __construct(AuthenticationRepositoryInterface $authenticationRepository)
     {
         $this->authenticationRepository = $authenticationRepository;
-        $this->registry = $registry;
-    }
-    public function getBestCampaigns(array $products, $campaigns, $user)
-    {  
-        $best = ['discount' => 0, 'description' => '', 'campaign_id' => null, 'store_name' => null];
-        foreach ($campaigns as $campaign) {
-            $service = $this->createServiceByType($campaign);
-
-            if ($service && $service->isApplicable($products)) {
-                $result = $service->calculateDiscount($products);
-                if ($result['discount'] > $best['discount']) {
-                    $best = $result;
-                    $best['campaign_id'] = $campaign->id;
-                    $best['store_name'] = $campaign->store_name;
-                }
-            }
-        }
-        return $best;
     }
 
-    private function createServiceByType(Campaign $campaign)
+    public function resolveHandler(Campaign $campaign): ?CampaignInterface
     {
-        if($campaign->is_active == 0 ){
+        if (! $campaign->is_active) {
             return null;
         }
-        return $this->registry->create($campaign->type, $campaign);
+
+        return match ($campaign->type) {
+            'percentage'   => new PercentageCampaign($campaign),
+            'fixed'        => new FixedCampaign($campaign),
+            'x_buy_y_pay'  => new XBuyYPayCampaign($campaign),
+            default        => null,
+        };
     }
 
-    public function userEligible(Campaign $campaign)
+
+    public function touchUsage(Campaign $campaign): void
     {
-        $usage_count = $campaign->campaign_user_usages()->where('user_id', $this->getUser()->id)->first();
-        if($usage_count){
-            if($campaign->usage_limit_for_user <= $usage_count->usage_count){
-                return false;
-            }
-            $campaign->campaign_user_usages()->create([
-                'user_id' => $this->getUser()->id,
-                'campaign_id' => $campaign->id,
-                'campaign_name' => $campaign->name,
-                'used_at' => now(),
-            ]);
-        }else{
-            $campaign->campaign_user_usages()->create([
-                'user_id' => $this->getUser()->id,
-                'campaign_id' => $campaign->id,
-                'campaign_name' => $campaign->name,
-                'used_at' => now(),
-            ]);
+        if ($campaign->usage_limit && $campaign->usage_count >= $campaign->usage_limit) {
+            throw new \RuntimeException('Bu kampanya kullanım limitine ulaştı.');
         }
-        
-        return true;
+
+        $campaign->increment('usage_count');
     }
-    public function decreaseUserUsageCount(Campaign $campaign)
+
+    public function logUsage($campaignId, int $userId, int $orderId, int $discountAmount): void
     {
-        $campaign->campaign_user_usages()->where('campaign_id', $campaign->id)->where('user_id', $this->getUser()->id)->first()->delete();
-        $campaign->save();
-    }
-    public function decreaseUsageLimit(Campaign $campaign)
-    {
-        $campaign->usage_limit = $campaign->usage_limit - 1;
-        if($campaign->usage_limit <= 0){
-            $campaign->is_active = 0;
+        $campaign = Campaign::find($campaignId);
+        if (! $campaign) {
+            throw new \RuntimeException('Kampanya bulunamadı.');
         }
-        $campaign->save();
-    }
-    public function increaseUsageLimit(Campaign $campaign)
-    {
-        $campaign->usage_limit = $campaign->usage_limit + 1;
-        if($campaign->usage_limit > 0 && $campaign->is_active == 0){
-            $campaign->is_active = 1;
-        }
-        $campaign->save();
+        $campaign->campaign_usages()->create([
+            'user_id'         => $userId,
+            'order_id'        => $orderId,
+            'discount_amount' => $discountAmount,
+        ]);
     }
 }
 

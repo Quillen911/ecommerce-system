@@ -18,7 +18,7 @@ class CampaignRepository extends BaseRepository implements CampaignRepositoryInt
     }
     public function getActiveCampaign($campaignId)
     {
-        return $this->model->where('is_active', 1)->where('id', $campaignId)->get();
+        return $this->model->where('is_active', 1)->where('id', $campaignId)->first();
     }
     
     public function getCampaignsByStoreId($storeId)

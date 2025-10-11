@@ -7,6 +7,8 @@ use App\Exceptions\InsufficientStockException;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
 use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
+use App\Services\Campaigns\CampaignManager;
+
 use App\Traits\GetUser;
 
 class BagService implements BagInterface
@@ -18,38 +20,38 @@ class BagService implements BagInterface
         private readonly BagCalculationService $bagCalculationService, 
         private readonly AuthenticationRepositoryInterface $authenticationRepository, 
         private readonly BagRepositoryInterface $bagRepository,
-        private readonly CampaignRepositoryInterface $campaignRepository
+        private readonly CampaignRepositoryInterface $campaignRepository,
+        private readonly CampaignManager $campaignManager,
     ) {
     }
 
     public function getBag()
     {
         $user = $this->getUser();
-        $bag = $this->bagRepository->getBag($user);
+        $bag = $this->bagRepository->getBag($user)->load('campaign');
         $bagItems = $bag ? $bag->bagItems()->with('variantSize.productVariant.variantImages')->orderBy('id')->get() : collect();
         $bagItems = $this->checkProductAvailability($bagItems, $bag);
         
         if($bagItems->isEmpty()){
-            return ['products' => $bagItems, 'bestCampaign' => null, 'total' => 0, 'cargoPrice' => 0, 'discount' => 0, 'finalPrice' => 0];
+            return ['products' => $bagItems, 'bestCampaign' => null, 'total' => 0, 'cargo_price' => 0, 'discount' => 0, 'final_price' => 0];
         }
         
-        //$selectedCampaign = $this->bagCalculationService->getBestCampaign($bagItems, $user);
         $total = $this->bagCalculationService->calculateTotal($bagItems);
-        $cargoPrice = $this->bagCalculationService->calculateCargoPrice($total);
-        //$discount = $this->bagCalculationService->calculateDiscount($bestCampaign);
-        //$finalPrice = $total + $cargoPrice - $discount;
-        $finalPrice = $total + $cargoPrice;
+        $cargo = $this->bagCalculationService->calculateCargoPrice($total);
+        $discount = $bag?->campaign_discount_cents ?? 0;
+        $final = max($total + $cargo - $discount, 0);
 
         return [
-            'products' => $bagItems, 
-           // 'selectedCampaign' => $selectedCampaign, 
-            'total_cents' => $total, 
-            'total' => $total/100, 
-            'cargoPrice_cents' => $cargoPrice, 
-            'cargoPrice' => $cargoPrice/100, 
-            //'discount' => $discount, 
-            'finalPrice_cents' => $finalPrice,
-            'finalPrice' => $finalPrice/100
+            'products'              => $bagItems,
+            'applied_campaign'       => $bag?->campaign,
+            'total_cents'           => $total,
+            'total'                 => $total / 100,
+            'cargo_price_cents'      => $cargo,
+            'cargo_price'            => $cargo / 100,
+            'discount_cents'        => $bag?->campaign_discount_cents ?? 0,
+            'discount'              => ($bag?->campaign_discount_cents ?? 0) / 100,
+            'final_price_cents'      => $final,
+            'final_price'            => $final / 100,
         ];
     }
 
@@ -73,16 +75,96 @@ class BagService implements BagInterface
         }
     }
 
-    public function selectCampaign($campaignId)
+    public function selectCampaign(int $campaignId): array
     {
         $user = $this->getUser();
-        if(!$user){
-            throw new \Exception('Kullanıcı bulunamadı!');
+        if (! $user) {
+            throw new \RuntimeException('Kullanıcı bulunamadı!');
         }
-        return $this->campaignRepository->getActiveCampaign($campaignId);
-        
+
+        $bag = $this->bagRepository->getBag($user);
+        if (! $bag) {
+            throw new \RuntimeException('Sepet bulunamadı!');
+        }
+
+        $bagItems = $bag->bagItems()->with('variantSize.productVariant.variantImages')->get();
+        if ($bagItems->isEmpty()) {
+            throw new \RuntimeException('Sepetiniz boş, kampanya uygulanamaz.');
+        }
+
+        $campaign = $this->campaignRepository->getActiveCampaign($campaignId, $bag->store_id);
+        if (! $campaign) {
+            throw new \RuntimeException('Kampanya bulunamadı veya geçerli değil.');
+        }
+
+        $handler = $this->campaignManager->resolveHandler($campaign);
+        if (! $handler || ! $handler->isApplicable($bagItems->all())) {
+            throw new \RuntimeException('Bu kampanya sepetiniz için uygun değil.');
+        }
+
+        $this->campaignManager->touchUsage($campaign);
+
+        $result   = $handler->calculateDiscount($bagItems->all());
+        $discount = $result['discount_cents'] ?? 0;
+
+        $total = $this->bagCalculationService->calculateTotal($bagItems);
+        $cargo = $this->bagCalculationService->calculateCargoPrice($total);
+        $final = max($total + $cargo - $discount, 0);
+
+        $bag->update([
+            'campaign_id'             => $campaign->id,
+            'campaign_discount_cents' => $discount,
+        ]);
+
+        return [
+            'products'         => $bagItems,
+            'applied_campaign'  => $campaign,
+            'total_cents'      => $total,
+            'total'            => $total / 100,
+            'cargo_price_cents' => $cargo,
+            'cargo_price'       => $cargo / 100,
+            'discount_cents'   => $discount,
+            'discount'         => $discount / 100,
+            'final_price_cents' => $final,
+            'final_price'       => $final / 100,
+        ];
     }
-    
+
+    public function unSelectCampaign(): array
+    {
+        $user = $this->getUser();
+        $bag  = $this->bagRepository->getBag($user);
+
+        if (! $bag || ! $bag->campaign_id) {
+            throw new \RuntimeException('Sepetinizde kaldırılacak kampanya yok.');
+        }
+
+        $bag->update([
+            'campaign_id'             => null,
+            'campaign_discount_cents' => 0,
+        ]);
+
+        $bagItems = $bag->bagItems()->with('variantSize.productVariant.variantImages')->get();
+        $bagItems = $this->checkProductAvailability($bagItems, $bag);
+
+        $total = $this->bagCalculationService->calculateTotal($bagItems);
+        $cargo = $this->bagCalculationService->calculateCargoPrice($total);
+        $final = max($total + $cargo, 0);
+
+        return [
+            'products'              => $bagItems,
+            'appliedCampaign'       => null,
+            'total_cents'           => $total,
+            'total'                 => $total / 100,
+            'cargoPrice_cents'      => $cargo,
+            'cargoPrice'            => $cargo / 100,
+            'discount_cents'        => 0,
+            'discount'              => 0,
+            'finalPrice_cents'      => $final,
+            'finalPrice'            => $final / 100,
+        ];
+    }
+
     public function showBagItem($bagItemId)
     {
         $user = $this->getUser();
