@@ -5,7 +5,7 @@ import { StepIndicator } from "./StepIndicator"
 import { OrderSummary } from "../review/OrderSummary"
 import type { Bag } from "@/types/checkout"
 
-type CheckoutStep = "shipping" | "review" | "payment" | "success"
+type CheckoutStep = "shipping" | "payment" | "success"
 
 interface CheckoutLayoutProps {
   children: ReactNode
@@ -16,7 +16,6 @@ interface CheckoutLayoutProps {
 
 const STEP_META: Array<{ id: CheckoutStep; label: string }> = [
   { id: "shipping", label: "Teslimat" },
-  { id: "review", label: "Ödeme Öncesi" },
   { id: "payment", label: "Ödeme" },
   { id: "success", label: "Tamamlandı" },
 ]

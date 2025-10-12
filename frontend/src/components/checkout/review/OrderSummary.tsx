@@ -1,4 +1,3 @@
-// components/checkout/review/OrderSummary.tsx
 "use client"
 
 import type { Bag } from "@/types/checkout"
@@ -11,7 +10,11 @@ const formatPrice = (cents: number) => (cents / 100).toFixed(2)
 
 export function OrderSummary({ bag }: OrderSummaryProps) {
   const { items, totals, applied_campaign } = bag
-
+  const campaignName =
+    applied_campaign?.name?.trim() ||
+    (applied_campaign?.campaign_id
+      ? `#${applied_campaign.campaign_id}`
+      : null)
   return (
     <div className="surface rounded-lg border border-color p-6 shadow-sm">
       <h2 className="mb-4 text-lg font-semibold">Sipariş Özeti</h2>
@@ -54,9 +57,9 @@ export function OrderSummary({ bag }: OrderSummaryProps) {
         <span>{formatPrice(totals.final_cents)} ₺</span>
       </div>
 
-      {applied_campaign && (
+     {campaignName && (
         <div className="mt-3 rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-          Kampanya uygulandı ({applied_campaign.name})
+          Kampanya uygulandı ({campaignName})
         </div>
       )}
     </div>

@@ -55,7 +55,7 @@ export interface CreatePaymentIntentRequest {
 export interface Bag {
     items: BagSnapshot[]
     totals: Total
-    applied_campaign: AppliedCampaign
+    applied_campaign?: AppliedCampaign
 }
 
 export interface BagSnapshot {
@@ -77,8 +77,8 @@ export interface Total {
 }
 
 export interface AppliedCampaign {
-    campaign_id: number
-    name: string
+    campaign_id?: number
+    name?: string
 }
 
 //UpdateShippingResponse

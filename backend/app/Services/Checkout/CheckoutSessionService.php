@@ -239,8 +239,8 @@ class CheckoutSessionService
                 'final_cents'       => $bagData['final_price_cents'],
             ],
             'applied_campaign'  => [
-                'id'          => $bagData['applied_campaign']['id'],
-                'name'         => $bagData['applied_campaign']['name'],
+                'id'          => $bagData['applied_campaign']['id'] ?? null,
+                'name'         => $bagData['applied_campaign']['name'] ?? null,
             ] ?? null
         ];
     }

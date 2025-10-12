@@ -11,9 +11,11 @@ import type { ShippingFormValues } from "@/schemas/checkout/shippingSchema"
 import { useCheckoutSession } from "@/hooks/checkout/useCheckoutSession"
 import { useUpdateShipping } from "@/hooks/checkout/useShippingOptions"
 import { useMe } from "@/hooks/useAuthQuery"
+import { Link } from "lucide-react"
 
 export default function ShippingStepPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [resolvedSessionId, setResolvedSessionId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -29,13 +31,16 @@ export default function ShippingStepPage() {
   }
 
   if (!resolvedSessionId) {
+
+    router.push('/bag')
     return (
       <CheckoutLayout currentStep="shipping">
         <div className="py-12 text-center">
           <h2 className="text-xl font-semibold mb-2">Session bulunamadı.</h2>
           <p className="text-sm text-muted-foreground">
-            Lütfen sepet sayfasından checkout akışını yeniden başlatın.
+            Lütfen sepet sayfasına dönüp tekrar işlem yapınız.
           </p>
+          <Link href="/bag">Sepete Git</Link>
         </div>
       </CheckoutLayout>
     )
@@ -106,7 +111,7 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
       {
         onSuccess: () => {
           toast.success("Teslimat bilgileri güncellendi", { id: toastId })
-          router.push(`/checkout/review?session=${formValues.session_id}`)
+          router.push(`/checkout/payment?session=${formValues.session_id}`)
         },
         onError: () => {
           toast.error("Teslimat bilgileri kaydedilemedi", { id: toastId })
