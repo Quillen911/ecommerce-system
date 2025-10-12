@@ -128,14 +128,10 @@ class CheckoutSessionService
         $paymentData['intent']              = $intent;
         $paymentData['status']              = $intent['status'] ?? 'payment_pending';
         $paymentData['save_card']           = (bool) ($data['save_card'] ?? false);
-        $paymentData['new_card_payload']    = ($paymentData['save_card'] && ! $paymentMethod->exists)
+        $paymentData['new_card_payload'] = ($paymentData['save_card'] && ! $paymentMethod->exists)
             ? [
-                'card_holder_name' => $data['card_holder_name'] ?? null,
-                'card_number'      => $data['card_number']      ?? null,
-                'expire_month'     => $data['expire_month']     ?? null,
-                'expire_year'      => $data['expire_year']      ?? null,
-                'card_alias'       => $data['card_alias']       ?? null,
-                'email'            => $data['email']            ?? $user->email,
+                'card_alias' => $data['card_alias'] ?? 'Kredi Kartım',
+                'last4'      => substr($data['card_number'] ?? '', -4),
             ]
             : null;
 
@@ -244,6 +240,7 @@ class CheckoutSessionService
             ],
             'applied_campaign'  => [
                 'id'          => $bagData['applied_campaign']['id'],
+                'name'         => $bagData['applied_campaign']['name'],
             ] ?? null
         ];
     }

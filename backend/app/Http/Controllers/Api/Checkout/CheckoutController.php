@@ -56,9 +56,8 @@ class CheckoutController extends Controller
         ], 201);
     }
 
-    public function getSession(GetSessionRequest $request) {
+    public function getSession($sessionId) {
         $user = $this->getUser();
-        $sessionId = $request->validated('session_id');
         
         $session = $this->checkoutSessionService->getSession($user, $sessionId);
 

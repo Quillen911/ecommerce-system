@@ -23,11 +23,11 @@ class PaymentMethodRecorder
         }
         $provider = $this->paymentProviders->findActiveByCode($payload['provider']);
         $method = $this->prepareMethod($user, $payload);
-        dd($payload['new_card_payload']);
+        
         $stored = app(PaymentGatewayInterface::class, ['provider' => $provider])
             ->storePaymentMethod($user, $method, $payload['new_card_payload']);
 
-        return $this->paymentMethods->saveFromGateway($stored ->toArray());
+        return $this->paymentMethods->saveFromGateway($stored);
     }
 
     private function prepareMethod(User $user, array $payload): PaymentMethod

@@ -55,8 +55,8 @@ Route::middleware('auth:user')->middleware(ApiAuthenticate::class)->group(functi
     Route::apiResource('bags', BagController::class)->only(['index','store','show', 'update', 'destroy']);
 
     Route::prefix('checkout')->group(function () {
+        Route::get('session/{session_id}', [CheckoutController::class, 'getSession']);
         Route::post('session', [CheckoutController::class, 'createSession']);
-        Route::get('session', [CheckoutController::class, 'getSession']);
         Route::post('shipping', [CheckoutController::class, 'updateShipping']);
         Route::post('payment-intent', [CheckoutController::class, 'createPaymentIntent']);
     });

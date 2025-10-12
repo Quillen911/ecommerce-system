@@ -9,13 +9,18 @@ import { BagItemRow } from "@/components/bag/BagItemRow"
 import { BagSummary } from "@/components/bag/BagSummary"
 import { EmptyBagState } from "@/components/bag/EmptyBagState"
 import { BagCampaignSelector } from "@/components/bag/BagCampaignSelector"
+import { useCreateCheckoutSession } from '@/hooks/checkout/useCheckoutSession'
+import { useRouter } from 'next/navigation'
 
 export default function BagPage() {
-  const { data: me } = useMe()
+  const router = useRouter()
+  
+  const { data: me } = useMe() 
   const { data, isLoading, error } = useBagIndex(me?.id)
 
   const updateBag = useBagUpdate(me?.id)
   const destroyBag = useBagDestroy(me?.id)
+  const createSession  = useCreateCheckoutSession()
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Sepet yüklenirken hata oluştu</div>
@@ -23,6 +28,27 @@ export default function BagPage() {
   const bagItems: BagItem[] = data?.products || []
   const bagTotals: BagTotals | null = data?.totals ?? null;
   const bagCampaign: BagCampaign | null = data?.applied_campaign ?? null;
+
+ 
+  const handleCheckout = () => {
+    if (!me) {
+      router.push('/login')
+      return
+    }
+      
+    createSession.mutate(
+     { coupon_code: bagCampaign?.code },
+      {
+        onSuccess: (resp) => {
+          router.push(`/checkout/shipping?session=${resp.session_id}`)
+        },
+        onError: () => {
+          toast.error('Checkout başlatılamadı')
+        },
+      }
+    )
+  }
+
   const handleIncrease = (item: BagItem) => {
     if (item.quantity < item.sizes.inventory.available) {
       const toastId = toast.loading('Ürün güncelleniyor...')
@@ -97,7 +123,8 @@ export default function BagPage() {
           discount={bagTotals?.discount_cents}
           cargoPrice={bagTotals?.cargo_cents}
           finalPrice={bagTotals?.final_cents}
-          onCheckout={() => toast.info("Ödeme akışı henüz hazır değil")}
+          onCheckout={createSession.isPending ? undefined : handleCheckout}
+          loading={createSession.isPending}
         />
         <BagCampaignSelector
           activeCampaign={bagCampaign}

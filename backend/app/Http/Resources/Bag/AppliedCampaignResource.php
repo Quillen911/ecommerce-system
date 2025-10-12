@@ -20,6 +20,7 @@ class AppliedCampaignResource extends JsonResource
             'id'             => $campaign->id,
             'name'           => $campaign->name,
             'type'           => $campaign->type,
+            'code'           => $campaign->code,
             'description'    => $campaign->description,
             'discount_cents' => $discountCents,
             'ends_at'        => $campaign->ends_at ? $campaign->ends_at->toIso8601String() : null,

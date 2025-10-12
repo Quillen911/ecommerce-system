@@ -4,6 +4,7 @@ interface BagSummaryProps {
   cargoPrice?: number
   finalPrice?: number
   onCheckout?: () => void
+  loading?: boolean
 }
 
 export function BagSummary({
@@ -12,6 +13,7 @@ export function BagSummary({
   cargoPrice = 0,
   finalPrice = 0,
   onCheckout,
+  loading = false
 }: BagSummaryProps) {
   return (
     <div className="surface p-6 rounded-lg shadow-md border border-color h-fit animate-fadeInUp">
@@ -38,9 +40,9 @@ export function BagSummary({
       <button
         className="w-full mt-6 py-3 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-dark)] transition disabled:opacity-60"
         onClick={onCheckout}
-        disabled={!onCheckout}
+        disabled={loading || !onCheckout}
       >
-        Alışverişi Tamamla
+        {loading ? "Ödeme adımı hazırlanıyor..." : "Alışverişi Tamamla"}
       </button>
     </div>
   )

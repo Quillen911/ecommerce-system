@@ -58,6 +58,7 @@ export interface BagCampaign {
   id: number
   name: string
   type: string
+  code: string
   description: string | null
   ends_at: string | null
   discount_items: BagDiscountItem

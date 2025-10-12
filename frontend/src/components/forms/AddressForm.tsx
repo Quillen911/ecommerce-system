@@ -101,8 +101,7 @@ export default function AddressForm({
     const textareaStyles = "w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 resize-none"
 
     return (
-        <motion.form 
-            onSubmit={handleSubmit} 
+        <motion.div 
             className="space-y-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -321,7 +320,8 @@ export default function AddressForm({
                 className="pt-6 space-y-4"
             >
                 <button 
-                    type="submit" 
+                    type="button" 
+                    onClick={handleSubmit}
                     disabled={isLoading}
                     className="w-full bg-black text-white py-3 px-6 rounded-xl font-medium hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
@@ -342,6 +342,6 @@ export default function AddressForm({
                     İptal
                 </button>
             </motion.div>
-        </motion.form>
+        </motion.div>
     )
 }

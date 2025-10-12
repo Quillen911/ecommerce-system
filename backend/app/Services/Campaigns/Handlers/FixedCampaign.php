@@ -43,6 +43,7 @@ class FixedCampaign extends BaseCampaign
         return [
             'campaign_id'          => $this->campaign->id,
             'store_id'             => $this->campaign->store_id,
+            'code'                  => $this->campaign->code,
             'description'          => $this->campaign->description,
             'discount_cents'       => $discountCents,
             'eligible_total_cents' => $subtotalCents,

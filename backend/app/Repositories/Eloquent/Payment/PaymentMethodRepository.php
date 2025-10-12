@@ -35,12 +35,16 @@ class PaymentMethodRepository extends BaseRepository implements PaymentMethodRep
             ->first();
     }
 
-    public function saveFromGateway(array $attributes)
+    public function saveFromGateway($attributes)
     {
+        if ($attributes instanceof PaymentMethod) {
+            return $attributes;
+        }
+        
         return tap(
             $this->model->updateOrCreate(
                 [
-                    'provider'                 => $attributes['provider'],
+                    'provider' => $attributes['provider'],
                     'provider_payment_method_id' => $attributes['provider_payment_method_id'],
                 ],
                 $attributes
