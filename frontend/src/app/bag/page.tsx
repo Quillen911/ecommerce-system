@@ -32,7 +32,7 @@ export default function BagPage() {
       </div>
     )
   }
-  
+  if (error) return <div>Sepet yüklenirken hata oluştu</div>
   if (!data) return <EmptyBagState />
   const bagItems: BagItem[] = data?.products || []
   const bagTotals: BagTotals | null = data?.totals ?? null;
@@ -41,7 +41,7 @@ export default function BagPage() {
   if (bagItems.length === 0) {
     return <EmptyBagState />
   }
-  if (error) return <div>Sepet yüklenirken hata oluştu</div>
+  
   const handleCheckout = () => {
     if (!me) {
       router.push('/login')

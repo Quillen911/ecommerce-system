@@ -17,8 +17,25 @@ export const useBagIndex = (userId?: number) =>
   useQuery<GetBagItems>({
     queryKey: bagKeys.index(userId),
     queryFn: async () => {
-      const response = await bagApi.index()
-      return response.data.data
+      try {
+        const response = await bagApi.index()
+        return response.data.data
+      } catch (error: any) {
+        if (error.response?.data?.message === "Sepet Boş!") {
+          return {
+            products: [],
+            totals: {
+              total_cents: 0,
+              cargo_cents: 0,
+              discount_cents: 0,
+              final_cents: 0
+            },
+            applied_campaign: null,
+            campaigns: []
+          }
+        }
+        throw error
+      }
     },
     enabled: !!userId,
   })

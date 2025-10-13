@@ -13,6 +13,7 @@ import { useCheckoutSession } from "@/hooks/checkout/useCheckoutSession"
 import { useCreatePaymentIntent } from "@/hooks/checkout/usePaymentMethods"
 
 import type { CreatePaymentIntentRequest, CreatePaymentIntentResponse } from "@/types/checkout"
+import { StepBackButton } from "@/components/checkout/layout/StepBackButton"
 
 export default function PaymentStepPage() {
   const searchParams = useSearchParams()
@@ -133,7 +134,9 @@ const handleSubmit = (values: CreatePaymentIntentRequest) => {
     session_id: sessionId,
     expire_year: normalizedYear ?? "",
     expire_month: normalizedMonth ?? "",
+    
   }
+  
 
   const toastId = toast.loading("Ödeme işlemi tamamlanıyor...")
 
@@ -161,6 +164,9 @@ const handleSubmit = (values: CreatePaymentIntentRequest) => {
 
   return (
     <CheckoutLayout currentStep="payment" bag={data.bag}>
+      <div className="flex items-center justify-between mb-6">
+        <StepBackButton fallbackHref="/checkout/shipping" />
+      </div>
       <CardForm
         sessionId={sessionId}
         userId={me.id}
