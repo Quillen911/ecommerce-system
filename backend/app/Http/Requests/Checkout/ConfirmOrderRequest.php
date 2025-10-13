@@ -13,21 +13,21 @@ class ConfirmOrderRequest extends FormRequest
 
     public function rules(): array
     {
-        // iyzico mock veya gerçek 3D callback yapısına göre
         return [
-            'orderId'     => ['required', 'string'],
-            'bin'         => ['nullable', 'string'],
-            'PaReq'       => ['nullable', 'string'],
-            'smsVerified' => ['nullable', 'string'],
-            'Xid'         => ['nullable', 'string'],
+            'status'          => ['nullable', 'string'],
+            'paymentId'       => ['required', 'string'],
+            'conversationId'  => ['required', 'string'],
+            'conversationData'=> ['nullable', 'string'],
+            'mdStatus'        => ['nullable', 'string'],
+            'signature'       => ['nullable', 'string'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'orderId.required' => 'orderId (sipariş kimliği) zorunludur.',
+            'paymentId.required'      => 'Ödeme kimliği zorunludur.',
+            'conversationId.required' => 'ConversationId bilgisi zorunludur.',
         ];
     }
-
 }

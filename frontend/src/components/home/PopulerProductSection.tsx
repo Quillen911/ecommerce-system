@@ -1,6 +1,5 @@
 'use client'
 import { useMainData } from '@/hooks/useMainQuery'
-import { Product } from '@/types/seller/product'
 import ProductImageGallery from '../ui/ProductImageGallery'
 
 import { Swiper, SwiperSlide } from 'swiper/react'

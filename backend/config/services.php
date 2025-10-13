@@ -13,6 +13,7 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),

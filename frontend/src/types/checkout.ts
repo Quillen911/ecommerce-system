@@ -6,6 +6,7 @@ export interface CreateSessionRequest {
 export interface GetSessionResponse  {
     session_id: string
     expires_at: string
+    status: string
     bag: Bag
     shipping_data: ShippingData
     billing_data: BillingData
@@ -121,6 +122,7 @@ export interface Intent {
     currency: string
     status: string
     requires_3ds: boolean
+    three_ds_html?: string
 }
 
 export interface NewCardPayload {

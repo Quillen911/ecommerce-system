@@ -16,21 +16,21 @@ class PaymentMethodRecorder
 
     ) {}
 
-    public function store(User $user, array $payload): PaymentMethod
+    public function store(User $user, array $payload, array $data): PaymentMethod
     {
         if (!($payload['save_card'] ?? false)) {
             return new PaymentMethod();
         }
         $provider = $this->paymentProviders->findActiveByCode($payload['provider']);
-        $method = $this->prepareMethod($user, $payload);
+        $method = $this->prepareMethod($user, $payload, $data);
         
         $stored = app(PaymentGatewayInterface::class, ['provider' => $provider])
-            ->storePaymentMethod($user, $method, $payload['new_card_payload']);
+            ->storePaymentMethod($user, $method, $payload, $data);
 
         return $this->paymentMethods->saveFromGateway($stored);
     }
 
-    private function prepareMethod(User $user, array $payload): PaymentMethod
+    private function prepareMethod(User $user, array $payload, array $data): PaymentMethod
     {
         $raw = json_decode($payload['intent']['raw'], true);
         
@@ -39,7 +39,7 @@ class PaymentMethodRecorder
             'provider'         => $payload['provider'],
             'type'             => 'card',
             'brand'            => $raw['cardAssociation'] ?? null,
-            'last4'            => substr($payload['new_card_payload']['card_number'] ?? '', -4),
+            'last4'            => substr($data['card_number'] ?? '', -4),
             'metadata' => [
                 'card_family' => $raw['cardFamily'] ?? null,
                 'card_type'   => $raw['cardType'] ?? null,

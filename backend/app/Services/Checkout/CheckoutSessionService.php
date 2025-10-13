@@ -141,7 +141,7 @@ class CheckoutSessionService
         } else {
             $session->status = 'confirmed';
 
-            $this->orderPlacementService->placeFromSession($user, $session);
+            $this->orderPlacementService->placeFromSession($user, $session, $data);
         }
         $session->save();
 
@@ -150,19 +150,22 @@ class CheckoutSessionService
 
     public function confirmPaymentIntent(array $data): CheckoutSession
     {
+        $conversationId = $data['conversationId'] ?? null;
+        $paymentId      = $data['paymentId'] ?? null;
+
         $session = null;
 
-        if (!empty($data['conversationId'])) {
-            preg_match('/session_([a-zA-Z0-9\-]+)_/', $data['conversationId'], $matches);
-            if ($sessionId = $matches[1] ?? null) {
-                $session = CheckoutSession::find($sessionId);
-            }
+        if ($conversationId) {
+            $session = CheckoutSession::where(
+                'payment_data->intent->conversation_id',
+                $conversationId
+            )->first();
         }
 
-        if (!$session && !empty($data['paymentId'])) {
+        if (!$session && $paymentId) {
             $session = CheckoutSession::where(
                 'payment_data->intent->payment_id',
-                $data['paymentId']
+                $paymentId
             )->first();
         }
 
@@ -171,28 +174,41 @@ class CheckoutSessionService
                 ->where('payment_data->provider', 'iyzico')
                 ->latest()
                 ->first();
-                
+
             Log::warning('MOCK MODE: Using latest session');
         }
 
         if (!$session) {
-            throw new \RuntimeException("Checkout oturumu bulunamadı");
+            throw new \RuntimeException('Checkout oturumu bulunamadı.');
         }
 
-        $result  = $this->checkoutPaymentService->confirmPaymentIntent($session, $data);
+        $session->loadMissing('user');
+
+        if (!$session->user && $session->user_id) {
+            $session->setRelation('user', User::find($session->user_id));
+        }
+
+        if (!$session->user) {
+            throw new \RuntimeException('Kullanıcı bulunamadı.');
+        }
+
+        $result = $this->checkoutPaymentService->confirmPaymentIntent($session, $data);
 
         $paymentData = $session->payment_data ?? [];
         $paymentData['intent_result'] = $result;
         $paymentData['status']        = $result['status'];
-
+        
+        if (!empty($result['payment_transaction_id'])) {
+            $paymentData['intent']['payment_transaction_id'] = $result['payment_transaction_id'];
+        }
         if (($paymentData['save_card'] ?? false) && ($paymentData['new_card_payload'] ?? null)) {
-            $payload = $paymentData['new_card_payload'];
-            $payload['result'] = $result;
+            $payload                     = $paymentData['new_card_payload'];
+            $payload['result']           = $result;
             $paymentData['new_card_payload'] = $payload;
         }
 
         $session->payment_data = $paymentData;
-        $session->status = 'confirmed';
+        $session->status       = 'confirmed';
         $session->save();
 
         return $session->fresh();
@@ -209,7 +225,7 @@ class CheckoutSessionService
         }
 
         if ($session->expires_at && $session->expires_at->isPast()) {
-            throw new \RuntimeException('Checkout oturumunun süresi doldu.'); // 410 Gone gibi dönebilirsin
+            throw new \RuntimeException('Checkout oturumunun süresi doldu.');
         }
 
         return $session;

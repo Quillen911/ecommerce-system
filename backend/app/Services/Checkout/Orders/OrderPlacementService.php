@@ -28,14 +28,14 @@ class OrderPlacementService
         private readonly CampaignManager $campaign
     ) {}
 
-    public function placeFromSession(User $user, CheckoutSession $session): Order
+    public function placeFromSession(User $user, CheckoutSession $session, $data): Order
     {
-        return DB::transaction(function () use ($user, $session) {
+        return DB::transaction(function () use ($user, $session, $data) {
             $order = $this->orderFactory->create($user, $session);
             $items = $this->orderItemFactory->createMany($order, $session);
             $this->inventoryService->decrementForOrderItems($items);
             $this->paymentRecorder->record($order, $session->payment_data);
-            $this->PaymentMethodRecorder->store($user, $session->payment_data);
+            $this->PaymentMethodRecorder->store($user, $session->payment_data, $data);
 
             $bagPayload     = $session->bag_snapshot;
             $campaignId     = data_get($bagPayload, 'applied_campaign.id');

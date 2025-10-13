@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Seller\CampaignController;
 use App\Http\Controllers\Api\Seller\ProductController;
 use App\Http\Controllers\Api\Seller\CategoryController;
 use App\Http\Controllers\Api\Payments\CreditCardController;
+use App\Http\Controllers\Api\Payments\IyzicoCallbackController;
 use App\Http\Controllers\Api\Seller\SellerOrderController;
 use App\Http\Controllers\Api\User\AddressesController;
 
@@ -27,6 +28,8 @@ use App\Http\Controllers\Api\Seller\Image\ProductVariantImageController;
 use App\Http\Controllers\Api\Product\ProductVariantController;
 use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
+
+use Illuminate\Support\Facades\Redirect;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -102,8 +105,7 @@ Route::middleware('auth:seller')->group(function(){
 
         Route::apiResource('campaign', CampaignController::class);
         Route::apiResource('product', ProductController::class);
-        //Route::put('product/{product:slug}', ProductController::class);
-
+        
         Route::prefix('product/{product}')->group(function () {            
             Route::prefix('variants/{variantId}')->group(function () {
                 Route::post('images', [ProductVariantImageController::class, 'store']);
@@ -123,19 +125,7 @@ Route::middleware('auth:seller')->group(function(){
     
 });
 
-Route::post('proxy/iyzico-callback', function (Request $request) {
-    Log::debug('Iyzico mock callback received', $request->all());
-
-    $client = new \GuzzleHttp\Client();
-    $client->post('https://nonseriately-uncoded-elba.ngrok-free.dev/api/checkout/confirm', [
-        'form_params' => $request->all(),
-        'headers' => [
-            'User-Agent' => 'curl/7.88.1',
-            'ngrok-skip-browser-warning' => 'true'
-        ]
-    ]);
-
-    return response()->json(['received' => true]);
-});
-
-Route::post('checkout/confirm', [CheckoutController::class, 'confirmOrder'])->withoutMiddleware('auth:sanctum')->name('checkout.confirm');
+Route::post('proxy/iyzico-callback', IyzicoCallbackController::class);
+Route::post('checkout/confirm', [CheckoutController::class, 'confirmOrder'])
+    ->withoutMiddleware('auth:sanctum')
+    ->name('checkout.confirm');

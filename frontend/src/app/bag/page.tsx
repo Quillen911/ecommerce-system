@@ -22,14 +22,26 @@ export default function BagPage() {
   const destroyBag = useBagDestroy(me?.id)
   const createSession  = useCreateCheckoutSession()
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Sepet yüklenirken hata oluştu</div>
-
+  if (isLoading) {
+    return (
+      <div className="min-h-screen p-6 bg-[var(--bg)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Sepet yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  if (!data) return <EmptyBagState />
   const bagItems: BagItem[] = data?.products || []
   const bagTotals: BagTotals | null = data?.totals ?? null;
   const bagCampaign: BagCampaign | null = data?.applied_campaign ?? null;
 
- 
+  if (bagItems.length === 0) {
+    return <EmptyBagState />
+  }
+  if (error) return <div>Sepet yüklenirken hata oluştu</div>
   const handleCheckout = () => {
     if (!me) {
       router.push('/login')
@@ -98,26 +110,31 @@ export default function BagPage() {
       }
     })
   }
-  if (bagItems.length === 0) {
-    return <EmptyBagState />
-  }
-  
-  return (
-    <div className="min-h-screen p-6 bg-[var(--bg)]">
-      <h1 className="text-2xl font-bold mb-6 animate-fadeIn">Sepetiniz</h1>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          {bagItems.map((item) => (
-            <BagItemRow
-              key={item.id}
-              item={item}
-              onIncrease={handleIncrease}
-              onDecrease={handleDecrease}
-              onRemove={handleDestroy}
-              disabled={updateBag.isPending || destroyBag.isPending}
-            />
-          ))}
-        </div>
+ 
+return (
+  <div className="min-h-screen bg-[var(--bg)] p-6">
+    <h1 className="mb-6 text-2xl font-bold animate-fadeIn">Sepetiniz</h1>
+
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="space-y-4 lg:col-span-2 lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto lg:pr-2">
+        {bagItems.map((item) => (
+          <BagItemRow
+            key={item.id}
+            item={item}
+            onIncrease={handleIncrease}
+            onDecrease={handleDecrease}
+            onRemove={handleDestroy}
+            disabled={updateBag.isPending || destroyBag.isPending}
+          />
+        ))}
+      </div>
+
+      <aside className="space-y-4 lg:col-span-1 lg:h-fit lg:sticky lg:top-6">
+        <BagCampaignSelector
+          activeCampaign={bagCampaign}
+          campaigns={data?.campaigns ?? []}
+        />
+
         <BagSummary
           total={bagTotals?.total_cents}
           discount={bagTotals?.discount_cents}
@@ -126,13 +143,9 @@ export default function BagPage() {
           onCheckout={createSession.isPending ? undefined : handleCheckout}
           loading={createSession.isPending}
         />
-        <BagCampaignSelector
-          activeCampaign={bagCampaign}
-          campaigns={data?.campaigns ?? []}
-        />
-
-      </div>
+      </aside>
     </div>
-  )
-  
+  </div>
+)
+
 }

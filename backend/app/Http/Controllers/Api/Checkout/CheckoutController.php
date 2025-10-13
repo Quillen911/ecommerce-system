@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Api\Checkout;
 
-use App\Models\CheckoutSession;
 use App\Traits\GetUser;
+use App\Models\User;
 
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Bag\Contracts\BagInterface;
 use App\Services\Checkout\CheckoutSessionService;
 use App\Services\Checkout\Orders\OrderPlacementService;
 
-use App\Http\Requests\Checkout\GetSessionRequest;
 use App\Http\Requests\Checkout\UpdateShippingRequest;
 use App\Http\Requests\Checkout\CreatePaymentIntentRequest;
 use App\Http\Requests\Checkout\ConfirmOrderRequest;
@@ -101,7 +100,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function confirmOrder(ConfirmOrderRequest  $request) {
+    public function confirmOrder(ConfirmOrderRequest $request) {
         
         $session = $this->checkoutSessionService->confirmPaymentIntent($request->validated());
         
@@ -111,8 +110,8 @@ class CheckoutController extends Controller
                 'message' => 'Ödeme doğrulanamadı veya 3D işlemi başarısız.'
             ], 422);
         }
-        $user = $this->getUser();
-        $order = $this->orderPlacementService->placeFromSession($user, $session);
+        $user = $session->user ?: User::find($session->user_id);
+        $order = $this->orderPlacementService->placeFromSession($user, $session, $request->validated());
         return response()->json([
             'order_id'    => $order->id ?? 1,
             'order_number'=> $order->order_number ?? 1,

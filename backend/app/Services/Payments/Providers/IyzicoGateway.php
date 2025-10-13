@@ -157,7 +157,6 @@ class IyzicoGateway implements PaymentGatewayInterface
 
 
         if (!empty($data['requires_3ds']) && $data['requires_3ds'] === true) {
-            
             $initialize = ThreedsInitialize::create($request, $this->options);
 
             if ($initialize->getStatus() !== 'success') {
@@ -166,34 +165,22 @@ class IyzicoGateway implements PaymentGatewayInterface
                     (int) $initialize->getErrorCode()
                 );
             }
-            
-            $itemTransactions = [];
-            foreach ($initialize->getPaymentItems() as $item) {
-                $itemTransactions[$item->getItemId()] = $item->getPaymentTransactionId();
-            }
 
             return [
-                'provider'               => $this->provider->code,
-                'payment_id'             => $initialize->getPaymentId(),
-                'conversation_id'        => $initialize->getConversationId(),
-                'payment_transaction_id' => $itemTransactions,
-                'amount_cents'           => $session->bag_snapshot['totals']['final_cents'],
-                'card'                   => null,
-                'currency'               => 'TRY',
-                'status'                 => $initialize->getStatus(),
-                'requires_3ds'           => true,
-                'three_ds_html'          => $initialize->getHtmlContent(),
-                'raw'                    => $initialize->getRawResult(),
+                'provider'        => $this->provider->code,
+                'payment_id'      => $initialize->getPaymentId(),
+                'conversation_id' => $initialize->getConversationId(),
+                'amount_cents'    => $session->bag_snapshot['totals']['final_cents'],
+                'card'            => null,
+                'currency'        => 'TRY',
+                'status'          => $initialize->getStatus(),
+                'requires_3ds'    => true,
+                'three_ds_html'   => $initialize->getHtmlContent(),
+                'raw'             => $initialize->getRawResult(),
             ];
         } else {
 
             $payment = Payment::create($request, $this->options);
-
-            $cardDetails = [
-                'type'        => $payment->getCardType(),        // CREDIT_CARD, DEBIT_CARD
-                'association' => $payment->getCardAssociation(), // VISA, MASTER_CARD
-                'family'      => $payment->getCardFamily(),      // Bonus, World vb.
-            ];
 
             if ($payment->getStatus() !== 'success') {
                 throw new \RuntimeException(
@@ -224,11 +211,7 @@ class IyzicoGateway implements PaymentGatewayInterface
 
     public function confirmPayment(CheckoutSession $session, array $payload): array
     {
-        if (
-            isset($payload['smsVerified']) && $payload['smsVerified'] !== '1'
-            && ($payload['mdStatus'] ?? '0') !== '1'
-            && ($payload['status'] ?? '') !== 'success'
-        ) {
+        if ($payload['mdStatus'] !== "1") {
             throw new \RuntimeException('3D doğrulama başarısız.');
         }
 
@@ -266,32 +249,37 @@ class IyzicoGateway implements PaymentGatewayInterface
                 (int) $payment->getErrorCode()
             );
         }
+        $itemTransactions = [];
+        foreach ($payment->getPaymentItems() as $item) {
+            $itemTransactions[$item->getItemId()] = $item->getPaymentTransactionId();
+        }
 
         return [
             'status'                  => 'authorized',
             'payment_id'              => $payment->getPaymentId(),
             'conversation_id'         => $payment->getConversationId(),
-            'authorized_amount_cents' => $payment->getPaidPrice(),
+            'authorized_amount_cents' => (int) ($payment->getPaidPrice() * 100),
             'card'                    => $cardDetails,
             'currency'                => $payment->getCurrency(),
+            'payment_transaction_id'  => $itemTransactions,
             'raw'                     => $payment->getRawResult(),
         ];
     }
 
-    public function storePaymentMethod(User $user, $method, array $payload): PaymentMethod 
+    public function storePaymentMethod(User $user, $method, $payload ,array $data): PaymentMethod 
     {
         $request = new CreateCardRequest();
         $request->setLocale(Locale::TR);
         $request->setConversationId('card_' . $user->id . '_' . time());
         $request->setEmail($user->email);
         $request->setExternalId((string) $user->id);
-
         $cardInformation = new CardInformation();
-        $cardInformation->setCardAlias($payload['card_alias'] ?? 'Kredi Kartım');
-        $cardInformation->setCardHolderName($payload['card_holder_name']);
-        $cardInformation->setCardNumber($payload['card_number']);
-        $cardInformation->setExpireMonth($payload['expire_month']);
-        $cardInformation->setExpireYear($payload['expire_year']);
+
+        $cardInformation->setCardAlias($data['card_alias'] ?? 'Kredi Kartım');
+        $cardInformation->setCardHolderName($data['card_holder_name']);
+        $cardInformation->setCardNumber($data['card_number']);
+        $cardInformation->setExpireMonth($data['expire_month']);
+        $cardInformation->setExpireYear($data['expire_year']);
         $request->setCard($cardInformation);
 
         $card = Card::create($request, $this->options);

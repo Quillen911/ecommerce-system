@@ -26,7 +26,9 @@ export function CheckoutLayout({
   bag,
   showSummary = true,
 }: CheckoutLayoutProps) {
+
   const stepsWithState = useMemo(() => {
+    
     let passedCurrent = false
 
     return STEP_META.map((step) => {

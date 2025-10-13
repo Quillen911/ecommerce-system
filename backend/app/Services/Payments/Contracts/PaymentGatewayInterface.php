@@ -34,6 +34,7 @@ interface PaymentGatewayInterface
     public function storePaymentMethod(
         User $user, 
         $method, 
-        array $payload
+        array $payload,
+        array $data
     ): PaymentMethod;
 }

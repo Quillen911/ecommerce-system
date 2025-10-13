@@ -270,10 +270,10 @@ export function CardForm({
           </div>
 
           <aside className="flex flex-col gap-5">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1f2937] via-[#111827] to-[#0ea5e9] p-6 text-white shadow-lg">
+            <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-[#1f2937] via-[#111827] to-[#0ea5e9] p-6 text-white shadow-lg">
               <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/70">
-                <span>Bagisa</span>
-                <span>Ödeme</span>
+               
+                <span>Kart</span>
               </div>
 
               <div className="mt-8 text-lg font-medium tracking-[0.25em]">
@@ -297,10 +297,8 @@ export function CardForm({
 
             <div className="rounded-2xl border border-dashed border-color bg-card/40 p-4 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">Taksit Bilgisi</p>
-              <p className="mt-1">Bu sipariş tek çekim (%100) olarak tahsil edilecektir.</p>
-              <p className="mt-1 text-xs">
-                Taksit seçeneği ileride eklenecek; şimdilik tercihen tek ödeme yapılır.
-              </p>
+              <p className="mt-1">Bu sipariş tek çekim olarak tahsil edilecektir.</p>
+
             </div>
           </aside>
         </section>
