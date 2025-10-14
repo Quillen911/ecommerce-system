@@ -7,10 +7,11 @@ use App\Models\CheckoutSession;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use App\Services\Checkout\Orders\OrderPlacementService;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class OrderPlacementJob implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, Dispatchable;
 
     /**
      * Create a new job instance.
@@ -26,7 +27,7 @@ class OrderPlacementJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(OrderplacementService $service): void
+    public function handle(OrderPlacementService $service): void
     {
         $user = User::find($this->userId);
         $session = CheckoutSession::where('id', $this->sessionId)->firstOrFail();

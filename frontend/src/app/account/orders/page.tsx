@@ -1,23 +1,96 @@
 'use client'
-import { useMe } from "@/hooks/useAuthQuery";
-import { useOrder } from "@/hooks/useOrderQuery";
-import OrderList from "@/components/order/OrderList";
 
+import { motion } from 'framer-motion'
+import { useMe } from '@/hooks/useAuthQuery'
+import { useOrder } from '@/hooks/useOrderQuery'
+import OrdersList from '@/components/order/OrderList'
 
 export default function OrdersPage() {
-    const {data: me} = useMe() 
-    const { data: order, isLoading, error } = useOrder(me?.id)
-    console.log(order)
-    if(isLoading) return <div>Loading...</div>
-    if(error) return <div>Error: {error.message}</div>
+  const { data: me } = useMe()
+  const { data: orders, isLoading, error } = useOrder(me?.id)
+
+  if (isLoading) {
     return (
-    <div>
-        <h1>Siparişlerim</h1>
-        {order ? (
-            <OrderList order={order}/>
-        ) : (
-            <div>Sipariş bulunamadı</div>
-        )}
-    </div>
-)
+      <div className="flex items-center justify-center min-h-64">
+        <div className="flex items-center space-x-2 text-gray-600">
+          <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-2xl animate-spin" />
+          <span className="text-lg">Siparişler yükleniyor...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div className="flex items-center space-x-2 text-red-700">
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            />
+          </svg>
+          <span className="text-lg font-medium">
+            Siparişler yüklenirken bir hata oluştu
+          </span>
+        </div>
+        <p className="mt-2 text-red-600">{error.message}</p>
+      </div>
+    )
+  }
+
+  if (!orders || orders.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center py-16"
+      >
+        <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+          <svg
+            className="w-12 h-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 111.314 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          Henüz siparişiniz yok
+        </h3>
+        <p className="text-gray-600">Alışverişe devam ederek ilk siparişinizi oluşturabilirsiniz.</p>
+      </motion.div>
+    )
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Siparişlerim</h1>
+        <div className="w-16 h-1 bg-black rounded-full" />
+        <p className="mt-3 text-gray-600">
+          Son siparişleriniz aşağıda listeleniyor. Detayları sipariş kartlarının içinde
+          bulabilirsiniz.
+        </p>
+      </div>
+
+      <OrdersList orders={orders} />
+    </motion.div>
+  )
 }
