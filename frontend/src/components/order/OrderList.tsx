@@ -74,7 +74,16 @@ export default function OrdersList({ orders }: OrdersListProps) {
               <div>
                 <p className="font-medium text-gray-900">Ara Toplam</p>
                 <p>
-                  {(order.subtotal_cents ?? 0 / 100).toLocaleString('tr-TR', {
+                  {(order.subtotal_cents / 100).toLocaleString('tr-TR', {
+                    style: 'currency',
+                    currency: order.currency ?? 'TRY',
+                  })}
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">İndirim</p>
+                <p>
+                  {(order.discount_cents / 100).toLocaleString('tr-TR', {
                     style: 'currency',
                     currency: order.currency ?? 'TRY',
                   })}
@@ -83,7 +92,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
               <div>
                 <p className="font-medium text-gray-900">Kargo Ücreti</p>
                 <p>
-                  {(order.cargo_price_cents / 100).toLocaleString('tr-TR', {
+                  {(order.cargo_price_cents === 0 ? "Ücretsiz" : order.cargo_price_cents / 100).toLocaleString('tr-TR', {
                     style: 'currency',
                     currency: order.currency ?? 'TRY',
                   })}
@@ -93,16 +102,6 @@ export default function OrdersList({ orders }: OrdersListProps) {
                 <p className="font-medium text-gray-900">Durum</p>
                 <p>{statusInfo.label}</p>
               </div>
-            </div>
-
-            <div className="pt-4 border-t border-gray-100 text-sm text-gray-600">
-              <p>
-                Fatura Adresi ID: <span className="font-medium">{order.user_billing_address_id ?? '—'}</span>
-              </p>
-              <p>
-                Teslimat Adresi ID:{' '}
-                <span className="font-medium">{order.user_shipping_address_id ?? '—'}</span>
-              </p>
             </div>
           </motion.div>
         )

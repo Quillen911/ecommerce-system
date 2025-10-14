@@ -56,8 +56,6 @@ class OrderPlacementService
                 'meta->order_id' => $order->id,
             ]);
 
-            //event(new OrderPlaced($order));
-
             return $order;
         });
     }

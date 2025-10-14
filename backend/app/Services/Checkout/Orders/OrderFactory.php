@@ -20,7 +20,7 @@ class OrderFactory
         $shipping = $session->shipping_data ?? [];
         $billing  = $session->billing_data ?? [];
         $appliedCampaign = $session->bag_snapshot['applied_campaign'] ?? null;
-
+        
         return $this->orders->create([
             'user_id'                  => $user->id,
             'bag_id'                   => $session->bag_id,
@@ -30,6 +30,7 @@ class OrderFactory
             'campaign_info'            => $appliedCampaign['name'] ?? null,
             'order_number'             => $this->generateOrderNumber(),
             'subtotal_cents'           => $totals['total_cents'] ?? 0,
+            'discount_cents'           => $totals['discount_cents'] ?? 0,
             'cargo_price_cents'        => $totals['cargo_cents'] ?? 0,
             'grand_total_cents'        => $totals['final_cents'] ?? 0,
             'currency'                 => 'TRY',
