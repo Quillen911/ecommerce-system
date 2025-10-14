@@ -1,5 +1,6 @@
-import axios from "axios";
-import { OrderItemsResponse, Order } from "@/types/order";
+import axios from "axios"
+import { Order, OrderItemsResponse } from "@/types/order"
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
@@ -21,6 +22,7 @@ api.interceptors.request.use((config) => {
 })
 
 export const orderApi = {
-    getOrders: () => api.get<Order>("/orders"),
-    getOrderDetail: (id: number) => api.get<OrderItemsResponse>(`/orders/${id}`)
+  getOrders: () => api.get<Order[]>("/orders"),
+  getOrderDetail: (id: number) =>
+    api.get<OrderItemsResponse>(`/orders/${id}`),
 }

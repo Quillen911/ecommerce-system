@@ -1,18 +1,13 @@
-// Root payload
-export interface OrderItemsResponse {
-  data: OrderItem[];
-}
-
 export interface Order {
   id: number;
   user_id: number;
   bag_id: number;
-  user_shipping_address_id: number;
-  user_billing_address_id: number;
-  campaign_id: number;
-  campaign_info: string;
+  user_shipping_address_id: number | null;
+  user_billing_address_id: number | null;
+  campaign_id: number | null;
+  campaign_info: string | null;
   order_number: string;
-  sub_total_cents: number;
+  subtotal_cents: number;
   discount_cents: number;
   tax_total_cents: number;
   cargo_price_cents: number;
@@ -23,6 +18,12 @@ export interface Order {
   refunded_at: string | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
+}
+
+
+export interface OrderItemsResponse {
+  data: OrderItem[];
 }
 
 export interface OrderItem {
