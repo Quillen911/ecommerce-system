@@ -18,6 +18,10 @@ class BagItemResource extends JsonResource
             'store_id'         => $this->store_id,
             'sizes'            => $this->whenLoaded('variantSize', function () {
                 $variantSize = $this->variantSize->toArray();
+                if (! empty($variantSize['size_option'])) {
+                    $variantSize['size_option_value'] = $variantSize['size_option']['value'];
+                }
+                $variantSize['category'] = $variantSize['product_variant']['product']['category'];
 
                 if (! empty($variantSize['product_variant']['variant_images'])) {
                     $variantSize['product_variant']['variant_images'] = array_map(function ($image) {

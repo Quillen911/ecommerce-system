@@ -14,7 +14,7 @@ class PercentageCampaign extends BaseCampaign
         }
     
         $items = $this->eligibleItems($bagItems);
-    
+        
         if ($items->isEmpty()) {
             return false;
         }
@@ -69,7 +69,7 @@ class PercentageCampaign extends BaseCampaign
                 'discount_item_id' => $item->id,
                 'discount_item_product_id' => $item->variant->product_id,
                 'quantity' => $item->quantity,
-                'discount' => ($item->unit_price_cents * $item->quantity * $rate) 
+                'discount_cents' => ($item->unit_price_cents * $item->quantity * $rate) 
             ];
         });
     }

@@ -11,7 +11,7 @@ export default function AddressesPage() {
     const destroyAddressMutation = useUserAddressDestroy(me?.id)
     const updateAddressMutation = useUserAddressUpdate(me?.id)
     const storeAddressMutation = useUserAddressStore(me?.id)
-
+    console.log(addresses)
     const [editingAddress, setEditingAddress] = useState<any>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)

@@ -13,8 +13,10 @@ use App\Services\Checkout\Orders\OrderPlacementService;
 use App\Http\Requests\Checkout\UpdateShippingRequest;
 use App\Http\Requests\Checkout\CreatePaymentIntentRequest;
 use App\Http\Requests\Checkout\ConfirmOrderRequest;
+use App\Jobs\OrderPlacementJob;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 
 class CheckoutController extends Controller
 {
@@ -111,7 +113,7 @@ class CheckoutController extends Controller
             ], 422);
         }
         $user = $session->user ?: User::find($session->user_id);
-        $order = $this->orderPlacementService->placeFromSession($user, $session, $request->validated());
+        $order = OrderPlacementJob::dispatch($user, $session, $request->validated());
         return response()->json([
             'order_id'    => $order->id ?? 1,
             'order_number'=> $order->order_number ?? 1,

@@ -34,13 +34,16 @@ class BagService implements BagInterface
             throw new \RuntimeException('Sepet bulunamadı!');
         }
 
-        $bag->load('campaign');
+        $bag->load('campaign', 'campaign.campaignProducts', 'campaign.campaignCategories');
 
         $bagItems = $bag->bagItems()
-            ->with(['variantSize.productVariant.variantImages'])
+            ->with([
+                'variantSize.productVariant.variantImages',
+                'variantSize.sizeOption',
+                'variantSize.productVariant.product.category',
+            ])
             ->orderBy('id')
             ->get();
-
         $bagItems = $this->checkProductAvailability($bagItems, $bag);
 
         if ($bagItems->isEmpty()) {
@@ -128,8 +131,13 @@ class BagService implements BagInterface
         }
 
         $bagItems = $bag->bagItems()
-            ->with(['variantSize.productVariant.variantImages'])
+            ->with([
+                'variantSize.productVariant.variantImages',
+                'variantSize.productVariant.product.category',
+                'variantSize.sizeOption',
+            ])
             ->get();
+
 
         if ($bagItems->isEmpty()) {
             throw new \RuntimeException('Sepetiniz boş, kampanya uygulanamaz.');
@@ -137,7 +145,7 @@ class BagService implements BagInterface
 
         $campaign = $this->campaignRepository
             ->getActiveCampaign($campaignId)
-            ->load('campaignProducts');
+            ->load('campaignProducts', 'campaignCategories');
 
         if (! $campaign) {
             throw new \RuntimeException('Kampanya bulunamadı veya geçerli değil.');
