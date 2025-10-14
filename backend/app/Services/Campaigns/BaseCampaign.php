@@ -35,34 +35,62 @@ abstract class BaseCampaign implements CampaignInterface
 
     protected function productEligible(array $bagItems): array
     {
-        $allowedProductIds = null;
-    
-        if ($this->campaign->relationLoaded('campaignProducts')) {
-            $allowedProductIds = $this->campaign->campaignProducts
+        $productIds   = null;
+        $categoryIds  = null;
+
+        if ($this->campaign->relationLoaded('campaignProducts') && $this->campaign->campaignProducts->isNotEmpty()) {
+            $productIds = $this->campaign->campaignProducts
                 ->pluck('product_id')
                 ->filter()
+                ->values()
+                ->all();
+        } elseif ($this->campaign->relationLoaded('campaignCategories') && $this->campaign->campaignCategories->isNotEmpty()) {
+            $categoryIds = $this->campaign->campaignCategories
+                ->pluck('category_id')
+                ->filter()
+                ->values()
                 ->all();
         }
-    
+
         return collect($bagItems)
-            ->filter(fn ($item) =>
-                ($item->store_id ?? optional($item->product)->store_id) === $this->campaign->store_id
-            )
-            ->filter(function ($item) use ($allowedProductIds) {
-                if (empty($allowedProductIds)) {
+            ->filter(function ($item) {
+                $campaignStore = $this->campaign->store_id;
+
+                if (is_null($campaignStore)) {
                     return true;
                 }
-    
+
+                $itemStore = $item->store_id
+                    ?? optional($item->product)->store_id
+                    ?? optional($item->variant)->store_id
+                    ?? optional(optional($item->variantSize)->productVariant)->product->store_id;
+
+                return $itemStore === $campaignStore;
+            })
+            ->filter(function ($item) use ($productIds, $categoryIds) {
                 $productId = $item->product_id
                     ?? optional($item->product)->id
                     ?? optional($item->variant)->product_id
                     ?? optional(optional($item->variantSize)->productVariant)->product_id;
-    
-                return $productId && in_array($productId, $allowedProductIds, true);
+
+                if ($productIds !== null) {
+                    return $productId && in_array($productId, $productIds, true);
+                }
+
+                if ($categoryIds !== null) {
+                    $categoryId = optional($item->product)->category_id
+                        ?? optional(optional($item->variant)->product)->category_id
+                        ?? optional(optional(optional($item->variantSize)->productVariant)->product)->category_id;
+
+                    return $categoryId && in_array($categoryId, $categoryIds, true);
+                }
+
+                return true;
             })
             ->values()
             ->all();
     }
+
     
     protected function eligibleMinBag(array $items): bool
     {

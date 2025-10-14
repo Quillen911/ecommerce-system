@@ -8,6 +8,8 @@ use App\Services\Checkout\CheckoutPaymentService;
 use App\Services\Checkout\Orders\OrderPlacementService;
 use App\Repositories\Contracts\Inventory\InventoryRepositoryInterface;
 
+use App\Jobs\OrderPlacementJob;
+
 use App\Models\User;
 use App\Models\CheckoutSession;
 
@@ -140,8 +142,8 @@ class CheckoutSessionService
             $session->status = 'pending_3ds';
         } else {
             $session->status = 'confirmed';
-
-            $this->orderPlacementService->placeFromSession($user, $session, $data);
+ 
+            OrderPlacementJob::dispatch($user->id, $session->id, $data);
         }
         $session->save();
 
@@ -240,6 +242,8 @@ class CheckoutSessionService
                 'variant_size_id'    => $item->variant_size_id,
                 'product_id'         => $item->variantSize->productVariant->product_id,
                 'product_title'      => $item->variantSize->productVariant->color_name . ' ' . $item->variantSize->productVariant->product->title,
+                'size_name'          => $item->variantSize->sizeOption->value,
+                'color_name'         => $item->variantSize->productVariant->color_name,
                 'quantity'           => $item->quantity,
                 'unit_price_cents'   => $item->variantSize->price_cents,
                 'total_price_cents'  => $item->variantSize->price_cents * $item->quantity,
@@ -257,6 +261,7 @@ class CheckoutSessionService
             'applied_campaign'  => [
                 'id'          => $bagData['applied_campaign']['id'] ?? null,
                 'name'         => $bagData['applied_campaign']['name'] ?? null,
+                'discount_items' => $bagData['discount_items'] ?? [],
             ] ?? null
         ];
     }

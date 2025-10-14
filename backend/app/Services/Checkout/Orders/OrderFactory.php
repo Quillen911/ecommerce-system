@@ -19,12 +19,15 @@ class OrderFactory
         $totals   = $session->bag_snapshot['totals'] ?? [];
         $shipping = $session->shipping_data ?? [];
         $billing  = $session->billing_data ?? [];
+        $appliedCampaign = $session->bag_snapshot['applied_campaign'] ?? null;
 
         return $this->orders->create([
             'user_id'                  => $user->id,
             'bag_id'                   => $session->bag_id,
             'user_shipping_address_id' => $shipping['shipping_address_id'] ?? null,
             'user_billing_address_id'  => $billing['billing_address_id'] ?? null,
+            'campaign_id'              => $appliedCampaign['id'] ?? null,
+            'campaign_info'            => $appliedCampaign['name'] ?? null,
             'order_number'             => $this->generateOrderNumber(),
             'subtotal_cents'           => $totals['total_cents'] ?? 0,
             'cargo_price_cents'        => $totals['cargo_cents'] ?? 0,

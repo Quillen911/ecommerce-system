@@ -13,6 +13,8 @@ import { useUpdateShipping } from "@/hooks/checkout/useShippingOptions"
 import { useMe } from "@/hooks/useAuthQuery"
 import { Link } from "lucide-react"
 
+import { StepBackButton } from "@/components/checkout/layout/StepBackButton"
+
 export default function ShippingStepPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -98,8 +100,6 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
   }
 
   const handleSubmit = (formValues: ShippingFormValues) => {
-    const toastId = toast.loading("Teslimat seçenekleri kaydediliyor...")
-
     updateShipping.mutate(
       {
         session_id: formValues.session_id,
@@ -110,11 +110,10 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
       },
       {
         onSuccess: () => {
-          toast.success("Teslimat bilgileri güncellendi", { id: toastId })
           router.push(`/checkout/payment?session=${formValues.session_id}`)
         },
         onError: () => {
-          toast.error("Teslimat bilgileri kaydedilemedi", { id: toastId })
+          toast.error("Teslimat bilgileri kaydedilemedi")
         },
       }
     )
@@ -122,6 +121,9 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
 
   return (
     <CheckoutLayout currentStep="shipping" bag={data.bag}>
+      <div className="flex items-center justify-between mb-6">
+        <StepBackButton fallbackHref="/bag" />
+      </div>
       <ShippingForm
         sessionId={sessionId}
         userId={me.id} 

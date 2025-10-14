@@ -3,7 +3,7 @@
 namespace App\Http\Resources\Bag;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-
+use App\Http\Resources\Campaign\CampaignResource;
 class BagResource extends JsonResource
 {
     public function toArray($request)
@@ -21,7 +21,8 @@ class BagResource extends JsonResource
                     'items'          => $discountItems,
                 ])
                 : null,
-            'campaigns'       => $this['campaigns'] ?? [],
+            'campaigns' => CampaignResource::collection($this['campaigns'] ?? collect()),
+
         ];
     }
 }

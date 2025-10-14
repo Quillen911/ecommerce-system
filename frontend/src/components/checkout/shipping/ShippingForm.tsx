@@ -37,7 +37,7 @@ export function ShippingForm({
       session_id: sessionId,
       shipping_address_id: defaultValues?.shipping_address_id,
       billing_address_id: defaultValues?.billing_address_id,
-      delivery_method: defaultValues?.delivery_method,
+      delivery_method: defaultValues?.delivery_method ?? "standard",
       notes: defaultValues?.notes ?? "",
       use_different_billing: defaultValues?.use_different_billing ?? false,
     },
@@ -145,7 +145,7 @@ export function ShippingForm({
       <div className="flex justify-end">
         <button
           type="submit"
-          className="rounded-lg bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-dark)] disabled:opacity-60"
+          className="rounded-lg bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-dark)] disabled:opacity-60 cursor-pointer"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Kaydediliyor..." : "Devam Et"}

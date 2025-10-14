@@ -39,10 +39,12 @@ class CampaignStoreRequest extends FormRequest
             'starts_at' => 'nullable|date|after_or_equal:today',
             'ends_at' => 'nullable|date|after:starts_at',
 
-            'product_ids' => 'nullable|array',
+            'product_ids'   => 'nullable|array|required_without:category_ids',
             'product_ids.*' => 'integer|exists:products,id',
-            'category_ids' => 'nullable|array',
+
+            'category_ids'   => 'nullable|array|required_without:product_ids',
             'category_ids.*' => 'integer|exists:categories,id',
+
         ];
     }
 

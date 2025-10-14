@@ -11,9 +11,11 @@ interface DeliveryMethodCardProps {
   onSelect: (id: string) => void
 }
 
+
 const label = "Standart"
 
 export function DeliveryMethodCard({ method, isSelected, onSelect }: DeliveryMethodCardProps) {
+  
   return (
     <button
       type="button"

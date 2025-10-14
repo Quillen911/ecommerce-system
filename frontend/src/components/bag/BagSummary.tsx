@@ -38,7 +38,7 @@ export function BagSummary({
         </div>
       </div>
       <button
-        className="w-full mt-6 py-3 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-dark)] transition disabled:opacity-60"
+        className="w-full mt-6 py-3 bg-[var(--accent)] text-white rounded-lg font-semibold hover:bg-[var(--accent-dark)] transition disabled:opacity-60 cursor-pointer"
         onClick={onCheckout}
         disabled={loading || !onCheckout}
       >

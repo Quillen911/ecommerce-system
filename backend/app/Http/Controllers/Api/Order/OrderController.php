@@ -7,6 +7,7 @@ use App\Services\Order\Contracts\OrderInterface;
 use App\Services\Order\Contracts\Refund\OrderRefundInterface;
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\Order\OrderItemResource;
+use App\Http\Resources\Order\OrderResource;
 use App\Http\Requests\Order\RefundRequest;
 
 
@@ -21,17 +22,17 @@ class OrderController extends Controller
     {
         $orders = $this->orderService->getOrdersforUser();
 
-        return ResponseHelper::success('Siparişler', $orders);
+        return response()->json($orders);
     }
     
     public function show($orderId)
     {
         $order = $this->orderService->getOneOrderforUser($orderId);
 
-        return response()->json(OrderItemResource::collection($order));
+        return OrderItemResource::collection($order);
     }
 
-    public function refundItems($id, RefundRequest $request)
+   /* public function refundItems($id, RefundRequest $request)
     {
         $data = $request->input('refund_quantities');
 
@@ -52,5 +53,5 @@ class OrderController extends Controller
         $errorMessage = $result['error'] ?? 'İade işlemi başarısız.';
         
         return ResponseHelper::errorForArray($errorMessage, $result, 400);
-    }
+    }*/
 }

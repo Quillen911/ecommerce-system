@@ -15,7 +15,7 @@ interface StepIndicatorProps {
 
 export function StepIndicator({ steps }: StepIndicatorProps) {
   return (
-    <ol className="grid grid-cols-2 gap-4 text-sm font-medium md:grid-cols-4">
+    <ol className="grid grid-cols-12 gap-5 text-sm font-medium md:grid-cols-12">
       {steps.map((step, index) => {
         const isLast = index === steps.length - 1
 
@@ -29,7 +29,7 @@ export function StepIndicator({ steps }: StepIndicatorProps) {
             : "border-muted bg-muted/20 text-muted-foreground"
 
         return (
-          <li key={step.id} className={`${baseClasses} ${stateClasses}`}>
+          <li key={step.id} className={`${baseClasses} ${stateClasses} col-span-4`}>
             <span className="flex h-8 w-8 items-center justify-center rounded-full border border-current text-sm font-semibold">
               {index + 1}
             </span>

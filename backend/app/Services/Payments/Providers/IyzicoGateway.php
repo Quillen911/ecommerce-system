@@ -149,10 +149,13 @@ class IyzicoGateway implements PaymentGatewayInterface
             $basketItems[] = $basketItem;
             $total += $price;
         }
-
+    
         $request->setBasketItems($basketItems);
         $request->setPrice(sprintf('%.2f', $total));
-        $request->setPaidPrice(sprintf('%.2f', $total));
+
+        $finalPrice = $session->bag_snapshot['totals']['final_cents'] / 100;
+        
+        $request->setPaidPrice(sprintf('%.2f', $finalPrice));
         $request->setCallbackUrl('https://nonseriately-uncoded-elba.ngrok-free.dev/api/proxy/iyzico-callback');
 
 
