@@ -61,6 +61,7 @@ export default function AddressSelector({ userId, onSelect, selectedAddressId }:
           <p className="text-gray-600 mt-1">Siparişinin teslim edileceği adresi seç</p>
         </div>
         <motion.button
+          type="button"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsModalOpen(true)}
