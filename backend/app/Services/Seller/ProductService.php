@@ -343,21 +343,21 @@ class ProductService
         return "{$prefix}-{$product->id}-{$color}-" . ($index + 1);
     }
 
-    private function generateSkuForVariant($product, $variant): string
+    public function generateSkuForVariant($product, $variant): string
     {
         $prefix = strtoupper(Str::slug(substr($product->title, 0, 3)));
         $color  = Str::upper(Str::slug($variant->color_name, 0, 3));
         return "{$prefix}-{$product->id}-{$color}-{$variant->id}";
     }
 
-    private function generateVariantSlug($product, string $colorName, int $index): string
+    public function generateVariantSlug($product, string $colorName, int $index): string
     {
         $productSlug = Str::slug($product->title);
         $colorSlug   = Str::slug($colorName, 0, 3);
         return "{$productSlug}-{$colorSlug}-" . ($index + 1);
     }
 
-    private function generateSlugForVariant($product, $variant): string
+    public function generateSlugForVariant($product, $variant): string
     {
         $productSlug = Str::slug($product->title );
         $colorSlug   = Str::slug($variant->color_name, 0, 3);

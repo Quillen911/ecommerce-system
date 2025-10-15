@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Seller;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\Product\StoreVariantSizeRequest;
 use App\Http\Requests\Seller\Product\UpdateVariantSizeRequest;
-use App\Http\Resources\Product\ProductVariantResource;
+use App\Http\Resources\Product\VariantSizeResource;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\VariantSize;
@@ -27,8 +27,7 @@ class VariantSizeController extends Controller
         );
 
         return Response::json(
-            ProductVariantResource::make($variantSize),
-            201
+            new VariantSizeResource($variantSize)
         );
     }
 
@@ -46,7 +45,7 @@ class VariantSizeController extends Controller
         );
 
         return Response::json(
-            ProductVariantResource::make($variantSize)
+            new VariantSizeResource($variantSize)
         );
     }
 }

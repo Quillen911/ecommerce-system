@@ -6,7 +6,7 @@ export const productKeys = {
     all: ['products'] as const,
     index: (sellerId?: number) => [...productKeys.all, 'index', sellerId] as const,
     detail: (id: number, sellerId?: number) => [...productKeys.all, 'detail', id, sellerId] as const,
-    slugDetail: (slug: string, sellerId?: number) => [...productKeys.all, 'slugDetail', slug, sellerId] as const,
+    slugDetail: (id: string, sellerId?: number) => [...productKeys.all, 'slugDetail', id, sellerId] as const,
     bulkStore: (sellerId?: number) => [...productKeys.all, 'bulkStore', sellerId] as const,
 }
 
@@ -40,14 +40,14 @@ export const useStoreProduct = (sellerId?: number) => {
     })
 }
 
-export const useShowProductBySlug = (slug: string, sellerId?: number) => {
+export const useShowProductBySlug = (id: string, sellerId?: number) => {
     return useQuery({
-        queryKey: productKeys.slugDetail(slug, sellerId),
+        queryKey: productKeys.slugDetail(id, sellerId),
         queryFn: async () => {
-            const response = await ProductApi.showBySlug(slug) // backend: /product/{product:slug}
+            const response = await ProductApi.showBySlug(id) 
             return response.data.data
         },
-        enabled: !!slug && typeof window !== 'undefined' && !!localStorage.getItem('seller_token'),
+        enabled: !!id && typeof window !== 'undefined' && !!localStorage.getItem('seller_token'),
         staleTime: 5 * 60 * 1000,
         retry: 1,
     })

@@ -8,8 +8,8 @@ export default function ProductDetailPage() {
   const { slug } = useParams()
   const { data: product, isLoading } = useShowProductBySlug(slug as string)
   const router = useRouter()
-  if (isLoading) return <p>Yükleniyor...</p>
   if (!product) return <p>Ürün bulunamadı</p>
+  if (isLoading) return <p>Yükleniyor...</p>
 
   return (
     <div className="p-6">

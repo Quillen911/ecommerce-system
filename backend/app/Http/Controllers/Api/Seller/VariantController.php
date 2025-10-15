@@ -7,6 +7,8 @@ use App\Services\Product\ProductVariantService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Http\Resources\Product\ProductVariantResource;
+use App\Http\Requests\Seller\Product\StoreProductVariantRequest;
+use App\Http\Requests\Seller\Product\UpdateProductVariantRequest;
 
 class VariantController extends Controller
 {
@@ -23,7 +25,7 @@ class VariantController extends Controller
         return Response::json(ProductVariantResource::collection($variants));
     }
 
-    public function store(Request $request, $productId)
+    public function store(StoreProductVariantRequest $request, $productId)
     {
         $variant = $this->variantService->store($request->all(), $productId);
         return Response::json(new ProductVariantResource($variant));
@@ -34,9 +36,9 @@ class VariantController extends Controller
         return Response::json(new ProductVariantResource($variant));
     }
 
-    public function update(Request $request, $id, $productId)
+    public function update(UpdateProductVariantRequest $request, $productId, $id)
     {
-        $variant = $this->variantService->update($id, $request->all(), $productId);
+        $variant = $this->variantService->update($productId, $id, $request->all());
         return Response::json(new ProductVariantResource($variant));
     }
 

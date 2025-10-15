@@ -19,8 +19,8 @@ export default function ProductPage() {
 
     const { isOpen, openDrawer, closeDrawer } = useProductDrawer()
 
-    const handleProductDetail = (slug: string) => {
-        router.push(`/seller/product/${slug}`)
+    const handleProductDetail = (id: string) => {
+        router.push(`/seller/product/${id}`)
     }
     
     if (isLoadingProducts || !products) {
@@ -43,7 +43,7 @@ export default function ProductPage() {
             {product?.map((p) => (
               <div
                 key={p.id}
-                onClick={() => handleProductDetail(p.slug)}
+                onClick={() => handleProductDetail(p.id.toString())}
                 className="surface border border-color rounded-xl shadow-sm p-4 flex flex-col gap-3 transition hover:shadow-md hover:scale-[1.01]"
               >
                 {/* Başlık */}

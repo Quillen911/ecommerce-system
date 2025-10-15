@@ -50,6 +50,15 @@ class StoreVariantSizeRequest extends FormRequest
     {
         return [
             'size_option_id.exists' => 'Seçilen beden bulunamadı.',
+            'price_cents.integer' => 'Fiyat sayı olmalıdır.',
+            'price_cents.min' => 'Fiyat en az 0 olmalıdır.',
+            'is_active.boolean' => 'Boolean olmalıdır.',
+            'inventory.on_hand.integer' => 'Stokta bulunan miktar sayı olmalıdır.',
+            'inventory.on_hand.min' => 'Stokta bulunan miktar en az 0 olmalıdır.',
+            'inventory.reserved.integer' => 'Rezerve miktarı sayı olmalıdır.',
+            'inventory.min_stock_level.integer' => 'Minimum stok seviyesi sayı olmalıdır.',
+            'inventory.warehouse_id.integer' => 'Depo ID sayı olmalıdır.',
+            'inventory.warehouse_id.exists' => 'Depo bulunamadı.',
         ];
     }
 

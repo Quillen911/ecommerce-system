@@ -23,24 +23,12 @@ class UpdateVariantSizeRequest extends FormRequest
 
     public function rules(): array
     {
-        $variant = $this->route('variant');
-        $variantSize = $this->route('size');
-
         return [
             'size_option_id' => [
                 'sometimes',
                 Rule::unique('variant_sizes')
                     ->where('product_variant_id', $this->route('variant')->id),
             ],            
-            'sku' => [
-                'sometimes',
-                'nullable',
-                'string',
-                'max:191',
-                Rule::unique('product_variant_sizes', 'sku')
-                    ->where('product_variant_id', $variant?->id)
-                    ->ignore($variantSize?->id),
-            ],
             'price_cents' => ['sometimes', 'integer', 'min:0'],
             'is_active'   => ['sometimes', 'boolean'],
 
@@ -55,7 +43,6 @@ class UpdateVariantSizeRequest extends FormRequest
     {
         return collect([
             'size_option_id' => $this->input('size_option_id'),
-            'sku'            => $this->input('sku'),
             'price_cents'    => $this->input('price_cents'),
             'is_active'      => $this->input('is_active'),
         ])->filter(fn ($value) => !is_null($value))->all();
@@ -69,5 +56,21 @@ class UpdateVariantSizeRequest extends FormRequest
             'reserved'         => $this->input('inventory.reserved'),
             'min_stock_level'  => $this->input('inventory.min_stock_level'),
         ])->filter(fn ($value) => !is_null($value))->all();
+    }
+
+    public function messages()
+    {
+        return [
+            "size_option_id.exists" => "Seçilen beden bulunamadı.",
+            "price_cents.integer" => "Fiyat sayı olmalıdır.",
+            "price_cents.min" => "Fiyat en az 0 olmalıdır.",
+            "is_active.boolean" => "Boolean olmalıdır.",
+            "inventory.on_hand.integer" => "Stokta bulunan miktar sayı olmalıdır.",
+            "inventory.on_hand.min" => "Stokta bulunan miktar en az 0 olmalıdır.",
+            "inventory.reserved.integer" => "Rezerve miktarı sayı olmalıdır.",
+            "inventory.min_stock_level.integer" => "Minimum stok seviyesi sayı olmalıdır.",
+            "inventory.warehouse_id.integer" => "Depo ID sayı olmalıdır.",
+            "inventory.warehouse_id.exists" => "Depo bulunamadı.",
+        ];
     }
 }

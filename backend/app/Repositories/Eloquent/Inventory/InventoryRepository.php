@@ -52,7 +52,7 @@ class InventoryRepository extends BaseRepository implements InventoryRepositoryI
             ->firstOrFail();
 
         $inventory->on_hand = $data['on_hand'];
-        $inventory->available = $data['available'];
+        $inventory->reserved = $data['reserved'];
         $inventory->save();
     }
 }

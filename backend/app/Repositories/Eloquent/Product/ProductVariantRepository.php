@@ -48,7 +48,12 @@ class ProductVariantRepository extends BaseRepository implements ProductVariantR
 
     public function updateVariant($productId, $id, $data)
     {
-        return $this->model->where('product_id', $productId)->where('id', $id)->update($data);
+        $variant = $this->model->where('product_id', $productId)->where('id', $id)->first();
+        if ($variant) {
+            $variant->update($data);
+        }
+        
+        return $variant;
     }
 
     public function deleteVariant($productId, $id)

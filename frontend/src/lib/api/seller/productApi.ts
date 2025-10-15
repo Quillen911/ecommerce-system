@@ -38,7 +38,7 @@ export const ProductApi = {
         headers: { 'Content-Type': 'multipart/form-data' },
       }),
 
-    showBySlug: (slug: string) => api.get<{ data: Product }>(`/seller/product/${slug}`),
+    showBySlug: (id: string) => api.get<{ data: Product }>(`/seller/product/${id}`),
 
     update: (id: number, data: UpdateProductRequest) =>
       api.post<UpdateProductResponse>(`/seller/product/${id}?_method=PUT`, data, {
