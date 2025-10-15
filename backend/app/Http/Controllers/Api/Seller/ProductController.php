@@ -23,14 +23,10 @@ class ProductController extends Controller
 
     public function index()
     {
-        try{
-            $products = $this->productService->indexProduct();
-            return ProductResource::collection($products->load($this->getProductLoadRelations()));
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Ürünler alınamadı: ' . $e->getMessage());
-        }
+        $products = $this->productService->indexProduct();
+        return ProductResource::collection($products->load($this->getProductLoadRelations()));
     }
+    
     public function store(ProductStoreRequest $request)
     {
         $product = $this->productService->createProduct($request->validated());
@@ -40,47 +36,29 @@ class ProductController extends Controller
         );
     }
 
-    public function show($id)
+    public function productDetail($id)
     {
-        try{
-            $product = $this->productService->showProduct($id);
-            return new ProductResource(
-                $product->load($this->getProductLoadRelations()));
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Ürün bulunamadı: ' . $e->getMessage());
-        }
+        $product = $this->productService->productDetail($id);
+        return new ProductResource(
+            $product->load($this->getProductLoadRelations()));
     }
-
+    
     public function update(ProductUpdateRequest $request, $id)
     {
-        try{
-            $data = $request->validated();        
-            $product = $this->productService->updateProduct($data , $id);
-            dd($product);
+        $data = $request->validated();        
+        $product = $this->productService->updateProduct($data , $id);
 
-            return new ProductResource($product->load($this->getProductLoadRelations()));
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Ürün güncellenemedi: ' . $e->getMessage());
-        }
+        return new ProductResource($product->load($this->getProductLoadRelations()));
     }
     public function destroy($id)
     {
-        try{
-            $product = $this->productService->deleteProduct($id);
-            
-            return ResponseHelper::success('Ürün başarıyla silindi.');
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Ürün silinemedi: ' . $e->getMessage());
-        }
+        $this->productService->deleteProduct($id);
+        return ResponseHelper::success('Ürün başarıyla silindi.');
     }
 
     public function searchProduct(Request $request)
     {
-        try{
-            $data = $this->productService->searchProduct($request);
+        $data = $this->productService->searchProduct($request);
             
             if(!empty($data['products'])){
                 return ResponseHelper::success('Ürünler Bulundu', [
@@ -99,10 +77,6 @@ class ProductController extends Controller
                 'query' => $request->input('q', '') ?? '',
                 'products' => []
                 ]);
-        }
-        catch(\Exception $e){
-            return ResponseHelper::error('Ürün arama hatası: ' . $e->getMessage());
-        }
     }
 
     protected function getProductLoadRelations()

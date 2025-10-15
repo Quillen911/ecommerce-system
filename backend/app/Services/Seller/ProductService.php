@@ -228,7 +228,7 @@ class ProductService
         });
     }
 
-    public function showProduct($id)
+    public function productDetail($id)
     {
         $seller = $this->authenticationRepository->getSeller();
         if(!$seller){

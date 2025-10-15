@@ -48,32 +48,24 @@ export default function ProductPage() {
               >
                 {/* Başlık */}
                 <h2 className="font-semibold text-lg text-accent-dark line-clamp-2">{p.title}</h2>
-                <div className=" w-full h-80 flex items-center justify-center">
-                  <ProductImage
-                    product={p}
-                    index={0}
-                    alt={p.title}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                </div>
                 <p className="text-sm muted line-clamp-3">{p.description}</p>
     
-                {/* Fiyat & Stok */}
-                <div className="flex justify-between items-center text-sm border-t border-color pt-2">
+                
+               {/* <div className="flex justify-between items-center text-sm border-t border-color pt-2">
                   <span className="font-medium">{p.list_price} ₺</span>
                   <span className={p.stock_quantity > 0 ? "text-green-600" : "text-[var(--danger)]"}>
                     {p.stock_quantity > 0 ? `${p.stock_quantity} stok` : "Tükendi"}
                   </span>
                 </div>
     
-                {/* Varyantlar */}
+                
                 {p.variants.length > 0 && (
                   <div className="text-xs border-t border-color pt-2 space-y-1">
                     <p><span className="font-medium">Varyantlar:</span> {p.variants.map(v => v.attributes.map(a => a.value).join(' ')).join(', ')}</p>
                     <p><span className="font-medium">Stoklar:</span> {p.variants.map(v => v.stock_quantity).join(', ')}</p>
                     <p><span className="font-medium">Fiyatlar:</span> {p.variants.map(v => v.price).join(', ')} ₺</p>
                   </div>
-                )}
+                )}*/ }
     
                 {/* Aksiyonlar */}
                 <div className="flex gap-2 mt-auto pt-3">

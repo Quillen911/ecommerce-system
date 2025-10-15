@@ -13,9 +13,17 @@ class ProductVariantRepository extends BaseRepository implements ProductVariantR
         $this->model = $model;
     }
 
-    public function getProductVariantById($productVariantId)
+    public function getProductVariants($productId)
     {
-        return $this->model->where('id', $productVariantId)->first();
+        return $this->model->where('product_id', $productId)->with('variantImages','variantSizes.inventory', 'variantSizes.sizeOption')->get();
+    }
+    public function getProductVariantById($variantId)
+    {
+        return $this->model->where('id', $variantId)->with('variantImages','variantSizes.inventory', 'variantSizes.sizeOption')->first();
+    }
+    public function getProductVariant($productId, $variantId)
+    {
+        return $this->model->where('product_id', $productId)->where('id', $variantId)->with('variantImages','variantSizes.inventory', 'variantSizes.sizeOption')->first();
     }
 
     public function getProductVariantBySlug($slug)
@@ -32,5 +40,19 @@ class ProductVariantRepository extends BaseRepository implements ProductVariantR
             'variantSizes.sizeOption',
         )->where('is_popular', true)->get();
     }
+    
+    public function createVariant($data, $productId)
+    {
+        return $this->model->where('product_id', $productId)->create($data);
+    }
 
+    public function updateVariant($productId, $id, $data)
+    {
+        return $this->model->where('product_id', $productId)->where('id', $id)->update($data);
+    }
+
+    public function deleteVariant($productId, $id)
+    {
+        return $this->model->where('product_id', $productId)->where('id', $id)->delete();
+    }
 }

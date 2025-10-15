@@ -44,4 +44,15 @@ class InventoryRepository extends BaseRepository implements InventoryRepositoryI
 
         return true;    
     }
+
+    public function updateStock(int $variantSizeId, array $data): void
+    {
+        $inventory = $this->model->where('variant_size_id', $variantSizeId)
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        $inventory->on_hand = $data['on_hand'];
+        $inventory->available = $data['available'];
+        $inventory->save();
+    }
 }

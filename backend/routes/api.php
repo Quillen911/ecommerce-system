@@ -26,6 +26,8 @@ use App\Http\Controllers\Api\ElasticSearch\SearchController;
 
 use App\Http\Controllers\Api\Seller\Image\ProductVariantImageController;
 use App\Http\Controllers\Api\Product\ProductVariantController;
+use App\Http\Controllers\Api\Seller\VariantController;
+use App\Http\Controllers\Api\Seller\VariantSizeController;
 use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
 
@@ -104,10 +106,22 @@ Route::middleware('auth:seller')->group(function(){
         Route::get('product/search', [ProductController::class, 'searchProduct']);
 
         Route::apiResource('campaign', CampaignController::class);
-        Route::apiResource('product', ProductController::class);
         
-        Route::prefix('product/{product}')->group(function () {            
-            Route::prefix('variants/{variantId}')->group(function () {
+        Route::apiResource('product', ProductController::class);
+        Route::get('/product/{product:slug}', [ProductController::class, 'productDetail']);
+        
+        Route::prefix('product/{product}')->group(function () {  
+            Route::get('variants', [VariantController::class, 'index']);          
+            Route::post('variants', [VariantController::class, 'store']);  
+                    
+            Route::prefix('variants/{variant}')->group(function () {
+                Route::get('/', [VariantController::class, 'show']);
+                Route::put('/', [VariantController::class, 'update']);
+                Route::delete('/', [VariantController::class, 'destroy']);
+
+                Route::post('sizes', [VariantSizeController::class, 'store']);
+                Route::put('sizes/{size}', [VariantSizeController::class, 'update']);
+
                 Route::post('images', [ProductVariantImageController::class, 'store']);
                 Route::delete('images/{image}', [ProductVariantImageController::class, 'destroy']);
                 Route::put('images/reorder', [ProductVariantImageController::class, 'reorder']);
