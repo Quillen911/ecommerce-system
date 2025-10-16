@@ -41,6 +41,7 @@ class BagService implements BagInterface
                 'variantSize.productVariant.variantImages',
                 'variantSize.sizeOption',
                 'variantSize.productVariant.product.category',
+                'variantSize.inventory',
             ])
             ->orderBy('id')
             ->get();
@@ -135,6 +136,7 @@ class BagService implements BagInterface
                 'variantSize.productVariant.variantImages',
                 'variantSize.productVariant.product.category',
                 'variantSize.sizeOption',
+                'variantSize.inventory',
             ])
             ->get();
 
@@ -262,6 +264,7 @@ class BagService implements BagInterface
     }
     private function checkProductAvailability($bagItems, $bag)
     {
+        
         $bagItems = $bagItems->filter(function($item) use ($bag) {
             if (!$item->product || $item->product->deleted_at !== null) {
                 if(!$item->variantSize->productVariant || $item->variantSize->productVariant->deleted_at !== null){

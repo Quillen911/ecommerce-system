@@ -1,4 +1,4 @@
-import { Product, ProductVariant } from "./main"
+import { Product } from "./seller/product"
 
 export interface ProductDetailResponse {
     data: Product

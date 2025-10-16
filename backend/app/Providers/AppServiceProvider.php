@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Services\SmsService;
 use App\Channels\SmsChannel;
+use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantImage;
@@ -13,6 +14,7 @@ use App\Observers\ProductObserver;
 use App\Observers\ProductVariantObserver;
 use App\Observers\ProductVariantImageObserver;
 use App\Observers\VariantAttributeObserver;
+use App\Observers\InventoryObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -157,5 +159,6 @@ class AppServiceProvider extends ServiceProvider
         ProductVariant::observe(ProductVariantObserver::class);
         ProductVariantImage::observe(ProductVariantImageObserver::class);
         VariantAttribute::observe(VariantAttributeObserver::class);
+        Inventory::observe(InventoryObserver::class);
     }
 }

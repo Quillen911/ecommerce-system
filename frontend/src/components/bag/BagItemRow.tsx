@@ -50,7 +50,7 @@ export function BagItemRow({
         </div>
       </div>
       <div className="text-right">
-        <p className="font-bold">₺{(item.sizes.price_cents / 100).toFixed(2)}</p>
+        <p className="font-bold">₺{(item.unit_price_cents / 100).toFixed(2)}</p>
       </div>
       <button
         onClick={() => onRemove(item)}

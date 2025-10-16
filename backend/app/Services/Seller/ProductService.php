@@ -115,13 +115,14 @@ class ProductService
                 
 
                         if (!empty($size['inventory'])) {
-                            foreach ($size['inventory'] as $inv) {
-                                $variantSize->inventory()->create([
-                                    'on_hand' => $inv['on_hand'],
-                                    'reserved'    => $inv['reserved'] ?? 0,
-                                    'warehouse_id' => $inv['warehouse_id'] ?? $variantData['warehouse_id'] ?? 1,
-                                ]);
-                            }
+                            $inventoryData = $size['inventory'];
+
+                            $variantSize->inventory()->create([
+                                'on_hand'        => $inventoryData['on_hand'],
+                                'reserved'       => $inventoryData['reserved'] ?? 0,
+                                'warehouse_id'   => $inventoryData['warehouse_id'] ?? ($variantData['warehouse_id'] ?? 1),
+                                'min_stock_level'=> $inventoryData['min_stock_level'] ?? 0,
+                            ]);
                         }
                     }
                 }

@@ -52,12 +52,28 @@ class ProductVariantSizeService
         if(!$variantSize){
             throw new \Exception('Variant size bulunamadı');
         }
+
         $variantSize->update($data);
         $variantSize->update([
-            'sku' => $this->skuGenerator($variantId, $data['size_option_id']),
+            'sku' => $this->skuGenerator($variantId, $variantSize->size_option_id),
         ]);
         $this->inventoryRepository->updateStock($variantSizeId, $data['inventory']);
         return $variantSize->load('sizeOption', 'inventory');
+    }
+
+    public function destroy($productId,$variantId, $variantSizeId)
+    {
+        $variant = $this->productVariantRepository->getProductVariant($productId,$variantId);
+        if(!$variant){
+            throw new \Exception('Variant bulunamadı');
+        }
+        $variantSize = $variant->variantSizes()->where('id', $variantSizeId)->first();
+        if(!$variantSize){
+            throw new \Exception('Variant size bulunamadı');
+        }
+        $variantSize->delete();
+        $variantSize->inventory()->delete();
+        return true;
     }
 
     public function skuGenerator($variantId, $sizeOptionId)

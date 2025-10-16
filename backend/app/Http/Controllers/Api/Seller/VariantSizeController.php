@@ -48,4 +48,17 @@ class VariantSizeController extends Controller
             new VariantSizeResource($variantSize)
         );
     }
+
+    public function destroy(Product $product, ProductVariant $variant, VariantSize $size)
+    {
+        $this->variantSizeService->destroy(
+            $product->id,
+            $variant->id,
+            $size->id
+        );
+
+        return Response::json([
+            'message' => 'Variant başarıyla silindi',
+        ]);
+    }
 }

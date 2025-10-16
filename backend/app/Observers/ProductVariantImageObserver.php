@@ -3,24 +3,23 @@
 namespace App\Observers;
 
 use App\Models\ProductVariantImage;
+use App\Models\ProductVariant;
 use App\Jobs\IndexProductToElasticsearch;
 use App\Jobs\DeleteProductToElasticsearch;
+use Illuminate\Support\Facades\Log;
 
 class ProductVariantImageObserver
 {
     public function saved(ProductVariantImage $productVariantImage): void
     {
-        // ✅ GÜVENLİ İLİŞKİ YÜKLEME
         try {
-            // İlişkiyi yükle
             $productVariantImage->load('productVariant.product');
             
             if ($productVariantImage->productVariant && $productVariantImage->productVariant->product) {
                 dispatch(new IndexProductToElasticsearch($productVariantImage->productVariant->product->id));
             }
         } catch (\Exception $e) {
-            // Hata durumunda logla ama işlemi durdurma
-            \Log::error('ProductVariantImageObserver error: ' . $e->getMessage());
+            Log::error('ProductVariantImageObserver error: ' . $e->getMessage());
         }
     }
     /**
@@ -44,9 +43,13 @@ class ProductVariantImageObserver
      */
     public function deleted(ProductVariantImage $productVariantImage): void
     {
-        dispatch(new DeleteProductToElasticsearch($productVariantImage->variant->product_id));
-    }
+        $productId = optional($productVariantImage->variant)->product_id
+            ?? ProductVariant::whereKey($productVariantImage->product_variant_id)->value('product_id');
 
+        if ($productId) {
+            dispatch(new DeleteProductToElasticsearch($productId));
+        }
+    }
     /**
      * Handle the ProductVariantImage "restored" event.
      */

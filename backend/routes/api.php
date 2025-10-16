@@ -121,6 +121,7 @@ Route::middleware('auth:seller')->group(function(){
 
                 Route::post('sizes', [VariantSizeController::class, 'store']);
                 Route::put('sizes/{size}', [VariantSizeController::class, 'update']);
+                Route::delete('sizes/{size}', [VariantSizeController::class, 'destroy']);
 
                 Route::post('images', [ProductVariantImageController::class, 'store']);
                 Route::delete('images/{image}', [ProductVariantImageController::class, 'destroy']);

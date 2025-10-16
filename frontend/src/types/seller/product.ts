@@ -18,6 +18,7 @@ export interface Product {
 export interface ProductVariantImage {
     id: number
     product_variant_id: number
+    image?: string | null
     image_url: string
     is_primary: boolean
     sort_order: number
@@ -72,57 +73,127 @@ export interface StoreProductRequest {
     category_id?: number | null
     description?: string | null
     meta_description?: string | null
-    total_sold_quantity?: number
+    meta_title?: string | null
     variants: StoreProductVariantRequest[]
 }
   
 export interface StoreProductVariantRequest {
-    price: number
-    stock_quantity: number
-    images: File[]
-    attributes: StoreProductVariantAttributeRequest[]
+    color_name: string
+    color_code: string
+    price_cents: number
+    is_popular: boolean
+    is_active: boolean
+    sizes: StoreProductVariantSizeRequest[]
+    images: File[] | null
 }
-  
-export interface StoreProductVariantAttributeRequest {
-    attribute_id: number
-    option_id?: number | null
-}
-  
 
-export interface StoreProductResponse {
+export interface StoreProductVariantResponse {
+    data: ProductVariant
+}
+
+export interface UpdateProductVariantResponse {
+    data: ProductVariant
+}
+
+export interface StoreProductVariantSizeRequest {
+    size_option_id: number
+    price_cents: number
+    inventory: StoreProductVariantSizeInventoryRequest
+}
+  
+export interface StoreProductVariantSizeResponse {
+    data: VariantSize
+}
+export interface StoreProductVariantSizeInventoryRequest {
+    warehouse_id: number | null
+    on_hand: number
+    reserved: number | null
+    min_stock_level?: number | null
+}
+//Image
+
+export interface StoreProductVariantImageRequest {
+  image: File
+}
+export interface ReorderProductVariantImageRequest {
+    images: {
+        id: number
+        sort_order: number
+    }[]
+}
+export interface StoreProductVariantImageResponse {
+    data: ProductVariantImage[]
+}
+export interface UpdateProductVariantImageRequest {
+    images: File[] | null
+}
+export interface UpdateProductVariantImageResponse {
+    data: ProductVariantImage[]
+}
+export interface DestroyProductVariantImageResponse {
     message: string
+    data: boolean
+}
+export interface ReorderProductVariantImageResponse {
+    message: string
+    data: boolean
+}
+export interface StoreProductResponse {
     data: Product[]
 }
-
+export interface DestroyProductVariantSizeResponse {
+    message: string
+    data: boolean
+}
 export interface UpdateProductRequest {
     title?: string
     category_id?: number | null
-    author?: string | null
     description?: string | null
     meta_description?: string | null
-    total_sold_quantity?: number
-  
-    variants?: UpdateVariantRequest[]
+    meta_title?: string | null
+    //variants?: UpdateProductVariantRequest[]
 }
-  
-export interface UpdateVariantRequest {
-    price?: number
-    stock_quantity?: number
+
+export interface UpdateProductVariantRequest {
+    id: number
+    color_name?: string
+    color_code?: string
+    price_cents?: number
+    is_popular?: boolean
+    is_active?: boolean
     images?: File[]
-    attributes?: UpdateVariantAttributeRequest[]
+    sizes?: UpdateProductVariantSizeRequest[]
 }
-  
-export interface UpdateVariantAttributeRequest {
-    attribute_id?: number
-    option_id?: number | null
+
+export interface UpdateProductVariantSizeRequest {
+    id: number
+    size_option_id?: number
+    price_cents?: number
+    inventory?: UpdateProductVariantSizeInventoryRequest
+}
+
+export interface UpdateProductVariantSizeResponse {
+    data: VariantSize
+}
+
+export interface UpdateProductVariantSizeInventoryRequest {
+    id: number
+    warehouse_id?: number | null
+    on_hand?: number
+    reserved?: number | null
+    min_stock_level?: number | null
 }
 
 export interface UpdateProductResponse {
-    message: string
     data: Product
 }
 
 export interface DestroyProductResponse {
+    message: string
+    data: boolean
+}
+
+export interface DestroyProductVariantResponse {
     message: string
     data: boolean
 }
@@ -134,11 +205,13 @@ export interface BulkProductStoreRequest {
 export interface BulkProductRequest {
     title: string
     category_id?: number | null
-    total_sold_quantity?: number
+    description?: string | null
+    meta_description?: string | null
+    meta_title?: string | null
+    variants?: UpdateProductVariantRequest[]
 }
 
 export interface BulkProductResponse {
-    message: string
     data: Product[]
 }
   

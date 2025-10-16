@@ -20,7 +20,7 @@ class ProductUpdateRequest extends FormRequest
             'meta_description' => 'sometimes|string|max:160',
             'meta_title' => 'sometimes|string|max:60',
 
-            'variants' => 'sometimes|array|min:1',
+           /* 'variants' => 'sometimes|array|min:1',
             'variants.*.id' => 'required|integer|exists:product_variants,id',
             'variants.*.color_name' => 'sometimes|string|max:255',
             'variants.*.color_code' => 'sometimes|string|size:7|regex:/^#[0-9A-Fa-f]{6}$/',
@@ -37,7 +37,7 @@ class ProductUpdateRequest extends FormRequest
             'variants.*.sizes.*.inventory' => 'sometimes|array|min:1',
             'variants.*.sizes.*.inventory.*.on_hand' => 'sometimes|integer|min:0',
             'variants.*.sizes.*.inventory.*.reserved' => 'sometimes|integer|min:0',
-            'variants.*.sizes.*.inventory.*.warehouse_id' => 'sometimes|integer|min:0',
+            'variants.*.sizes.*.inventory.*.warehouse_id' => 'sometimes|integer|min:0',*/
         ];
     }
 

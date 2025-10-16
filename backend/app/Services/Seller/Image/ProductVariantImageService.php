@@ -60,11 +60,12 @@ class ProductVariantImageService
             throw new AppException('Ürün varyantı bulunamadı');
         }
         $image = $this->productVariantImageRepository->getImageByProductVariantIdAndId($productVariant->id, $id);
+        
         if(!$image){
             throw new AppException('Resim bulunamadı');
         }
-        Storage::disk('public')->delete('productImages/' . $image->image);
         $image->delete();
+        Storage::disk('public')->delete('productImages/' . $image->image);
         return true;
     }
 

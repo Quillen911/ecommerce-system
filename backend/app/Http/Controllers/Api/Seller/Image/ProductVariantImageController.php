@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Seller\Image;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\Seller\Image\ProductVariantImageService;
 use App\Http\Requests\Seller\Product\Image\ProductVariantImageStoreRequest;
 use App\Helpers\ResponseHelper;

@@ -164,6 +164,9 @@ export function CardForm({
             <span className="text-xs font-medium text-muted-foreground">Kart Sahibinin Adı</span>
             <input
               placeholder="AD SOYAD"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
               className="w-full rounded-lg border border-color px-3 py-2 text-sm uppercase focus:border-[var(--accent)] focus:outline-none"
               {...register("card_holder_name")}
             />

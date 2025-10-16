@@ -26,4 +26,14 @@ class ProductVariantImageStoreRequest extends FormRequest
             'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'image.required' => 'Resim zorunludur.',
+            'image.image' => 'Resim dosyası olmalıdır.',
+            'image.mimes' => 'Resim dosyası olmalıdır.',
+            'image.max' => 'Resim dosyası en fazla 2048 KB olmalıdır.',
+        ];
+    }
 }
