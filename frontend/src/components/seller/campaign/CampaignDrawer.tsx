@@ -6,6 +6,7 @@ import {
 } from '@/hooks/seller/useCampaignQuery';
 import { CampaignCreatePayload } from '@/types/seller/campaign';
 import CampaignForm, { CampaignFormValues } from '@/components/forms/seller/CampaignForm';
+import { FiX } from 'react-icons/fi';
 
 interface CampaignDrawerProps {
   campaignId: number | null;
@@ -69,26 +70,47 @@ export default function CampaignDrawer({ campaignId, open, onClose }: CampaignDr
   }, [campaignId, data]);
 
   const handleSubmit = async (values: CampaignFormValues) => {
+    const trimmedCode = values.code?.trim();
+
+    const productIds =
+      Array.isArray(values.product_ids) && values.product_ids.length
+        ? values.product_ids
+        : undefined;
+
+    const categoryIds =
+      Array.isArray(values.category_ids) && values.category_ids.length
+        ? values.category_ids
+        : undefined;
+
     const payload: CampaignCreatePayload = {
       ...values,
-      discount_value: values.discount_value ?? null,
-      buy_quantity: values.buy_quantity ?? null,
-      pay_quantity: values.pay_quantity ?? null,
-      min_subtotal: values.min_subtotal ?? null,
-      usage_limit: values.usage_limit ?? null,
-      starts_at: values.starts_at || null,
-      ends_at: values.ends_at || null,
-      product_ids: values.product_ids?.length ? values.product_ids : null,
-      category_ids: values.category_ids?.length ? values.category_ids : null,
+      code: trimmedCode ? trimmedCode : undefined,
+      discount_value: values.discount_value ?? undefined,
+      buy_quantity: values.buy_quantity ?? undefined,
+      pay_quantity: values.pay_quantity ?? undefined,
+      min_subtotal: values.min_subtotal ?? undefined,
+      usage_limit: values.usage_limit ?? undefined,
+      starts_at: values.starts_at || undefined,
+      ends_at: values.ends_at || undefined,
+      product_ids: productIds,
+      category_ids: categoryIds,
     };
 
-    if (campaignId) {
-      await updateMutation.mutateAsync({ id: campaignId, payload });
-    } else {
-      await createMutation.mutateAsync(payload);
+    if (campaignId && data?.code && payload.code === data.code) {
+      delete payload.code;
     }
 
-    onClose();
+    try {
+      if (campaignId) {
+        await updateMutation.mutateAsync({ id: campaignId, payload });
+      } else {
+        await createMutation.mutateAsync(payload);
+      }
+      onClose();
+    } catch (error: any) {
+      console.error('Campaign update failed:', error?.response?.data ?? error);
+      throw error;
+    }
   };
 
   const loading =
@@ -103,34 +125,32 @@ export default function CampaignDrawer({ campaignId, open, onClose }: CampaignDr
       }`}
     >
       <div
-        className={`absolute inset-0 bg-base-content/30 backdrop-blur-sm transition-opacity ${
+        className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity ${
           open ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={onClose}
       />
 
       <aside
-        className={`absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-white shadow-[0_30px_60px_-25px_rgba(15,23,42,0.45)] transition-all duration-300 md:rounded-l-[32px] ${
+        className={`absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col bg-white shadow-2xl transition-all duration-300 ease-in-out ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <header className="border-b border-base-content/10 px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-base-content/50">
-                Kampanya Yönetimi
-              </p>
-              <h2 className="mt-1 text-2xl font-semibold text-base-content">
-                {campaignId ? 'Kampanya Güncelle' : 'Yeni Kampanya'}
-              </h2>
-            </div>
-            <button className="btn btn-outline btn-sm" onClick={onClose}>
-              Kapat
-            </button>
+        <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {campaignId ? 'Kampanya Düzenle' : 'Yeni Kampanya Oluştur'}
+            </h2>
           </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          >
+            <FiX className="h-5 w-5" />
+          </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-8 py-8">
+        <div className="flex-1 overflow-y-auto p-6">
           <CampaignForm
             key={campaignId ?? 'new'}
             initialValues={initialValues}

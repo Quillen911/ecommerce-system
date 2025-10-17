@@ -6,52 +6,58 @@ use App\Services\Payments\IyzicoPaymentService;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
+use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Shipping\Contracts\ShippingServiceInterface;
 use App\Jobs\ShippedOrderItemNotification;
 use App\Jobs\RefundOrderItemNotification;
 
 class SellerOrderService
 {
-    protected $iyzicoService;
-    protected $orderItemRepository;
-    protected $productRepository;
-    protected $storeRepository;
-    protected $shippingService;
+    
     public function __construct(
-        IyzicoPaymentService $iyzicoService, 
-        OrderItemRepositoryInterface $orderItemRepository,
-        ProductRepositoryInterface $productRepository,
-        StoreRepositoryInterface $storeRepository,
-        ShippingServiceInterface $shippingService
+       private readonly IyzicoPaymentService $iyzicoService, 
+       private readonly OrderItemRepositoryInterface $orderItemRepository,
+       private readonly ProductRepositoryInterface $productRepository,
+       private readonly StoreRepositoryInterface $storeRepository,
+       private readonly ShippingServiceInterface $shippingService,
+       private readonly AuthenticationRepositoryInterface $authenticationRepository
     ) {
-        $this->iyzicoService = $iyzicoService;
-        $this->orderItemRepository = $orderItemRepository;
-        $this->productRepository = $productRepository;
-        $this->storeRepository = $storeRepository;
-        $this->shippingService = $shippingService;
+    
     }
 
-    public function getSellerOrders($sellerId)
+    public function getSellerOrders()
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Satıcı bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
         return $this->orderItemRepository->getOrderItemsBySeller($store->id);
     }
 
-    public function getSellerOneOrder($sellerId, $id)
+    public function getSellerOneOrder($id)
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Satıcı bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
         return $this->orderItemRepository->getOrderItemBySeller($store->id, $id);
     }
 
-    public function confirmItem($sellerId, $id)
+    public function confirmItem($id)
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Satıcı bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }
@@ -96,9 +102,13 @@ class SellerOrderService
         return $orderItem;
     }
 
-    public function refundSelectedItems($sellerId, $id)
+    public function refundSelectedItems($id)
     {
-        $store = $this->storeRepository->getStoreBySellerId($sellerId);
+        $seller = $this->authenticationRepository->getSeller();
+        if(!$seller){
+            throw new \Exception('Satıcı bulunamadı');
+        }
+        $store = $this->storeRepository->getStoreBySellerId($seller->id);
         if(!$store){
             throw new \Exception('Mağaza bulunamadı');
         }

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Campaign extends Model
 {
     use HasFactory;
-    protected $table = 'campaigns';
 
     protected $fillable = [
         'name',
@@ -16,6 +15,8 @@ class Campaign extends Model
         'type',
         'description',
         'discount_value',
+        'buy_quantity',
+        'pay_quantity',
         'min_subtotal',
         'usage_limit',
         'usage_count',
@@ -28,6 +29,8 @@ class Campaign extends Model
         'min_subtotal' => 'float',
         'is_active' => 'boolean',
         'discount_value' => 'integer',
+        'buy_quantity' => 'integer',
+        'pay_quantity' => 'integer',
         'min_quantity' => 'integer',
         'usage_limit' => 'integer',
         'usage_count' => 'integer',

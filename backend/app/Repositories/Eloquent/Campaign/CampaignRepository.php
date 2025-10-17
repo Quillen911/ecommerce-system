@@ -37,7 +37,8 @@ class CampaignRepository extends BaseRepository implements CampaignRepositoryInt
     {
         $campaign = $this->model->find($id);
         if($campaign){
-            return $campaign->update($campaignData);
+            $campaign->update($campaignData);
+            return $campaign;
         }
         return false;
     }

@@ -16,17 +16,29 @@ class OrderItemRepository extends BaseRepository implements OrderItemRepositoryI
 
     public function getOrderItemsBySeller($storeId)
     {
-        return $this->model->with(['product'])->where('store_id', $storeId)->orderBy('created_at', 'desc')->get();
+        return $this->model->with([
+            'product',
+            'product.variants.variantImages',
+            'product.variants.variantSizes.sizeOption',
+        ])->where('store_id', $storeId)->orderBy('created_at', 'desc')->get();
     }
 
     public function getOrderItemBySeller($storeId, $id)
     {
-        return $this->model->with(['product'])->where('store_id', $storeId)->where('order_id', $id)->first();
+        return $this->model->with([
+            'product',
+            'product.variants.variantImages',
+            'product.variants.variantSizes.sizeOption',
+        ])->where('store_id', $storeId)->where('order_id', $id)->first();
     }
 
     public function getOrderItemById($storeId, $id)
     {
-        return $this->model->with(['product'])->where('store_id', $storeId)->where('id', $id)->first();
+        return $this->model->with([
+            'product',
+            'product.variants.variantImages',
+            'product.variants.variantSizes.sizeOption',
+        ])->where('store_id', $storeId)->where('id', $id)->first();
     }
     public function getOrderDetailforUser($userId, $orderId)
     {

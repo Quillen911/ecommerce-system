@@ -166,6 +166,7 @@ return [
         App\Providers\CampaignServiceProvider::class,
         App\Providers\CheckoutServiceProvider::class,
         App\Services\Payments\PaymentServiceProvider::class,
+        App\Providers\ShippingServiceProvider::class,
         /*
         |--------------------------------------------------------------------------
         | Third-Party Service Providers

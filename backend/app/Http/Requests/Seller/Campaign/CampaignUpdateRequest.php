@@ -28,7 +28,7 @@ class CampaignUpdateRequest extends FormRequest
             'description' => 'sometimes|nullable|string',
             'type' => ['sometimes', 'required', Rule::in(['percentage', 'fixed', 'x_buy_y_pay'])],
             
-            'discount_value' => 'sometimes|required_if:type,percentage,fixed|nullable|numeric|min:0',
+            'discount_value' => 'sometimes|required_if:type,percentage,fixed|nullable|numeric|min:0|max:100',
             
             'buy_quantity' => 'sometimes|required_if:type,x_buy_y_pay|nullable|integer|min:1',
             'pay_quantity' => 'sometimes|required_if:type,x_buy_y_pay|nullable|integer|min:0|lt:buy_quantity',
@@ -65,6 +65,7 @@ class CampaignUpdateRequest extends FormRequest
             'discount_value.required_if' => 'İndirim değeri gereklidir.',
             'discount_value.numeric' => 'İndirim değeri sayısal olmalıdır.',
             'discount_value.min' => 'İndirim değeri 0\'dan büyük olmalıdır.',
+            'discount_value.max' => 'İndirim değeri en fazla %100 olmalıdır.',
 
             'buy_quantity.required_if' => 'Alınacak miktar gereklidir.',
             'buy_quantity.integer' => 'Alınacak miktar tam sayı olmalıdır.',

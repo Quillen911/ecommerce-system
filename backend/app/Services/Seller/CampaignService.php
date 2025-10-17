@@ -100,23 +100,27 @@ class CampaignService
         $categoryIds = $campaignData['category_ids'] ?? null;
     
         unset($campaignData['product_ids'], $campaignData['category_ids']);
-    
-        if (!$this->campaignRepository->updateCampaign($campaignData, $id)) {
-            throw new \Exception('Kampanya güncellenemedi');
+        
+        $updatedCampaign = $this->campaignRepository->updateCampaign($campaignData, $id);
+        if(!$updatedCampaign){   
+           throw new \Exception('Kampanya güncellenemedi');
         }
-    
+        
         if ($productIds !== null) {
-            $campaign->products()->sync($productIds);
+            $updatedCampaign->campaignProducts()->delete();
+            $updatedCampaign->campaignProducts()->createMany(
+                collect($productIds)->map(fn ($prodId) => ['product_id' => $prodId])->all()
+            );
         }
     
         if ($categoryIds !== null) {
-            $campaign->campaignCategories()->delete();
-            $campaign->campaignCategories()->createMany(
+            $updatedCampaign->campaignCategories()->delete();
+            $updatedCampaign->campaignCategories()->createMany(
                 collect($categoryIds)->map(fn ($catId) => ['category_id' => $catId])->all()
             );
         }
     
-        return $campaign->load('campaignProducts', 'campaignCategories');
+        return $updatedCampaign->load('campaignProducts', 'campaignCategories');
     }
     
 

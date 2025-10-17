@@ -16,7 +16,6 @@ export default function ProductCard({
   onEdit,
   onDelete,
 }: ProductCardProps) {
-  const primaryVariant = product.variants?.[0]
 
   return (
     <article
@@ -33,6 +32,7 @@ export default function ProductCard({
             </p>
           </div>
           <StatusBadge active={product.is_published} />
+          <p className="text-xs text-gray-500">id: {product.id}</p>
         </div>
       </header>
 

@@ -46,6 +46,7 @@ export const useCampaignUpdate = () => {
 
   return useMutation({
     mutationFn: async ({ id, payload }: { id: number; payload: CampaignUpdatePayload }) => {
+      console.log('payload', payload)
       const response = await sellerCampaignApi.update(id, payload);
       return response.data.data;
     },

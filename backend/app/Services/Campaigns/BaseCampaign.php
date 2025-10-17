@@ -21,7 +21,8 @@ abstract class BaseCampaign implements CampaignInterface
         }
 
         if ($this->campaign->ends_at && $this->campaign->ends_at->isPast()) {
-            $this->campaign->forceFill(['is_active' => false])->save();
+            $this->campaign->is_active = false;
+            $this->campaign->save();
             return false;
         }
 

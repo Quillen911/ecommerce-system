@@ -41,14 +41,14 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-base-content/12 bg-white px-7 py-6 shadow-inner shadow-base-content/5">
-      <header className="mb-6 flex flex-col gap-1">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-base-content">
-          {title}
-        </h3>
-        <p className="text-xs text-base-content/60">{description}</p>
+    <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <header className="mb-6">
+        <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+        <p className="mt-1 text-sm text-gray-500">{description}</p>
       </header>
-      {children}
+      <div className="space-y-4">
+        {children}
+      </div>
     </section>
   );
 }
@@ -143,41 +143,52 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
 
   return (
     <form className="flex flex-col gap-7" onSubmit={submitHandler}>
-      <Section
+       <Section
         title="Genel Bilgiler"
-        description="Kampanya adı, kodu ve kısa açıklama gibi temel bilgileri gir."
+        description="Kampanya adı, kodu ve kısa açıklama gibi temel bilgileri giriniz."
       >
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="form-control">
-            <span className="label-text text-sm font-medium">Kampanya Adı</span>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Kampanya Adı <span className="text-red-500">*</span>
+            </label>
             <input
-              className="input input-bordered input-lg bg-white"
+              className={`block w-full rounded-md border ${
+                errors.name ? 'border-red-300' : 'border-gray-300'
+              } shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5`}
               placeholder="Örn. Yaz İndirimi"
-              {...register('name', { required: 'Kampanya adı zorunludur.' })}
+              {...register('name', { required: 'Bu alan zorunludur' })}
             />
-            {errors.name && <span className="mt-1 text-xs text-error">{errors.name.message}</span>}
-          </label>
+            {errors.name && (
+              <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+            )}
+          </div>
 
-          <label className="form-control">
-            <span className="label-text text-sm font-medium">Kampanya Kodu</span>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Kampanya Kodu
+            </label>
             <input
-              className="input input-bordered input-lg bg-white"
-              placeholder="Opsiyonel"
+              className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5"
+              placeholder="Örn: YAZ25"
               {...register('code')}
             />
-            <span className="mt-1 text-xs text-base-content/60">
-              Kodsuz kampanya oluşturmak istiyorsan boş bırak.
-            </span>
-          </label>
+            <p className="mt-1 text-xs text-gray-500">
+              Kodsuz kampanya oluşturmak için boş bırakın
+            </p>
+          </div>
 
-          <label className="md:col-span-2">
-            <span className="label-text text-sm font-medium">Açıklama</span>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Açıklama
+            </label>
             <textarea
-              className="textarea textarea-bordered mt-2 min-h-[112px] bg-white"
-              placeholder="Kampanyanın müşteriye gözükecek kısa açıklaması."
+              rows={3}
+              className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5"
+              placeholder="Kampanya detaylarını yazın..."
               {...register('description')}
             />
-          </label>
+          </div>
         </div>
       </Section>
 
@@ -223,31 +234,43 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
                 <span className="label-text text-sm font-medium">İndirim Değeri</span>
                 <input
                   type="number"
-                  step="0.01"
-                  className="input input-bordered input-lg bg-white"
+                  step="0.1"
+                  max={type === 'percentage' ? 100 : undefined}
+                  min={type === 'percentage' ? 0 : undefined}
+                  className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
                   placeholder={type === 'percentage' ? '% oran' : 'TL tutar'}
                   {...register('discount_value', {
-                    required: showDiscountField ? 'İndirim değeri zorunludur.' : false,
+                    setValueAs: (value) =>
+                      value === '' || value === null || value === undefined
+                        ? undefined
+                        : Number(value),
+                    min: { value: 0, message: '0’dan küçük olamaz.' },
+                    max: { value: 100, message: '%100’den büyük olamaz.' },
                   })}
                 />
                 {errors.discount_value && (
                   <span className="mt-1 text-xs text-error">{errors.discount_value.message}</span>
                 )}
-                <span className="mt-1 text-xs text-base-content/60">
-                  Yüzdesel kampanyalarda % değer; sabit kampanyalarda TL olarak düşün.
+                <span className="mt-1 text-sm text-base-content/60">
+                  Yüzdesel kampanyalarda % değer; sabit kampanyalarda TL olarak düşün. En fazla %100 olmalıdır.
                 </span>
               </label>
             )}
 
             {showQuantityFields && (
               <>
-                <label className="form-control">
+              <div className="flex flex-rows gap-4 md:flex-cols">
+                <label className="form-control md:col-span-1">
                   <span className="label-text text-sm font-medium">Alınacak Ürün Adedi</span>
                   <input
                     type="number"
-                    className="input input-bordered input-lg bg-white"
+                    className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
                     placeholder="Örn. 3"
                     {...register('buy_quantity', {
+                      setValueAs: (value) =>
+                        value === '' || value === null || value === undefined
+                          ? undefined
+                          : Number(value),
                       required: 'Alınacak adet zorunludur.',
                       min: { value: 1, message: 'En az 1 olmalıdır.' },
                     })}
@@ -257,13 +280,17 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
                   )}
                 </label>
 
-                <label className="form-control">
+                <label className="form-control md:col-span-1">
                   <span className="label-text text-sm font-medium">Ödenecek Ürün Adedi</span>
                   <input
                     type="number"
-                    className="input input-bordered input-lg bg-white"
+                    className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
                     placeholder="Örn. 2"
                     {...register('pay_quantity', {
+                      setValueAs: (value) =>
+                        value === '' || value === null || value === undefined
+                          ? undefined
+                          : Number(value),
                       required: 'Ödenecek adet zorunludur.',
                       min: { value: 0, message: 'Negatif olamaz.' },
                     })}
@@ -272,6 +299,7 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
                     <span className="mt-1 text-xs text-error">{errors.pay_quantity.message}</span>
                   )}
                 </label>
+              </div>
               </>
             )}
           </div>
@@ -288,9 +316,14 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
             <input
               type="number"
               step="0.01"
-              className="input input-bordered input-lg bg-white"
+              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
               placeholder="Opsiyonel"
-              {...register('min_subtotal')}
+              {...register('min_subtotal', {
+                setValueAs: (value) =>
+                  value === '' || value === null || value === undefined
+                    ? undefined
+                    : Number(value),
+              })}
             />
           </label>
 
@@ -298,9 +331,14 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
             <span className="label-text text-sm font-medium">Kullanım Limiti</span>
             <input
               type="number"
-              className="input input-bordered input-lg bg-white"
+              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
               placeholder="Sınırsız bırakmak için boş bırak"
-              {...register('usage_limit')}
+              {...register('usage_limit', {
+                setValueAs: (value) =>
+                  value === '' || value === null || value === undefined
+                    ? undefined
+                    : Number(value),
+              })}
             />
           </label>
 
@@ -332,9 +370,9 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
       >
         <div className="grid gap-6 md:grid-cols-2">
           <label className="form-control">
-            <span className="label-text text-sm font-medium">Ürün ID’leri</span>
+            <span className="label-text mb-2 text-sm font-medium">Ürün ID’leri</span>
             <input
-              className="input input-bordered input-lg bg-white"
+              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
               placeholder="Örn. 12, 45, 78"
               {...register('product_ids', {
                 setValueAs: (raw) => {
@@ -350,15 +388,15 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
             {errors.product_ids && (
               <span className="mt-1 text-xs text-error">{errors.product_ids.message}</span>
             )}
-            <span className="mt-1 text-xs text-base-content/60">
+            <span className="mt-1 text-sm text-base-content/60">
               Kampanya sadece belirli ürünlerde geçerliyse ürün ID’lerini virgülle ayırarak gir.
             </span>
           </label>
 
           <label className="form-control">
-            <span className="label-text text-sm font-medium">Kategori ID’leri</span>
+            <span className="label-text mb-2 text-sm font-medium">Kategori ID’leri</span>
             <input
-              className="input input-bordered input-lg bg-white"
+              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
               placeholder="Örn. 5, 9"
               {...register('category_ids', {
                 setValueAs: (raw) => {
@@ -374,7 +412,7 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
             {errors.category_ids && (
               <span className="mt-1 text-xs text-error">{errors.category_ids.message}</span>
             )}
-            <span className="mt-1 text-xs text-base-content/60">
+            <span className="ml-2 mt-1 text-sm text-base-content/60">
               Kategori seçersen, o kategoriye ait tüm ürünler kampanyaya dahil edilir.
             </span>
           </label>
