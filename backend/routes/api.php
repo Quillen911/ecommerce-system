@@ -27,7 +27,6 @@ use App\Http\Controllers\Api\Seller\VariantSizeController;
 use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
 
-use Illuminate\Support\Facades\Redirect;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

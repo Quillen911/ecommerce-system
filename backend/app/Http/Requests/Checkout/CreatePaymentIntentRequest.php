@@ -9,7 +9,7 @@ class CreatePaymentIntentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Auth middleware zaten devrede
+        return true;
     }
 
     public function rules(): array

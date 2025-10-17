@@ -1,44 +1,62 @@
-import { useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
-import { Campaign, CampaignType } from '@/types/seller/campaign';
+// frontend/src/components/seller/CampaignForm.tsx
+"use client"
+
+import { useEffect, useMemo } from "react"
+import { useForm } from "react-hook-form"
+import { AnimatePresence, motion } from "framer-motion"
+import type { ReactNode } from "react"
+
+import type { Campaign, CampaignType } from "@/types/seller/campaign"
 
 export interface CampaignFormValues {
-  name: string;
-  description?: string | null;
-  code?: string | null;
-  type: CampaignType;
-  discount_value?: number | null;
-  buy_quantity?: number | null;
-  pay_quantity?: number | null;
-  min_subtotal?: number | null;
-  usage_limit?: number | null;
-  is_active?: boolean;
-  starts_at?: string | null;
-  ends_at?: string | null;
-  product_ids?: number[] | null;
-  category_ids?: number[] | null;
+  name: string
+  description?: string | null
+  code?: string | null
+  type: CampaignType
+  discount_value?: number | null
+  buy_quantity?: number | null
+  pay_quantity?: number | null
+  min_subtotal?: number | null
+  usage_limit?: number | null
+  is_active?: boolean
+  starts_at?: string | null
+  ends_at?: string | null
+  product_ids?: number[] | null
+  category_ids?: number[] | null
 }
 
 interface CampaignFormProps {
-  initialValues: CampaignFormValues | Campaign;
-  onSubmit: (values: CampaignFormValues) => Promise<void> | void;
-  loading?: boolean;
+  initialValues: CampaignFormValues | Campaign
+  onSubmit: (values: CampaignFormValues) => Promise<void> | void
+  loading?: boolean
 }
 
 const typeOptions: { value: CampaignType; label: string; description: string }[] = [
-  { value: 'percentage', label: 'Yüzdesel İndirim', description: 'Sepet toplamı üzerinden % düşer.' },
-  { value: 'fixed', label: 'Sabit Tutar', description: 'Sepetten belirli tutar düşer.' },
-  { value: 'x_buy_y_pay', label: 'X Al Y Öde', description: 'Ürün bazlı kampanyalar için.' },
-];
+  {
+    value: "percentage",
+    label: "Yüzdesel İndirim",
+    description: "Sepet toplamı üzerinden % düşer.",
+  },
+  {
+    value: "fixed",
+    label: "Sabit Tutar",
+    description: "Sepetten belirli tutar düşer.",
+  },
+  {
+    value: "x_buy_y_pay",
+    label: "X Al Y Öde",
+    description: "Ürün bazlı kampanyalar için.",
+  },
+]
 
 function Section({
   title,
   description,
   children,
 }: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
+  title: string
+  description: string
+  children: ReactNode
 }) {
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -46,32 +64,63 @@ function Section({
         <h3 className="text-base font-semibold text-gray-900">{title}</h3>
         <p className="mt-1 text-sm text-gray-500">{description}</p>
       </header>
-      <div className="space-y-4">
-        {children}
-      </div>
+      <div className="space-y-4">{children}</div>
     </section>
-  );
+  )
 }
 
-export default function CampaignForm({ initialValues, onSubmit, loading }: CampaignFormProps) {
+const extractErrorMessages = (error: unknown, bag: Set<string>) => {
+  if (!error) return
+
+  if (Array.isArray(error)) {
+    error.forEach((item) => extractErrorMessages(item, bag))
+    return
+  }
+
+  if (typeof error === "object") {
+    const fieldError = error as {
+      message?: unknown
+      types?: Record<string, unknown>
+      ref?: unknown
+    }
+
+    if (typeof fieldError.message === "string" && fieldError.message.trim()) {
+      bag.add(fieldError.message)
+    }
+
+    if (fieldError.types && typeof fieldError.types === "object") {
+      Object.values(fieldError.types).forEach((value) => extractErrorMessages(value, bag))
+    }
+
+    Object.entries(error).forEach(([key, value]) => {
+      // Skip circular references that react-hook-form keeps for bookkeeping
+      if (key === "ref" || key === "type") return
+      extractErrorMessages(value, bag)
+    })
+  } else if (typeof error === "string" && error.trim()) {
+    bag.add(error)
+  }
+}
+
+export default function CampaignForm({ initialValues, onSubmit, loading = false }: CampaignFormProps) {
   const preparedDefaults = useMemo<CampaignFormValues>(() => {
-    const base = initialValues as CampaignFormValues;
+    const base = initialValues as CampaignFormValues
     return {
       ...base,
-      description: base.description ?? '',
-      code: base.code ?? '',
+      description: base.description ?? "",
+      code: base.code ?? "",
       discount_value: base.discount_value ?? null,
       buy_quantity: base.buy_quantity ?? null,
       pay_quantity: base.pay_quantity ?? null,
       min_subtotal: base.min_subtotal ?? null,
       usage_limit: base.usage_limit ?? null,
-      starts_at: base.starts_at ?? '',
-      ends_at: base.ends_at ?? '',
+      starts_at: base.starts_at ?? "",
+      ends_at: base.ends_at ?? "",
       product_ids: base.product_ids ?? null,
       category_ids: base.category_ids ?? null,
       is_active: base.is_active ?? true,
-    };
-  }, [initialValues]);
+    }
+  }, [initialValues])
 
   const {
     register,
@@ -83,40 +132,41 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
     formState: { errors },
   } = useForm<CampaignFormValues>({
     defaultValues: preparedDefaults,
-  });
+  })
 
   useEffect(() => {
-    reset(preparedDefaults);
-  }, [preparedDefaults, reset]);
+    reset(preparedDefaults)
+  }, [preparedDefaults, reset])
 
-  const type = watch('type');
-  const productIds = watch('product_ids');
-  const categoryIds = watch('category_ids');
+  const type = watch("type")
+  const productIds = watch("product_ids")
+  const categoryIds = watch("category_ids")
 
   useEffect(() => {
-    const hasProducts = Array.isArray(productIds) && productIds.filter(Boolean).length > 0;
-    const hasCategories = Array.isArray(categoryIds) && categoryIds.filter(Boolean).length > 0;
+    const hasProducts = Array.isArray(productIds) && productIds.filter(Boolean).length > 0
+    const hasCategories = Array.isArray(categoryIds) && categoryIds.filter(Boolean).length > 0
 
     if (hasProducts || hasCategories) {
-      clearErrors(['product_ids', 'category_ids']);
+      clearErrors(["product_ids", "category_ids"])
     }
-  }, [productIds, categoryIds, clearErrors]);
+  }, [productIds, categoryIds, clearErrors])
 
   const ensureProductOrCategory = (values: CampaignFormValues) => {
-    const hasProducts = Array.isArray(values.product_ids) && values.product_ids.filter(Boolean).length > 0;
-    const hasCategories = Array.isArray(values.category_ids) && values.category_ids.filter(Boolean).length > 0;
+    const hasProducts = Array.isArray(values.product_ids) && values.product_ids.filter(Boolean).length > 0
+    const hasCategories =
+      Array.isArray(values.category_ids) && values.category_ids.filter(Boolean).length > 0
 
     if (!hasProducts && !hasCategories) {
-      const message = 'En az bir ürün ID veya kategori ID girmelisiniz.';
-      setError('product_ids', { type: 'manual', message });
-      setError('category_ids', { type: 'manual', message });
-      return false;
+      const message = "En az bir ürün ID veya kategori ID girmelisiniz."
+      setError("product_ids", { type: "manual", message })
+      setError("category_ids", { type: "manual", message })
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   const submitHandler = handleSubmit(async (values) => {
-    if (!ensureProductOrCategory(values)) return;
+    if (!ensureProductOrCategory(values)) return
 
     const sanitized: CampaignFormValues = {
       ...values,
@@ -133,60 +183,79 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
       usage_limit: values.usage_limit ?? null,
       starts_at: values.starts_at || null,
       ends_at: values.ends_at || null,
-    };
+    }
 
-    await onSubmit(sanitized);
-  });
+    await onSubmit(sanitized)
+  })
 
-  const showDiscountField = type === 'percentage' || type === 'fixed';
-  const showQuantityFields = type === 'x_buy_y_pay';
+  const showDiscountField = type === "percentage" || type === "fixed"
+  const showQuantityFields = type === "x_buy_y_pay"
+
+  const aggregatedErrors = useMemo(() => {
+    const messages = new Set<string>()
+    extractErrorMessages(errors, messages)
+    return Array.from(messages)
+  }, [errors])
 
   return (
     <form className="flex flex-col gap-7" onSubmit={submitHandler}>
-       <Section
+      <AnimatePresence initial={false}>
+        {aggregatedErrors.length > 0 && (
+          <motion.div
+            key="campaign-errors"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+          >
+            {aggregatedErrors[0]}
+            {aggregatedErrors.length > 1 && (
+              <ul className="mt-2 list-disc pl-4">
+                {aggregatedErrors.slice(1).map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
+              </ul>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Section
         title="Genel Bilgiler"
         description="Kampanya adı, kodu ve kısa açıklama gibi temel bilgileri giriniz."
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Kampanya Adı <span className="text-red-500">*</span>
             </label>
             <input
               className={`block w-full rounded-md border ${
-                errors.name ? 'border-red-300' : 'border-gray-300'
-              } shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5`}
+                errors.name ? "border-red-400" : "border-gray-300"
+              } p-2.5 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm`}
               placeholder="Örn. Yaz İndirimi"
-              {...register('name', { required: 'Bu alan zorunludur' })}
+              {...register("name", { required: "Bu alan zorunludur." })}
             />
-            {errors.name && (
-              <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
-            )}
+            {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Kampanya Kodu
-            </label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Kampanya Kodu</label>
             <input
-              className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5"
+              className="block w-full rounded-md border border-gray-300 p-2.5 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
               placeholder="Örn: YAZ25"
-              {...register('code')}
+              {...register("code")}
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Kodsuz kampanya oluşturmak için boş bırakın
-            </p>
+            <p className="mt-1 text-xs text-gray-500">Kodsuz kampanya oluşturmak için boş bırakın.</p>
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Açıklama
-            </label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Açıklama</label>
             <textarea
               rows={3}
-              className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5"
+              className="block w-full rounded-md border border-gray-300 p-2.5 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
               placeholder="Kampanya detaylarını yazın..."
-              {...register('description')}
+              {...register("description")}
             />
           </div>
         </div>
@@ -199,108 +268,112 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
         <div className="grid gap-4">
           <div className="grid gap-3 md:grid-cols-3">
             {typeOptions.map((option) => {
-              const selected = type === option.value;
+              const selected = type === option.value
               return (
                 <label
                   key={option.value}
                   className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
                     selected
-                      ? 'border-primary bg-primary/5 text-primary'
-                      : 'border-base-content/10 bg-base-100 hover:border-primary/40'
+                      ? "border-black bg-black/5 text-black"
+                      : "border-gray-200 bg-white hover:border-black/40"
                   }`}
                 >
                   <input
                     type="radio"
                     value={option.value}
-                    {...register('type', { required: 'Kampanya tipi seçilmelidir.' })}
-                    className="radio radio-primary mt-1"
+                    className="mt-1 h-4 w-4 accent-black"
+                    {...register("type", { required: "Kampanya tipi seçilmelidir." })}
                   />
                   <div>
                     <p className="text-sm font-semibold">{option.label}</p>
-                    <p className="text-xs text-base-content/60">{option.description}</p>
+                    <p className="text-xs text-gray-500">{option.description}</p>
                   </div>
                 </label>
-              );
+              )
             })}
           </div>
 
-          {errors.type && (
-            <span className="text-xs text-error">{errors.type.message?.toString()}</span>
-          )}
+          {errors.type && <span className="text-xs text-red-600">{errors.type.message}</span>}
 
           <div className="grid gap-4 md:grid-cols-3">
             {showDiscountField && (
               <label className="form-control md:col-span-1">
-                <span className="label-text text-sm font-medium">İndirim Değeri</span>
+                <span className="text-sm font-medium text-gray-700">İndirim Değeri</span>
                 <input
                   type="number"
                   step="0.1"
-                  max={type === 'percentage' ? 100 : undefined}
-                  min={type === 'percentage' ? 0 : undefined}
-                  className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
-                  placeholder={type === 'percentage' ? '% oran' : 'TL tutar'}
-                  {...register('discount_value', {
-                    setValueAs: (value) =>
-                      value === '' || value === null || value === undefined
-                        ? undefined
-                        : Number(value),
-                    min: { value: 0, message: '0’dan küçük olamaz.' },
-                    max: { value: 100, message: '%100’den büyük olamaz.' },
+                  max={type === "percentage" ? 100 : undefined}
+                  min={0}
+                  className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder={type === "percentage" ? "% oran" : "TL tutar"}
+                  {...register("discount_value", {
+                    setValueAs: (value) => {
+                      if (value === "" || value === null || value === undefined) return undefined
+                      const parsed = Number(value)
+                      return Number.isNaN(parsed) ? undefined : parsed
+                    },
+                    min: { value: 0, message: "0’dan küçük olamaz." },
+                    max:
+                      type === "percentage"
+                        ? { value: 100, message: "%100’den büyük olamaz." }
+                        : undefined,
                   })}
                 />
                 {errors.discount_value && (
-                  <span className="mt-1 text-xs text-error">{errors.discount_value.message}</span>
+                  <span className="mt-1 text-xs text-red-600">
+                    {errors.discount_value.message}
+                  </span>
                 )}
-                <span className="mt-1 text-sm text-base-content/60">
-                  Yüzdesel kampanyalarda % değer; sabit kampanyalarda TL olarak düşün. En fazla %100 olmalıdır.
+                <span className="mt-1 text-sm text-gray-500">
+                  Yüzdesel kampanyalarda % değer; sabit kampanyalarda TL olarak düşün.
                 </span>
               </label>
             )}
 
             {showQuantityFields && (
-              <>
-              <div className="flex flex-rows gap-4 md:flex-cols">
-                <label className="form-control md:col-span-1">
-                  <span className="label-text text-sm font-medium">Alınacak Ürün Adedi</span>
+              <div className="flex flex-col gap-4 md:flex-row md:col-span-3">
+                <label className="form-control flex-1">
+                  <span className="text-sm font-medium text-gray-700">Alınacak Ürün Adedi</span>
                   <input
                     type="number"
-                    className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
+                    className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Örn. 3"
-                    {...register('buy_quantity', {
-                      setValueAs: (value) =>
-                        value === '' || value === null || value === undefined
-                          ? undefined
-                          : Number(value),
-                      required: 'Alınacak adet zorunludur.',
-                      min: { value: 1, message: 'En az 1 olmalıdır.' },
+                    {...register("buy_quantity", {
+                      setValueAs: (value) => {
+                        if (value === "" || value === null || value === undefined) return undefined
+                        const parsed = Number(value)
+                        return Number.isNaN(parsed) ? undefined : parsed
+                      },
+                      required: "Alınacak adet zorunludur.",
+                      min: { value: 1, message: "En az 1 olmalıdır." },
                     })}
                   />
                   {errors.buy_quantity && (
-                    <span className="mt-1 text-xs text-error">{errors.buy_quantity.message}</span>
+                    <span className="mt-1 text-xs text-red-600">{errors.buy_quantity.message}</span>
                   )}
                 </label>
 
-                <label className="form-control md:col-span-1">
-                  <span className="label-text text-sm font-medium">Ödenecek Ürün Adedi</span>
+                <label className="form-control flex-1">
+                  <span className="text-sm font-medium text-gray-700">Ödenecek Ürün Adedi</span>
                   <input
                     type="number"
-                    className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
+                    className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Örn. 2"
-                    {...register('pay_quantity', {
-                      setValueAs: (value) =>
-                        value === '' || value === null || value === undefined
-                          ? undefined
-                          : Number(value),
-                      required: 'Ödenecek adet zorunludur.',
-                      min: { value: 0, message: 'Negatif olamaz.' },
+                    {...register("pay_quantity", {
+                      setValueAs: (value) => {
+                        if (value === "" || value === null || value === undefined) return undefined
+                        const parsed = Number(value)
+                        return Number.isNaN(parsed) ? undefined : parsed
+                      },
+                      required: "Ödenecek adet zorunludur.",
+                      min: { value: 0, message: "Negatif olamaz." },
                     })}
                   />
                   {errors.pay_quantity && (
-                    <span className="mt-1 text-xs text-error">{errors.pay_quantity.message}</span>
+                    <span className="mt-1 text-xs text-red-600">{errors.pay_quantity.message}</span>
                   )}
                 </label>
               </div>
-              </>
             )}
           </div>
         </div>
@@ -312,51 +385,61 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
       >
         <div className="grid gap-4 md:grid-cols-2">
           <label className="form-control">
-            <span className="label-text text-sm font-medium">Minimum Sepet Tutarı (TL)</span>
+            <span className="text-sm font-medium text-gray-700">Minimum Sepet Tutarı (TL)</span>
             <input
               type="number"
               step="0.01"
-              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
+              className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="Opsiyonel"
-              {...register('min_subtotal', {
-                setValueAs: (value) =>
-                  value === '' || value === null || value === undefined
-                    ? undefined
-                    : Number(value),
+              {...register("min_subtotal", {
+                setValueAs: (value) => {
+                  if (value === "" || value === null || value === undefined) return undefined
+                  const parsed = Number(value)
+                  return Number.isNaN(parsed) ? undefined : parsed
+                },
               })}
             />
           </label>
 
           <label className="form-control">
-            <span className="label-text text-sm font-medium">Kullanım Limiti</span>
+            <span className="text-sm font-medium text-gray-700">Kullanım Limiti</span>
             <input
               type="number"
-              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
+              className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="Sınırsız bırakmak için boş bırak"
-              {...register('usage_limit', {
-                setValueAs: (value) =>
-                  value === '' || value === null || value === undefined
-                    ? undefined
-                    : Number(value),
+              {...register("usage_limit", {
+                setValueAs: (value) => {
+                  if (value === "" || value === null || value === undefined) return undefined
+                  const parsed = Number(value)
+                  return Number.isNaN(parsed) ? undefined : parsed
+                },
               })}
             />
           </label>
 
           <label className="form-control">
-            <span className="label-text text-sm font-medium">Başlangıç Tarihi</span>
-            <input type="date" className="input input-bordered input-lg bg-white" {...register('starts_at')} />
+            <span className="text-sm font-medium text-gray-700">Başlangıç Tarihi</span>
+            <input
+              type="date"
+              className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              {...register("starts_at")}
+            />
           </label>
 
           <label className="form-control">
-            <span className="label-text text-sm font-medium">Bitiş Tarihi</span>
-            <input type="date" className="input input-bordered input-lg bg-white" {...register('ends_at')} />
+            <span className="text-sm font-medium text-gray-700">Bitiş Tarihi</span>
+            <input
+              type="date"
+              className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              {...register("ends_at")}
+            />
           </label>
 
-          <label className="flex items-center gap-3 rounded-2xl border border-base-content/10 bg-base-100 p-4 md:col-span-2">
-            <input type="checkbox" className="toggle toggle-primary" {...register('is_active')} />
+          <label className="md:col-span-2 flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <input type="checkbox" className="h-5 w-5 accent-black" {...register("is_active")} />
             <div>
-              <p className="text-sm font-semibold text-base-content">Kampanya Aktif</p>
-              <p className="text-xs text-base-content/60">
+              <p className="text-sm font-semibold text-gray-900">Kampanya Aktif</p>
+              <p className="text-xs text-gray-500">
                 Pasif kampanyalar müşterilere gösterilmez ancak kayıtlarda tutulur.
               </p>
             </div>
@@ -366,53 +449,59 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
 
       <Section
         title="Ürün / Kategori Ataması"
-        description="Backend’deki kurala uygun olarak en az bir ürün ID veya kategori ID gir. Virgülle ayrılmış değerler bekleniyor."
+        description="En az bir ürün ID veya kategori ID gir. Virgülle ayrılmış değerler bekleniyor."
       >
         <div className="grid gap-6 md:grid-cols-2">
           <label className="form-control">
-            <span className="label-text mb-2 text-sm font-medium">Ürün ID’leri</span>
+            <span className="mb-2 text-sm font-medium text-gray-700">Ürün ID’leri</span>
             <input
-              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
+              className={`rounded-lg border ${
+                errors.product_ids ? "border-red-400" : "border-gray-300"
+              } bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               placeholder="Örn. 12, 45, 78"
-              {...register('product_ids', {
+              {...register("product_ids", {
                 setValueAs: (raw) => {
-                  if (typeof raw !== 'string') return raw;
+                  if (Array.isArray(raw)) return raw
+                  if (typeof raw !== "string") return null
                   const parts = raw
-                    .split(',')
+                    .split(",")
                     .map((val) => parseInt(val.trim(), 10))
-                    .filter((num) => Number.isInteger(num));
-                  return parts.length ? parts : null;
+                    .filter((num) => Number.isInteger(num))
+                  return parts.length ? parts : null
                 },
               })}
             />
             {errors.product_ids && (
-              <span className="mt-1 text-xs text-error">{errors.product_ids.message}</span>
+              <span className="mt-1 text-xs text-red-600">{errors.product_ids.message}</span>
             )}
-            <span className="mt-1 text-sm text-base-content/60">
+            <span className="mt-1 text-sm text-gray-500">
               Kampanya sadece belirli ürünlerde geçerliyse ürün ID’lerini virgülle ayırarak gir.
             </span>
           </label>
 
           <label className="form-control">
-            <span className="label-text mb-2 text-sm font-medium">Kategori ID’leri</span>
+            <span className="mb-2 text-sm font-medium text-gray-700">Kategori ID’leri</span>
             <input
-              className="input input-bordered input-lg border border-gray-300 bg-white shadow-lg rounded-lg p-2"
+              className={`rounded-lg border ${
+                errors.category_ids ? "border-red-400" : "border-gray-300"
+              } bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               placeholder="Örn. 5, 9"
-              {...register('category_ids', {
+              {...register("category_ids", {
                 setValueAs: (raw) => {
-                  if (typeof raw !== 'string') return raw;
+                  if (Array.isArray(raw)) return raw
+                  if (typeof raw !== "string") return null
                   const parts = raw
-                    .split(',')
+                    .split(",")
                     .map((val) => parseInt(val.trim(), 10))
-                    .filter((num) => Number.isInteger(num));
-                  return parts.length ? parts : null;
+                    .filter((num) => Number.isInteger(num))
+                  return parts.length ? parts : null
                 },
               })}
             />
             {errors.category_ids && (
-              <span className="mt-1 text-xs text-error">{errors.category_ids.message}</span>
+              <span className="mt-1 text-xs text-red-600">{errors.category_ids.message}</span>
             )}
-            <span className="ml-2 mt-1 text-sm text-base-content/60">
+            <span className="mt-1 text-sm text-gray-500">
               Kategori seçersen, o kategoriye ait tüm ürünler kampanyaya dahil edilir.
             </span>
           </label>
@@ -422,16 +511,20 @@ export default function CampaignForm({ initialValues, onSubmit, loading }: Campa
       <footer className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
         <button
           type="button"
-          className="btn btn-outline sm:w-auto  cursor-pointer"
+          className="cursor-pointer rounded-xl border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 disabled:opacity-60"
           onClick={() => reset(preparedDefaults)}
           disabled={loading}
         >
           Temizle
         </button>
-        <button type="submit" className="btn btn-primary sm:w-auto flex items-center justify-center p-3 w-10 h-10 rounded-xl text-white bg-black cursor-pointer" disabled={loading}>
-          {loading ? 'Kaydediliyor...' : 'Kampanyayı Kaydet'}
+        <button
+          type="submit"
+          className="flex cursor-pointer items-center justify-center rounded-xl bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:opacity-60"
+          disabled={loading}
+        >
+          {loading ? "Kaydediliyor..." : "Kampanyayı Kaydet"}
         </button>
       </footer>
     </form>
-  );
+  )
 }

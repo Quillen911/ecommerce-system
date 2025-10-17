@@ -1,9 +1,76 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import Input from '@/components/ui/Input'
-import { useLogin, useRegister, useCsrf } from '@/hooks/useAuthQuery'
+"use client"
+
+import { useMemo, useState, type FormEvent } from "react"
+import { useRouter } from "next/navigation"
+import { AnimatePresence, motion } from "framer-motion"
+
+import Input from "@/components/ui/Input"
+import { useCsrf, useLogin, useRegister } from "@/hooks/useAuthQuery"
+
+type ErrorBag = Record<string, string[]>
+
+const stripCombinedSuffix = (value: string) =>
+  value.replace(/\s*\(and\s+\d+\s+more\s+errors?\)\s*$/i, "")
+
+const normalizeMessages = (value: unknown): string[] => {
+  if (!value) return []
+  const list = Array.isArray(value) ? value : [value]
+  return list
+    .map((item) => (typeof item === "string" ? stripCombinedSuffix(item.trim()) : ""))
+    .filter(Boolean)
+}
+
+const parseApiError = (payload: unknown): { general: string[]; fields: ErrorBag } => {
+  if (!payload || typeof payload !== "object") {
+    return { general: [], fields: {} }
+  }
+
+  const general = new Set<string>()
+  const fields: ErrorBag = {}
+  const data = payload as Record<string, unknown>
+
+  if (typeof data.error === "string" && data.error.trim()) {
+    general.add(stripCombinedSuffix(data.error.trim()))
+  }
+  if (typeof data.message === "string" && data.message.trim()) {
+    general.add(stripCombinedSuffix(data.message.trim()))
+  }
+
+  if (data.errors && typeof data.errors === "object") {
+    Object.entries(data.errors as Record<string, unknown>).forEach(([key, value]) => {
+      const messages = normalizeMessages(value)
+      if (messages.length) {
+        fields[key] = messages
+      }
+    })
+  }
+
+  return {
+    general: Array.from(general),
+    fields,
+  }
+}
+
+const mergeErrorBags = (primary: ErrorBag, secondary: ErrorBag): ErrorBag => {
+  const merged: ErrorBag = {}
+
+  const append = (key: string, messages: string[]) => {
+    if (!messages || messages.length === 0) return
+    if (!merged[key]) {
+      merged[key] = []
+    }
+    messages.forEach((message) => {
+      if (message && !merged[key].includes(message)) {
+        merged[key].push(message)
+      }
+    })
+  }
+
+  Object.entries(primary).forEach(([key, messages]) => append(key, messages))
+  Object.entries(secondary).forEach(([key, messages]) => append(key, messages))
+
+  return merged
+}
 
 export default function LoginRegisterSplit() {
   const router = useRouter()
@@ -13,71 +80,100 @@ export default function LoginRegisterSplit() {
 
   const [isLogin, setIsLogin] = useState(true)
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [passwordConfirmation, setPasswordConfirmation] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [username, setUsername] = useState("")
 
-  const [formErrors, setFormErrors] = useState<{ [key: string]: string[] }>({})
-  
-  const loading = loginMutation.isPending || registerMutation.isPending || csrfMutation.isPending
-  const error = isLogin ? loginMutation.error?.response?.data?.error : registerMutation.error?.response?.data?.error
-  const fieldErrors = isLogin ? loginMutation.error?.response?.data?.errors : registerMutation.error?.response?.data?.errors
+  const [manualFieldErrors, setManualFieldErrors] = useState<ErrorBag>({})
+  const [manualGeneralErrors, setManualGeneralErrors] = useState<string[]>([])
+
+  const activeMutationError = isLogin ? loginMutation.error : registerMutation.error
+  const activePayload = (activeMutationError as any)?.response?.data ?? activeMutationError
+  const parsedMutationError = useMemo(() => parseApiError(activePayload), [activePayload])
+
+  const combinedFieldErrors = useMemo(
+    () => mergeErrorBags(parsedMutationError.fields, manualFieldErrors),
+    [parsedMutationError.fields, manualFieldErrors],
+  )
+
+  const combinedGeneralErrors = useMemo(() => {
+    const generalBag = new Set<string>([
+      ...parsedMutationError.general,
+      ...manualGeneralErrors,
+    ])
+    return Array.from(generalBag)
+  }, [parsedMutationError.general, manualGeneralErrors])
+
+  if (combinedFieldErrors.general) {
+    delete combinedFieldErrors.general
+  }
+
+  const fieldError = (field: string) => combinedFieldErrors[field]?.[0] ?? ""
+
+  const loadingLogin = loginMutation.isPending || csrfMutation.isPending
+  const loadingRegister = registerMutation.isPending || csrfMutation.isPending
 
   const clearForm = () => {
-    setEmail('')
-    setPassword('')
-    setPasswordConfirmation('')
-    setFirstName('')
-    setLastName('')
-    setUsername('')
-    setFormErrors({})
+    setEmail("")
+    setPassword("")
+    setPasswordConfirmation("")
+    setFirstName("")
+    setLastName("")
+    setUsername("")
+    setManualFieldErrors({})
+    setManualGeneralErrors([])
     loginMutation.reset()
     registerMutation.reset()
   }
 
-  const handleModeSwitch = (newIsLogin: boolean) => {
+  const handleModeSwitch = (nextMode: boolean) => {
     clearForm()
-    setIsLogin(newIsLogin)
+    setIsLogin(nextMode)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    setFormErrors({})
+  const handleError = (error: unknown) => {
+    const parsed = parseApiError(
+      (error as any)?.response?.data ?? (error as Record<string, unknown> | null),
+    )
+    setManualFieldErrors(parsed.fields)
+    setManualGeneralErrors(parsed.general.length ? parsed.general : ["Beklenmeyen bir hata oluştu."])
+  }
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+
+    setManualFieldErrors({})
+    setManualGeneralErrors([])
     loginMutation.reset()
     registerMutation.reset()
-    
+
     try {
       await csrfMutation.mutateAsync()
-      
+
       if (isLogin) {
         await loginMutation.mutateAsync({ email, password })
-        router.push('/')
+        router.push("/")
       } else {
-        await registerMutation.mutateAsync({ 
-          first_name: firstName, 
-          last_name: lastName, 
-          username, 
-          email, 
-          password, 
-          password_confirmation: passwordConfirmation 
+        await registerMutation.mutateAsync({
+          first_name: firstName,
+          last_name: lastName,
+          username,
+          email,
+          password,
+          password_confirmation: passwordConfirmation,
         })
-        router.push('/')
+        router.push("/")
       }
-    } catch (error: any) {
-      if (error?.response?.data?.errors) {
-        const errors = error.response.data.errors
-        setFormErrors(errors)
-      }
+    } catch (error) {
+      handleError(error)
     }
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-100">
-      {/* Sol taraf  */}
+    <div className="grid min-h-screen grid-cols-1 bg-gray-100 md:grid-cols-2">
       <div className="flex items-center justify-center p-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -94,17 +190,26 @@ export default function LoginRegisterSplit() {
                 exit={{ opacity: 0, x: 50 }}
                 transition={{ duration: 0.4 }}
               >
-                <h1 className="text-3xl font-bold mb-8">Giriş Yap</h1>
-                {error && (
-                  <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm mb-3">
-                    {error}
-                  </div>
-                )}
-                {fieldErrors && Object.keys(fieldErrors).map((key) => (
-                  <div key={key} className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm mb-3">
-                    {fieldErrors[key][0]}
-                  </div>
-                ))}
+                <h1 className="mb-8 text-3xl font-bold">Giriş Yap</h1>
+
+                <AnimatePresence initial={false}>
+                  {combinedGeneralErrors.length > 0 && (
+                    <motion.div
+                      key="login-errors"
+                      initial={{ opacity: 0, y: -12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                    >
+                      <ul className="space-y-1">
+                        {combinedGeneralErrors.map((message, index) => (
+                          <li key={index}>{message}</li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input
                     label="E-posta Adresi"
@@ -113,7 +218,7 @@ export default function LoginRegisterSplit() {
                     onChange={setEmail}
                     type="email"
                     autoComplete="email"
-                    error={formErrors?.email?.[0] || fieldErrors?.email?.[0]}
+                    error={fieldError("email")}
                   />
                   <Input
                     label="Şifre"
@@ -121,28 +226,35 @@ export default function LoginRegisterSplit() {
                     value={password}
                     onChange={setPassword}
                     type="password"
-                    autoComplete="password"
-                    error={formErrors?.password?.[0] || fieldErrors?.password?.[0]}
+                    autoComplete="current-password"
+                    error={fieldError("password")}
                   />
                   <div className="flex items-center justify-between">
                     <label className="flex items-center space-x-2 text-sm text-gray-600">
                       <input type="checkbox" className="rounded" />
                       <span>Beni hatırla</span>
                     </label>
-                    <button className="text-sm text-gray-500 hover:underline">Şifremi unuttum</button>
+                    <button type="button" className="text-sm text-gray-500 hover:underline">
+                      Şifremi unuttum
+                    </button>
                   </div>
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition duration-200"
+                    disabled={loadingLogin}
+                    className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition duration-200 hover:bg-gray-800 disabled:opacity-70"
                   >
-                    {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+                    {loadingLogin ? "Giriş yapılıyor..." : "Giriş Yap"}
                   </button>
                 </form>
-                <p className="text-sm text-gray-500 mt-6 text-center">
-                  Hesabın yok mu?{' '}
-                  <button onClick={() => handleModeSwitch(false)} className="text-black font-semibold hover:underline">
-                    Kayıt Ol
+
+                <p className="mt-6 text-center text-sm text-gray-500">
+                  Hesabın yok mu?{" "}
+                  <button
+                    onClick={() => handleModeSwitch(false)}
+                    disabled={loadingRegister}
+                    className="font-semibold text-black hover:underline"
+                  >
+                    {loadingRegister ? "Kayıt oluyor..." : "Kayıt Ol"}
                   </button>
                 </p>
               </motion.div>
@@ -154,26 +266,87 @@ export default function LoginRegisterSplit() {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.4 }}
               >
-                <h1 className="text-3xl font-bold mb-8">Kayıt Ol</h1>
-                
+                <h1 className="mb-8 text-3xl font-bold">Kayıt Ol</h1>
+
+                <AnimatePresence initial={false}>
+                  {combinedGeneralErrors.length > 0 && (
+                    <motion.div
+                      key="register-errors"
+                      initial={{ opacity: 0, y: -12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                    >
+                      <ul className="space-y-1">
+                        {combinedGeneralErrors.map((message, index) => (
+                          <li key={index}>{message}</li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <Input label="Ad" value={firstName} onChange={setFirstName} autoComplete="given-name" error={formErrors?.first_name?.[0] || fieldErrors?.first_name?.[0]} />
-                  <Input label="Soyad" value={lastName} onChange={setLastName} autoComplete="family-name" error={formErrors?.last_name?.[0] || fieldErrors?.last_name?.[0]} />
-                  <Input label="Kullanıcı Adı" value={username} onChange={setUsername} autoComplete="username" error={formErrors?.username?.[0] || fieldErrors?.username?.[0]} />
-                  <Input label="E-posta Adresi" value={email} onChange={setEmail} type="email" autoComplete="email" error={formErrors?.email?.[0] || fieldErrors?.email?.[0]} />
-                  <Input label="Şifre" value={password} onChange={setPassword} type="password" autoComplete="new-password" error={formErrors?.password?.[0] || fieldErrors?.password?.[0]} />
-                  <Input label="Şifre Tekrarı" value={passwordConfirmation} onChange={setPasswordConfirmation} type="password" autoComplete="new-password" error={formErrors?.password_confirmation?.[0] || fieldErrors?.password_confirmation?.[0]} />
+                  <Input
+                    label="Ad"
+                    value={firstName}
+                    onChange={setFirstName}
+                    autoComplete="given-name"
+                    error={fieldError("first_name")}
+                  />
+                  <Input
+                    label="Soyad"
+                    value={lastName}
+                    onChange={setLastName}
+                    autoComplete="family-name"
+                    error={fieldError("last_name")}
+                  />
+                  <Input
+                    label="Kullanıcı Adı"
+                    value={username}
+                    onChange={setUsername}
+                    autoComplete="username"
+                    error={fieldError("username")}
+                  />
+                  <Input
+                    label="E-posta Adresi"
+                    value={email}
+                    onChange={setEmail}
+                    type="email"
+                    autoComplete="email"
+                    error={fieldError("email")}
+                  />
+                  <Input
+                    label="Şifre"
+                    value={password}
+                    onChange={setPassword}
+                    type="password"
+                    autoComplete="new-password"
+                    error={fieldError("password")}
+                  />
+                  <Input
+                    label="Şifre Tekrarı"
+                    value={passwordConfirmation}
+                    onChange={setPasswordConfirmation}
+                    type="password"
+                    autoComplete="new-password"
+                    error={fieldError("password_confirmation")}
+                  />
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition duration-200"
+                    disabled={loadingRegister}
+                    className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition duration-200 hover:bg-gray-800 disabled:opacity-70"
                   >
-                    Kayıt Ol
+                    {loadingRegister ? "Kayıt yapılıyor..." : "Kayıt Ol"}
                   </button>
                 </form>
-                <p className="text-sm text-gray-500 mt-6 text-center">
-                  Zaten bir hesabın var mı?{' '}
-                  <button onClick={() => handleModeSwitch(true)} className="text-black font-semibold hover:underline">
+
+                <p className="mt-6 text-center text-sm text-gray-500">
+                  Zaten bir hesabın var mı?{" "}
+                  <button
+                    onClick={() => handleModeSwitch(true)}
+                    className="font-semibold text-black hover:underline"
+                  >
                     Giriş Yap
                   </button>
                 </p>
@@ -182,22 +355,21 @@ export default function LoginRegisterSplit() {
           </AnimatePresence>
         </motion.div>
       </div>
-  
-      {/* Sağ taraf  */}
-      <div className="hidden md:flex items-center justify-center bg-gray-100">
+
+      <div className="hidden h-full items-center justify-center bg-gray-100 md:flex">
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-full h-screen bg-black rounded-l-3xl shadow-2xl p-16 text-white flex flex-col justify-center"
+          className="flex h-full w-full flex-col justify-center rounded-l-3xl bg-black p-16 text-white shadow-2xl"
         >
-          <h2 className="text-5xl font-extrabold mb-8">Omnia’ya Hoş Geldiniz</h2>
-          <p className="text-lg text-gray-300 mb-10 max-w-lg">
-            Modern e-ticaret platformunu yönetmek için ihtiyacın olan her şey burada. 
-            Siparişlerini, ürünlerini ve müşterilerini tek panelden kontrol et.
+          <h2 className="mb-8 text-5xl font-extrabold">Omnia’ya Hoş Geldiniz</h2>
+          <p className="mb-10 max-w-lg text-lg text-gray-300">
+            Modern e-ticaret platformunu yönetmek için ihtiyacın olan her şey burada. Siparişlerini,
+            ürünlerini ve müşterilerini tek panelden kontrol et.
           </p>
-          <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-lg max-w-md">
-            <h3 className="text-2xl font-semibold mb-3">Neden Omnia?</h3>
+          <div className="max-w-md rounded-2xl bg-white/10 p-6 backdrop-blur-xl shadow-lg">
+            <h3 className="mb-3 text-2xl font-semibold">Neden Omnia?</h3>
             <p className="text-gray-200">
               Hızlı, güvenli ve ölçeklenebilir altyapı. Sen sadece işini büyütmeye odaklan.
             </p>
@@ -206,5 +378,4 @@ export default function LoginRegisterSplit() {
       </div>
     </div>
   )
-  
 }

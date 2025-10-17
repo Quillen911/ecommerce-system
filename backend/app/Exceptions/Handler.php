@@ -2,9 +2,13 @@
 
 namespace App\Exceptions;
 
-use Throwable;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Throwable;
+use Illuminate\Support\Arr;
 
 class Handler extends ExceptionHandler
 {
@@ -17,23 +21,47 @@ class Handler extends ExceptionHandler
 
     public function register(): void
     {
-        // ✅ Tüm exception'ları JSON formatında döndür
-        $this->renderable(function (Throwable $e, $request): JsonResponse {
-            if ($request->expectsJson() || $request->is('api/*')) {
-                $status = 500;
-
-                if ($e instanceof \RuntimeException) {
-                    $status = 400;
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'error' => class_basename($e),
-                    'message' => $e->getMessage(),
-                ], $status);
+        $this->renderable(function (Throwable $e, $request): ?JsonResponse {
+            if (!($request->expectsJson() || $request->is('api/*'))) {
+                return null; // web istekleri için Laravel’in varsayılan davranışı
             }
 
-            return null; // Laravel normal handler'a geçsin
+            if ($e instanceof ValidationException) {
+                $firstMessage = Arr::first(Arr::flatten($e->errors())) ?? __('validation.failed');
+                $firstMessage = preg_replace('/\s*\(and\s+\d+\s+more\s+errors?\)\s*$/i', '', $firstMessage);
+
+                return response()->json([
+                    'message' => $firstMessage,
+                ], 422);
+            }
+
+            if ($e instanceof AuthenticationException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Kimlik doğrulaması gerekli.',
+                ], 401);
+            }
+
+            if ($e instanceof HttpExceptionInterface) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'İstek gerçekleşirken bir hata oluştu.',
+                ], $e->getStatusCode());
+            }
+
+            if ($e instanceof \RuntimeException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 400);
+            }
+
+            // Diğer tüm hatalar için 500
+            return response()->json([
+                'success' => false,
+                'error'   => class_basename($e),
+                'message' => $e->getMessage(),
+            ], 500);
         });
     }
 }

@@ -111,7 +111,11 @@ abstract class BaseCampaign implements CampaignInterface
             return ($unitCents ?? 0) * (int) $item->quantity;
         });
     
-        return ($totalCents / 100) >= (float) $this->campaign->min_subtotal;
+        $result = ($totalCents / 100) >= (float) $this->campaign->min_subtotal;
+        if(!$result){
+            throw new \Exception('Kampanyanın uygulanabileceği minimum sepet tutarına ' . (round($this->campaign->min_subtotal-$totalCents / 100, 2)) . ' kaldı');
+        }
+        return $result;
     }
 
     abstract public function isApplicable(array $bagItems): bool;

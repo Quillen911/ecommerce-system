@@ -20,8 +20,8 @@ export function DeliveryMethodCard({ method, isSelected, onSelect }: DeliveryMet
     <button
       type="button"
       onClick={() => onSelect(method.id)}
-      className={`flex h-full flex-col justify-between rounded-lg border px-4 py-3 text-left transition hover:border-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
-        isSelected ? "border-[var(--accent)] bg-[var(--accent)]/10" : "border-color bg-card"
+      className={`flex h-full flex-col justify-between rounded-lg border px-4 py-3 text-left transition hover:border-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${
+        isSelected ? "border-black bg-black/10" : "border-color bg-card"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -30,7 +30,7 @@ export function DeliveryMethodCard({ method, isSelected, onSelect }: DeliveryMet
         </div>
         <span
           className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${
-            isSelected ? "border-[var(--accent)] bg-[var(--accent)] text-white" : "border-color bg-transparent"
+            isSelected ? "border-black bg-black text-white" : "border-color bg-transparent"
           }`}
         >
           {isSelected && "✓"}
