@@ -3,6 +3,7 @@
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
+use Illuminate\Validation\ValidationException;
 
 abstract class BaseCampaign implements CampaignInterface
 {
@@ -97,26 +98,52 @@ abstract class BaseCampaign implements CampaignInterface
     }
 
     
-    protected function eligibleMinBag(array $items): bool
-    {
-        if (! $this->campaign->min_subtotal) {
-            return true;
-        }
-    
-        $totalCents = collect($items)->sum(function ($item) {
-            $unitCents = $item->unit_price_cents
-                ?? ($item->unit_price ? $item->unit_price * 100 : null)
-                ?? optional($item->product)->list_price * 100;
-    
-            return ($unitCents ?? 0) * (int) $item->quantity;
-        });
-    
-        $result = ($totalCents / 100) >= (float) $this->campaign->min_subtotal;
-        if(!$result){
-            throw new \Exception('Kampanyanın uygulanabileceği minimum sepet tutarına ' . (round($this->campaign->min_subtotal-$totalCents / 100, 2)) . ' kaldı');
-        }
-        return $result;
+protected function eligibleMinBag(array $items): bool
+{
+    if (! $this->campaign->min_subtotal) {
+        return true;
     }
+
+    $totalCents = collect($items)->sum(function ($item) {
+        $unitCents = $item->unit_price_cents
+            ?? ($item->unit_price ? $item->unit_price * 100 : null)
+            ?? optional($item->product)->list_price * 100;
+
+        return ($unitCents ?? 0) * (int) $item->quantity;
+    });
+
+    if (($totalCents / 100) < (float) $this->campaign->min_subtotal) {
+        throw ValidationException::withMessages([
+            'campaign' => [
+                'Kampanyanın uygulanabileceği minimum sepet tutarına ₺'
+                . number_format(max(0, $this->campaign->min_subtotal - $totalCents / 100), 2, ',', '.')
+                . ' kaldı.',
+            ],
+        ]);
+    }
+
+    return true;
+}
+
+protected function eligibleXbuyYpay(array $items): bool
+{
+    $eligible = collect($items)->contains(function ($item) {
+        return (int) $item->quantity >= (int) $this->campaign->buy_quantity;
+    });
+
+    if (! $eligible) {
+
+        throw ValidationException::withMessages([
+            'campaign' => [
+                'Bu kampanya için sepette en az '
+                . (int) $this->campaign->buy_quantity
+                . ' adet ürün bulunmalıdır.',
+            ],
+        ]);
+    }
+
+    return true;
+}
 
     abstract public function isApplicable(array $bagItems): bool;
 

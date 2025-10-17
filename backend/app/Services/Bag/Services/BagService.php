@@ -8,6 +8,8 @@ use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
 use App\Repositories\Contracts\Campaign\CampaignRepositoryInterface;
 use App\Services\Campaigns\CampaignManager;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 use App\Traits\GetUser;
 
@@ -61,28 +63,32 @@ class BagService implements BagInterface
         $appliedCampaign = null;
         
         if ($bag->campaign) {
-            $campaign = $bag->campaign->load('campaignProducts');
+            $campaign = $bag->campaign->load('campaignProducts', 'campaignCategories');
             $handler  = $this->campaignManager->resolveHandler($campaign);
-        
-            if ($handler && $handler->isApplicable($bagItems->all())) {
-                $calcResult     = $handler->calculateDiscount($bagItems->all());
-                $discount       = $calcResult['discount_cents'] ?? 0;
-                $discountItems  = collect($calcResult['items'] ?? []);
-                $appliedCampaign = $campaign;
-        
-                if ($bag->campaign_discount_cents !== $discount) {
-                    $bag->update(['campaign_discount_cents' => $discount]);
+
+            try {
+                if ($handler && $handler->isApplicable($bagItems->all())) {
+                    $calcResult     = $handler->calculateDiscount($bagItems->all());
+                    $discount       = $calcResult['discount_cents'] ?? 0;
+                    $discountItems  = collect($calcResult['items'] ?? []);
+                    $appliedCampaign = $campaign;
+
+                    if ($bag->campaign_discount_cents !== $discount) {
+                        $bag->update(['campaign_discount_cents' => $discount]);
+                    }
+                } else {
+                    $this->detachCampaign($bag);
                 }
-            } else {
-                $bag->update([
-                    'campaign_id'             => null,
-                    'campaign_discount_cents' => 0,
-                ]);
-                $bag->unsetRelation('campaign');
+            } catch (ValidationException $e) {
+                $this->detachCampaign($bag);
+            } catch (Throwable $e) {
+                report($e);              // loglayıp kampanyayı düşürüyoruz
+                $this->detachCampaign($bag);
             }
         } else {
             $bag->update(['campaign_discount_cents' => 0]);
         }
+
         
         $final = max($total + $cargo - $discount, 0);
         
@@ -150,13 +156,17 @@ class BagService implements BagInterface
             ->load('campaignProducts', 'campaignCategories');
 
         if (! $campaign) {
-            throw new \RuntimeException('Kampanya bulunamadı veya geçerli değil.');
+            throw ValidationException::withMessages([
+                'campaign' => ['Kampanya bulunamadı veya geçerli değil.'],
+            ]);
         }
 
         $handler = $this->campaignManager->resolveHandler($campaign);
 
         if (! $handler || ! $handler->isApplicable($bagItems->all())) {
-            throw new \RuntimeException('Bu kampanya sepetiniz için uygun değil.');
+            throw ValidationException::withMessages([
+                'campaign' => ['Bu kampanya sepetiniz için uygun değil.'],
+            ]);
         }
 
         $this->campaignManager->touchUsage($campaign);
@@ -282,6 +292,14 @@ class BagService implements BagInterface
         return $bagItems;
     }
 
+    private function detachCampaign($bag): void
+    {
+        $bag->update([
+            'campaign_id'             => null,
+            'campaign_discount_cents' => 0,
+        ]);
+        $bag->unsetRelation('campaign');
+    }
 
 
 }

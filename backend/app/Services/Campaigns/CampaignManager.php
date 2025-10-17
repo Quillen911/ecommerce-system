@@ -8,7 +8,6 @@ use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Campaigns\Handlers\PercentageCampaign;
 use App\Services\Campaigns\Handlers\FixedCampaign;
 use App\Services\Campaigns\Handlers\XBuyYPayCampaign;
-
 use App\Traits\GetUser;
 class CampaignManager 
 {

@@ -14,12 +14,15 @@ class XBuyYPayCampaign extends BaseCampaign
         }
     
         $items = $this->eligibleItems($bagItems);
-    
         if ($items->isEmpty()) {
             return false;
         }
     
         if (! $this->eligibleMinBag($items->all())) {
+            return false;
+        }
+        //dd($this->eligibleXbuyYpay($items->all()));
+        if (! $this->eligibleXbuyYpay($items->all())) {
             return false;
         }
     
@@ -35,7 +38,7 @@ class XBuyYPayCampaign extends BaseCampaign
 
         $x = ($this->campaign->buy_quantity ?? 0);
         $y = ($this->campaign->pay_quantity ?? 0);
-
+        
         if ($x <= 0 || $y <= 0 || $y > $x) {
             return $this->emptyResult();
         }
@@ -50,7 +53,6 @@ class XBuyYPayCampaign extends BaseCampaign
         $freeLines    = $items->slice(0, $freeCount);
         $discountCents =  $freeLines->sum('unit_price_cents') * $freeCount;
         
-        //dd($freeLines,$totalQty, $groupCount, $freeCount, $discountCents);
         return [
             'campaign_id'          => $this->campaign->id,
             'store_id'             => $this->campaign->store_id,

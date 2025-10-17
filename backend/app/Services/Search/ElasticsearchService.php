@@ -102,12 +102,12 @@ class ElasticsearchService
                                     'query' => [
                                         'multi_match' => [
                                             'query'  => $query,
-                                            'fields' => ['variants.sku', 'variants.attributes.value^2', 'variants.attributes.slug'],
+                                            'fields' => ['variants.sku', 'variants.color_name^2'],
                                             'fuzziness' => 'AUTO'
                                         ]
                                     ]
                                 ]
-                            ]
+                            ],
                         ]
                     ]
                 ];

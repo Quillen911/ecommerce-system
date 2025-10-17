@@ -27,7 +27,8 @@ class ProductVariantController extends Controller
 
         $product = $variant->product->load(
             'category',
-            'category.parent'
+            'category.parent',
+            'category.gender'
         );
     
         $selectedVariant = $variant->load(

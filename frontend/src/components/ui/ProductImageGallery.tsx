@@ -1,9 +1,16 @@
-'use client'
-import Image from 'next/image'
-import { useState, useRef } from 'react'
+"use client"
+
+import Image from "next/image"
+import { useRef, useState } from "react"
+
+interface GalleryImage {
+  id?: number
+  image?: string | null
+  is_primary?: boolean
+}
 
 interface ProductImageGalleryProps {
-  images: { id?: number; image?: string; is_primary?: boolean }[] | null | undefined
+  images: GalleryImage[] | null | undefined
   onClick?: () => void
   alt?: string
   className?: string
@@ -12,31 +19,32 @@ interface ProductImageGalleryProps {
 export default function ProductImageGallery({
   images,
   onClick,
-  alt = 'Product image',
-  className = ''
+  alt = "Product image",
+  className = "",
 }: ProductImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
-  const fallbackImage = '/images/no-image.png'
+  const fallbackImage = "/images/no-image.png"
 
-  const safeImages = Array.isArray(images) && images.length > 0
-    ? [...images].sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
-    : [{ id: 0, image: fallbackImage }]
+  const safeImages: GalleryImage[] =
+    Array.isArray(images) && images.length > 0
+      ? [...images].sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
+      : [{ id: 0, image: fallbackImage }]
 
+  const rawImage = safeImages[currentIndex]?.image ?? null
   const currentImage =
-    safeImages[currentIndex]?.image && safeImages[currentIndex]?.image.trim() !== ''
-      ? safeImages[currentIndex].image!
-      : fallbackImage
+    typeof rawImage === "string" && rawImage.trim() !== "" ? rawImage : fallbackImage
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current || safeImages.length <= 1) return
+
     const rect = containerRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left // mouse’un kutudaki X pozisyonu
-    const ratio = x / rect.width // 0.0 - 1.0 arası
-    const index = Math.floor(ratio * safeImages.length)
+    const x = event.clientX - rect.left
+    const ratio = x / rect.width
+    const index = Math.min(Math.floor(ratio * safeImages.length), safeImages.length - 1)
     setCurrentIndex(index)
-  }    
+  }
 
   return (
     <div
@@ -51,7 +59,7 @@ export default function ProductImageGallery({
         alt={alt}
         width={500}
         height={500}
-        className="object-contain w-full h-full rounded-lg"
+        className="h-full w-full rounded-lg object-contain"
       />
     </div>
   )

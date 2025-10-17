@@ -30,9 +30,7 @@ const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) =>
       <div className="md:col-span-6 flex flex-col gap-4">
         <ProductTitle
           title={product.title}
-          category={
-            product.category.parent?.title + " " + product.category.title
-          }
+          category={product.category}
           variant={variant}
         />
 
