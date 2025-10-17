@@ -198,7 +198,7 @@ class BagService implements BagInterface
             'campaign_discount_cents' => 0,
         ]);
 
-        $bagItems = $bag->bagItems()->with('variantSize.productVariant.variantImages')->get();
+        $bagItems = $bag->bagItems()->with('variantSize.productVariant.variantImages', 'variantSize.productVariant.product.category')->get();
         $bagItems = $this->checkProductAvailability($bagItems, $bag);
 
         $total = $this->bagCalculationService->calculateTotal($bagItems);

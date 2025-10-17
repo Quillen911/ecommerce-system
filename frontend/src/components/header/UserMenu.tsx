@@ -20,10 +20,9 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
     return <div>Loading...</div>
   }
   
-  const handleLogout = async () => {
-      await logoutMutation.mutate()
-      router.push('/login')
-  }
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   if (isLoading) {
     return <div className="w-20 h-8 text-white"></div>

@@ -13,7 +13,6 @@ use App\Services\Payments\PaymentMethodRecorder;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
 use App\Services\Campaigns\CampaignManager;
 
-use App\Events\OrderPlaced;
 use Illuminate\Support\Facades\DB;
 
 class OrderPlacementService

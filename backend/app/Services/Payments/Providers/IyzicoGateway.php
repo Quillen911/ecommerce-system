@@ -184,7 +184,6 @@ class IyzicoGateway implements PaymentGatewayInterface
         } else {
 
             $payment = Payment::create($request, $this->options);
-
             if ($payment->getStatus() !== 'success') {
                 throw new \RuntimeException(
                     $payment->getErrorMessage() ?? 'Ödeme başarısız.',

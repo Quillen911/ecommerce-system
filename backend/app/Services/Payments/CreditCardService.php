@@ -48,15 +48,10 @@ class CreditCardService
                 'card_alias' => $request->name,
                 'email' => $user->email ?? 'test@test.com'
             ];
-            
-            \Log::info('İyzico token oluşturma başlıyor', ['user_id' => $user->id, 'card_alias' => $request->name]);
-            
+                        
             $tokenResult = $this->iyzicoService->createCardToken($tokenData, $user->id);
             
-            \Log::info('İyzico token sonucu', $tokenResult);
-            
             if (!$tokenResult['success']) {
-                \Log::error('İyzico token oluşturma hatası', $tokenResult);
                 return ResponseHelper::error('Kart kaydedilemedi: ' . $tokenResult['error']);
             }
             

@@ -21,11 +21,6 @@ export interface Order {
   deleted_at: string | null;
 }
 
-
-export interface OrderItemsResponse {
-  data: OrderItem[];
-}
-
 export interface OrderItem {
   id: number;
   order_id: number;
@@ -36,7 +31,7 @@ export interface OrderItem {
   product_title: string;
   product_category_title: string | null;
 
-  selected_options: unknown | null;
+  selected_options: number | null;
 
   size_name: string | null;
   color_name: string | null;
@@ -61,6 +56,7 @@ export interface OrderItem {
   updated_at: string;
 
   product: Product;
+  order_number: string;
 }
 
 export interface Product {

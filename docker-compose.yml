@@ -140,8 +140,15 @@ services:
       - postgres
       - redis
       - rabbitmq
-    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    command: php artisan queue:work rabbitmq --queue=notifications --verbose --tries=3 --timeout=90
     environment:
+      - QUEUE_CONNECTION=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_VHOST=/
+      - RABBITMQ_QUEUE=notifications
       - LOG_CHANNEL=single
       - LOG_LEVEL=debug
       - APP_ENV=local

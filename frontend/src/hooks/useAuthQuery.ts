@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/authApi' 
 import { LoginRequest, RegisterRequest } from '@/types/user'
+import { useRouter } from 'next/navigation'
 
 export const authKeys = {
   all: ['auth'] as const,
@@ -76,26 +77,24 @@ export const useRegister = () => {
 }
 
 export const useLogout = () => {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+  const router = useRouter(); // <- hook içine taşıyabilirsin
+
   return useMutation({
-    mutationFn: async () => {
-      const response = await authApi.logout()
-      return response.data
-    },
+    mutationFn: async () => authApi.logout(),
     onSuccess: () => {
-      localStorage.removeItem('user_token')
-      document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-      queryClient.removeQueries({ queryKey: authKeys.all })
-      queryClient.removeQueries()
+      localStorage.removeItem('user_token');
+      document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      queryClient.clear();            // tüm auth verilerini temizle
+      router.push('/login');          // logout bittiğinde yönlendir
     },
-    onError: (error: any) => {
-      localStorage.removeItem('user_token')
-      document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-      queryClient.removeQueries({ queryKey: authKeys.all })
-      queryClient.removeQueries()
-    }
-  })
+    onError: () => {
+      localStorage.removeItem('user_token');
+      document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      queryClient.clear();
+      router.push('/login');
+    },
+  });
 }
 
 export const useUpdateProfile = () => {

@@ -29,6 +29,7 @@ class OrderItemFactory
                     'variant_size_id'        => $snapshot['variant_size_id'],
                     'store_id'               => $snapshot['store_id'] ?? null,
                     'product_title'          => $snapshot['product_title'],
+                    'product_category_title' => $snapshot['product_category_title'],
                     'size_name'              => $snapshot['size_name'],
                     'color_name'             => $snapshot['color_name'],
                     'quantity'               => $snapshot['quantity'],

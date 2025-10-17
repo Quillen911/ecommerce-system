@@ -29,7 +29,7 @@ class OrderItemRepository extends BaseRepository implements OrderItemRepositoryI
             'product',
             'product.variants.variantImages',
             'product.variants.variantSizes.sizeOption',
-        ])->where('store_id', $storeId)->where('order_id', $id)->first();
+        ])->where('store_id', $storeId)->where('id', $id)->first();
     }
 
     public function getOrderItemById($storeId, $id)

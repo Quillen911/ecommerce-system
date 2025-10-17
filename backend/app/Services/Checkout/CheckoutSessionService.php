@@ -143,7 +143,7 @@ class CheckoutSessionService
         } else {
             $session->status = 'confirmed';
 
-            OrderPlacementJob::dispatch($user->id, $session->id, $data);
+            OrderPlacementJob::dispatch($user, $session, $data);
         }
         $session->save();
 
@@ -177,7 +177,6 @@ class CheckoutSessionService
                 ->latest()
                 ->first();
 
-            Log::warning('MOCK MODE: Using latest session');
         }
 
         if (!$session) {
@@ -242,11 +241,12 @@ class CheckoutSessionService
                 'variant_size_id'    => $item->variant_size_id,
                 'product_id'         => $item->variantSize->productVariant->product_id,
                 'product_title'      => $item->variantSize->productVariant->color_name . ' ' . $item->variantSize->productVariant->product->title,
+                'product_category_title' => $item->variantSize->productVariant->product->category->title,
                 'size_name'          => $item->variantSize->sizeOption->value,
                 'color_name'         => $item->variantSize->productVariant->color_name,
                 'quantity'           => $item->quantity,
-                'unit_price_cents'   => $item->variantSize->price_cents,
-                'total_price_cents'  => $item->variantSize->price_cents * $item->quantity,
+                'unit_price_cents'   => $item->unit_price_cents,
+                'total_price_cents'  => $item->unit_price_cents * $item->quantity,
             ];
         })->toArray();
 

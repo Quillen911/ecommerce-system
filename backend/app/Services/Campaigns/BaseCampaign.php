@@ -25,7 +25,11 @@ abstract class BaseCampaign implements CampaignInterface
             $this->campaign->save();
             return false;
         }
-
+        if($this->campaign->usage_limit <= $this->campaign->usage_count){
+            $this->campaign->is_active = false;
+            $this->campaign->save();
+            return false;
+        }
         return $this->campaign->is_active;
     }
 
