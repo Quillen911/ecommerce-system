@@ -17,11 +17,15 @@ export default function Logo({ className = '' }: HeaderProps) {
   }
 
   return (
-    <button 
-      onClick={handleLogoClick} 
+    <button
+      onClick={handleLogoClick}
       className={`flex items-center ${className}`}
     >
-      <span className="text-2xl font-bold text-white cursor-pointer">{process.env.NEXT_PUBLIC_APP_NAME}</span>
+      <span
+        className="text-xl sm:text-2xl font-bold text-white cursor-pointer truncate max-w-[140px] sm:max-w-none"
+      >
+        {process.env.NEXT_PUBLIC_APP_NAME}
+      </span>
     </button>
   )
 }

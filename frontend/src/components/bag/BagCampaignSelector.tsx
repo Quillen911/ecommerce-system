@@ -1,4 +1,3 @@
-// frontend/src/components/bag/BagCampaignSelector.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -6,7 +5,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 import { Navigation } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { AnimatePresence, motion } from "framer-motion"
-
 import { useMe } from "@/hooks/useAuthQuery"
 import { useBagCampaignSelect, useBagCampaignUnselect } from "@/hooks/useBagQuery"
 import type { BagCampaign } from "@/types/bag"
@@ -17,9 +15,7 @@ interface BagCampaignSelectorProps {
 }
 
 type ErrorBag = Record<string, string[]>
-type FeedbackState =
-  | { type: "success" | "error"; messages: string[] }
-  | null
+type FeedbackState = { type: "success" | "error"; messages: string[] } | null
 
 const stripCombinedSuffix = (value: string) =>
   value.replace(/\s*\(and\s+\d+\s+more\s+errors?\)\s*$/i, "")
@@ -36,7 +32,6 @@ const parseApiError = (payload: unknown): { general: string[]; fields: ErrorBag 
   if (!payload || typeof payload !== "object") {
     return { general: [], fields: {} }
   }
-
   const general = new Set<string>()
   const fields: ErrorBag = {}
   const data = payload as Record<string, unknown>
@@ -44,24 +39,17 @@ const parseApiError = (payload: unknown): { general: string[]; fields: ErrorBag 
   if (typeof data.error === "string" && data.error.trim()) {
     general.add(stripCombinedSuffix(data.error.trim()))
   }
-
   if (typeof data.message === "string" && data.message.trim()) {
     general.add(stripCombinedSuffix(data.message.trim()))
   }
-
   if (data.errors && typeof data.errors === "object") {
     Object.entries(data.errors as Record<string, unknown>).forEach(([key, value]) => {
       const messages = normalizeMessages(value)
-      if (messages.length) {
-        fields[key] = messages
-      }
+      if (messages.length) fields[key] = messages
     })
   }
 
-  return {
-    general: Array.from(general),
-    fields,
-  }
+  return { general: Array.from(general), fields }
 }
 
 export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSelectorProps) {
@@ -82,7 +70,6 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
   const handleSelect = (campaign: BagCampaign) => {
     dismissFeedback()
     selectMutation.reset()
-
     selectMutation.mutate(campaign.id, {
       onSuccess: () => {
         setFeedback({
@@ -92,7 +79,8 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
       },
       onError: (error) => {
         const parsed = parseApiError(
-          (error as any)?.response?.data ?? (error as unknown as Record<string, unknown> | null),
+          (error as any)?.response?.data ??
+            (error as unknown as Record<string, unknown> | null)
         )
         setFeedback({
           type: "error",
@@ -107,10 +95,8 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
 
   const handleUnselect = () => {
     if (!activeCampaign) return
-
     dismissFeedback()
     unselectMutation.reset()
-
     unselectMutation.mutate(undefined, {
       onSuccess: () => {
         setFeedback({
@@ -120,7 +106,8 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
       },
       onError: (error) => {
         const parsed = parseApiError(
-          (error as any)?.response?.data ?? (error as unknown as Record<string, unknown> | null),
+          (error as any)?.response?.data ??
+            (error as unknown as Record<string, unknown> | null)
         )
         setFeedback({
           type: "error",
@@ -145,18 +132,22 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25 }}
-            className="rounded-lg border border-blue-400 bg-blue-50 p-3 text-sm text-black-700 shadow-sm"
+            className={`rounded-lg border p-3 text-sm shadow-sm ${
+              feedback.type === "error"
+                ? "border-red-400 bg-red-50 text-red-700"
+                : "border-green-400 bg-green-50 text-green-700"
+            }`}
           >
             <ul className="space-y-1">
-              {feedback.messages.map((message, index) => (
-                <li key={index}>{message}</li>
+              {feedback.messages.map((message, i) => (
+                <li key={i}>{message}</li>
               ))}
             </ul>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <p className="text-sm text-muted-foreground">Seçili kampanya</p>
           <p className="text-base font-semibold">
@@ -169,7 +160,6 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
             className="rounded-md border px-3 py-2 text-sm transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-60"
             onClick={handleUnselect}
             disabled={isMutating}
-            type="button"
           >
             Kampanyayı Kaldır
           </button>
@@ -181,7 +171,7 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
 
         <div className="flex items-center gap-3">
           <button
-            className="bag-campaign-prev flex h-10 w-10 items-center justify-center rounded-full border border-color bg-card shadow transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-60"
+            className="bag-campaign-prev hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-color bg-card shadow transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-60"
             type="button"
             disabled={isMutating}
           >
@@ -194,6 +184,12 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
               prevEl: ".bag-campaign-prev",
               nextEl: ".bag-campaign-next",
             }}
+            spaceBetween={12}
+            slidesPerView={1.2}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
             className="flex-1"
           >
             {campaigns.length === 0 ? (
@@ -203,18 +199,19 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
             ) : (
               campaigns.map((campaign) => {
                 const isActive = activeCampaign?.id === campaign.id
-
                 return (
                   <SwiperSlide key={campaign.id}>
                     <div
                       className={`rounded-lg border px-4 py-3 transition ${
-                        isActive ? "border-emerald-500 bg-emerald-50" : "border-color bg-card"
+                        isActive
+                          ? "border-emerald-500 bg-emerald-50"
+                          : "border-color bg-card"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                         <div>
                           <h5 className="text-sm font-semibold">{campaign.name}</h5>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground line-clamp-2">
                             {campaign.description ?? "Açıklama belirtilmemiş"}
                           </p>
                         </div>
@@ -223,7 +220,6 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
                           className="rounded-md border border-color px-3 py-2 text-xs font-medium transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-60"
                           onClick={() => handleSelect(campaign)}
                           disabled={isMutating || isActive}
-                          type="button"
                         >
                           {isActive ? "Seçili" : isMutating ? "Seçiliyor..." : "Seç"}
                         </button>
@@ -236,7 +232,7 @@ export function BagCampaignSelector({ activeCampaign, campaigns }: BagCampaignSe
           </Swiper>
 
           <button
-            className="bag-campaign-next flex h-10 w-10 items-center justify-center rounded-full border border-color bg-card shadow transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-60"
+            className="bag-campaign-next hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-color bg-card shadow transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-60"
             type="button"
             disabled={isMutating}
           >

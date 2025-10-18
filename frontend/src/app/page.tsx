@@ -7,12 +7,11 @@ import CategorySection from '@/components/home/CategorySection'
 import PopulerProductSection from '@/components/home/PopulerProductSection'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCategory } from '@/contexts/CategoryContext'
-import Header from '@/components/header/Header'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const { isLoading } = useMe()
-  const { selectedCategory, resetCategory } = useCategory()
+  const { resetCategory } = useCategory()
   const queryClient = useQueryClient()
 
   useEffect(() => {
@@ -24,14 +23,14 @@ export default function Home() {
 
   if (!mounted || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--main-bg)] text-[var(--text)]">
         <p>Yükleniyor...</p>
       </div>
     )
   }
 
   return (
-    <div className='bg-[var(--main-bg)]'>
+    <div className="bg-[var(--main-bg)] text-[var(--text)]">
       <CampaignBanner />
       <HeroSection />
       <CategorySection />

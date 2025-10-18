@@ -1,8 +1,8 @@
 "use client";
 
-import { useMe } from "@/hooks/useAuthQuery";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMe } from "@/hooks/useAuthQuery";
 
 import Logo from "./HeaderLogo";
 import UserMenu from "./UserMenu";
@@ -15,44 +15,73 @@ export default function Header() {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleCartClick = () => {
-    router.push("/bag");
-  };
+  const handleCartClick = () => router.push("/bag");
+
+  // ✅ Menü açıldığında body scroll devre dışı
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   return (
     <header className="bg-[var(--main-bg)] text-[var(--text)] sticky top-0 z-50 border-b border-neutral-800">
-      <div className="max-w-[1800px] mx-auto px-6 md:px-10">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-10">
+        {/* Üst Satır */}
         <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center">
             <Logo />
           </div>
 
+          {/* Masaüstü: Kategoriler */}
           <div className="hidden md:flex flex-1 justify-center pl-[15%]">
             <CategoryDropdown />
           </div>
 
-          <div className="flex items-center space-x-1 md:space-x-3">
+          {/* Sağ taraf */}
+          <div className="flex items-center space-x-2 md:space-x-3">
             <div className="hidden md:block">
               <SearchBar />
             </div>
+
             <CartButton onClick={handleCartClick} />
             <UserMenu user={user} isLoading={isLoading} />
 
+            {/* Mobil Menü Butonu */}
             <button
-              className="md:hidden flex flex-col justify-center items-center space-y-1"
+              aria-label="Menü"
+              className="md:hidden flex flex-col justify-center items-center space-y-[5px] relative w-8 h-8"
               onClick={() => setMobileOpen((prev) => !prev)}
             >
-              <span className="w-6 h-[2px] bg-white" />
-              <span className="w-6 h-[2px] bg-white" />
-              <span className="w-6 h-[2px] bg-white" />
+              <span
+                className={`w-6 h-[2px] bg-white rounded transition-all duration-300 ${
+                  mobileOpen ? "rotate-45 translate-y-[7px]" : ""
+                }`}
+              />
+              <span
+                className={`w-6 h-[2px] bg-white rounded transition-all duration-300 ${
+                  mobileOpen ? "opacity-0" : ""
+                }`}
+              />
+              <span
+                className={`w-6 h-[2px] bg-white rounded transition-all duration-300 ${
+                  mobileOpen ? "-rotate-45 -translate-y-[7px]" : ""
+                }`}
+              />
             </button>
           </div>
         </div>
 
+        {/* Mobil Menü Açılır Alan */}
         {mobileOpen && (
-          <div className="md:hidden bg-neutral-900 text-white py-4 px-6 space-y-4 border-t border-neutral-700 animate-fadeIn">
+          <div className="md:hidden fixed inset-x-0 top-16 bg-neutral-900 text-white py-6 px-6 space-y-6 border-t border-neutral-700 animate-fadeIn overflow-y-auto max-h-[calc(100vh-4rem)]">
             <CategoryDropdown isMobile />
-            <div>
+            <div className="pt-3 border-t border-neutral-800">
               <SearchBar />
             </div>
           </div>

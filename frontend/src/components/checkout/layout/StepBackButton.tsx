@@ -19,13 +19,12 @@ export function StepBackButton({ fallbackHref }: StepBackButtonProps) {
   }
 
   return (
-    <button className="flex items-center hover:text-[var(--accent-dark)] cursor-pointer" 
-      type="button" 
+    <button
+      type="button"
       onClick={handleBack}
+      className="flex items-center gap-1 px-2 py-1 sm:py-2 hover:text-[var(--accent-dark)] cursor-pointer transition-transform active:scale-95"
     >
-      <ChevronLeftIcon
-        className="text-lg font-medium text-[var(--accent)]"
-      />
+      <ChevronLeftIcon className="text-lg font-medium text-[var(--accent)]" />
       <span className="text-lg font-medium text-[var(--accent)]">Geri</span>
     </button>
   )

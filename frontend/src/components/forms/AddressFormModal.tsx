@@ -48,6 +48,7 @@ export default function AddressFormModal({
                         <div className="flex items-center justify-between p-6 border-b border-gray-200">
                             <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
                             <button 
+                                type="button"
                                 onClick={onClose}
                                 className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                             >

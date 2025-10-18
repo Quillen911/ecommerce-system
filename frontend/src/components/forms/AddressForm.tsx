@@ -1,5 +1,4 @@
 "use client"
-
 import { useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 
@@ -30,12 +29,8 @@ const normalizeMessage = (message: string) =>
   message.replace(/\s*\(and\s+\d+\s+more\s+errors\)$/i, "")
 
 const normalizeErrorEntry = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value.map((item) => normalizeMessage(String(item)))
-  }
-  if (typeof value === "string") {
-    return [normalizeMessage(value)]
-  }
+  if (Array.isArray(value)) return value.map((item) => normalizeMessage(String(item)))
+  if (typeof value === "string") return [normalizeMessage(value)]
   return []
 }
 
@@ -47,7 +42,6 @@ export default function AddressForm({
   submitText = "Kaydet",
 }: AddressFormProps) {
   const [errors, setErrors] = useState<ServerErrors>({})
-
   const [formData, setFormData] = useState({
     title: initialData?.title ?? "",
     first_name: initialData?.first_name ?? "",
@@ -73,57 +67,38 @@ export default function AddressForm({
     })
   }
 
-  const aggregatedErrors = useMemo(() => {
-    if (!errors) return []
-    return Object.entries(errors)
-      .filter(([key]) => key !== "general")
-      .flatMap(([, messages]) => messages)
-      .filter(Boolean)
-  }, [errors])
+  const aggregatedErrors = useMemo(
+    () =>
+      Object.entries(errors)
+        .filter(([key]) => key !== "general")
+        .flatMap(([, messages]) => messages)
+        .filter(Boolean),
+    [errors]
+  )
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     setErrors({})
-
     onSubmit(
-      {
-        ...formData,
-        notes: formData.notes.trim() ? formData.notes.trim() : undefined,
-      },
+      { ...formData, notes: formData.notes.trim() || undefined },
       {
         onError: (error: unknown) => {
-          if (!error || typeof error !== "object") return
-
-          const response = (error as Record<string, unknown>).response
-          if (!response || typeof response !== "object") return
-
-          const data = (response as Record<string, unknown>).data
-          if (!data || typeof data !== "object") return
-
-          if ("errors" in data && data.errors && typeof data.errors === "object") {
+          const response = (error as any)?.response?.data
+          if (!response) return
+          if (response.errors && typeof response.errors === "object") {
             const normalized: ServerErrors = {}
-            for (const [field, value] of Object.entries(data.errors as Record<string, unknown>)) {
-              const messages = normalizeErrorEntry(value)
-              if (messages.length) {
-                normalized[field] = messages
-              }
-            }
+            for (const [field, value] of Object.entries(response.errors))
+              normalized[field] = normalizeErrorEntry(value)
             setErrors(normalized)
-            return
-          }
-
-          if ("message" in data && typeof data.message === "string") {
-            setErrors({ general: [normalizeMessage(data.message)] })
-          }
+          } else if (response.message) setErrors({ general: [normalizeMessage(response.message)] })
         },
-      },
+      }
     )
   }
 
   const ErrorMessage = ({ field }: { field: keyof typeof errors }) => {
     const fieldErrors = errors[field]
-    if (!fieldErrors || fieldErrors.length === 0) return null
-
+    if (!fieldErrors?.length) return null
     return (
       <AnimatePresence initial={false}>
         <motion.div
@@ -145,18 +120,12 @@ export default function AddressForm({
   }
 
   const inputStyles =
-    "w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+    "w-full px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-sm sm:text-base"
   const textareaStyles =
-    "w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 resize-none"
+    "w-full px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 resize-none text-sm sm:text-base"
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      className="space-y-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
+    <motion.form onSubmit={handleSubmit} className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <AnimatePresence initial={false}>
         {(errors.general?.length || aggregatedErrors.length) && (
           <motion.div
@@ -167,182 +136,100 @@ export default function AddressForm({
             className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"
           >
             <ul className="list-disc space-y-1 pl-4">
-              {errors.general?.map((message, index) => (
-                <li key={`general-${index}`}>{message}</li>
-              ))}
-              {aggregatedErrors.map((message, index) => (
-                <li key={`field-${index}`}>{message}</li>
-              ))}
+              {errors.general?.map((msg, i) => <li key={`general-${i}`}>{msg}</li>)}
+              {aggregatedErrors.map((msg, i) => <li key={`field-${i}`}>{msg}</li>)}
             </ul>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        <label className="mb-2 block text-sm font-medium text-gray-700">Adres Başlığı</label>
-        <input
-          type="text"
-          placeholder="Örn: Ev, İş, Ofis..."
-          value={formData.title}
-          onChange={(event) => setField("title", event.target.value)}
-          className={`${inputStyles} ${errors.title ? "border-red-500" : ""}`}
-        />
-        <ErrorMessage field="title" />
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.2 }}
-        className="grid grid-cols-1 gap-4 md:grid-cols-2"
-      >
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Ad</label>
+      {[
+        { key: "title", label: "Adres Başlığı", placeholder: "Örn: Ev, İş, Ofis..." },
+        { key: "phone", label: "Telefon", placeholder: "0555 555 55 55" },
+      ].map(({ key, label, placeholder }) => (
+        <motion.div key={key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <label className="mb-2 block text-sm font-medium text-gray-700">{label}</label>
           <input
             type="text"
-            placeholder="Adınız"
-            value={formData.first_name}
-            onChange={(event) => setField("first_name", event.target.value)}
-            className={`${inputStyles} ${errors.first_name ? "border-red-500" : ""}`}
+            placeholder={placeholder}
+            value={(formData as any)[key]}
+            onChange={(e) => setField(key as any, e.target.value)}
+            className={`${inputStyles} ${errors[key as keyof typeof errors] ? "border-red-500" : ""}`}
           />
-          <ErrorMessage field="first_name" />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Soyad</label>
-          <input
-            type="text"
-            placeholder="Soyadınız"
-            value={formData.last_name}
-            onChange={(event) => setField("last_name", event.target.value)}
-            className={`${inputStyles} ${errors.last_name ? "border-red-500" : ""}`}
-          />
-          <ErrorMessage field="last_name" />
-        </div>
-      </motion.div>
+          <ErrorMessage field={key as keyof typeof errors} />
+        </motion.div>
+      ))}
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.3 }}
-      >
-        <label className="mb-2 block text-sm font-medium text-gray-700">Telefon</label>
-        <input
-          type="tel"
-          placeholder="0555 555 55 55"
-          value={formData.phone}
-          onChange={(event) => setField("phone", event.target.value)}
-          className={`${inputStyles} ${errors.phone ? "border-red-500" : ""}`}
-        />
-        <ErrorMessage field="phone" />
-      </motion.div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {["first_name", "last_name"].map((field, i) => (
+          <motion.div key={field} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              {field === "first_name" ? "Ad" : "Soyad"}
+            </label>
+            <input
+              type="text"
+              placeholder={field === "first_name" ? "Adınız" : "Soyadınız"}
+              value={(formData as any)[field]}
+              onChange={(e) => setField(field as any, e.target.value)}
+              className={`${inputStyles} ${errors[field as keyof typeof errors] ? "border-red-500" : ""}`}
+            />
+            <ErrorMessage field={field as keyof typeof errors} />
+          </motion.div>
+        ))}
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4 }}
-        className="space-y-4"
-      >
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Adres Satırı 1</label>
-          <textarea
-            placeholder="Mahalle, cadde, sokak, kapı numarası..."
-            value={formData.address_line_1}
-            onChange={(event) => setField("address_line_1", event.target.value)}
-            className={`${textareaStyles} ${errors.address_line_1 ? "border-red-500" : ""}`}
-            rows={3}
-          />
-          <ErrorMessage field="address_line_1" />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Adres Satırı 2 (Opsiyonel)
-          </label>
-          <textarea
-            placeholder="Apartman, daire numarası, kat..."
-            value={formData.address_line_2}
-            onChange={(event) => setField("address_line_2", event.target.value)}
-            className={`${textareaStyles} ${errors.address_line_2 ? "border-red-500" : ""}`}
-            rows={2}
-          />
-          <ErrorMessage field="address_line_2" />
-        </div>
-      </motion.div>
+      <div className="space-y-4">
+        {["address_line_1", "address_line_2"].map((field, i) => (
+          <motion.div key={field} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              {field === "address_line_1" ? "Adres Satırı 1" : "Adres Satırı 2 (Opsiyonel)"}
+            </label>
+            <textarea
+              placeholder={
+                field === "address_line_1"
+                  ? "Mahalle, cadde, sokak, kapı numarası..."
+                  : "Apartman, daire numarası, kat..."
+              }
+              value={(formData as any)[field]}
+              onChange={(e) => setField(field as any, e.target.value)}
+              className={`${textareaStyles} ${errors[field as keyof typeof errors] ? "border-red-500" : ""}`}
+              rows={field === "address_line_1" ? 3 : 2}
+            />
+            <ErrorMessage field={field as keyof typeof errors} />
+          </motion.div>
+        ))}
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.5 }}
-        className="grid grid-cols-1 gap-4 md:grid-cols-2"
-      >
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">İlçe</label>
-          <input
-            type="text"
-            placeholder="İlçe"
-            value={formData.district}
-            onChange={(event) => setField("district", event.target.value)}
-            className={`${inputStyles} ${errors.district ? "border-red-500" : ""}`}
-          />
-          <ErrorMessage field="district" />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Şehir</label>
-          <input
-            type="text"
-            placeholder="Şehir"
-            value={formData.city}
-            onChange={(event) => setField("city", event.target.value)}
-            className={`${inputStyles} ${errors.city ? "border-red-500" : ""}`}
-          />
-          <ErrorMessage field="city" />
-        </div>
-      </motion.div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {["district", "city", "country", "postal_code"].map((field, i) => (
+          <motion.div key={field} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              {field === "district"
+                ? "İlçe"
+                : field === "city"
+                ? "Şehir"
+                : field === "country"
+                ? "Ülke"
+                : "Posta Kodu"}
+            </label>
+            <input
+              type="text"
+              placeholder={field === "country" ? "Türkiye" : ""}
+              value={(formData as any)[field]}
+              onChange={(e) => setField(field as any, e.target.value)}
+              className={`${inputStyles} ${errors[field as keyof typeof errors] ? "border-red-500" : ""}`}
+            />
+            <ErrorMessage field={field as keyof typeof errors} />
+          </motion.div>
+        ))}
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.6 }}
-        className="grid grid-cols-1 gap-4 md:grid-cols-2"
-      >
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Ülke</label>
-          <input
-            type="text"
-            placeholder="Türkiye"
-            value={formData.country}
-            onChange={(event) => setField("country", event.target.value)}
-            className={`${inputStyles} ${errors.country ? "border-red-500" : ""}`}
-          />
-          <ErrorMessage field="country" />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Posta Kodu</label>
-          <input
-            type="text"
-            placeholder="34000"
-            value={formData.postal_code}
-            onChange={(event) => setField("postal_code", event.target.value)}
-            className={`${inputStyles} ${errors.postal_code ? "border-red-500" : ""}`}
-          />
-          <ErrorMessage field="postal_code" />
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.7 }}
-        className="mt-6 flex items-center space-x-3"
-      >
+      <motion.div className="mt-6 flex items-center space-x-3">
         <input
           type="checkbox"
           id="is_default"
           checked={formData.is_default}
-          onChange={(event) => setField("is_default", event.target.checked)}
+          onChange={(e) => setField("is_default", e.target.checked)}
           className="h-5 w-5 rounded border-gray-300 text-black focus:ring-2 focus:ring-black"
         />
         <label htmlFor="is_default" className="cursor-pointer text-sm font-medium text-gray-700">
@@ -350,29 +237,19 @@ export default function AddressForm({
         </label>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.8 }}
-        className="mt-6"
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-6">
         <label className="mb-2 block text-sm font-medium text-gray-700">Notlar (Opsiyonel)</label>
         <textarea
           placeholder="Adres için özel notlar..."
           value={formData.notes}
-          onChange={(event) => setField("notes", event.target.value)}
+          onChange={(e) => setField("notes", e.target.value)}
           className={`${textareaStyles} ${errors.notes ? "border-red-500" : ""}`}
           rows={3}
         />
         <ErrorMessage field="notes" />
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.9 }}
-        className="space-y-4 pt-6"
-      >
+      <motion.div className="space-y-4 pt-6">
         <button
           type="submit"
           disabled={isLoading}
@@ -387,7 +264,6 @@ export default function AddressForm({
             <span>{submitText}</span>
           )}
         </button>
-
         <button
           type="button"
           onClick={onCancel}

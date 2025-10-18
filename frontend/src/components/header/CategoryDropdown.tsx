@@ -20,11 +20,11 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
     const seen = new Set();
     const result: GenderColumn[] = [];
     categories.forEach((c) => {
-      if (!seen.has(c.gender_id)) {
+      if (c.gender_id && c.gender?.title && !seen.has(c.gender_id)) {
         seen.add(c.gender_id);
         result.push({
           id: c.gender_id,
-          title: c.gender?.title,
+          title: c.gender.title,
         });
       }
     });
@@ -32,25 +32,37 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
   }, [categories]);
 
   if (isError && !categories.length)
-    return <div className="text-sm text-gray-400">Kategoriler yüklenemedi.</div>;
+    return (
+      <div className="text-sm text-gray-400">
+        Kategoriler yüklenemedi.
+      </div>
+    );
 
   const chunkIntoThree = (arr: typeof categories) => {
     const size = Math.ceil(arr.length / 3);
     return [arr.slice(0, size), arr.slice(size, 2 * size), arr.slice(2 * size)];
   };
 
+  // ✅ Mobil görünüm
   if (isMobile) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
         {genderColumns.map((col) => (
           <div key={col.id}>
-            <h3 className="font-semibold uppercase">{col.title}</h3>
+            <h3 className="font-semibold uppercase text-white">{col.title}</h3>
             <ul className="mt-2 space-y-2 pl-2">
               {categories
-                .filter((c) => c.gender?.title === col.title)
+                .filter(
+                  (c) =>
+                    c.gender?.title === col.title &&
+                    c.gender_id !== null
+                )
                 .map((cat) => (
                   <li key={cat.id}>
-                    <Link href={`/${cat.slug}`} className="hover:underline">
+                    <Link
+                      href={`/${cat.slug}`}
+                      className="hover:underline text-gray-300"
+                    >
                       {cat.title}
                     </Link>
                   </li>
@@ -62,9 +74,10 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
     );
   }
 
+  // ✅ Masaüstü görünüm
   return (
     <div className="relative" onMouseLeave={() => setActive(null)}>
-      <div className="flex justify-center gap-7 py-4">
+      <div className="flex justify-center gap-8 py-4">
         {genderColumns.map((col) => (
           <div key={col.id}>
             <button
@@ -92,7 +105,10 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
               className="grid grid-cols-3 gap-12 animate-fadeSlideDown"
             >
               {chunkIntoThree(
-                categories.filter((c) => c.gender?.title === active)
+                categories.filter(
+                  (c) =>
+                    c.gender?.title === active && c.gender_id !== null
+                )
               ).map((col, i) => (
                 <div key={i}>
                   <ul className="space-y-2">

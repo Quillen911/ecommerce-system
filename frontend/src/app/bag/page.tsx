@@ -2,7 +2,7 @@
 
 import { useBagIndex, useBagUpdate, useBagDestroy } from '@/hooks/useBagQuery'
 import { useMe } from '@/hooks/useAuthQuery'
-import { BagItem, BagTotals,BagCampaign } from '@/types/bag'
+import { BagItem, BagTotals, BagCampaign } from '@/types/bag'
 import { toast } from 'sonner'
 
 import { BagItemRow } from "@/components/bag/BagItemRow"
@@ -14,10 +14,8 @@ import { useRouter } from 'next/navigation'
 
 export default function BagPage() {
   const router = useRouter()
-  
   const { data: me } = useMe() 
   const { data, isLoading, error } = useBagIndex(me?.id)
-
   const updateBag = useBagUpdate(me?.id)
   const destroyBag = useBagDestroy(me?.id)
   const createSession  = useCreateCheckoutSession()
@@ -26,17 +24,19 @@ export default function BagPage() {
     return (
       <div className="min-h-screen p-6 bg-[var(--bg)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Sepet yükleniyor...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-gray-400">Sepet yükleniyor...</p>
         </div>
       </div>
     )
   }
+
   if (error) return <div>Sepet yüklenirken hata oluştu</div>
   if (!data) return <EmptyBagState />
+
   const bagItems: BagItem[] = data?.products || []
-  const bagTotals: BagTotals | null = data?.totals ?? null;
-  const bagCampaign: BagCampaign | null = data?.applied_campaign ?? null;
+  const bagTotals: BagTotals | null = data?.totals ?? null
+  const bagCampaign: BagCampaign | null = data?.applied_campaign ?? null
 
   if (bagItems.length === 0) {
     return <EmptyBagState />
@@ -47,9 +47,9 @@ export default function BagPage() {
       router.push('/login')
       return
     }
-      
+
     createSession.mutate(
-     { coupon_code: bagCampaign?.code },
+      { coupon_code: bagCampaign?.code },
       {
         onSuccess: (resp) => {
           router.push(`/checkout/shipping?session=${resp.session_id}`)
@@ -110,42 +110,43 @@ export default function BagPage() {
       }
     })
   }
- 
-return (
-  <div className="min-h-screen bg-[var(--bg)] p-6">
-    <h1 className="mb-6 text-2xl font-bold animate-fadeIn">Sepetiniz</h1>
 
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="space-y-4 lg:col-span-2 lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto lg:pr-2">
-        {bagItems.map((item) => (
-          <BagItemRow
-            key={item.id}
-            item={item}
-            onIncrease={handleIncrease}
-            onDecrease={handleDecrease}
-            onRemove={handleDestroy}
-            disabled={updateBag.isPending || destroyBag.isPending}
+  return (
+    <div className="min-h-screen bg-[var(--bg)] p-4 sm:p-6">
+      <h1 className="mb-6 text-2xl font-bold text-white animate-fadeIn">
+        Sepetiniz
+      </h1>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2 lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto lg:pr-2">
+          {bagItems.map((item) => (
+            <BagItemRow
+              key={item.id}
+              item={item}
+              onIncrease={handleIncrease}
+              onDecrease={handleDecrease}
+              onRemove={handleDestroy}
+              disabled={updateBag.isPending || destroyBag.isPending}
+            />
+          ))}
+        </div>
+
+        <aside className="space-y-4 lg:col-span-1 lg:h-fit lg:sticky lg:top-6">
+          <BagCampaignSelector
+            activeCampaign={bagCampaign}
+            campaigns={data?.campaigns ?? []}
           />
-        ))}
+
+          <BagSummary
+            total={bagTotals?.total_cents}
+            discount={bagTotals?.discount_cents}
+            cargoPrice={bagTotals?.cargo_cents}
+            finalPrice={bagTotals?.final_cents}
+            onCheckout={createSession.isPending ? undefined : handleCheckout}
+            loading={createSession.isPending}
+          />
+        </aside>
       </div>
-
-      <aside className="space-y-4 lg:col-span-1 lg:h-fit lg:sticky lg:top-6">
-        <BagCampaignSelector
-          activeCampaign={bagCampaign}
-          campaigns={data?.campaigns ?? []}
-        />
-
-        <BagSummary
-          total={bagTotals?.total_cents}
-          discount={bagTotals?.discount_cents}
-          cargoPrice={bagTotals?.cargo_cents}
-          finalPrice={bagTotals?.final_cents}
-          onCheckout={createSession.isPending ? undefined : handleCheckout}
-          loading={createSession.isPending}
-        />
-      </aside>
     </div>
-  </div>
-)
-
+  )
 }

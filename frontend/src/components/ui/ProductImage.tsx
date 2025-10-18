@@ -70,7 +70,6 @@ export default function ProductImage({
       : 'Product image')
 
   const handleLoad = () => setIsLoading(false)
-
   const handleError = () => {
     setIsLoading(false)
     setHasError(true)
@@ -80,12 +79,12 @@ export default function ProductImage({
   if (!imageUrl || hasError) {
     return (
       <div
-        className={`flex items-center justify-center bg-gray-200 ${className}`}
+        className={`flex items-center justify-center bg-gray-200 rounded-md ${className}`}
         style={{ aspectRatio: `${width} / ${height}` }}
       >
         <div className="text-center text-gray-500">
           <svg
-            className="mx-auto mb-2 h-12 w-12"
+            className="mx-auto mb-2 h-10 w-10 sm:h-12 sm:w-12"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -95,7 +94,7 @@ export default function ProductImage({
               clipRule="evenodd"
             />
           </svg>
-          <p className="text-sm">Resim yüklenemedi</p>
+          <p className="text-xs sm:text-sm">Resim yüklenemedi</p>
         </div>
       </div>
     )
@@ -109,7 +108,7 @@ export default function ProductImage({
     >
       {isLoading && showLoading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-200 animate-pulse">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500" />
+          <div className="h-6 w-6 sm:h-8 sm:w-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500" />
         </div>
       )}
 
@@ -118,15 +117,19 @@ export default function ProductImage({
         alt={imageAlt}
         width={width}
         height={height}
-        className={`h-full w-full object-contain transition-all duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        } ${onClick ? 'cursor-pointer hover:scale-105' : ''}`}
         sizes={sizes}
         priority={priority}
         onLoad={handleLoad}
         onError={handleError}
         quality={config?.quality ?? 85}
         unoptimized
+        className={`h-full w-full object-contain transition-all duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        } ${
+          onClick
+            ? 'cursor-pointer hover:scale-105 active:scale-100'
+            : ''
+        }`}
       />
     </div>
   )
@@ -140,7 +143,7 @@ export const ProductCardImage = ({
     product={product}
     aspectRatio="portrait"
     breakpoint="mobile"
-    className="rounded-lg"
+    className="rounded-lg w-full sm:w-auto"
     {...props}
   />
 )
@@ -154,7 +157,7 @@ export const ProductHeroImage = ({
     aspectRatio="wide"
     breakpoint="desktop"
     priority
-    className="rounded-xl"
+    className="rounded-xl w-full"
     {...props}
   />
 )
@@ -168,7 +171,7 @@ export const ProductThumbnailImage = ({
     aspectRatio="square"
     breakpoint="mobile"
     config={{ width: 80, height: 80, quality: 70 }}
-    className="rounded"
+    className="rounded w-16 h-16 sm:w-20 sm:h-20"
     {...props}
   />
 )

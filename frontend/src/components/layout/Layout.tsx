@@ -8,19 +8,20 @@ import { Toaster } from "sonner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr">
-      <body className="antialiased">
-        <Toaster position="top-right" richColors closeButton />
-        <QueryProvider>
-          <CategoryProvider>
-            <ConditionalHeader />
-            <main className="min-h-screen bg-[var(--main-bg)]">
-              {children}
-            </main>
-            <Footer />
-          </CategoryProvider>
-        </QueryProvider>
-      </body>
-    </html>
+    <>
+      <Toaster position="top-right" richColors closeButton />
+
+      <QueryProvider>
+        <CategoryProvider>
+          <ConditionalHeader />
+
+          <main className="flex-1 min-h-screen bg-[var(--main-bg)]">
+            {children}
+          </main>
+
+          <Footer />
+        </CategoryProvider>
+      </QueryProvider>
+    </>
   );
 }
