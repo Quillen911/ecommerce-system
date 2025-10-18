@@ -16,6 +16,20 @@
   --danger: #9b1818;
 }
 
+@keyframes fadeSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeSlideDown {
+  animation: fadeSlideDown 0.3s ease-out;
+}
 /* globals.css veya componentin css'ine ekle */
 .swiper-button-next::after,
 .swiper-button-prev::after {

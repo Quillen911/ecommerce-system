@@ -41,7 +41,7 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 text-white hover:text-gray-500 cursor-pointer"
+        className="flex items-center space-x-2 text-white hover:text-white cursor-pointer"
       >
         <UserIcon className="h-6 w-6" />
         <span>{user.username}</span>
@@ -49,17 +49,17 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 text-black">
-          <div className="px-4 py-2 border-b border-gray-200 text-black">
-            <p className="text-sm font-medium text-gray-900">{user.username}</p>
-            <p className="text-xs text-gray-500">{user.email}</p>
+        <div className="absolute right-0 mt-2 w-48 bg-[var(--main-bg)] rounded-lg shadow-lg py-1 z-50 text-white">
+          <div className="px-4 py-2 border-b border-neutral-800 text-white">
+            <p className="text-sm font-medium text-white">{user.username}</p>
+            <p className="text-xs text-white">{user.email}</p>
           </div>
-          <Link href="/account/profile" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-black">
+          <Link href="/account/profile" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-white hover:bg-neutral-600 text-white">
             Hesabım
           </Link>
           <button
             onClick={handleLogout}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-black"
+            className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-neutral-600 text-white cursor-pointer"
           >
             Çıkış Yap
           </button>

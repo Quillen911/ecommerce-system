@@ -31,10 +31,12 @@ class MainController extends Controller
         $this->mainService = $mainService;
     }
 
-    public function main(Request $request)
+    public function main()
     {
         $products   = $this->mainService->getProductsPopularVariants();
         $categories = $this->mainService->getCategories();
+        $categories->load('gender');
+    
         $campaigns  = $this->mainService->getCampaigns();
         return new MainResource([
             'products' => $products,

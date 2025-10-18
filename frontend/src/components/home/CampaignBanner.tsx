@@ -19,7 +19,6 @@ export default function CampaignBanner({ className }: CampaignBannerProps) {
     if (campaigns.length === 0) {
         return null
     }
-    console.log(mainData)
     return (
         <div className="bg-black py-2">
             <div className="max-w-10xl mx-auto px-4">
