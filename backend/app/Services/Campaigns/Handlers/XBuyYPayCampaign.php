@@ -4,6 +4,7 @@ namespace App\Services\Campaigns\Handlers;
 
 use App\Services\Campaigns\BaseCampaign;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class XBuyYPayCampaign extends BaseCampaign
 {
@@ -12,7 +13,7 @@ class XBuyYPayCampaign extends BaseCampaign
         if (! $this->isCampaignActive()) {
             return false;
         }
-    
+        $this->checkPerUserLimit();
         $items = $this->eligibleItems($bagItems);
         if ($items->isEmpty()) {
             return false;
@@ -29,6 +30,18 @@ class XBuyYPayCampaign extends BaseCampaign
         return true;
     }
 
+    protected function checkPerUserLimit(): void
+    {
+        dd($this->campaign->campaign_usages()->where('user_id', $this->user->id)->count());
+        if ($this->campaign->per_user_limit && $this->campaign->campaign_usages()->where('user_id', $this->user->id)->count() >= $this->campaign->per_user_limit) {
+            
+            throw ValidationException::withMessages([
+                'campaign' => [
+                    'Bu kampanya kullanım limitine ulaştı.',
+                ],
+            ]);
+        }
+    }
     public function calculateDiscount(array $bagItems): array
     {
         $items = $this->eligibleItems($bagItems);

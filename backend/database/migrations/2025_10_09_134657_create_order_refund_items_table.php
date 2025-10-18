@@ -16,7 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('order_refund_id');
             $table->unsignedBigInteger('order_item_id');
             $table->integer('quantity');
+            $table->string('byWho', 10)->default('user');
             $table->bigInteger('refund_amount_cents')->default(0);
+            $table->text('reason')->nullable();
             $table->enum('inspection_status', ['pending','approved','rejected'])->default('pending');
             $table->text('inspection_note')->nullable();
             $table->timestamps();
@@ -32,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_return_items');
+        Schema::dropIfExists('order_refund_items');
     }
 };

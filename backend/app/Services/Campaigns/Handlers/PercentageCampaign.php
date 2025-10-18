@@ -4,6 +4,7 @@ namespace App\Services\Campaigns\Handlers;
 
 use App\Services\Campaigns\BaseCampaign;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class PercentageCampaign extends BaseCampaign
 {
@@ -12,7 +13,7 @@ class PercentageCampaign extends BaseCampaign
         if (! $this->isCampaignActive()) {
             return false;
         }
-    
+        $this->checkPerUserLimit();
         $items = $this->eligibleItems($bagItems);
         
         if ($items->isEmpty()) {
@@ -24,6 +25,16 @@ class PercentageCampaign extends BaseCampaign
         }
     
         return true;
+    }
+    protected function checkPerUserLimit(): void
+    {
+        if ($this->campaign->per_user_limit && $this->campaign->campaign_usages()->where('user_id', $this->user->id)->count() >= $this->campaign->per_user_limit) {
+            throw ValidationException::withMessages([
+                'campaign' => [
+                    'Bu kampanyanın kullanım limitine ulaştınız.',
+                ],
+            ]);
+        }
     }
 
     public function calculateDiscount(array $bagItems): array

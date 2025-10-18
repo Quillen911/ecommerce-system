@@ -20,6 +20,7 @@ class CampaignResource extends JsonResource
             'pay_quantity' => $this->pay_quantity,
             'min_subtotal' => $this->min_subtotal,
             'usage_limit' => $this->usage_limit,
+            'per_user_limit' => $this->per_user_limit,
             'usage_count' => $this->usage_count,
             'is_active' => $this->is_active,
             'starts_at' => $this->starts_at,

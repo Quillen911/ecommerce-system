@@ -29,6 +29,11 @@ interface PaymentGatewayInterface
     public function confirmPayment(CheckoutSession $session, array $payload): array;
 
     /**
+     * İade işlemi
+     */
+    public function refundPayment($transactionId, $amountCents, $payload): array;
+
+    /**
      * Kart kaydetme senaryosu
      */
     public function storePaymentMethod(

@@ -1,30 +1,36 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
 import { CheckoutLayout } from "@/components/checkout/layout/CheckoutLayout"
+import { StepBackButton } from "@/components/checkout/layout/StepBackButton"
 import { ShippingForm } from "@/components/checkout/shipping/ShippingForm"
 import type { ShippingFormValues } from "@/schemas/checkout/shippingSchema"
 
 import { useCheckoutSession } from "@/hooks/checkout/useCheckoutSession"
 import { useUpdateShipping } from "@/hooks/checkout/useShippingOptions"
 import { useMe } from "@/hooks/useAuthQuery"
-import { Link } from "lucide-react"
-
-import { StepBackButton } from "@/components/checkout/layout/StepBackButton"
 
 export default function ShippingStepPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [resolvedSessionId, setResolvedSessionId] = useState<string | null>(null)
+  const [resolvedSessionId, setResolvedSessionId] = useState<string | undefined>(undefined)
+  const [shouldRedirect, setShouldRedirect] = useState(false)
 
   useEffect(() => {
-    setResolvedSessionId(searchParams.get("session"))
+    const sessionParam = searchParams.get("session")
+    setResolvedSessionId(sessionParam ?? "")
+    if (!sessionParam) setShouldRedirect(true)
   }, [searchParams])
 
-  if (resolvedSessionId === null) {
+  useEffect(() => {
+    if (shouldRedirect) router.replace("/bag")
+  }, [shouldRedirect, router])
+
+  if (resolvedSessionId === undefined) {
     return (
       <CheckoutLayout currentStep="shipping">
         <div className="py-12 text-center text-muted-foreground">Yükleniyor…</div>
@@ -32,17 +38,20 @@ export default function ShippingStepPage() {
     )
   }
 
-  if (!resolvedSessionId) {
-
-    router.push('/bag')
+  if (shouldRedirect) {
     return (
       <CheckoutLayout currentStep="shipping">
         <div className="py-12 text-center">
           <h2 className="text-xl font-semibold mb-2">Session bulunamadı.</h2>
-          <p className="text-sm text-muted-foreground">
-            Lütfen sepet sayfasına dönüp tekrar işlem yapınız.
+          <p className="text-sm text-muted-foreground mb-4">
+            Lütfen sepet sayfasına dönüp checkout akışını yeniden başlatın.
           </p>
-          <Link href="/bag">Sepete Git</Link>
+          <Link
+            href="/bag"
+            className="rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-dark)] transition"
+          >
+            Sepete Git
+          </Link>
         </div>
       </CheckoutLayout>
     )
@@ -71,7 +80,7 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
         <div className="py-12 text-center">
           <h2 className="text-xl font-semibold mb-2">Giriş yapmanız gerekiyor.</h2>
           <p className="text-sm text-muted-foreground">
-            Shipping adımına devam etmek için lütfen hesabınıza giriş yapın.
+            Teslimat adımına devam etmek için lütfen hesabınıza giriş yapın.
           </p>
         </div>
       </CheckoutLayout>
@@ -124,13 +133,14 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
       <div className="flex items-center justify-between mb-6">
         <StepBackButton fallbackHref="/bag" />
       </div>
+
       <ShippingForm
         sessionId={sessionId}
-        userId={me.id} 
+        userId={me.id}
         defaultValues={{
-          shipping_address_id: data.shipping_data?.shipping_address_id,
-          billing_address_id: data.billing_data?.billing_address_id,
-          delivery_method: data.shipping_data?.delivery_method,
+          shipping_address_id: data.shipping_data?.shipping_address_id ?? undefined,
+          billing_address_id: data.billing_data?.billing_address_id ?? undefined,
+          delivery_method: data.shipping_data?.delivery_method ?? "standard",
           notes: data.shipping_data?.notes ?? "",
         }}
         onSubmit={handleSubmit}

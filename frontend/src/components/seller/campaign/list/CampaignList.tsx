@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Campaign } from '@/types/seller/campaign';
 import { useCampaignDestroy } from '@/hooks/seller/useCampaignQuery';
-import { FiEdit2, FiTrash2, FiClock, FiTag, FiPercent, FiShoppingCart, FiCalendar, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiClock, FiTag, FiPercent, FiShoppingCart, FiCalendar, FiCheckCircle, FiXCircle, FiUser } from 'react-icons/fi';
 
 interface CampaignListProps {
   campaigns: Campaign[];
@@ -180,7 +180,7 @@ function CampaignCard({
       )}
 
       {/* Campaign Details */}
-      <div className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-7 p-5 sm:grid-cols-3">
         <div className="space-y-1">
           <div className="flex items-center text-sm text-gray-500">
             <FiTag className="mr-2 h-4 w-4 text-gray-400" />
@@ -206,6 +206,16 @@ function CampaignCard({
           </div>
           <div className="text-sm font-medium text-gray-900">
             {campaign.usage_count} / {campaign.usage_limit ?? '∞'}
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <div className="flex items-center text-sm text-gray-500">
+            <FiUser className="mr-2 h-4 w-4 text-gray-400" />
+            <span>Kullanıcı Limiti</span>
+          </div>
+          <div className="text-sm font-medium text-gray-900">
+            {campaign.per_user_limit ?? '∞'}
           </div>
         </div>
 

@@ -49,4 +49,22 @@ class OrderCheckService implements OrderCheckInterface
         
         return $items;
     }
+
+    public function checkItem($order, $payloadItem):bool
+    {
+        $orderItemId = $payloadItem['order_item_id'];
+        $checkItems = $order->orderItems()->where('id', $orderItemId)->firstOrFail();
+
+        if(!$checkItems){
+            throw new ModelNotFoundException('Ürün bulunamadı.');
+
+        }
+
+        if($checkItems->status === 'refunded' || $checkItems->status === 'canceled' || $checkItems->status !== 'confirmed'){
+            throw new ModelNotFoundException('Bu ürün iade edilemez.');
+            
+        }
+
+        return true;
+    }
 }

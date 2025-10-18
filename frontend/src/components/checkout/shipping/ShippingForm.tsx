@@ -56,8 +56,7 @@ export function ShippingForm({
 
   const aggregatedErrors = useMemo(() => Object.values(fieldErrors).filter(Boolean), [fieldErrors])
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
+  const handleSubmit = () => {
     setFieldErrors({})
 
     const payload: ShippingFormValues = {
@@ -81,7 +80,7 @@ export function ShippingForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-10">
+    <div className="space-y-10">
       <AnimatePresence initial={false}>
         {aggregatedErrors.length > 0 && (
           <motion.div
@@ -180,13 +179,14 @@ export function ShippingForm({
 
       <div className="flex justify-end">
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           disabled={isSubmitting}
           className="cursor-pointer rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-dark)] disabled:opacity-60"
         >
           {isSubmitting ? "Kaydediliyor..." : "Devam Et"}
         </button>
       </div>
-    </form>
+    </div>
   )
 }

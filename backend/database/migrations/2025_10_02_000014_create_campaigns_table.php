@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('pay_quantity')->nullable();
             $table->integer('min_subtotal')->nullable();
             $table->integer('usage_limit')->nullable();
+            $table->integer('per_user_limit')->nullable();
             $table->integer('usage_count')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamp('starts_at')->nullable();

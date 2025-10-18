@@ -112,10 +112,9 @@ class CheckoutController extends Controller
             ], 422);
         }
         $user = $session->user ?: User::find($session->user_id);
-        $order = OrderPlacementJob::dispatch($user, $session, $request->validated());
+        OrderPlacementJob::dispatch($user, $session, $request->validated());
         return response()->json([
-            'order_id'    => $order->id ?? 1,
-            'order_number'=> $order->order_number ?? 1,
+            'session'    => $session,
             'status'      => 'success',
         ]);
     }

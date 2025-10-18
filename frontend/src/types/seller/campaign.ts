@@ -19,6 +19,7 @@ export interface Campaign {
   pay_quantity: number | null;
   min_subtotal: number | null;
   usage_limit: number | null;
+  per_user_limit: number | null;
   usage_count: number;
   is_active: boolean;
   starts_at: string | null;
@@ -37,6 +38,7 @@ export interface CampaignBasePayload {
   pay_quantity?: number | null;
   min_subtotal?: number | null;
   usage_limit?: number | null;
+  per_user_limit?: number | null;
   is_active?: boolean;
   starts_at?: string | null;
   ends_at?: string | null;

@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('tax_rate')->default(1800);
             $table->bigInteger('tax_amount_cents')->default(0);
             $table->string('payment_transaction_id')->nullable();
-            $table->enum('status', ['pending','confirmed','shipped','delivered','refunded','Müşteri İade Etti','Satıcı İade Etti','Başarısız Ödeme']);
+            $table->enum('status', ['pending','confirmed','shipped','delivered','refunded', 'partial_refunded', 'Müşteri İade Etti','Satıcı İade Etti','Başarısız Ödeme']);
             $table->enum('payment_status', ['paid','partial_refunded','refunded','failed','canceled']);
             $table->timestamp('refunded_at')->nullable();
             $table->timestamps();

@@ -48,10 +48,9 @@ class OrderRefundService implements OrderRefundInterface
         $payload['refund_total_cents'] = $calculations['totalPriceToRefundCents'] ?? 0;
 
         $items = $calculations['items'] ?? array_filter($calculations, 'is_array');
-
         $refund = $this->refundPlacementService->placeRefund($payload, $items, $orderModel);
 
-        $this->requestReverseShipment($refund, $orderModel);
+        //$this->requestReverseShipment($refund, $orderModel);
 
         return $refund;
     }

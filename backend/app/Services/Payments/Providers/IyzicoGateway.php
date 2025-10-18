@@ -61,6 +61,7 @@ class IyzicoGateway implements PaymentGatewayInterface
             'exp_month'        => $data['expire_month'],
             'exp_year'         => $data['expire_year'],
             'card_holder_name' => $data['card_holder_name'],
+            'card_alias'       => $data['card_alias'] ?? 'Anonim',
             'is_active'        => true,
         ]);
     }
@@ -88,6 +89,7 @@ class IyzicoGateway implements PaymentGatewayInterface
             $paymentCard->setCardUserKey($method->provider_customer_id);
         } else {
             $paymentCard->setCardHolderName($data['card_holder_name']);
+            $paymentCard->setCardAlias($data['card_alias'] ?? 'Anonim');
             $paymentCard->setCardNumber($data['card_number']);
             $paymentCard->setExpireMonth($data['expire_month']);
             $paymentCard->setExpireYear($data['expire_year']);
@@ -207,7 +209,7 @@ class IyzicoGateway implements PaymentGatewayInterface
                 'payment_transaction_id' => $itemTransactions,
                 'amount_cents'           => $session->bag_snapshot['totals']['final_cents'],
                 'currency'               => 'TRY',
-                'status'                 => $payment->getStatus(),
+                'status'                 => 'success',
                 'requires_3ds'           => false,
                 'raw'                    => $payment->getRawResult(),
             ];
@@ -261,7 +263,7 @@ class IyzicoGateway implements PaymentGatewayInterface
         }
 
         return [
-            'status'                  => 'authorized',
+            'status'                  => 'success',
             'payment_id'              => $payment->getPaymentId(),
             'conversation_id'         => $payment->getConversationId(),
             'authorized_amount_cents' => (int) ($payment->getPaidPrice() * 100),
@@ -269,6 +271,27 @@ class IyzicoGateway implements PaymentGatewayInterface
             'currency'                => $payment->getCurrency(),
             'payment_transaction_id'  => $itemTransactions,
             'raw'                     => $payment->getRawResult(),
+        ];
+    }
+
+    public function refundPayment($transactionId, $amountCents, $payload): array
+    {
+        $request = new CreateRefundRequest();
+        $request->setLocale(Locale::TR);
+        $request->setConversationId('refund_' . time());
+        $request->setCurrency(Currency::TL);
+        $request->setPaymentTransactionId($transactionId);
+        $request->setPrice(number_format($amountCents / 100, 2, '.', ''));
+        $request->setReason(RefundReason::OTHER);
+        $request->setDescription($payload['reason']);
+        $refund = Refund::create($request, $this->options);
+
+        if ($refund->getStatus() !== 'success') {
+            throw new \RuntimeException($refund->getErrorMessage() ?: 'İade işlemi başarısız.', $refund->getErrorCode());
+        }
+        return [
+            'message' => 'İade işlemi başarılı',
+            'refund' => $refund
         ];
     }
 

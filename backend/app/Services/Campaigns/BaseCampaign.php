@@ -3,15 +3,18 @@
 namespace App\Services\Campaigns;
 
 use App\Models\Campaign;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 abstract class BaseCampaign implements CampaignInterface
 {
     protected Campaign $campaign;
+    protected User $user;
 
-    public function __construct(Campaign $campaign)
+    public function __construct(Campaign $campaign, User $user)
     {
         $this->campaign = $campaign;
+        $this->user = $user;
     }
 
     protected function isCampaignActive(): bool

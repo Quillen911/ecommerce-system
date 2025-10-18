@@ -152,14 +152,11 @@ class BagService implements BagInterface
         }
 
         $campaign = $this->campaignRepository
-            ->getActiveCampaign($campaignId)
-            ->load('campaignProducts', 'campaignCategories');
-
-        if (! $campaign) {
-            throw ValidationException::withMessages([
-                'campaign' => ['Kampanya bulunamadı veya geçerli değil.'],
-            ]);
+            ->getActiveCampaign($campaignId);
+        if (!$campaign) {
+            throw new \RuntimeException('Seçili kampanya artık aktif değil veya bulunamadı.');
         }
+        $campaign->load(['campaignProducts', 'campaignCategories']);
 
         $handler = $this->campaignManager->resolveHandler($campaign);
 

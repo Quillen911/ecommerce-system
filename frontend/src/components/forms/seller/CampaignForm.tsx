@@ -18,6 +18,7 @@ export interface CampaignFormValues {
   pay_quantity?: number | null
   min_subtotal?: number | null
   usage_limit?: number | null
+  per_user_limit?: number | null
   is_active?: boolean
   starts_at?: string | null
   ends_at?: string | null
@@ -114,6 +115,7 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
       pay_quantity: base.pay_quantity ?? null,
       min_subtotal: base.min_subtotal ?? null,
       usage_limit: base.usage_limit ?? null,
+      per_user_limit: base.per_user_limit ?? null,
       starts_at: base.starts_at ?? "",
       ends_at: base.ends_at ?? "",
       product_ids: base.product_ids ?? null,
@@ -180,6 +182,7 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
       buy_quantity: values.buy_quantity ?? null,
       pay_quantity: values.pay_quantity ?? null,
       min_subtotal: values.min_subtotal ?? null,
+      per_user_limit: values.per_user_limit ?? null,
       usage_limit: values.usage_limit ?? null,
       starts_at: values.starts_at || null,
       ends_at: values.ends_at || null,
@@ -416,7 +419,23 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
               })}
             />
           </label>
-
+          
+          <label className="form-control">
+            <span className="text-sm font-medium text-gray-700">Kullanıcı Limiti</span>
+            <input
+              type="number"
+              className="mt-1 rounded-lg border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Sınırsız bırakmak için boş bırak"
+              {...register("per_user_limit", {
+                setValueAs: (value) => {
+                  if (value === "" || value === null || value === undefined) return undefined
+                  const parsed = Number(value)
+                  return Number.isNaN(parsed) ? undefined : parsed
+                },
+              })}
+            />
+          </label>
+          
           <label className="form-control">
             <span className="text-sm font-medium text-gray-700">Başlangıç Tarihi</span>
             <input

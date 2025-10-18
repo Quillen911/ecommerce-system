@@ -25,11 +25,11 @@ class CampaignManager
         if (! $campaign->is_active) {
             return null;
         }
-
+        $user = $this->getUser();
         return match ($campaign->type) {
-            'percentage'   => new PercentageCampaign($campaign),
-            'fixed'        => new FixedCampaign($campaign),
-            'x_buy_y_pay'  => new XBuyYPayCampaign($campaign),
+            'percentage'   => new PercentageCampaign($campaign, $user),
+            'fixed'        => new FixedCampaign($campaign, $user),
+            'x_buy_y_pay'  => new XBuyYPayCampaign($campaign, $user),
             default        => null,
         };
     }
@@ -68,6 +68,7 @@ class CampaignManager
             'user_id'         => $userId,
             'order_id'        => $orderId,
             'discount_amount' => $discountAmount,
+            'total_usage_count' => $campaign->campaign_usages()->where('user_id', $userId)->count(),
         ]);
     }
 }

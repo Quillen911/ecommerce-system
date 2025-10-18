@@ -11,7 +11,9 @@ class OrderRefundItem extends Model
     protected $fillable = [
         'order_refund_id',
         'order_item_id',
+        'byWho',
         'quantity',
+        'reason',
         'refund_amount_cents',
         'inspection_status',
         'inspection_note',

@@ -7,4 +7,6 @@ interface OrderCheckInterface
     public function checkOrder($orderId, $userId);
 
     public function checkItems($order, array $payloadItems): array;
+
+    public function checkItem($order, $payloadItem): bool;
 }

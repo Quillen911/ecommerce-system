@@ -8,16 +8,16 @@ export const checkoutSessionKeys = {
 }
 
 export const useCheckoutSession = (sessionId: string) => {
-    return useQuery({
-        queryKey: checkoutSessionKeys.get(sessionId),
-        queryFn: async () => {
-            const response = await checkoutApi.getSession(sessionId);
-            return response.data;
-        },
-        enabled: typeof window !== 'undefined' && !!localStorage.getItem('user_token'),
-        staleTime: 5 * 60 * 1000,
-        retry: 1,
-    })
+  return useQuery({
+    queryKey: checkoutSessionKeys.get(sessionId),
+    queryFn: async () => {
+      const response = await checkoutApi.getSession(sessionId)
+      return response.data
+    },
+    enabled: typeof window !== "undefined" && !!sessionId && !!localStorage.getItem("user_token"),
+    staleTime: 0,
+    refetchOnMount: "always",
+  })
 }
 
 export const useCreateCheckoutSession = () => {

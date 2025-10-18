@@ -35,6 +35,7 @@ class CampaignUpdateRequest extends FormRequest
 
             'min_subtotal' => 'sometimes|nullable|numeric|min:0',
             'usage_limit' => 'sometimes|nullable|integer|min:1',
+            'per_user_limit' => 'sometimes|nullable|integer|min:1',
             'is_active' => 'sometimes|boolean',
             'starts_at' => 'sometimes|nullable|date',
             'ends_at' => 'sometimes|nullable|date|after:starts_at',

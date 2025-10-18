@@ -35,6 +35,7 @@ class CampaignStoreRequest extends FormRequest
 
             'min_subtotal' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
+            'per_user_limit' => 'nullable|integer|min:1',
             'is_active' => 'sometimes|boolean',
             'starts_at' => 'nullable|date|after_or_equal:today',
             'ends_at' => 'nullable|date|after:starts_at',
