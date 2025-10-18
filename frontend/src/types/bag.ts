@@ -13,10 +13,16 @@ export interface BagItem {
   sizes: VariantSizeInBag
 }
 
+export interface SizeOptionInBag {
+  id: number
+  value: string
+}
+
 export interface VariantSizeInBag {
   id: number
   product_variant_id: number
   size_option_id: number
+  size_option: SizeOptionInBag
   sku: string
   price_cents: number
   is_active: boolean

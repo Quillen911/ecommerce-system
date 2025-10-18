@@ -1,5 +1,5 @@
 // src/app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "../styles/globals.css";
 import Layout from "@/components/layout/Layout";
 
@@ -9,12 +9,10 @@ export const metadata: Metadata = {
     template: "%s | Omnia",
   },
   description: "Omnia alışveriş platformu",
-  viewport: "width=device-width, initial-scale=1.0",
   icons: {
     icon: "/favicon.ico",
   },
   manifest: "/manifest.json",
-  //metadataBase: new URL("https://omnia.com"),
   robots: { index: true, follow: true },
   openGraph: {
     title: "Omnia",
@@ -24,24 +22,23 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  maximumScale: 1.0,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr">
+    <html lang="tr" data-scroll-behavior="smooth">
       <body
-        className="
-          bg-[var(--main-bg)]
-          text-[var(--text)]
-          antialiased
-          overflow-x-hidden
-          min-h-screen
-          flex flex-col
-        "
+        className="bg-[var(--main-bg)] text-[var(--text)] antialiased overflow-x-hidden min-h-screen flex flex-col"
       >
-        {/* Ana uygulama düzeni */}
         <Layout>{children}</Layout>
       </body>
     </html>
