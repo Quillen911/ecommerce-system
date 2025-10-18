@@ -12,11 +12,10 @@ use App\Services\Checkout\Orders\OrderPlacementService;
 
 use App\Http\Requests\Checkout\UpdateShippingRequest;
 use App\Http\Requests\Checkout\CreatePaymentIntentRequest;
-use App\Http\Requests\Checkout\ConfirmOrderRequest;
 use App\Jobs\OrderPlacementJob;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
+use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
 {
@@ -102,7 +101,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function confirmOrder(ConfirmOrderRequest $request) {
+    public function confirmOrder(Request $request) {
         
         $session = $this->checkoutSessionService->confirmPaymentIntent($request->validated());
         

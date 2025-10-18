@@ -9,6 +9,8 @@ use App\Services\Campaigns\Handlers\PercentageCampaign;
 use App\Services\Campaigns\Handlers\FixedCampaign;
 use App\Services\Campaigns\Handlers\XBuyYPayCampaign;
 use App\Traits\GetUser;
+use Illuminate\Support\Facades\Log;
+
 class CampaignManager 
 {
     private $authenticationRepository;
@@ -42,12 +44,26 @@ class CampaignManager
         $campaign->increment('usage_count');
     }
 
-    public function logUsage($campaignId, int $userId, int $orderId, int $discountAmount): void
+    public function logUsage(?int $campaignId, int $userId, ?int $orderId, int $discountAmount): void
     {
-        $campaign = Campaign::find($campaignId);
-        if (! $campaign) {
-            throw new \RuntimeException('Kampanya bulunamadı.');
+        if (! $campaignId) {
+            return;
         }
+
+        $campaign = Campaign::find($campaignId);
+
+        if (! $campaign) {
+            Log::warning('Kampanya kaydı bulunamadığı için usage loglanamadı.', [
+                'campaign_id' => $campaignId,
+                'user_id'     => $userId,
+                'order_id'    => $orderId,
+            ]);
+
+            return;
+        }
+
+        $this->touchUsage($campaign);
+
         $campaign->campaign_usages()->create([
             'user_id'         => $userId,
             'order_id'        => $orderId,

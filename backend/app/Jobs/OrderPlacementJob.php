@@ -9,7 +9,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use App\Services\Checkout\Orders\OrderPlacementService;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-
+use Illuminate\Support\Facades\Log;
 
 class OrderPlacementJob implements ShouldQueue
 {

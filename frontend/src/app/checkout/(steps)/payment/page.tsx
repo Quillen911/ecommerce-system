@@ -14,6 +14,7 @@ import { useCheckoutSession } from "@/hooks/checkout/useCheckoutSession"
 import { useCreatePaymentIntent } from "@/hooks/checkout/usePaymentMethods"
 
 import type { CreatePaymentIntentRequest } from "@/types/checkout"
+import { AnimatePresence, motion } from "framer-motion"
 
 type AxiosErrorLike = {
   isAxiosError: boolean
@@ -38,7 +39,7 @@ export default function PaymentStepPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [resolvedSessionId, setResolvedSessionId] = useState<string | null>(null)
-
+  const errorMessage = searchParams.get("error");
   useEffect(() => {
     setResolvedSessionId(searchParams.get("session"))
   }, [searchParams])
@@ -68,15 +69,23 @@ export default function PaymentStepPage() {
     )
   }
 
-  return <PaymentContent sessionId={resolvedSessionId} />
+  return <PaymentContent sessionId={resolvedSessionId} errorMessage={errorMessage} />
 }
 
-function PaymentContent({ sessionId }: { sessionId: string }) {
+function PaymentContent({ sessionId, errorMessage }: { sessionId: string; errorMessage: string | null }) {
   const router = useRouter()
   const { data: me, isLoading: meLoading } = useMe()
   const { data, isLoading, isError } = useCheckoutSession(sessionId)
   const createPaymentIntent = useCreatePaymentIntent()
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({})
+  const [decodedError, setDecodedError] = useState<string | null>(errorMessage ? decodeURIComponent(errorMessage) : "");
+  const [generalError, setGeneralError] = useState<string>("");
+
+  useEffect(() => {
+    if (!decodedError) return
+    const timer = setTimeout(() => setDecodedError(null), 3500)
+    return () => clearTimeout(timer)
+  }, [decodedError])
 
   useEffect(() => {
     if (!meLoading && (!me || isError)) {
@@ -157,6 +166,7 @@ function PaymentContent({ sessionId }: { sessionId: string }) {
     }
 
     setFormErrors({})
+    setGeneralError("")
     const toastId = toast.loading("Ödeme işlemi tamamlanıyor...")
 
     createPaymentIntent.mutate(payload, {
@@ -176,24 +186,43 @@ function PaymentContent({ sessionId }: { sessionId: string }) {
           setFormErrors(error.response.data?.errors ?? {})
           return
         }
-        console.error("createPaymentIntent error:", isAxiosError(error) ? error.response?.data : error)
+        const apiMessage =
+          (isAxiosError(error) && error.response?.data?.errors?.general?.[0]) ||
+          "Ödeme işlemi tamamlanamadı. Lütfen tekrar deneyiniz.";
+
+        setGeneralError(apiMessage);
+        toast.error(apiMessage);
       },
     })
   }
 
-  return (
-    <CheckoutLayout currentStep="payment" bag={data.bag}>
-      <div className="mb-6 flex items-center justify-between">
-        <StepBackButton fallbackHref="/checkout/shipping" />
-      </div>
-      <CardForm
-        sessionId={sessionId}
-        userId={me.id}
-        defaultValues={paymentDefaults}
-        onSubmit={handleSubmit}
-        isSubmitting={createPaymentIntent.isPending}
-        serverErrors={formErrors}
-      />
-    </CheckoutLayout>
-  )
+    return (
+      <CheckoutLayout currentStep="payment" bag={data.bag}>
+        <div className="mb-6 flex items-center justify-between">
+          <StepBackButton fallbackHref="/checkout/shipping" />
+        </div>
+        <AnimatePresence initial={false}>
+          {decodedError && (
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+            >
+              {decodedError}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <CardForm
+          sessionId={sessionId}
+          userId={me.id}
+          defaultValues={paymentDefaults}
+          onSubmit={handleSubmit}
+          isSubmitting={createPaymentIntent.isPending}
+          serverErrors={formErrors}
+        />
+      </CheckoutLayout>
+    );
 }

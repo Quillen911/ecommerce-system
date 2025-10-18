@@ -12,7 +12,6 @@ use App\Services\Payments\PaymentRecorder;
 use App\Services\Payments\PaymentMethodRecorder;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
 use App\Services\Campaigns\CampaignManager;
-
 use Illuminate\Support\Facades\DB;
 
 class OrderPlacementService
@@ -32,20 +31,23 @@ class OrderPlacementService
         return DB::transaction(function () use ($user, $session, $data) {
             $order = $this->orderFactory->create($user, $session);
             $items = $this->orderItemFactory->createMany($order, $session);
+
             $this->inventoryService->decrementForOrderItems($items);
             $this->paymentRecorder->record($order, $session->payment_data);
             $this->PaymentMethodRecorder->store($user, $session->payment_data, $data);
 
-            $bagPayload     = $session->bag_snapshot;
-            $campaignId     = data_get($bagPayload, 'applied_campaign.id');
-            $discountCents  = data_get($bagPayload, 'totals.discount_cents', 0);
-            
-            $this->campaign->logUsage(
-                $campaignId,
-                $user->id,
-                $order->id,
-                $discountCents
-            );
+            $bagPayload    = $session->bag_snapshot;
+            $campaignId    = data_get($bagPayload, 'applied_campaign.id');
+            $discountCents = (int) data_get($bagPayload, 'totals.discount_cents', 0);
+
+            if ($campaignId) {
+                $this->campaign->logUsage(
+                    $campaignId,
+                    $user->id,
+                    $order->id,
+                    $discountCents
+                );
+            }
 
             $bag = $this->bagRepository->getBag($user);
             $this->bagRepository->clearBagItems($bag);

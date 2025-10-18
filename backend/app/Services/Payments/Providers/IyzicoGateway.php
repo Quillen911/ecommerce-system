@@ -8,6 +8,7 @@ use App\Models\PaymentProvider;
 use App\Models\User;
 use App\Services\Payments\Contracts\PaymentGatewayInterface;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 //Iyzipay kütüphanesi
 use Iyzipay\Options;
@@ -160,11 +161,12 @@ class IyzicoGateway implements PaymentGatewayInterface
 
 
         if (!empty($data['requires_3ds']) && $data['requires_3ds'] === true) {
+            
             $initialize = ThreedsInitialize::create($request, $this->options);
 
             if ($initialize->getStatus() !== 'success') {
                 throw new \RuntimeException(
-                    $initialize->getErrorMessage() ?? '3D ödeme isteği oluşturulamadı.',
+                    $payload['localeMessage'] ?? $payload['message'] ?? $payload['errorMessage'] ?? '3D ödeme isteği oluşturulamadı.',
                     (int) $initialize->getErrorCode()
                 );
             }
@@ -181,9 +183,11 @@ class IyzicoGateway implements PaymentGatewayInterface
                 'three_ds_html'   => $initialize->getHtmlContent(),
                 'raw'             => $initialize->getRawResult(),
             ];
-        } else {
-
+           
+        }
+         else {
             $payment = Payment::create($request, $this->options);
+
             if ($payment->getStatus() !== 'success') {
                 throw new \RuntimeException(
                     $payment->getErrorMessage() ?? 'Ödeme başarısız.',

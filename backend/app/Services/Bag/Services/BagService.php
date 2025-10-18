@@ -169,8 +169,6 @@ class BagService implements BagInterface
             ]);
         }
 
-        $this->campaignManager->touchUsage($campaign);
-
         $result   = $handler->calculateDiscount($bagItems->all());
         $discount = $result['discount_cents'] ?? 0;
 

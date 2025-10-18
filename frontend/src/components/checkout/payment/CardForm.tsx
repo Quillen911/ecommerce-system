@@ -177,7 +177,7 @@ export function CardForm({
           <div className="space-y-6 rounded-2xl border border-color bg-card p-6 shadow-sm">
             <h3 className="text-sm font-semibold text-muted-foreground">Kart Bilgileri</h3>
 
-            <Input label="Kart Sahibinin Adı" value={formState.card_holder_name} onChange={(v) => handleChange("card_holder_name", v.toUpperCase())} error={resolveError("card_holder_name")} />
+            <Input label="Kart Sahibinin Adı" value={formState.card_holder_name} onChange={(v) => handleChange("card_holder_name", v)} error={resolveError("card_holder_name")} />
             <Input label="Kart Numarası" placeholder="0000 0000 0000 0000" value={formState.card_number} onChange={(v) => handleChange("card_number", v)} error={resolveError("card_number")} />
 
             <div className="grid grid-cols-2 gap-4">
