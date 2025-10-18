@@ -17,7 +17,6 @@ export default function Header() {
 
   const handleCartClick = () => router.push("/bag");
 
-  // ✅ Menü açıldığında body scroll devre dışı
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -32,18 +31,15 @@ export default function Header() {
   return (
     <header className="bg-[var(--main-bg)] text-[var(--text)] sticky top-0 z-50 border-b border-neutral-800">
       <div className="max-w-[1800px] mx-auto px-4 md:px-10">
-        {/* Üst Satır */}
         <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center">
             <Logo />
           </div>
 
-          {/* Masaüstü: Kategoriler */}
           <div className="hidden md:flex flex-1 justify-center pl-[15%]">
             <CategoryDropdown />
           </div>
 
-          {/* Sağ taraf */}
           <div className="flex items-center space-x-2 md:space-x-3">
             <div className="hidden md:block">
               <SearchBar />
@@ -52,7 +48,6 @@ export default function Header() {
             <CartButton onClick={handleCartClick} />
             <UserMenu user={user} isLoading={isLoading} />
 
-            {/* Mobil Menü Butonu */}
             <button
               aria-label="Menü"
               className="md:hidden flex flex-col justify-center items-center space-y-[5px] relative w-8 h-8"
@@ -77,7 +72,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobil Menü Açılır Alan */}
         {mobileOpen && (
           <div className="md:hidden fixed inset-x-0 top-16 bg-neutral-900 text-white py-6 px-6 space-y-6 border-t border-neutral-700 animate-fadeIn overflow-y-auto max-h-[calc(100vh-4rem)]">
             <CategoryDropdown isMobile />

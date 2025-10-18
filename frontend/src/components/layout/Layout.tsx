@@ -3,7 +3,7 @@
 import { QueryProvider } from "@/providers/QueryProvider";
 import { CategoryProvider } from "@/contexts/CategoryContext";
 import ConditionalHeader from "@/components/header/ConditionalHeader";
-import Footer from "@/components/footer/Footer";
+import CondFooter from "@/components/footer/CondFooter";
 import { Toaster } from "sonner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {children}
           </main>
 
-          <Footer />
+          <CondFooter />
         </CategoryProvider>
       </QueryProvider>
     </>

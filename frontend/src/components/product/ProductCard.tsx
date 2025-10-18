@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-
 import ProductImageGallery from "@/components/ui/ProductImageGallery"
 import { Product, ProductVariant } from "@/types/seller/product"
 
@@ -31,7 +30,7 @@ export default function ProductCard({ product, variant }: ProductCardProps) {
       ...image,
       image: image.image ?? undefined,
     })) ?? undefined
-    
+
   const remainingStock =
     variant.sizes?.reduce(
       (sum, size) => sum + (size.inventory?.available ?? 0),
@@ -42,42 +41,51 @@ export default function ProductCard({ product, variant }: ProductCardProps) {
     remainingStock > 0 && remainingStock < 5
       ? `Sadece ${remainingStock} adet kaldı`
       : null
+
   const variantName = variant.color_name + " " + product.title
+
   return (
-    <div className="p-4 cursor-pointer">
-      <div className="w-full h-100 overflow-hidden flex items-center justify-center">
+    <div className="p-3 sm:p-4 cursor-pointer w-full max-w-sm mx-auto">
+      <div className="w-full aspect-[3/4] overflow-hidden flex items-center justify-center bg-gray-50 rounded-lg">
         <ProductImageGallery
           images={galleryImages}
           alt={product.title}
-          className="object-contain w-full h-120"
+          className="object-contain w-full h-full"
           onClick={() => handleProductDetail(variant.slug)}
         />
       </div>
-       
-      <div className="mt-3 space-y-1">
+
+      <div className="mt-3 space-y-1 sm:space-y-2 text-center sm:text-left">
         {lowStockMessage && (
-          <p className="text-sm font-semibold text-red-600">
+          <p className="text-xs sm:text-sm font-semibold text-red-600">
             {lowStockMessage}
           </p>
         )}
         {variant.is_popular && (
-          <span className="text-red-600 text-sm font-semibold">En Çok Satan</span>
+          <span className="block text-xs sm:text-sm text-red-600 font-semibold">
+            En Çok Satan
+          </span>
         )}
-        
-        <h3 className="font-semibold line-clamp-2">{variantName}</h3>
-        
-        <div className="flex gap-2 mt-2">
+
+        <h3 className="font-semibold text-sm sm:text-base line-clamp-2">
+          {variantName}
+        </h3>
+
+        <div className="flex gap-2 justify-center sm:justify-start mt-2">
           <span
-            className={`w-6 h-6 rounded-full border-2 ${colorMap[variant.color_code] || "bg-gray-300"}`}
+            className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 ${colorMap[variant.color_code] || "bg-gray-300"}`}
             title={variant.color_name}
             style={{ backgroundColor: variant.color_code }}
           />
         </div>
-        <p className="text-sm text-gray-500">
+
+        <p className="text-xs sm:text-sm text-gray-500">
           {product.category?.parent?.title} / {product.category?.gender?.title}
         </p>
-        
-        <p className="font-bold text-lg">₺{(variant.price_cents / 100).toFixed(2)}</p>
+
+        <p className="font-bold text-base sm:text-lg">
+          ₺{(variant.price_cents / 100).toFixed(2)}
+        </p>
       </div>
     </div>
   )

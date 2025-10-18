@@ -4,10 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useMySeller } from '@/hooks/seller/useSellerAuthQuery'
-import {
-  useProductList,
-  useDeleteProduct,
-} from '@/hooks/seller/useProductQuery'
+import { useProductList, useDeleteProduct } from '@/hooks/seller/useProductQuery'
 import ProductListHeader from '@/components/seller/product/list/ProductListHeader'
 import ProductGrid from '@/components/seller/product/list/ProductGrid'
 import { ProductDrawer } from '@/components/seller/product/ProductDrawer'
@@ -26,7 +23,6 @@ export default function ProductPage() {
   const deleteMutation = useDeleteProduct(sellerId)
   const [drawerState, setDrawerState] = useState<{ open: boolean; product?: Product }>({ open: false })
   const [confirmState, setConfirmState] = useState<{ open: boolean; product?: Product }>({ open: false })
-
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
@@ -35,7 +31,7 @@ export default function ProductPage() {
 
   if (!hydrated) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6 px-3 sm:px-6">
         <ProductListHeader total={0} onCreate={() => {}} disabled />
         <LoadingState label="Ürünler yükleniyor..." />
       </div>
@@ -43,14 +39,10 @@ export default function ProductPage() {
   }
 
   const handleOpenCreate = () => setDrawerState({ open: true })
-  const handleOpenEdit = (product: Product) =>
-    setDrawerState({ open: true, product })
+  const handleOpenEdit = (product: Product) => setDrawerState({ open: true, product })
   const handleCloseDrawer = () => setDrawerState({ open: false })
-
   const handleView = (productId: number) => router.push(`/seller/product/${productId}`)
-
-  const handleAskDelete = (product: Product) =>
-    setConfirmState({ open: true, product })
+  const handleAskDelete = (product: Product) => setConfirmState({ open: true, product })
   const handleCancelDelete = () => setConfirmState({ open: false })
 
   const handleConfirmDelete = async () => {
@@ -69,12 +61,8 @@ export default function ProductPage() {
 
   if (!products.length) {
     return (
-      <>
-        <ProductListHeader
-          total={0}
-          onCreate={handleOpenCreate}
-          disabled={!sellerId}
-        />
+      <div className="px-3 sm:px-6 space-y-6">
+        <ProductListHeader total={0} onCreate={handleOpenCreate} disabled={!sellerId} />
         <EmptyState
           title="Henüz ürün yok"
           description="Yeni ürün ekleyerek vitrinini oluştur."
@@ -88,24 +76,22 @@ export default function ProductPage() {
           sellerId={sellerId}
           onClose={handleCloseDrawer}
         />
-      </>
+      </div>
     )
   }
 
   return (
-    <>
-      <ProductListHeader
-        total={products.length}
-        onCreate={handleOpenCreate}
-        disabled={!sellerId}
-      />
+    <div className="p-3 sm:p-6 md:p-10 space-y-6 sm:space-y-10">
+      <ProductListHeader total={products.length} onCreate={handleOpenCreate} disabled={!sellerId} />
 
-      <ProductGrid
-        products={products}
-        onView={handleView}
-        onEdit={handleOpenEdit}
-        onDelete={handleAskDelete}
-      />
+      <div className="overflow-x-auto">
+        <ProductGrid
+          products={products}
+          onView={handleView}
+          onEdit={handleOpenEdit}
+          onDelete={handleAskDelete}
+        />
+      </div>
 
       <ProductDrawer
         isOpen={drawerState.open}
@@ -124,6 +110,6 @@ export default function ProductPage() {
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />
-    </>
+    </div>
   )
 }

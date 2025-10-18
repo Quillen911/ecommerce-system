@@ -113,7 +113,7 @@ export default function BagPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)] p-4 sm:p-6">
-      <h1 className="mb-6 text-2xl font-bold text-white animate-fadeIn">
+      <h1 className="mb-6 text-2xl font-bold text-black animate-fadeIn">
         Sepetiniz
       </h1>
 

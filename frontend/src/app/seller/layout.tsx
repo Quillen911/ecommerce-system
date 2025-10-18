@@ -1,8 +1,9 @@
-import ConditionalSideBar from "./conditionalSideBar";
+import ConditionalSideBar from "./conditionalSideBar"
 
 export const metadata = {
-  title: "Seller",
-};
+  title: "Seller Panel",
+  description: "Satıcı yönetim paneli — ürün, sipariş ve kampanya işlemlerinizi buradan yönetin.",
+}
 
 export default function SellerRootLayout({
   children,

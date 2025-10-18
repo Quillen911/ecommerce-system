@@ -2,7 +2,7 @@
 
 import type { ProductVariant } from '@/types/seller/product'
 import VariantRowActions from './VariantRowActions'
-import  ProductImage  from '@/components/ui/ProductImage'
+import ProductImage from '@/components/ui/ProductImage'
 
 type VariantTableProps = {
   productId: number
@@ -12,7 +12,6 @@ type VariantTableProps = {
   onManageImages: (variant: ProductVariant) => void
   onDelete: (variant: ProductVariant) => void
 }
-
 
 export default function VariantTable({
   productId,
@@ -29,8 +28,9 @@ export default function VariantTable({
       </div>
     )
   }
+
   return (
-    <section className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+    <section className="rounded-3xl border border-gray-200 bg-white shadow-sm">
       <header className="border-b border-gray-200 px-6 py-4">
         <h3 className="text-lg font-semibold text-gray-900">Varyantlar</h3>
         <p className="text-xs text-gray-500">
@@ -38,7 +38,8 @@ export default function VariantTable({
         </p>
       </header>
 
-      <div className="overflow-x-auto">
+      {/* Masaüstü tablo */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-100 text-left text-sm text-gray-600">
           <thead className="bg-gray-50">
             <tr>
@@ -54,9 +55,9 @@ export default function VariantTable({
           <tbody className="divide-y divide-gray-100">
             {variants.map((variant) => {
               const primaryImage = variant.images?.[0]?.image ?? null
-              const sizesText = variant.sizes
-                ?.map((size) => `${size.size_option.value} (${size.inventory?.on_hand ?? 0})`)
-                .join(', ') || 'Beden yok'
+              const sizesText =
+                variant.sizes?.map((s) => `${s.size_option.value} (${s.inventory?.on_hand ?? 0})`).join(', ') ||
+                'Beden yok'
 
               return (
                 <tr key={variant.id} className="hover:bg-gray-50">
@@ -76,9 +77,7 @@ export default function VariantTable({
                   <td className="px-6 py-4 font-medium text-gray-900">{variant.sku ?? '—'}</td>
                   <td className="px-6 py-4">{variant.color_name ?? '—'}</td>
                   <td className="px-6 py-4">
-                    ₺{((variant.price_cents ?? 0) / 100).toLocaleString('tr-TR', {
-                      minimumFractionDigits: 2,
-                    })}
+                    ₺{((variant.price_cents ?? 0) / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
                   </td>
                   <td className="px-6 py-4 text-xs text-gray-500">{sizesText}</td>
                   <td className="px-6 py-4">
@@ -95,6 +94,49 @@ export default function VariantTable({
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobil görünüm - kart listesi */}
+      <div className="block md:hidden divide-y divide-gray-200">
+        {variants.map((variant) => {
+          const primaryImage = variant.images?.[0]?.image ?? null
+          const sizesText =
+            variant.sizes?.map((s) => `${s.size_option.value} (${s.inventory?.on_hand ?? 0})`).join(', ') ||
+            'Beden yok'
+
+          return (
+            <div key={variant.id} className="p-4 flex gap-3 items-center">
+              <div className="flex-shrink-0">
+                {primaryImage ? (
+                  <ProductImage
+                    product={primaryImage}
+                    className="h-14 w-14 rounded-xl bg-gray-100 object-cover"
+                    alt={variant.color_name}
+                  />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 text-[10px] text-gray-400">
+                    Görsel
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col flex-1">
+                <span className="text-sm font-semibold text-gray-900">{variant.color_name ?? '—'}</span>
+                <span className="text-xs text-gray-500">{variant.sku ?? '—'}</span>
+                <span className="text-xs text-gray-700 mt-1">{sizesText}</span>
+                <span className="text-sm font-medium text-gray-900 mt-1">
+                  ₺{((variant.price_cents ?? 0) / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <VariantRowActions
+                variant={variant}
+                onEdit={onEdit}
+                onManageImages={onManageImages}
+                onManageSizes={onManageSizes}
+                onDelete={onDelete}
+              />
+            </div>
+          )
+        })}
       </div>
     </section>
   )

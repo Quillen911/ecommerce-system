@@ -32,7 +32,7 @@ export default function CampaignsPage() {
           <h1 className="text-2xl font-semibold text-base-content">Kampanyalar</h1>
         </div>
         <div className="flex items-center gap-3">
-          <button className="btn btn-primary text-black bg-white hover:bg-black hover:text-white transition duration-300 w-full p-3 rounded-full cursor-pointer" onClick={handleNew}>
+          <button className="btn btn-primary text-black bg-gray-100 hover:bg-black hover:text-white transition duration-300 w-full p-3 rounded-full cursor-pointer" onClick={handleNew}>
             Yeni Kampanya
           </button>
         </div>

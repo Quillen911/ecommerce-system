@@ -43,7 +43,6 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
     return [arr.slice(0, size), arr.slice(size, 2 * size), arr.slice(2 * size)];
   };
 
-  // ✅ Mobil görünüm
   if (isMobile) {
     return (
       <div className="flex flex-col gap-5">
@@ -74,7 +73,6 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
     );
   }
 
-  // ✅ Masaüstü görünüm
   return (
     <div className="relative" onMouseLeave={() => setActive(null)}>
       <div className="flex justify-center gap-8 py-4">

@@ -296,7 +296,6 @@ class ElasticsearchService
                 ]
             ];
             $response = $this->client->search($params);
-            Log::info('ES Query Params', $params);
             return [
                 'hits' => $response['hits']['hits'],
                 'total' => $response['hits']['total']['value'],
