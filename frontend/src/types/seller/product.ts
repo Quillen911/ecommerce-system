@@ -98,7 +98,7 @@ export interface UpdateProductVariantResponse {
 export interface StoreProductVariantSizeRequest {
     size_option_id: number
     price_cents: number
-    inventory: StoreProductVariantSizeInventoryRequest
+    inventory: StoreProductVariantSizeInventoryRequest[]
 }
   
 export interface StoreProductVariantSizeResponse {
@@ -108,7 +108,7 @@ export interface StoreProductVariantSizeInventoryRequest {
     warehouse_id: number | null
     on_hand: number
     reserved: number | null
-    min_stock_level?: number | null
+    min_stock_level: number | null
 }
 //Image
 
@@ -161,8 +161,6 @@ export interface UpdateProductVariantRequest {
     price_cents?: number
     is_popular?: boolean
     is_active?: boolean
-    images?: File[]
-    sizes?: UpdateProductVariantSizeRequest[]
 }
 
 export interface UpdateProductVariantSizeRequest {

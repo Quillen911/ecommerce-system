@@ -13,6 +13,7 @@ import type { ShippingFormValues } from "@/schemas/checkout/shippingSchema"
 import { useCheckoutSession } from "@/hooks/checkout/useCheckoutSession"
 import { useUpdateShipping } from "@/hooks/checkout/useShippingOptions"
 import { useMe } from "@/hooks/useAuthQuery"
+import LoadingState from "@/components/ui/LoadingState"
 
 export default function ShippingStepPage() {
   const searchParams = useSearchParams()
@@ -69,7 +70,7 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
   if (meLoading) {
     return (
       <CheckoutLayout currentStep="shipping">
-        <div className="py-12 text-center text-muted-foreground">Yükleniyor…</div>
+        <LoadingState label="Yükleniyor…" />
       </CheckoutLayout>
     )
   }
@@ -90,7 +91,7 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
   if (isLoading) {
     return (
       <CheckoutLayout currentStep="shipping">
-        <div className="py-12 text-center text-muted-foreground">Yükleniyor…</div>
+        <LoadingState label="Teslimat bilgileri yükleniyor..." />
       </CheckoutLayout>
     )
   }

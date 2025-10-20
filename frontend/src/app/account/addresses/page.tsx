@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useUserAddressDestroy, useUserAddressIndex, useUserAddressUpdate, useUserAddressStore } from '@/hooks/useUserAddressQuery'
 import { useMe } from '@/hooks/useAuthQuery'
 import AddressForm from '@/components/forms/AddressForm'
+import LoadingState from '@/components/ui/LoadingState'
 
 export default function AddressesPage() {
   const { data: me } = useMe()
@@ -34,12 +35,7 @@ export default function AddressesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="flex items-center space-x-2 text-gray-600">
-          <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
-          <span className="text-base sm:text-lg">Adresler yükleniyor...</span>
-        </div>
-      </div>
+      <LoadingState label="Adresler yükleniyor..." />
     )
   }
 

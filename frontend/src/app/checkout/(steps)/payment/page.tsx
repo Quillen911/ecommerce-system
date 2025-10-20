@@ -15,6 +15,7 @@ import { useCreatePaymentIntent } from "@/hooks/checkout/usePaymentMethods"
 
 import type { CreatePaymentIntentRequest } from "@/types/checkout"
 import { AnimatePresence, motion } from "framer-motion"
+import LoadingState from "@/components/ui/LoadingState"
 
 type AxiosErrorLike = {
   isAxiosError: boolean
@@ -96,7 +97,7 @@ function PaymentContent({ sessionId, errorMessage }: { sessionId: string; errorM
   if (meLoading || isLoading) {
     return (
       <CheckoutLayout currentStep="payment">
-        <div className="py-12 text-center text-muted-foreground">Yükleniyor…</div>
+        <LoadingState label="Ödeme sayfası yükleniyor..." />
       </CheckoutLayout>
     )
   }

@@ -10,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import LoadingState from '@/components/ui/LoadingState'
 
 export default function CategoryFilter({ isOpen }: { isOpen: boolean, handleOpen: () => void, handleClose: () => void }) {
   const { data: mainData, isLoading, error } = useMainData()
@@ -42,11 +43,7 @@ export default function CategoryFilter({ isOpen }: { isOpen: boolean, handleOpen
     router.push(`?${params.toString()}`)
   }
 
-  if (isLoading) return (
-    <div className="min-h-screen">
-      <p className="text-center text-2xl font-bold justify-start items-start">Yükleniyor...</p>
-    </div>
-  )
+  if (isLoading) return <LoadingState label="Yükleniyor…" />
   if (error) return null
   
   const categories = [

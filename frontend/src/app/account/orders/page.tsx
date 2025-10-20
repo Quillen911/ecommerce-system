@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useMe } from '@/hooks/useAuthQuery'
 import { useOrder } from '@/hooks/useOrderQuery'
 import OrdersList from '@/components/order/OrderList'
+import LoadingState from '@/components/ui/LoadingState'
 
 export default function OrdersPage() {
   const { data: me } = useMe()
@@ -10,12 +11,7 @@ export default function OrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="flex items-center space-x-2 text-gray-600">
-          <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
-          <span className="text-base sm:text-lg">Siparişler yükleniyor...</span>
-        </div>
-      </div>
+      <LoadingState label="Siparişler yükleniyor..." />
     )
   }
 

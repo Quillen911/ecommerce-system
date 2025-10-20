@@ -3,6 +3,7 @@
 import ProductDetail from "@/components/product/productDetail/ProductDetail"
 import { useParams } from "next/navigation"
 import { useProductDetail } from "@/hooks/useVariantQuery"
+import LoadingState from "@/components/ui/LoadingState"
 
 export default function ProductDetailPage() {
   const { slug } = useParams()
@@ -10,9 +11,7 @@ export default function ProductDetailPage() {
 
   if (isLoading)
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
-        <p className="text-2xl font-bold text-gray-700 animate-pulse">Yükleniyor...</p>
-      </div>
+      <LoadingState label="Yükleniyor…" />
     )
 
   if (error)

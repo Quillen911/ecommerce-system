@@ -8,6 +8,7 @@ import { SuccessInfoCard } from "@/components/checkout/success/SuccessInfoCard"
 import { OrderSummary } from "@/components/checkout/review/OrderSummary"
 import { useMe } from "@/hooks/useAuthQuery"
 import { useCheckoutSession } from "@/hooks/checkout/useCheckoutSession"
+import LoadingState from "@/components/ui/LoadingState"
 
 export default function SuccessPage() {
   const searchParams = useSearchParams()
@@ -46,7 +47,7 @@ function SuccessContent({ sessionId }: { sessionId: string }) {
   if (meLoading || isLoading) {
     return (
       <CheckoutLayout currentStep="success" showSummary={false}>
-        <div className="py-12 text-center text-muted-foreground">Yükleniyor…</div>
+        <LoadingState label="Yükleniyor…" />
       </CheckoutLayout>
     )
   }

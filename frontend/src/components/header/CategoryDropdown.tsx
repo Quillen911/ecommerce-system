@@ -75,7 +75,7 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
 
   return (
     <div className="relative" onMouseLeave={() => setActive(null)}>
-      <div className="flex justify-center gap-8 py-4">
+      <div className="flex justify-center gap-8 py-5">
         {genderColumns.map((col) => (
           <div key={col.id}>
             <button
@@ -97,7 +97,7 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
           className="fixed left-0 top-[64px] w-screen bg-[#111] text-gray-200 z-50 border-t border-neutral-800 shadow-2xl animate-fadeSlideDown"
           onMouseEnter={() => setActive(active)}
         >
-          <div className="max-w-[1400px] mx-auto px-[8vw] py-10">
+          <div className="max-w-[1400px] mx-auto px-[8vw] py-5">
             <div
               key={active}
               className="grid grid-cols-3 gap-12 animate-fadeSlideDown"

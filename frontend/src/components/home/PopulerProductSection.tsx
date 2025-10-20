@@ -7,6 +7,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 import { useRouter } from 'next/navigation'
 import 'swiper/css'
 import 'swiper/css/navigation'
+import LoadingState from '@/components/ui/LoadingState'
 
 export interface PopulerProductSectionProps {
   className?: string
@@ -22,7 +23,7 @@ export default function PopulerProductSection({ className }: PopulerProductSecti
 
   const populerProductVariants = mainData?.products
 
-  if (isLoading) return <p>Yükleniyor...</p>
+  if (isLoading) return <LoadingState label="Yükleniyor…" />
   if (error) return <p>Hata oluştu</p>
 
   return (

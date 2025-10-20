@@ -4,6 +4,7 @@ import { useCategoryProducts } from "@/hooks/useSearchQuery"
 import { useParams } from "next/navigation"
 import ProductCard from "./ProductCard"
 import { motion } from "framer-motion"
+import LoadingState from '@/components/ui/LoadingState'
 
 export default function ProductList() {
   const { category } = useParams()
@@ -13,9 +14,7 @@ export default function ProductList() {
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <p className="text-lg sm:text-2xl font-bold animate-pulse text-gray-700">
-          Yükleniyor...
-        </p>
+        <LoadingState label="Yükleniyor…" />
       </div>
     )
   }

@@ -1,5 +1,6 @@
 'use client'
 import { useMainData } from '@/hooks/useMainQuery'
+import LoadingState from '@/components/ui/LoadingState'
 
 export interface CampaignBannerProps {
   className?: string
@@ -8,8 +9,10 @@ export interface CampaignBannerProps {
 export default function CampaignBanner({ className }: CampaignBannerProps) {
   const { data: mainData, isLoading, error } = useMainData()
 
-  if (error) return null
-  if (isLoading) return null
+  if (error) return <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+    <p className="text-2xl font-bold text-red-600">Bir hata oluştu</p>
+  </div>
+  if (isLoading) return <LoadingState label="Yükleniyor…" />
 
   const campaigns = mainData?.campaigns || []
   if (campaigns.length === 0) return null

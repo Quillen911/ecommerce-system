@@ -6,6 +6,7 @@ import { motion } from "framer-motion"
 import { useUserAddressIndex, useUserAddressStore } from "@/hooks/useUserAddressQuery"
 import type { UserAddress, AddressStoreRequest } from "@/types/userAddress"
 import AddressFormModal from "./AddressFormModal"
+import LoadingState from "@/components/ui/LoadingState"
 
 interface AddressSelectorProps {
   userId: number
@@ -39,12 +40,7 @@ export default function AddressSelector({ userId, onSelect, selectedAddressId }:
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex items-center space-x-3 text-gray-600">
-          <div className="w-6 h-6 border-2 border-gray-300 border-top-black rounded-full animate-spin" />
-          <span className="text-lg">Adresler yükleniyor...</span>
-        </div>
-      </div>
+      <LoadingState label="Adresler yükleniyor…" />
     )
   }
 
