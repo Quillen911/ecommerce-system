@@ -1,5 +1,6 @@
 import axios from "axios"
 import { OrderItem } from "@/types/order"
+import { SellerRefundItemRequest } from "@/types/seller/sellerOrder"
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -25,5 +26,5 @@ export const orderApi = {
     index: () => api.get<OrderItem[]>('/seller/order'),
     show: (id: number) => api.get<OrderItem>(`/seller/order/${id}`),
     confirmOrderItem: (id: number) => api.post(`/seller/order/${id}/confirm`),
-    refundOrderItem: (id: number) => api.post(`/seller/order/${id}/refund`),
+    refundOrderItem: (id: number, payload: SellerRefundItemRequest) => api.post(`/seller/orderitem/${id}/refund`, payload),
 }

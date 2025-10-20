@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { orderApi } from "@/lib/api/seller/orderApi"
+import { SellerRefundItemRequest } from "@/types/seller/sellerOrder"
 
 type ApiErrorBody = {
   message?: string
@@ -46,3 +47,16 @@ export const useOrderDetail = (orderId: number, sellerId?: number) =>
     staleTime: 5 * 60_000,
     retry: 1,
   })
+
+export const useOrderRefund = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ orderId, payload }: { orderId: number; payload: SellerRefundItemRequest }) => {
+      await orderApi.refundOrderItem(orderId, payload);
+    },
+    onSuccess: (_data, { orderId }) => {
+      qc.invalidateQueries({ queryKey: sellerOrderKeys.detail(orderId) });
+    },
+  });
+};

@@ -54,7 +54,7 @@ export default function SellerShell({ children }: { children: React.ReactNode })
             <h2 className="text-xl font-bold text-gray-900">Menü</h2>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="text-gray-600 text-2xl font-bold"
+              className="text-gray-600 text-2xl font-bold cursor-pointer"
             >
               ✕
             </button>
@@ -90,7 +90,7 @@ export default function SellerShell({ children }: { children: React.ReactNode })
                 <button
                   onClick={() => handleLinkClick(item.href)}
                   className={`
-                    w-full text-left relative flex items-center py-3 px-4 rounded-lg transition-all duration-200 group
+                    w-full text-left relative flex items-center py-3 px-4 rounded-lg transition-all duration-200 group cursor-pointer
                     ${isActive(item.href)
                       ? "text-black bg-gray-100 font-bold text-lg"
                       : "text-gray-700 hover:bg-gray-50 hover:text-black hover:scale-105"}

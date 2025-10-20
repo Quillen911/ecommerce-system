@@ -9,6 +9,8 @@ import LoadingState from '@/components/ui/LoadingState'
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import ProductImage from "@/components/ui/ProductImage";
+import { OrderItem } from "@/types/order";
+import RefundModal from "@/components/seller/order/RefundModal";
 
 const formatCents = (value?: number | null) =>
   typeof value === "number" ? (value / 100).toLocaleString("tr-TR", { style: "currency", currency: "TRY" }) : "—";
@@ -19,15 +21,23 @@ const formatDate = (iso?: string | null) =>
 export default function OrderDetail() {
   const params = useParams<{ id: string }>();
   const orderId = Number(params.id);
-  const { data: orderItem, isLoading, isError } = useOrderDetail(orderId);
+  const { data: orderItem, isLoading: isDetailLoading, isError } = useOrderDetail(orderId);
   const router = useRouter()
 
   const [isMounted, setIsMounted] = useState(false);
-
+  const [refundState, setRefundState] = useState<{open:boolean; item:OrderItem |null}>({
+    open:false,
+    item:null,
+  })
+  const openRefundModal = (item:OrderItem) => setRefundState({ open:true, item});
+  const closeRefundModal = () => setRefundState({ open:false, item:null});
+  const checkRefundable = (item:OrderItem) => {
+    return item.quantity > (item.refunded_quantity ?? 0);
+  }
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
+  
   const selectedVariant = useMemo(() => {
     if (!orderItem?.product?.variants?.length) return undefined;
 
@@ -59,7 +69,7 @@ export default function OrderDetail() {
   }
 
 
-  if (isLoading) {
+  if (isDetailLoading) {
     return (
         <div className="space-y-6">
             <LoadingState label="Sipariş detayları yükleniyor..." />
@@ -98,8 +108,8 @@ export default function OrderDetail() {
 
   const variant = selectedVariant?.variant;
   const size = selectedVariant?.size;
-    console.log(selectedVariant, orderItem );
   const mainImage = variant?.images?.[0]?.image ;
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
@@ -118,14 +128,14 @@ export default function OrderDetail() {
               <FiTruck className="h-4 w-4 text-gray-500" />
               Durum:{" "}
               <span className="font-medium text-gray-900">
-                {orderItem.status ?? "Bilinmiyor"}
+                {orderItem.status == "refunded" ? "İade Edildi" : orderItem.status == 'confirmed' ? "Onaylandı" : orderItem.status == 'shipped' ? "Gönderildi" : "Bekliyor"}
               </span>
             </span>
             <span className="inline-flex items-center gap-2">
               <FiDollarSign className="h-4 w-4 text-gray-500" />
               Ödeme:{" "}
               <span className="font-medium text-gray-900">
-                {orderItem.payment_status ?? "—"}
+                {orderItem.payment_status == "refunded" ? "İade Edildi" : "Ödendi"}
               </span>
             </span>
             <span className="inline-flex items-center gap-2">
@@ -247,6 +257,26 @@ export default function OrderDetail() {
               </pre>
             </div>
           )}
+          {checkRefundable(orderItem) && (
+          <div className="flex items-center justify-center">
+            <button
+              className="rounded-md  bg-[var(--danger)] py-2 px-6 text-white cursor-pointer"
+              onClick={() => orderItem && openRefundModal(orderItem)}
+            >
+              İade Et
+            </button>
+          </div>
+          )}
+          {!checkRefundable(orderItem) && (
+            <div className="mt-4 flex items-center justify-center rounded-xl bg-black p-3">
+            <p className="text-lg text-white">{orderItem.quantity - (orderItem.refunded_quantity ?? 0) == 0 ? "Tümü İade Edildi" : `${orderItem.quantity - (orderItem.refunded_quantity ?? 0)} Adet İade Edilebilir`}</p>
+            </div>
+          )}
+          <RefundModal
+            open={refundState.open}
+            orderItem={refundState.item}
+            onClose={closeRefundModal}
+          />
         </div>
       </div>
     </div>

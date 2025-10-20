@@ -9,6 +9,7 @@ type ConfirmDialogProps = {
   loading?: boolean
   onConfirm: () => void
   onCancel: () => void
+  children?: React.ReactNode
 }
 
 export default function ConfirmDialog({
@@ -20,6 +21,7 @@ export default function ConfirmDialog({
   loading,
   onConfirm,
   onCancel,
+  children,
 }: ConfirmDialogProps) {
   if (!open) return null
 
@@ -30,7 +32,9 @@ export default function ConfirmDialog({
         {description && (
           <p className="mt-2 text-sm text-gray-600">{description}</p>
         )}
-
+        {children && (
+          <div className="mt-4">{children}</div>
+        )}
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
