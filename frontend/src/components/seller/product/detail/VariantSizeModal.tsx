@@ -93,13 +93,19 @@ export default function VariantSizeModal({
         variantId: variant.id,
         size_option_id: Number(values.size_option_id),
         price_cents: Number(values.price_cents),
-        inventory: {
-          on_hand: Number(values.on_hand),
-          reserved: Number(values.reserved ?? 0),
-          warehouse_id: values.warehouse_id ? Number(values.warehouse_id) : null,
-          min_stock_level: Number(values.min_stock_level ?? 0),
-        },
-      })
+        inventory: [
+          {
+            on_hand: Number(values.on_hand),
+            reserved: values.reserved != null ? Number(values.reserved) : 0,
+            warehouse_id:
+              values.warehouse_id != null
+                ? Number(values.warehouse_id)
+                : null,
+            min_stock_level:
+              values.min_stock_level != null ? Number(values.min_stock_level) : 0,
+          },
+        ],
+      });
 
       reset()
       await onUpdated()

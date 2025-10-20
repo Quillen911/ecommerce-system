@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import StatusBadge from '@/components/ui/StatusBadge'
 import type { Product } from '@/types/seller/product'
 
@@ -10,6 +11,16 @@ type ProductSummaryProps = {
 export default function ProductSummary({ product }: ProductSummaryProps) {
   const primaryVariant = product.variants?.[0]
   const primaryImage = primaryVariant?.images?.[0]?.image_url ?? null
+
+  const [formattedDate, setFormattedDate] = useState('—')
+
+
+  useEffect(() => {
+    if (product.created_at) {
+      const date = new Date(product.created_at)
+      setFormattedDate(date.toLocaleDateString('tr-TR'))
+    }
+  }, [product.created_at])
 
   return (
     <section className="grid gap-6 rounded-3xl bg-white p-6 shadow-sm lg:grid-cols-[2fr,1fr]">
@@ -23,27 +34,19 @@ export default function ProductSummary({ product }: ProductSummaryProps) {
 
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-              Kategori
-            </dt>
-            <dd className="text-sm text-gray-700">
-              {product.category?.title ?? 'Belirtilmemiş'}
-            </dd>
+            <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">Kategori</dt>
+            <dd className="text-sm text-gray-700">{product.category?.title ?? 'Belirtilmemiş'}</dd>
           </div>
 
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-              Varyant Sayısı
-            </dt>
+            <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">Varyant Sayısı</dt>
             <dd className="text-sm text-gray-700">{product.variants?.length ?? 0}</dd>
           </div>
 
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-              Oluşturulma
-            </dt>
+            <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">Oluşturulma</dt>
             <dd className="text-sm text-gray-700">
-              {new Date(product.created_at).toLocaleDateString('tr-TR')}
+              {formattedDate ? formattedDate : '—'}
             </dd>
           </div>
         </dl>

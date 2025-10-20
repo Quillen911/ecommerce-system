@@ -77,7 +77,7 @@ export default function VariantTable({
                   <td className="px-6 py-4 font-medium text-gray-900">{variant.sku ?? '—'}</td>
                   <td className="px-6 py-4">{variant.color_name ?? '—'}</td>
                   <td className="px-6 py-4">
-                    ₺{((variant.price_cents ?? 0) / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                    ₺{((variant.price_cents ?? 0) / 100).toFixed(2)}
                   </td>
                   <td className="px-6 py-4 text-xs text-gray-500">{sizesText}</td>
                   <td className="px-6 py-4">
@@ -124,7 +124,7 @@ export default function VariantTable({
                 <span className="text-xs text-gray-500">{variant.sku ?? '—'}</span>
                 <span className="text-xs text-gray-700 mt-1">{sizesText}</span>
                 <span className="text-sm font-medium text-gray-900 mt-1">
-                  ₺{((variant.price_cents ?? 0) / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                  ₺{((variant.price_cents ?? 0) / 100).toFixed(2)}
                 </span>
               </div>
               <VariantRowActions

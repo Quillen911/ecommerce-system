@@ -105,8 +105,8 @@ export interface StoreProductVariantSizeResponse {
     data: VariantSize
 }
 export interface StoreProductVariantSizeInventoryRequest {
-    warehouse_id: number | null
     on_hand: number
+    warehouse_id: number | null
     reserved: number | null
     min_stock_level: number | null
 }

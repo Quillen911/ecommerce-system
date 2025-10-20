@@ -1,6 +1,7 @@
 'use client'
+export const dynamic = 'force-dynamic'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import ProductSummary from '@/components/seller/product/detail/ProductSummary'
@@ -8,14 +9,17 @@ import VariantTable from '@/components/seller/product/detail/VariantTable'
 import VariantEditModal from '@/components/seller/product/detail/VariantEditModal'
 import VariantSizeModal from '@/components/seller/product/detail/VariantSizeModal'
 import VariantImageModal from '@/components/seller/product/detail/VariantImageModal'
-import LoadingState from '@/components/ui/LoadingState'
 import EmptyState from '@/components/ui/EmptyState'
 import { useProductDetail, useDeleteVariant } from '@/hooks/seller/useProductQuery'
 import type { Product, ProductVariant } from '@/types/seller/product'
 
+
+
 export default function ProductDetailPage() {
   const router = useRouter()
   const params = useParams<{ id: string }>()
+
+
   const productId = Number(params.id)
   const { data, isLoading, refetch } = useProductDetail(productId)
   const product = data as Product | undefined
@@ -50,7 +54,20 @@ export default function ProductDetailPage() {
 
   const variants = useMemo(() => product?.variants ?? [], [product?.variants])
 
-  if (isLoading) return <LoadingState label="Ürün detayları yükleniyor..." />
+  const [showLoading, setShowLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isLoading) setShowLoading(false)
+  }, [isLoading])
+
+  if (showLoading) {
+    return (
+      <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-10 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-300 border-t-gray-800" />
+        <p className="text-sm text-gray-600">Ürün detayları yükleniyor...</p>
+      </div>
+    )
+  }
 
   if (!product)
     return (
