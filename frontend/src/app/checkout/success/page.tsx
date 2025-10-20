@@ -47,7 +47,9 @@ function SuccessContent({ sessionId }: { sessionId: string }) {
   if (meLoading || isLoading) {
     return (
       <CheckoutLayout currentStep="success" showSummary={false}>
-        <LoadingState label="Yükleniyor…" />
+        <div className="py-12 text-center">
+          <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
+        </div>
       </CheckoutLayout>
     )
   }

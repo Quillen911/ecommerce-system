@@ -8,7 +8,7 @@ use App\Services\Seller\SellerOrderService;
 use App\Http\Resources\Order\OrderItemResource;
 use Illuminate\Support\Facades\Response;
 use App\Http\Requests\Seller\Order\SellerRefundItemRequest;
-
+use Illuminate\Support\Facades\Log;
 class SellerOrderController extends Controller
 {
     public function __construct(
@@ -39,6 +39,7 @@ class SellerOrderController extends Controller
     }
     public function refundOrderItem(SellerRefundItemRequest $request, $id)
     {
+        Log::info($request->validated());
         $result = $this->sellerOrderService->refundSelectedItems($id, $request->validated());
         return Response::json($result);
     }

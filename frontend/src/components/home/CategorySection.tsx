@@ -2,7 +2,6 @@
 import { useMainData } from '@/hooks/useMainQuery'
 import Link from 'next/link'
 import Image from 'next/image'
-import LoadingState from '@/components/ui/LoadingState'
 
 export interface CategoryProps {
   className?: string
@@ -11,7 +10,11 @@ export interface CategoryProps {
 export default function CategorySection({ className }: CategoryProps) {
   const { data: mainData, isLoading, error } = useMainData()
   if (error) return null
-  if (isLoading) return <LoadingState label="Yükleniyor…" />
+  if (isLoading) return (
+    <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+        <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
+    </div>
+  )
 
   const categories = [
     ...new Map(

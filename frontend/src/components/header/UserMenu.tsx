@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { UserIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { UserMenuProps } from '@/types/header'
-import LoadingState from '@/components/ui/LoadingState'
 
 export default function UserMenu({ user, isLoading, className = '' }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,16 +16,12 @@ export default function UserMenu({ user, isLoading, className = '' }: UserMenuPr
     setMounted(true)
   }, [])
 
-  if (!mounted) {
-    return <div>Loading...</div>
+  if (!mounted || isLoading) {
+    return <div className="w-20 h-8 text-white"></div>
   }
 
   const handleLogout = () => {
     logoutMutation.mutate()
-  }
-
-  if (isLoading) {
-    return <LoadingState label="Yükleniyor…" />
   }
 
   if (!user) {

@@ -4,7 +4,6 @@ import { useSearchQuery } from "@/hooks/useSearchQuery"
 import { useSearchParams } from "next/navigation"
 import ProductCard from "./ProductCard"
 import { motion } from "framer-motion"
-import LoadingState from '@/components/ui/LoadingState'
 
 export default function SearchProductList() {
   const searchParams = useSearchParams()
@@ -25,7 +24,7 @@ export default function SearchProductList() {
   if (isLoading)
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <LoadingState label="Yükleniyor…" />
+        <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
       </div>
     )
 

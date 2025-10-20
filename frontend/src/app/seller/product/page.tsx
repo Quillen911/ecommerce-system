@@ -33,7 +33,7 @@ export default function ProductPage() {
     return (
       <div className="space-y-4 sm:space-y-6 px-3 sm:px-6">
         <ProductListHeader total={0} onCreate={() => {}} disabled />
-        <LoadingState label="Ürünler yükleniyor..." />
+        <LoadingState label="Yükleniyor…" />
       </div>
     )
   }
@@ -56,7 +56,9 @@ export default function ProductPage() {
   }
 
   if (isLoading) {
-    return <LoadingState label="Ürünler yükleniyor..." />
+    return (
+      <LoadingState label="Yükleniyor…" />
+    )
   }
 
   if (!products.length) {

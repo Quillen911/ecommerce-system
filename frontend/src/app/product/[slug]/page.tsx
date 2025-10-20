@@ -11,7 +11,9 @@ export default function ProductDetailPage() {
 
   if (isLoading)
     return (
-      <LoadingState label="Yükleniyor…" />
+      <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+        <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
+      </div>
     )
 
   if (error)

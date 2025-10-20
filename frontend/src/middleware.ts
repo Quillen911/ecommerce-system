@@ -23,6 +23,7 @@ export const config = {
   matcher: [
     '/account/:path*',
     '/seller/product/:path*',
-    '/seller',
+    '/seller/campaign/:path*',
+    '/seller/order/:path*',
   ]
 }

@@ -7,7 +7,6 @@ import CategorySection from '@/components/home/CategorySection'
 import PopulerProductSection from '@/components/home/PopulerProductSection'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCategory } from '@/contexts/CategoryContext'
-import LoadingState from '@/components/ui/LoadingState'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
@@ -24,7 +23,9 @@ export default function Home() {
 
   if (!mounted || isLoading) {
     return (
-      <LoadingState />
+      <div className="min-h-screen flex items-center justify-center bg-[var(--main-bg)] text-[var(--text)]">
+        <p>Yükleniyor...</p>
+      </div>
     )
   }
 

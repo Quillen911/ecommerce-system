@@ -57,7 +57,11 @@ export default function ProfilePage() {
 
     if (isLoading) {
         return (
-            <LoadingState label="Profil bilgileri yükleniyor..." />
+            <div className="flex items-center justify-center h-screen">
+                <div className="text-center py-12 sm:py-16 px-4">
+                    <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Profil bilgileri yükleniyor...</p>
+                </div>
+            </div>
         )
     }
 

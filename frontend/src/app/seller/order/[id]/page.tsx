@@ -1,11 +1,9 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import { FiPackage, FiTag, FiHash, FiTruck, FiDollarSign, FiArrowLeft } from "react-icons/fi";
 import { useOrderDetail } from "@/hooks/seller/useOrderQuery";
-import LoadingState from '@/components/ui/LoadingState'
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import ProductImage from "@/components/ui/ProductImage";
@@ -63,7 +61,9 @@ export default function OrderDetail() {
     if (!isMounted) {
     return (
       <div className="space-y-6">
-        <LoadingState label="Sipariş detayları yükleniyor..." />
+        <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+            <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
+        </div>
       </div>
     );
   }
@@ -72,7 +72,9 @@ export default function OrderDetail() {
   if (isDetailLoading) {
     return (
         <div className="space-y-6">
-            <LoadingState label="Sipariş detayları yükleniyor..." />
+            <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+                <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
+            </div>
         </div>
     );
   }
@@ -215,7 +217,7 @@ export default function OrderDetail() {
               </div>
 
               <div className="rounded-2xl bg-gray-50 p-4">
-                <dt className="text-xs uppercase tracking-wide text-gray-500">İade Edilen Tutar</dt>
+                <dt className="text-xs uppercase tracking-wide text-gray-500">İade Edilen Toplam Tutar</dt>
                 <dd className="mt-2 text-lg font-semibold text-gray-900">
                   {formatCents(orderItem.refunded_price_cents)}
                 </dd>

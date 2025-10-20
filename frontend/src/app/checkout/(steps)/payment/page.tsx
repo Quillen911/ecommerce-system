@@ -97,7 +97,9 @@ function PaymentContent({ sessionId, errorMessage }: { sessionId: string; errorM
   if (meLoading || isLoading) {
     return (
       <CheckoutLayout currentStep="payment">
-        <LoadingState label="Ödeme sayfası yükleniyor..." />
+        <div className="py-12 text-center">
+          <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Ödeme sayfası yükleniyor...</p>
+        </div>
       </CheckoutLayout>
     )
   }

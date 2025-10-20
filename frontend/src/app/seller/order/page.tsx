@@ -19,14 +19,18 @@ export default function Orders() {
   if (!hydrated) {
     return (
       <div className="space-y-6">
-        <LoadingState label="Siparişler yükleniyor..." />
+        <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+            <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
+        </div>
       </div>
     )
   }
     if (isLoading) {
         return (
             <div className="space-y-6">
-                <LoadingState label="Siparişler yükleniyor..." />
+                <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+                    <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
+                </div>
             </div>
         )
     }
