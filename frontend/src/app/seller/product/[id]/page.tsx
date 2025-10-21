@@ -141,7 +141,6 @@ export default function ProductDetailPage() {
           onClose={handleCloseModal}
           onUpdated={async () => {
             await refetch()
-            handleCloseModal()
           }}
         />
       )}

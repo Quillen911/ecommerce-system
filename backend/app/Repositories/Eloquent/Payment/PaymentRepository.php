@@ -17,4 +17,9 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
     {
         return $this->model->newQuery()->create($attributes);
     }
+
+    public function getPaymentForOrder($orderId): Payment
+    {
+        return $this->model->newQuery()->where('order_id', $orderId)->first();
+    }
 }

@@ -1,3 +1,5 @@
+import { UserAddress } from "./userAddress";
+
 export interface Order {
   id: number;
   user_id: number;
@@ -58,6 +60,13 @@ export interface OrderItem {
   product: Product;
   order_number: string;
 }
+
+export interface OrderDetail {
+    order: OrderItem[];
+    userShippingAddress: UserAddress;
+    userBillingAddress: UserAddress;
+}
+    
 
 export interface Product {
   id: number;

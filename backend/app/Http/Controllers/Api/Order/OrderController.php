@@ -5,17 +5,23 @@ namespace App\Http\Controllers\Api\Order;
 use App\Http\Controllers\Controller;
 use App\Services\Order\Contracts\OrderInterface;
 use App\Services\Order\Contracts\Refund\OrderRefundInterface;
+use App\Services\User\AddressesService;
 use App\Helpers\ResponseHelper;
 use App\Http\Resources\Order\OrderItemResource;
+use App\Http\Resources\Address\AddressResource;
 use App\Http\Resources\Order\OrderResource;
+use App\Http\Resources\Order\OrderDetailResource;
 use App\Http\Requests\Order\RefundRequest;
-
+use App\Repositories\Contracts\Payment\PaymentRepositoryInterface;
+use Illuminate\Support\Facades\Response;
 
 class OrderController extends Controller
 {
     public function __construct(
         private readonly OrderInterface $orderService,
-        private readonly OrderRefundInterface $OrderRefundService
+        private readonly OrderRefundInterface $OrderRefundService,
+        private readonly AddressesService $userAddressService,
+        private readonly PaymentRepositoryInterface $paymentRepository
     ) {
     }
     public function index()
@@ -27,9 +33,18 @@ class OrderController extends Controller
     
     public function show($orderId)
     {
-        $order = $this->orderService->getOneOrderforUser($orderId);
+        $orderItems = $this->orderService->getOneOrderforUser($orderId);
+        $order = $orderItems->first()->order;
+        $userShippingAddress = $order->shippingAddress;
+        $userBillingAddress = $order->billingAddress;
+        $payment = $this->paymentRepository->getPaymentForOrder($orderId);
 
-        return OrderItemResource::collection($order);
+        return Response::json([
+            'order' => OrderItemResource::collection($orderItems),
+            'userShippingAddress' => AddressResource::make($userShippingAddress),
+            'userBillingAddress' => AddressResource::make($userBillingAddress),
+            
+        ]);
     }
 
    /* public function refundItems($id, RefundRequest $request)

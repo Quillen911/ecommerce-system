@@ -8,4 +8,5 @@ use App\Models\Payment;
 interface PaymentRepositoryInterface extends BaseRepositoryInterface
 {
     public function create(array $attributes): Payment;
+    public function getPaymentForOrder($orderId): Payment;
 }

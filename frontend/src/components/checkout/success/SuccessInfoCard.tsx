@@ -11,7 +11,6 @@ const labelStyles = "text-[10px] sm:text-xs font-medium uppercase tracking-[0.2e
 const valueStyles = "text-sm sm:text-base font-semibold break-words"
 
 export function SuccessInfoCard({ shipping, billing, payment }: SuccessInfoCardProps) {
-  console.log(shipping, billing, payment)
   return (
     <div className="space-y-4 rounded-2xl border border-color bg-card p-4 sm:p-6 shadow-sm">
       <div>

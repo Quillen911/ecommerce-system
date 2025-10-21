@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Order } from '@/types/order'
 import { format } from 'date-fns'
 import { tr } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
 
 export interface OrdersListProps {
   orders: Order[]
@@ -28,6 +29,7 @@ const statusMap: Record<string, { label: string; badgeClass: string }> = {
   },
 }
 export default function OrdersList({ orders }: OrdersListProps) {
+  const router = useRouter()
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
       {orders.map((order, index) => {
@@ -40,8 +42,9 @@ export default function OrdersList({ orders }: OrdersListProps) {
             key={order.id}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
+            onClick={() => router.push(`/account/orders/${order.id}`)}
             transition={{ duration: 0.4, delay: index * 0.06 }}
-            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-5"
+            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-5 cursor-pointer"
           >
             <div className="flex items-start justify-between gap-4">
               <div>

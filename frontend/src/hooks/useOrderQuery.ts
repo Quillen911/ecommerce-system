@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { orderApi } from "../lib/api/orderApi";
 
+const hasUserSession = () =>
+  typeof window !== 'undefined' && !!localStorage.getItem('user_token')
+
 export const OrderKeys = {
     all: ["orders"] as const,
     index: (userId?: number) => [...OrderKeys.all, "index", userId] as const,
@@ -14,7 +17,7 @@ export const useOrder = (userId?: number) => {
             const response = await orderApi.getOrders()
             return response.data
         },
-        enabled: !!userId,
+        enabled: hasUserSession() 
     })
 }
 
@@ -25,6 +28,6 @@ export const useOrderDetail = (id: number, userId?: number) => {
             const response = await orderApi.getOrderDetail(id)
             return response.data
         },
-        enabled: !!id && !!userId,
+        enabled: hasUserSession() && !!id
     })
 }
