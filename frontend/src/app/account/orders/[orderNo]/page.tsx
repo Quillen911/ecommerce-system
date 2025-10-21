@@ -27,6 +27,7 @@ type OrderDetailViewProps = {
 };
 
 function OrderDetailView({ data }: OrderDetailViewProps) {
+  console.log(data)
   const firstItem = data.order[0];
   const orderStatus =
     data.order.every(item => item.payment_status === 'refunded')

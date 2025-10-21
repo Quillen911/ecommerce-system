@@ -8,16 +8,6 @@ export default function OrdersPage() {
   const { data: me } = useMe()
   const { data: orders, isLoading, error } = useOrder(me?.id)
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center py-12 sm:py-16 px-4">
-          <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Siparişler yükleniyor...</p>
-        </div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-xl p-5 sm:p-6">

@@ -22,7 +22,6 @@ class XBuyYPayCampaign extends BaseCampaign
         if (! $this->eligibleMinBag($items->all())) {
             return false;
         }
-        //dd($this->eligibleXbuyYpay($items->all()));
         if (! $this->eligibleXbuyYpay($items->all())) {
             return false;
         }
@@ -32,7 +31,6 @@ class XBuyYPayCampaign extends BaseCampaign
 
     protected function checkPerUserLimit(): void
     {
-        dd($this->campaign->campaign_usages()->where('user_id', $this->user->id)->count());
         if ($this->campaign->per_user_limit && $this->campaign->campaign_usages()->where('user_id', $this->user->id)->count() >= $this->campaign->per_user_limit) {
             
             throw ValidationException::withMessages([
