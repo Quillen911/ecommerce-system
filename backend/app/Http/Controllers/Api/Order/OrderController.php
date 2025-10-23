@@ -37,7 +37,6 @@ class OrderController extends Controller
         $order = $orderItems->first()->order;
         $userShippingAddress = $order->shippingAddress;
         $userBillingAddress = $order->billingAddress;
-        $payment = $this->paymentRepository->getPaymentForOrder($orderId);
 
         return Response::json([
             'order' => OrderItemResource::collection($orderItems),

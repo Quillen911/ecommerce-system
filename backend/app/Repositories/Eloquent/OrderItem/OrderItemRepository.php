@@ -44,6 +44,7 @@ class OrderItemRepository extends BaseRepository implements OrderItemRepositoryI
     {
         return $this->model
                         ->with([
+                            'order',
                             'product',
                             'product.variants.variantImages',
                             'product.variants.variantSizes.sizeOption',

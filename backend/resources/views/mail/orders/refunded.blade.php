@@ -15,7 +15,7 @@ Siparişinizde yer alan bir ürün için iade süreciniz tamamlandı. Aşağıda
 
 **Renk:** {{ $orderItem['color_name'] ?? '-' }}  
 **Adet:** {{ $orderItem['quantity'] }}  
-**Durum:** {{ ucfirst($orderItem['payment_status'] ?? 'refunded') }}
+**Durum:** {{ ucfirst($orderItem['payment_status'] == 'Refunded' ? 'İade Edildi' : 'İade Edildi') }}
 @endcomponent
 
 @component('mail::button', ['url' => $actionUrl])

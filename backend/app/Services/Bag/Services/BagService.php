@@ -82,14 +82,16 @@ class BagService implements BagInterface
             } catch (ValidationException $e) {
                 $this->detachCampaign($bag);
             } catch (Throwable $e) {
-                report($e);              // loglayıp kampanyayı düşürüyoruz
+                report($e);             
                 $this->detachCampaign($bag);
             }
         } else {
             $bag->update(['campaign_discount_cents' => 0]);
         }
-
-        
+        $a = $bagItems->map(function ($item) {
+            return $item->unit_price_cents * $item->quantity;
+        });
+        $perItemPrice =collect($a) ?? [];
         $final = max($total + $cargo - $discount, 0);
         
         return [
@@ -101,6 +103,7 @@ class BagService implements BagInterface
             'final_price_cents'=> $final,
             'discount_items'   => $discountItems,
             'campaigns'        => $this->allCampaigns(),
+            'per_item_price_cents' => $perItemPrice,
         ];
         
     }

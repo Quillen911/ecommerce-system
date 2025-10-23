@@ -142,7 +142,6 @@ class CheckoutSessionService
             $session->status = 'pending_3ds';
         } else {
             $session->status = 'confirmed';
-
             OrderPlacementJob::dispatch($user, $session, $data);
         }
         $session->save();

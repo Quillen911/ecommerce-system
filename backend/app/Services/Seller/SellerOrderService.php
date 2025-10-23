@@ -10,6 +10,7 @@ use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Shipping\Contracts\ShippingServiceInterface;
 use App\Jobs\ShippedOrderItemNotification;
 use App\Jobs\RefundOrderItemNotification;
+use App\Jobs\SellerRefundJob;
 use App\Models\Payment;
 use App\Models\PaymentProvider;
 use App\Services\Payments\Contracts\PaymentGatewayInterface;
@@ -17,6 +18,7 @@ use App\Services\Order\Contracts\Refund\OrderCalculationInterface;
 use App\Services\Order\Contracts\Refund\OrderCheckInterface;
 use App\Services\Order\Contracts\Refund\OrderUpdateInterface;
 use App\Services\Order\Services\Refund\RefundPlacementService;
+use App\Services\Seller\SellerOrderPlacement;
 use App\Models\OrderRefund;
 use App\Models\OrderRefundItem;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,7 @@ class SellerOrderService
        private readonly OrderCheckInterface $orderCheckService,
        private readonly OrderUpdateInterface $orderUpdateService,
        private readonly RefundPlacementService $refundPlacementService,
+       private readonly SellerOrderPlacement $sellerOrderPlacement,
     ) {
     
     }
@@ -149,48 +152,15 @@ class SellerOrderService
         $refundAmount = $this->calculateRefundPrice($orderItem, $payload);
 
         $gateway = app(PaymentGatewayInterface::class, ['provider' => $provider]);
-        Log::info([
-            'payload' => $payload,
-            'refundAmount' => $refundAmount,
-        ]);
+ 
         $gatewayResponse = $gateway->refundPayment(
             $orderItem->payment_transaction_id,
             $refundAmount,
             $payload
         );
 
-        DB::transaction(function () use ($orderItem, $payload, $refundAmount) {
-            $newRefundedQuantity = ($orderItem->refunded_quantity ?? 0) + (int) $payload['quantity'];
-            $newRefundedPrice = ($orderItem->refunded_price_cents ?? 0) + $refundAmount;
-
-            $orderRefund = OrderRefund::create([
-                'order_id'           => $orderItem->order_id,
-                'user_id'            => $payload['user_id'] ?? $orderItem->order->user_id,
-                'refund_total_cents' => $refundAmount,
-            ]);
-
-            $orderItem->update([
-                'refunded_quantity'    => $newRefundedQuantity,
-                'refunded_price_cents' => $newRefundedPrice,
-                'status'               => $newRefundedQuantity >= $orderItem->quantity ? 'refunded' : 'partial_refunded',
-                'payment_status'       => $newRefundedQuantity >= $orderItem->quantity ? 'refunded' : 'partial_refunded',
-                'refunded_at'          => now(),
-            ]);
-
-            OrderRefundItem::create([
-                'order_refund_id'      => $orderRefund->id,
-                'order_item_id'        => $orderItem->id,
-                'quantity'             => (int) $payload['quantity'],
-                'refund_amount_cents'  => $refundAmount,
-                'reason'               => $payload['reason'],
-                'byWho'                => 'seller',
-                'inspection_status'    => 'pending',
-                'inspection_note'      => null,
-            ]);
-
-            RefundOrderItemNotification::dispatch($orderItem, $payload['user_id'], $payload['quantity'], $refundAmount);
-        });
-
+        SellerRefundJob::dispatch($orderItem, $payload, $refundAmount);
+        RefundOrderItemNotification::dispatch($orderItem, $orderItem->order->user, $payload['quantity'], $refundAmount);
         return $gatewayResponse;
     }
 

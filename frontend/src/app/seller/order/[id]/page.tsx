@@ -20,8 +20,7 @@ export default function OrderDetail() {
   const params = useParams<{ id: string }>();
   const orderId = Number(params.id);
   const { data: orderItem, isLoading: isDetailLoading, isError } = useOrderDetail(orderId);
-  const router = useRouter()
-
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [refundState, setRefundState] = useState<{open:boolean; item:OrderItem |null}>({
     open:false,
@@ -35,7 +34,9 @@ export default function OrderDetail() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  
+
+  const cargoPrice =  orderItem?.cargo_price_cents ?? 0;
+
   const selectedVariant = useMemo(() => {
     if (!orderItem?.product?.variants?.length) return undefined;
 
@@ -131,6 +132,13 @@ export default function OrderDetail() {
               Durum:{" "}
               <span className="font-medium text-gray-900">
                 {orderItem.status == "refunded" ? "İade Edildi" : orderItem.status == 'confirmed' ? "Onaylandı" : orderItem.status == 'shipped' ? "Gönderildi" : "Bekliyor"}
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <FiPackage className="h-4 w-4 text-gray-500" />
+              Kargo:{" "}
+              <span className="font-medium text-gray-900">
+                {cargoPrice > 0 ? "Kargo Ücreti Ödendi" : "Ücretsiz"}
               </span>
             </span>
             <span className="inline-flex items-center gap-2">
@@ -240,10 +248,12 @@ export default function OrderDetail() {
                 <span>İndirim</span>
                 <span className="font-medium text-gray-900">{formatCents(orderItem.discount_price_cents)}</span>
               </div>
+
               <div className="flex items-center justify-between rounded-2xl bg-gray-100 px-4 py-3 text-base font-semibold text-gray-900">
-                <span>Ödenen Tutar</span>
-                <span>{formatCents(orderItem.paid_price_cents)}</span>
-              </div>
+                  <span>Ödenen Tutar</span>
+                  <span>{formatCents(orderItem.paid_price_cents)}</span>
+                </div>
+              
               <div className="flex items-center justify-between rounded-2xl bg-gray-50 px-4 py-3">
                 <span>Vergi Tutarı</span>
                 <span className="font-medium text-gray-900">{formatCents(orderItem.tax_amount_cents)}</span>

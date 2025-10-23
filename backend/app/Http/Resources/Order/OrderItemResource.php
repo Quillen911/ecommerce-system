@@ -36,6 +36,7 @@ class OrderItemResource extends JsonResource
             'updated_at'             => $this->updated_at,
             'product'                => new ProductSummaryResource($this->whenLoaded('product')),
             'order_number'           => $this->order->order_number,
+            'cargo_price_cents'      => $this->order->cargo_price_cents,
         ];
     }
 }

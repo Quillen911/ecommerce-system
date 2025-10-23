@@ -16,12 +16,19 @@ class OrderItemFactory
     public function createMany(Order $order, CheckoutSession $session): Collection
     {
         $items = collect();
-        $paidPrice = $session->bag_snapshot['totals']['final_cents'];
-        $discountsByBagItem = collect($session->bag_snapshot['applied_campaign']['discount_items'] ?? [])
-            ->keyBy('discount_item_id');
-            
-        foreach ($session->bag_snapshot['items'] as $snapshot) {
-            $discount = $discountsByBagItem[$snapshot['bag_item_id']] ?? null;
+
+        $bagSnapshot = $session->bag_snapshot ?? [];
+        $bagItems    = $bagSnapshot['items'] ?? [];
+        $discounts   = collect($bagSnapshot['applied_campaign']['discount_items'] ?? [])
+            ->keyBy('bag_item_id');
+
+        foreach ($bagItems as $snapshot) {
+            $bagItemId = $snapshot['bag_item_id'];
+            $discount  = $discounts->get($bagItemId);
+
+            $paidPriceCents     = $discount['discounted_total_cents'] ?? $snapshot['total_price_cents'];
+            $discountPriceCents = $discount['discount_cents'] ?? 0;
+
             $items->push(
                 $this->orderItems->create([
                     'order_id'               => $order->id,
@@ -34,13 +41,12 @@ class OrderItemFactory
                     'color_name'             => $snapshot['color_name'],
                     'quantity'               => $snapshot['quantity'],
                     'price_cents'            => $snapshot['unit_price_cents'],
-                    'discount_price_cents'   => $discount['discount_cents'] ?? 0,
-                    'paid_price_cents'       => $paidPrice,
-                    'payment_transaction_id' => $session->payment_data['intent']['payment_transaction_id'][$snapshot['bag_item_id']] ?? null,
+                    'discount_price_cents'   => $discountPriceCents,
+                    'paid_price_cents'       => $paidPriceCents,
+                    'payment_transaction_id' => $session->payment_data['intent']['payment_transaction_id'][$bagItemId] ?? null,
                     'status'                 => 'confirmed',
                     'payment_status'         => 'paid',
                 ])
-                
             );
         }
 

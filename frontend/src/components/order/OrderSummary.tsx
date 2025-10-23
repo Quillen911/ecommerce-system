@@ -5,7 +5,9 @@ type OrderSummaryProps = {
 };
 
 export function OrderSummary({ items }: OrderSummaryProps) {
+  const itemTotalPrice = items.reduce((acc, item) => acc + (item.price_cents) * item.quantity, 0);
   const paidTotal = items.reduce((acc, item) => acc + item.paid_price_cents, 0);
+  const discountTotal = items.reduce((acc, item) => acc + item.discount_price_cents, 0);
   const refundedTotal = items.reduce((acc, item) => acc + item.refunded_price_cents, 0);
   const net = paidTotal - refundedTotal;
 
@@ -14,8 +16,16 @@ export function OrderSummary({ items }: OrderSummaryProps) {
       <h2 className="text-base font-semibold text-neutral-900">Özet</h2>
       <dl className="mt-3 space-y-2 text-sm text-neutral-600">
         <div className="flex justify-between">
+          <dt>Ara Toplam</dt>
+          <dd className="font-medium text-neutral-900">{(itemTotalPrice / 100).toFixed(2)} ₺</dd>
+        </div>
+        <div className="flex justify-between">
           <dt>Toplam Ödenen</dt>
           <dd className="font-medium text-neutral-900">{(paidTotal / 100).toFixed(2)} ₺</dd>
+        </div>
+        <div className="flex justify-between">
+          <dt>Toplam İndirim</dt>
+          <dd className="font-medium text-neutral-900">{(discountTotal / 100).toFixed(2)} ₺</dd>
         </div>
         <div className="flex justify-between">
           <dt>İade Edilen</dt>

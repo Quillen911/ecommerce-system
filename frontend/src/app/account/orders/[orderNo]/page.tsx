@@ -27,12 +27,12 @@ type OrderDetailViewProps = {
 };
 
 function OrderDetailView({ data }: OrderDetailViewProps) {
-  console.log(data)
+
   const firstItem = data.order[0];
   const orderStatus =
     data.order.every(item => item.payment_status === 'refunded')
       ? 'refunded'
-      : ((firstItem?.status as 'refunded' | 'processing' | 'completed' | undefined) ?? 'completed');
+      : ((firstItem?.status as 'refunded' | 'pending' | 'confirmed' | 'shipped' ) ?? 'completed');
   const router = useRouter();
   return (
     <div className="min-h-screen bg-neutral-50 pb-12 pt-6">

@@ -6,12 +6,12 @@ import { motion } from 'framer-motion';
 type OrderDetailHeaderProps = {
   orderNo: string;
   createdAt?: string;
-  status: 'refunded' | 'processing' | 'completed';
+  status: 'refunded' | 'pending' | 'confirmed' | 'shipped';
 };
 
 export function OrderDetailHeader({ orderNo, createdAt, status }: OrderDetailHeaderProps) {
   const statusLabel =
-    status === 'refunded' ? 'İade Edildi' : status === 'processing' ? 'Hazırlanıyor' : 'Tamamlandı';
+    status === 'refunded' ? 'İade Edildi' : status === 'pending' ? 'Hazırlanıyor' : status === 'confirmed' ? 'Onaylandı' : status === 'shipped' ? 'Kargoya Verildi' : 'Tamamlandı';
 
   return (
     <motion.header
@@ -30,8 +30,12 @@ export function OrderDetailHeader({ orderNo, createdAt, status }: OrderDetailHea
         className={`inline-flex h-9 items-center justify-center rounded-full px-4 text-sm font-medium ${
           status === 'refunded'
             ? 'bg-rose-50 text-rose-600'
-            : status === 'processing'
+            : status === 'pending'
             ? 'bg-amber-50 text-amber-600'
+            : status === 'confirmed'
+            ? 'bg-green-50 text-green-600'
+            : status === 'shipped'
+            ? 'bg-blue-50 text-blue-600'
             : 'bg-emerald-50 text-emerald-600'
         }`}
       >

@@ -6,7 +6,7 @@ Yeni bir siparişiniz var.
 @component('mail::panel')
 @foreach ($items as $item)
 - {{ $item['product_title'] }} ({{ $item['color_name'] ?? '-' }}) – Adet: {{ $item['quantity'] }}
-- {{ $item['payment_status']}}
+- {{ $item['payment_status'] == 'paid' ? 'Ödendi' : $item['payment_status'] == 'pending' ? 'Bekliyor' : $item['payment_status'] == 'failed' ? 'Başarısız' : 'İade Edildi' }}
 @endforeach
 @endcomponent
 

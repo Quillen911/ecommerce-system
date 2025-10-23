@@ -59,6 +59,7 @@ export interface OrderItem {
 
   product: Product;
   order_number: string;
+  cargo_price_cents: number;
 }
 
 export interface OrderDetail {

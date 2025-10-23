@@ -61,15 +61,36 @@ export function OrderItemsList({ items }: OrderItemsListProps) {
                 Beden: {item.size_name ?? '-'} • Renk: {item.color_name ?? '-'}
               </p>
 
-              <div className="flex flex-wrap justify-between gap-2 text-sm text-neutral-600">
-                <span>Adet: {item.quantity}</span>
-                <span>
-                  Tutar:{' '}
-                  <span className="font-semibold text-neutral-900">
-                    {(item.paid_price_cents / 100).toFixed(2)} ₺
-                  </span>
+              <div className="flex flex-wrap justify-between gap-3 text-sm text-neutral-600">
+                <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1 text-neutral-700">
+                  Adet:
+                  <span className="font-semibold text-neutral-900">{item.quantity}</span>
                 </span>
+
+                <div className="flex flex-1 flex-col items-end gap-1 sm:max-w-[240px]">
+                  <span className="flex w-full justify-between text-neutral-500">
+                    <span>Ürün Fiyatı</span>
+                    <span className="font-semibold text-neutral-900">
+                      {(item.price_cents / 100).toFixed(2)} ₺
+                    </span>
+                  </span>
+
+                  <span className="flex w-full justify-between text-neutral-500">
+                    <span>İndirim</span>
+                    <span className="font-semibold text-neutral-600">
+                      -{(item.discount_price_cents / 100).toFixed(2)} ₺
+                    </span>
+                  </span>
+
+                  <span className="flex w-full justify-between">
+                    <span className="font-medium text-neutral-700">Ödenen Tutar</span>
+                    <span className="font-semibold text-neutral-900">
+                      {(item.paid_price_cents / 100).toFixed(2)} ₺
+                    </span>
+                  </span>
+                </div>
               </div>
+
             </div>
           </li>
         );

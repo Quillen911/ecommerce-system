@@ -92,6 +92,7 @@ class FixedCampaign extends BaseCampaign
                 'line_total_cents'       => $lineCents,
                 'discount_cents'         => $lineDiscountCents,
                 'discounted_total_cents' => max($lineCents - $lineDiscountCents, 0),
+                'per_item_discounted_price_cents' => ($lineCents - $lineDiscountCents) / $quantity
             ];
         });
     }

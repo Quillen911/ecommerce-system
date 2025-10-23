@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Notifications\OrderItemRefunded;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;
-
 class RefundOrderItemNotification implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -38,5 +37,9 @@ class RefundOrderItemNotification implements ShouldQueue
     public function handle(): void
     {
         $this->user->notify(new OrderItemRefunded($this->orderItem, $this->quantity, $this->price, $this->user));
+    }
+    public function failed($exception)
+    {
+        Log::error('RefundOrderItemNotification failed: ' . $exception->getMessage());
     }
 }

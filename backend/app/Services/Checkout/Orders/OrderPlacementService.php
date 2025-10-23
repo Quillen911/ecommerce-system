@@ -62,7 +62,6 @@ class OrderPlacementService
             
             foreach ($items as $item) {
                 $seller = $item->product->store->seller;
-                Log::info('Seller Order Notification: ' . $seller);
                 SellerOrderNotification::dispatch($order, $seller);
             }
             SendOrderNotification::dispatch($order, $user);
