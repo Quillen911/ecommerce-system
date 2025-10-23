@@ -13,6 +13,9 @@ use App\Services\Payments\PaymentMethodRecorder;
 use App\Repositories\Contracts\Bag\BagRepositoryInterface;
 use App\Services\Campaigns\CampaignManager;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\SendOrderNotification;
+use App\Jobs\SellerOrderNotification;
 
 class OrderPlacementService
 {
@@ -56,7 +59,13 @@ class OrderPlacementService
                 'status'         => 'confirmed',
                 'meta->order_id' => $order->id,
             ]);
-
+            
+            foreach ($items as $item) {
+                $seller = $item->product->store->seller;
+                Log::info('Seller Order Notification: ' . $seller);
+                SellerOrderNotification::dispatch($order, $seller);
+            }
+            SendOrderNotification::dispatch($order, $user);
             return $order;
         });
     }

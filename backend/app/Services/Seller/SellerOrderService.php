@@ -20,6 +20,7 @@ use App\Services\Order\Services\Refund\RefundPlacementService;
 use App\Models\OrderRefund;
 use App\Models\OrderRefundItem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SellerOrderService
 {
@@ -148,6 +149,10 @@ class SellerOrderService
         $refundAmount = $this->calculateRefundPrice($orderItem, $payload);
 
         $gateway = app(PaymentGatewayInterface::class, ['provider' => $provider]);
+        Log::info([
+            'payload' => $payload,
+            'refundAmount' => $refundAmount,
+        ]);
         $gatewayResponse = $gateway->refundPayment(
             $orderItem->payment_transaction_id,
             $refundAmount,
@@ -182,6 +187,8 @@ class SellerOrderService
                 'inspection_status'    => 'pending',
                 'inspection_note'      => null,
             ]);
+
+            RefundOrderItemNotification::dispatch($orderItem, $payload['user_id'], $payload['quantity'], $refundAmount);
         });
 
         return $gatewayResponse;

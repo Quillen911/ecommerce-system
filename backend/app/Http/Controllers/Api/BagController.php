@@ -13,7 +13,7 @@ use App\Http\Resources\Bag\BagResource;
 use App\Http\Resources\Bag\BagItemResource;
 use App\Http\Resources\Bag\BagSummaryResource;
 use App\Http\Resources\Bag\AppliedCampaignResource;
-
+use Illuminate\Support\Facades\Response;
 class BagController extends Controller
 {
 
@@ -24,6 +24,7 @@ class BagController extends Controller
     }
     public function index()
     {
+        try {
         $bag = $this->bagService->getBag();
 
         if ($bag['products']->isEmpty()) {
@@ -31,6 +32,11 @@ class BagController extends Controller
         }
 
         return new BagResource($bag);
+        } catch (\Exception $e) {
+            return Response::json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
     public function store(BagStoreRequest $request)
     {

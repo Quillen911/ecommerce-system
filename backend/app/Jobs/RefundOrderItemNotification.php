@@ -37,6 +37,6 @@ class RefundOrderItemNotification implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->user->notify(new OrderItemRefunded($this->orderItem, $this->quantity, $this->price));
+        $this->user->notify(new OrderItemRefunded($this->orderItem, $this->quantity, $this->price, $this->user));
     }
 }

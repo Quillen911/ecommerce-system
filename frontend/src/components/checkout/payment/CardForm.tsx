@@ -55,7 +55,7 @@ export function CardForm({
     requires_3ds: false,
   }))
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({})
-
+  const [saveChecked, setSaveChecked] = useState(false)
   useEffect(() => {
     setFormState((prev) => ({
       ...prev,
@@ -112,7 +112,7 @@ export function CardForm({
       expire_month: formState.expire_month,
       expire_year: formState.expire_year,
       cvv: formState.cvv,
-      save_card: formState.save_card,
+      save_card: saveChecked,
       installment: 1,
       requires_3ds: formState.requires_3ds,
     }
@@ -200,11 +200,10 @@ export function CardForm({
             </div>
 
             <Input label="CVV" placeholder="123" value={formState.cvv} onChange={(v) => handleChange("cvv", v.replace(/\D/g, "").slice(0, 4))} error={resolveError("cvv")} />
-            <Input label="Kart Takma Adı" placeholder="Örn: İş Kartı" value={formState.card_alias} onChange={(v) => handleChange("card_alias", v)} error={resolveError("card_alias")} />
 
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={formState.save_card} onChange={(e) => handleChange("save_card", e.target.checked)} className="accent-[var(--accent)]" />
+                <input type="checkbox" checked={saveChecked} onChange={(e) => setSaveChecked(e.target.checked)} className="accent-[var(--accent)]" />
                 Kartımı kaydet
               </label>
               <label className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -212,6 +211,9 @@ export function CardForm({
                 3D Secure gerekli
               </label>
             </div>
+            {saveChecked && (
+              <Input label="Kart Takma Adı" placeholder="Örn: İş Kartı" value={formState.card_alias} onChange={(v) => handleChange("card_alias", v)} error={resolveError("card_alias")} />
+            )}
           </div>
 
           <aside className="flex flex-col gap-5">

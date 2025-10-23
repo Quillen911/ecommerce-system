@@ -35,7 +35,8 @@ class SendOrderNotification implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->user->notify(new OrderCreated($this->order));
+        $this->order->load('orderItems.product.variants', 'orderItems.product.variants.variantImages', 'orderItems.product.variants.variantSizes');
+        $this->user->notify(new OrderCreated($this->order, $this->user));
     }
     public function failed(\Throwable $exception)
     {

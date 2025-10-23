@@ -287,6 +287,15 @@ class IyzicoGateway implements PaymentGatewayInterface
         $refund = Refund::create($request, $this->options);
 
         if ($refund->getStatus() !== 'success') {
+            Log::info([
+                'message' => 'İade işlemi başarısız',
+                'refund' => $refund,
+                'payload' => $payload,
+                'amountCents' => $amountCents,
+                'transactionId' => $transactionId,
+                'message' => $refund->getErrorMessage(),
+                'code' => $refund->getErrorCode(),
+            ]);
             throw new \RuntimeException($refund->getErrorMessage() ?: 'İade işlemi başarısız.', $refund->getErrorCode());
         }
         return [

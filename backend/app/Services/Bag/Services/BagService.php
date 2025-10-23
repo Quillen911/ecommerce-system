@@ -50,7 +50,7 @@ class BagService implements BagInterface
         $bagItems = $this->checkProductAvailability($bagItems, $bag);
 
         if ($bagItems->isEmpty()) {
-            throw new \RuntimeException('Sepet Boş!');
+            throw new \Exception('Sepet Boş!');
         }
 
         $total = $this->bagCalculationService->calculateTotal($bagItems);

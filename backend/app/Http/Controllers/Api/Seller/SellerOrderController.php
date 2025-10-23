@@ -39,7 +39,6 @@ class SellerOrderController extends Controller
     }
     public function refundOrderItem(SellerRefundItemRequest $request, $id)
     {
-        Log::info($request->validated());
         $result = $this->sellerOrderService->refundSelectedItems($id, $request->validated());
         return Response::json($result);
     }

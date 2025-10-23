@@ -14,14 +14,16 @@ class OrderItemRefunded extends Notification implements ShouldQueue
     protected $orderItem;
     protected $price;
     protected $quantity;
+    protected $user;
     /**
      * Create a new notification instance.
      */
-    public function __construct(OrderItem $orderItem, $quantity, $price) 
+    public function __construct(OrderItem $orderItem, $quantity, $price, $user) 
     {
         $this->orderItem = $orderItem;
         $this->quantity = $quantity;
         $this->price = $price;
+        $this->user = $user;
     }
 
     /**
@@ -39,18 +41,20 @@ class OrderItemRefunded extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $imageModel = $this->orderItem->variantSize?->productVariant?->variantImages?->first();
+        $image = $imageModel?->image ? asset($imageModel->image) : null;
+
+        $actionUrl = rtrim(env('FRONTEND_URL'), '/') . "/account/orders/{$this->orderItem->order_id}";
         return (new MailMessage)
             ->subject('Siparişiniz İade Edildi' . ' | Quillen')
-            ->greeting('Merhaba ' . $notifiable->username . ',')
-            ->line('Siparişiniz iade edildi. Aşağıda sipariş özetinizi görebilirsiniz:')
-            ->line('📦 Sipariş Numarası: #' . $this->orderItem->order_id)
-            ->line('📦 Ürün Adı: ' . $this->orderItem->product_title)
-            ->line('📦 İade Edilen Adet: ' . $this->quantity)
-            ->line('📦 İade Edilen Tutar: ₺' . number_format(floor($this->price *100 )/100, 2))
-            ->action('Siparişimi Takip Et', 'http://localhost:8000/myorders')
-            ->line('Herhangi bir sorunuz olursa bizimle iletişime geçmekten çekinmeyin.')
-            ->line('Müşteri Destek: quillen048@gmail.com')
-            ->salutation('Saygılarımızla, Quillen Ekibi');
+            ->markdown('mail.orders.refunded', [
+                'user'            => $this->user,
+                'orderItem'       => $this->orderItem,
+                'quantity'        => $this->quantity,
+                'price'           => $this->price,
+                'actionUrl'       => $actionUrl,
+                'image'           => $image,
+            ]);
     }
 
     /**
