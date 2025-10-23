@@ -20,14 +20,6 @@ class SellerOrderPlacement
                 'refund_total_cents' => $refundAmount,
             ]);
 
-            $orderItem->update([
-                'refunded_quantity'    => $newRefundedQuantity,
-                'refunded_price_cents' => $newRefundedPrice,
-                'status'               => $newRefundedQuantity >= $orderItem->quantity ? 'refunded' : 'partial_refunded',
-                'payment_status'       => $newRefundedQuantity >= $orderItem->quantity ? 'refunded' : 'partial_refunded',
-                'refunded_at'          => now(),
-            ]);
-
             OrderRefundItem::create([
                 'order_refund_id'      => $orderRefund->id,
                 'order_item_id'        => $orderItem->id,

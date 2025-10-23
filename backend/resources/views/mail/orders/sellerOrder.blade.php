@@ -6,7 +6,21 @@ Yeni bir siparişiniz var.
 @component('mail::panel')
 @foreach ($items as $item)
 - {{ $item['product_title'] }} ({{ $item['color_name'] ?? '-' }}) – Adet: {{ $item['quantity'] }}
-- {{ $item['payment_status'] == 'paid' ? 'Ödendi' : $item['payment_status'] == 'pending' ? 'Bekliyor' : $item['payment_status'] == 'failed' ? 'Başarısız' : 'İade Edildi' }}
+
+@php
+    $status = $item['payment_status'] ?? 'unknown';
+@endphp
+@if ($status === 'paid')
+- Ödeme Durumu: Ödendi
+@elseif ($status === 'pending')
+- Ödeme Durumu: Bekliyor
+@elseif ($status === 'failed')
+- Ödeme Durumu: Başarısız
+@elseif ($status === 'refunded')
+- Ödeme Durumu: İade Edildi
+@else
+- Ödeme Durumu: Bilinmiyor
+@endif
 @endforeach
 @endcomponent
 

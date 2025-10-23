@@ -134,10 +134,15 @@ class IyzicoGateway implements PaymentGatewayInterface
 
         $basketItems = [];
         $total = 0;
+        $discounts = collect($session->bag_snapshot['applied_campaign']['discount_items'] ?? [])
+            ->keyBy('bag_item_id');
 
         foreach ($session->bag_snapshot['items'] as $item) {
-            
-            $price = $item['total_price_cents'] / 100;
+            $bagItemId = $item['bag_item_id'];
+            $discount  = $discounts->get($bagItemId);
+            $paidPriceCents = $discount['discounted_total_cents'] ?? $item['total_price_cents'];
+            $price = $paidPriceCents / 100;
+
             if ($price <= 0) {
                 continue;
             }
@@ -151,6 +156,19 @@ class IyzicoGateway implements PaymentGatewayInterface
 
             $basketItems[] = $basketItem;
             $total += $price;
+        }
+        
+        $shippingCost = ($session->bag_snapshot['totals']['cargo_cents'] ?? 0) / 100;
+        if ($shippingCost > 0) {
+            $shippingItem = new BasketItem();
+            $shippingItem->setId('shipping');
+            $shippingItem->setName('Kargo Ücreti');
+            $shippingItem->setCategory1('Kargo');
+            $shippingItem->setItemType(BasketItemType::PHYSICAL);
+            $shippingItem->setPrice(sprintf('%.2f', $shippingCost));
+
+            $basketItems[] = $shippingItem;
+            $total        += $shippingCost;
         }
     
         $request->setBasketItems($basketItems);
@@ -200,8 +218,15 @@ class IyzicoGateway implements PaymentGatewayInterface
             $itemTransactions = [];
             foreach ($payment->getPaymentItems() as $item) {
                 $itemTransactions[$item->getItemId()] = $item->getPaymentTransactionId();
+                $itemPrices[$item->getItemId()]  = $item->getPrice(); // Iyzi’de kayıtlı basket price
             }
-
+            Log::info('Iyzi payment item prices', [
+                'session_id' => $session->id,
+                'tx_map'     => $itemTransactions,
+                'price_map'  => $itemPrices,
+                'basket_items'    => $request->getBasketItems(),
+                'basket_price'    => $request->getPrice(),
+            ]);
             return [
                 'provider'               => $this->provider->code,
                 'payment_id'             => $payment->getPaymentId(),

@@ -6,6 +6,7 @@ use App\Models\CheckoutSession;
 use App\Models\Order;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class OrderItemFactory
 {
@@ -28,7 +29,12 @@ class OrderItemFactory
 
             $paidPriceCents     = $discount['discounted_total_cents'] ?? $snapshot['total_price_cents'];
             $discountPriceCents = $discount['discount_cents'] ?? 0;
-
+            Log::info('Order item factory', [
+                'bag_item_id' => $bagItemId,
+                'discount'    => $discount,
+                'paid_price_cents' => $paidPriceCents,
+                'discount_price_cents' => $discountPriceCents,
+            ]);
             $items->push(
                 $this->orderItems->create([
                     'order_id'               => $order->id,

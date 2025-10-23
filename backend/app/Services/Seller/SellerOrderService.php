@@ -158,6 +158,16 @@ class SellerOrderService
             $refundAmount,
             $payload
         );
+        $newRefundedQuantity = ($orderItem->refunded_quantity ?? 0) + (int) $payload['quantity'];
+        $newRefundedPrice = ($orderItem->refunded_price_cents ?? 0) + $refundAmount;
+        
+        $orderItem->update([
+            'refunded_quantity'    => $newRefundedQuantity,
+            'refunded_price_cents' => $newRefundedPrice,
+            'status'               => $newRefundedQuantity >= $orderItem->quantity ? 'refunded' : 'partial_refunded',
+            'payment_status'       => $newRefundedQuantity >= $orderItem->quantity ? 'refunded' : 'partial_refunded',
+            'refunded_at'          => now(),
+        ]);
 
         SellerRefundJob::dispatch($orderItem, $payload, $refundAmount);
         RefundOrderItemNotification::dispatch($orderItem, $orderItem->order->user, $payload['quantity'], $refundAmount);
