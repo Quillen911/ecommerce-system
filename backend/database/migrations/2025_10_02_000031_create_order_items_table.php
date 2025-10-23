@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('refunded_quantity')->default(0);
             $table->bigInteger('price_cents')->default(0);
             $table->bigInteger('discount_price_cents')->default(0);
+            $table->bigInteger('cargo_share_cents')->default(0);
             $table->bigInteger('refunded_price_cents')->default(0);
             $table->bigInteger('paid_price_cents')->default(0);
             $table->integer('tax_rate')->default(1800);

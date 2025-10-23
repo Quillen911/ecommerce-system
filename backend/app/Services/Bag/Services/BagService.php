@@ -93,7 +93,7 @@ class BagService implements BagInterface
         });
         $perItemPrice =collect($a) ?? [];
         $final = max($total + $cargo - $discount, 0);
-        
+
         return [
             'products'         => $bagItems,
             'applied_campaign' => $appliedCampaign,

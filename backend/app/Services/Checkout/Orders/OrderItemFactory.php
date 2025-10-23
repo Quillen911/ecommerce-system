@@ -6,7 +6,6 @@ use App\Models\CheckoutSession;
 use App\Models\Order;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class OrderItemFactory
 {
@@ -18,23 +17,35 @@ class OrderItemFactory
     {
         $items = collect();
 
-        $bagSnapshot = $session->bag_snapshot ?? [];
-        $bagItems    = $bagSnapshot['items'] ?? [];
-        $discounts   = collect($bagSnapshot['applied_campaign']['discount_items'] ?? [])
+        $bagSnapshot       = $session->bag_snapshot ?? [];
+        $bagItems          = $bagSnapshot['items'] ?? [];
+        $cargoPriceCents   = $bagSnapshot['totals']['cargo_cents'] ?? 0;
+
+        $discounts = collect($bagSnapshot['applied_campaign']['discount_items'] ?? [])
             ->keyBy('bag_item_id');
 
-        foreach ($bagItems as $snapshot) {
+        $productTotals = collect($bagItems)->mapWithKeys(function ($snapshot) use ($discounts) {
+            $bagItemId    = $snapshot['bag_item_id'];
+            $discount     = $discounts->get($bagItemId);
+            $productTotal = $discount['discounted_total_cents'] ?? $snapshot['total_price_cents'];
+
+            return [$bagItemId => (int) $productTotal];
+        });
+
+        $productTotalSum = max($productTotals->sum(), 1);
+        $allocatedCargo  = 0;
+
+        foreach ($bagItems as $index => $snapshot) {
             $bagItemId = $snapshot['bag_item_id'];
             $discount  = $discounts->get($bagItemId);
 
             $paidPriceCents     = $discount['discounted_total_cents'] ?? $snapshot['total_price_cents'];
             $discountPriceCents = $discount['discount_cents'] ?? 0;
-            Log::info('Order item factory', [
-                'bag_item_id' => $bagItemId,
-                'discount'    => $discount,
-                'paid_price_cents' => $paidPriceCents,
-                'discount_price_cents' => $discountPriceCents,
-            ]);
+
+            $cargoShareCents = $index === array_key_last($bagItems)
+                ? $cargoPriceCents - $allocatedCargo
+                : (int) round($cargoPriceCents * ($productTotals[$bagItemId] / $productTotalSum));
+
             $items->push(
                 $this->orderItems->create([
                     'order_id'               => $order->id,
@@ -48,12 +59,15 @@ class OrderItemFactory
                     'quantity'               => $snapshot['quantity'],
                     'price_cents'            => $snapshot['unit_price_cents'],
                     'discount_price_cents'   => $discountPriceCents,
-                    'paid_price_cents'       => $paidPriceCents,
+                    'paid_price_cents'       => $paidPriceCents + $cargoShareCents,
+                    'cargo_share_cents'      => $cargoShareCents,
                     'payment_transaction_id' => $session->payment_data['intent']['payment_transaction_id'][$bagItemId] ?? null,
                     'status'                 => 'confirmed',
                     'payment_status'         => 'paid',
                 ])
             );
+
+            $allocatedCargo += $cargoShareCents;
         }
 
         return $items;

@@ -26,6 +26,7 @@ class OrderItem extends Model
         'refunded_quantity',
         'price_cents',
         'discount_price_cents',
+        'cargo_share_cents',
         'refunded_price_cents',
         'paid_price_cents',
         'tax_rate',
@@ -39,6 +40,7 @@ class OrderItem extends Model
     protected $casts = [
         'price_cents' => 'integer',
         'discount_price_cents' => 'integer',
+        'cargo_share_cents' => 'integer',
         'paid_price_cents' => 'integer',
         'tax_rate' => 'integer',
         'tax_amount_cents' => 'integer',

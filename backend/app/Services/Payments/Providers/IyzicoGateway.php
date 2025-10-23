@@ -136,13 +136,31 @@ class IyzicoGateway implements PaymentGatewayInterface
         $total = 0;
         $discounts = collect($session->bag_snapshot['applied_campaign']['discount_items'] ?? [])
             ->keyBy('bag_item_id');
+        
+        $bagSnapshot       = $session->bag_snapshot ?? [];
+        $bagItems          = $bagSnapshot['items'] ?? [];
+        $cargoPriceCents   = $bagSnapshot['totals']['cargo_cents'] ?? 0;
 
-        foreach ($session->bag_snapshot['items'] as $item) {
+        $productTotals = collect($bagItems)->mapWithKeys(function ($snapshot) use ($discounts) {
+            $bagItemId    = $snapshot['bag_item_id'];
+            $discount     = $discounts->get($bagItemId);
+            $productTotal = $discount['discounted_total_cents'] ?? $snapshot['total_price_cents'];
+
+            return [$bagItemId => (int) $productTotal];
+        });
+
+        $productTotalSum = max($productTotals->sum(), 1);
+        $allocatedCargo  = 0;
+
+        foreach ($bagItems as $index => $item) {
             $bagItemId = $item['bag_item_id'];
             $discount  = $discounts->get($bagItemId);
             $paidPriceCents = $discount['discounted_total_cents'] ?? $item['total_price_cents'];
-            $price = $paidPriceCents / 100;
-
+            $cargoShareCents = $index === array_key_last($bagItems)
+                ? $cargoPriceCents - $allocatedCargo
+                : (int) round($cargoPriceCents * ($productTotals[$bagItemId] / $productTotalSum));
+            
+            $price = ($paidPriceCents + $cargoShareCents) / 100;
             if ($price <= 0) {
                 continue;
             }
@@ -156,19 +174,7 @@ class IyzicoGateway implements PaymentGatewayInterface
 
             $basketItems[] = $basketItem;
             $total += $price;
-        }
-        
-        $shippingCost = ($session->bag_snapshot['totals']['cargo_cents'] ?? 0) / 100;
-        if ($shippingCost > 0) {
-            $shippingItem = new BasketItem();
-            $shippingItem->setId('shipping');
-            $shippingItem->setName('Kargo Ücreti');
-            $shippingItem->setCategory1('Kargo');
-            $shippingItem->setItemType(BasketItemType::PHYSICAL);
-            $shippingItem->setPrice(sprintf('%.2f', $shippingCost));
-
-            $basketItems[] = $shippingItem;
-            $total        += $shippingCost;
+            $allocatedCargo += $cargoShareCents;
         }
     
         $request->setBasketItems($basketItems);
@@ -218,15 +224,8 @@ class IyzicoGateway implements PaymentGatewayInterface
             $itemTransactions = [];
             foreach ($payment->getPaymentItems() as $item) {
                 $itemTransactions[$item->getItemId()] = $item->getPaymentTransactionId();
-                $itemPrices[$item->getItemId()]  = $item->getPrice(); // Iyzi’de kayıtlı basket price
             }
-            Log::info('Iyzi payment item prices', [
-                'session_id' => $session->id,
-                'tx_map'     => $itemTransactions,
-                'price_map'  => $itemPrices,
-                'basket_items'    => $request->getBasketItems(),
-                'basket_price'    => $request->getPrice(),
-            ]);
+
             return [
                 'provider'               => $this->provider->code,
                 'payment_id'             => $payment->getPaymentId(),
@@ -312,15 +311,6 @@ class IyzicoGateway implements PaymentGatewayInterface
         $refund = Refund::create($request, $this->options);
 
         if ($refund->getStatus() !== 'success') {
-            Log::info([
-                'message' => 'İade işlemi başarısız',
-                'refund' => $refund,
-                'payload' => $payload,
-                'amountCents' => $amountCents,
-                'transactionId' => $transactionId,
-                'message' => $refund->getErrorMessage(),
-                'code' => $refund->getErrorCode(),
-            ]);
             throw new \RuntimeException($refund->getErrorMessage() ?: 'İade işlemi başarısız.', $refund->getErrorCode());
         }
         return [
