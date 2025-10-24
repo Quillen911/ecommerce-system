@@ -6,6 +6,7 @@ export interface CreateSessionRequest {
 export interface GetSessionResponse  {
     session_id: string
     expires_at: string
+    is_active: boolean
     status: string
     bag: Bag
     shipping_data: ShippingData
@@ -17,6 +18,7 @@ export interface GetSessionResponse  {
 export interface CreateSessionResponse {
     session_id: string
     expires_at: string
+    is_active: boolean
     bag: Bag
 }
 

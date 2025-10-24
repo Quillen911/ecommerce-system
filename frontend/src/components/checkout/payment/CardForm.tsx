@@ -84,9 +84,17 @@ export function CardForm({
       ? `${formState.expire_month.padStart(2, "0")}/${formState.expire_year.slice(-2)}`
       : "AA/YY"
 
-  const handleChange = <K extends keyof FormState>(key: K, value: FormState[K]) =>
-    setFormState((prev) => ({ ...prev, [key]: value }))
+  const handleChange = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    if (key === "card_number") {
+      const raw = typeof value === "string" ? value : String(value ?? "")
+      const digits = raw.replace(/\D/g, "").slice(0, 16)
+      const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim()
+      setFormState(prev => ({ ...prev, card_number: formatted }))
+      return
+    }
 
+    setFormState(prev => ({ ...prev, [key]: value }))
+  }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const errors: Record<string, string> = {}
@@ -178,8 +186,16 @@ export function CardForm({
             <h3 className="text-sm font-semibold text-muted-foreground">Kart Bilgileri</h3>
 
             <Input label="Kart Sahibinin Adı" value={formState.card_holder_name} onChange={(v) => handleChange("card_holder_name", v)} error={resolveError("card_holder_name")} />
-            <Input label="Kart Numarası" placeholder="0000 0000 0000 0000" value={formState.card_number} onChange={(v) => handleChange("card_number", v)} error={resolveError("card_number")} />
-
+            <Input
+              label="Kart Numarası"
+              placeholder="0000 0000 0000 0000"
+              value={formState.card_number}
+              maxLength={19}
+              inputMode="numeric"
+              pattern="^[0-9 ]{16,19}$"
+              onChange={(v) => handleChange("card_number", v)}
+              error={resolveError("card_number")}
+            />
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Ay</label>

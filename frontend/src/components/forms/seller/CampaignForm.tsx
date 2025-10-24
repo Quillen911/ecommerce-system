@@ -1,4 +1,3 @@
-// frontend/src/components/seller/CampaignForm.tsx
 "use client"
 
 import { useEffect, useMemo } from "react"
@@ -22,8 +21,8 @@ export interface CampaignFormValues {
   is_active?: boolean
   starts_at?: string | null
   ends_at?: string | null
-  product_ids?: number[] | null
-  category_ids?: number[] | null
+  product_ids?: number[]
+  category_ids?: number[]
 }
 
 interface CampaignFormProps {
@@ -94,7 +93,6 @@ const extractErrorMessages = (error: unknown, bag: Set<string>) => {
     }
 
     Object.entries(error).forEach(([key, value]) => {
-      // Skip circular references that react-hook-form keeps for bookkeeping
       if (key === "ref" || key === "type") return
       extractErrorMessages(value, bag)
     })
@@ -118,8 +116,12 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
       per_user_limit: base.per_user_limit ?? null,
       starts_at: base.starts_at ?? "",
       ends_at: base.ends_at ?? "",
-      product_ids: base.product_ids ?? null,
-      category_ids: base.category_ids ?? null,
+      product_ids: Array.isArray(base.product_ids)
+        ? base.product_ids.filter((id): id is number => Number.isInteger(id))
+        : [],
+      category_ids: Array.isArray(base.category_ids)
+        ? base.category_ids.filter((id): id is number => Number.isInteger(id))
+        : [],
       is_active: base.is_active ?? true,
     }
   }, [initialValues])
@@ -145,8 +147,10 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
   const categoryIds = watch("category_ids")
 
   useEffect(() => {
-    const hasProducts = Array.isArray(productIds) && productIds.filter(Boolean).length > 0
-    const hasCategories = Array.isArray(categoryIds) && categoryIds.filter(Boolean).length > 0
+    const hasProducts =
+      Array.isArray(productIds) && productIds.filter((id) => Number.isInteger(id)).length > 0
+    const hasCategories =
+      Array.isArray(categoryIds) && categoryIds.filter((id) => Number.isInteger(id)).length > 0
 
     if (hasProducts || hasCategories) {
       clearErrors(["product_ids", "category_ids"])
@@ -154,9 +158,12 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
   }, [productIds, categoryIds, clearErrors])
 
   const ensureProductOrCategory = (values: CampaignFormValues) => {
-    const hasProducts = Array.isArray(values.product_ids) && values.product_ids.filter(Boolean).length > 0
+    const hasProducts =
+      Array.isArray(values.product_ids) &&
+      values.product_ids.filter((id) => Number.isInteger(id)).length > 0
     const hasCategories =
-      Array.isArray(values.category_ids) && values.category_ids.filter(Boolean).length > 0
+      Array.isArray(values.category_ids) &&
+      values.category_ids.filter((id) => Number.isInteger(id)).length > 0
 
     if (!hasProducts && !hasCategories) {
       const message = "En az bir ürün ID veya kategori ID girmelisiniz."
@@ -174,10 +181,10 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
       ...values,
       product_ids: Array.isArray(values.product_ids)
         ? values.product_ids.filter((id): id is number => Number.isInteger(id))
-        : null,
+        : [],
       category_ids: Array.isArray(values.category_ids)
         ? values.category_ids.filter((id): id is number => Number.isInteger(id))
-        : null,
+        : [],
       discount_value: values.discount_value ?? null,
       buy_quantity: values.buy_quantity ?? null,
       pay_quantity: values.pay_quantity ?? null,
@@ -478,15 +485,18 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
                 errors.product_ids ? "border-red-400" : "border-gray-300"
               } bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               placeholder="Örn. 12, 45, 78"
+              defaultValue={preparedDefaults.product_ids?.join(", ")}
               {...register("product_ids", {
                 setValueAs: (raw) => {
-                  if (Array.isArray(raw)) return raw
-                  if (typeof raw !== "string") return null
+                  if (Array.isArray(raw)) {
+                    return raw.filter((id): id is number => Number.isInteger(id))
+                  }
+                  if (typeof raw !== "string") return []
                   const parts = raw
                     .split(",")
                     .map((val) => parseInt(val.trim(), 10))
                     .filter((num) => Number.isInteger(num))
-                  return parts.length ? parts : null
+                  return parts
                 },
               })}
             />
@@ -505,15 +515,18 @@ export default function CampaignForm({ initialValues, onSubmit, loading = false 
                 errors.category_ids ? "border-red-400" : "border-gray-300"
               } bg-white p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               placeholder="Örn. 5, 9"
+              defaultValue={preparedDefaults.category_ids?.join(", ")}
               {...register("category_ids", {
                 setValueAs: (raw) => {
-                  if (Array.isArray(raw)) return raw
-                  if (typeof raw !== "string") return null
+                  if (Array.isArray(raw)) {
+                    return raw.filter((id): id is number => Number.isInteger(id))
+                  }
+                  if (typeof raw !== "string") return []
                   const parts = raw
                     .split(",")
                     .map((val) => parseInt(val.trim(), 10))
                     .filter((num) => Number.isInteger(num))
-                  return parts.length ? parts : null
+                  return parts
                 },
               })}
             />

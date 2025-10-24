@@ -78,12 +78,12 @@ class PercentageCampaign extends BaseCampaign
         return $items->map(function($item) use ($rate) {
             $discountedPrice = $item->unit_price_cents * $item->quantity * $rate;
             return [
-                'discount_item_id' => $item->id,
-                'discount_item_product_id' => $item->variant->product_id,
+                'bag_item_id' => $item->id,
+                'product_id' => $item->variant->product_id,
                 'quantity' => $item->quantity,
                 'discount_cents' => round($discountedPrice) ,
-                'total_discounted_price_cents' => ($item->unit_price_cents * $item->quantity - $discountedPrice) ,
-                'per_item_discounted_price_cents' => ($item->unit_price_cents * $item->quantity - $discountedPrice) / ($item->quantity) 
+                'discounted_total_cents' => ($item->unit_price_cents * $item->quantity - $discountedPrice) ,
+                'per_item_discounted_price_cents' => (int) round(($item->unit_price_cents * $item->quantity - $discountedPrice) / ($item->quantity)) 
             ];
         });
     }

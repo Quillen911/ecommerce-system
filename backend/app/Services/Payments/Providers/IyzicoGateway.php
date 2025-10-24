@@ -132,56 +132,31 @@ class IyzicoGateway implements PaymentGatewayInterface
         $billingAddress->setZipCode($billing['postal_code'] ?? '34000');
         $request->setBillingAddress($billingAddress);
 
-        $basketItems = [];
-        $total = 0;
-        $discounts = collect($session->bag_snapshot['applied_campaign']['discount_items'] ?? [])
-            ->keyBy('bag_item_id');
-        
-        $bagSnapshot       = $session->bag_snapshot ?? [];
-        $bagItems          = $bagSnapshot['items'] ?? [];
-        $cargoPriceCents   = $bagSnapshot['totals']['cargo_cents'] ?? 0;
+        $basketItems  = [];
+        $basketTotals = $session->bag_snapshot['totals'] ?? [];
+        $itemTotals   = $basketTotals['item_final_price_cents'] ?? [];
+        $finalPrice   = $basketTotals['final_cents'] / 100;
 
-        $productTotals = collect($bagItems)->mapWithKeys(function ($snapshot) use ($discounts) {
-            $bagItemId    = $snapshot['bag_item_id'];
-            $discount     = $discounts->get($bagItemId);
-            $productTotal = $discount['discounted_total_cents'] ?? $snapshot['total_price_cents'];
-
-            return [$bagItemId => (int) $productTotal];
-        });
-
-        $productTotalSum = max($productTotals->sum(), 1);
-        $allocatedCargo  = 0;
-
-        foreach ($bagItems as $index => $item) {
-            $bagItemId = $item['bag_item_id'];
-            $discount  = $discounts->get($bagItemId);
-            $paidPriceCents = $discount['discounted_total_cents'] ?? $item['total_price_cents'];
-            $cargoShareCents = $index === array_key_last($bagItems)
-                ? $cargoPriceCents - $allocatedCargo
-                : (int) round($cargoPriceCents * ($productTotals[$bagItemId] / $productTotalSum));
+        foreach ($session->bag_snapshot['items'] as $item) {
+            $bagItemId = (string) $item['bag_item_id'];
+            $price     = $itemTotals[$bagItemId] / 100;
             
-            $price = ($paidPriceCents + $cargoShareCents) / 100;
             if ($price <= 0) {
                 continue;
             }
 
             $basketItem = new BasketItem();
-            $basketItem->setId((string) $item['bag_item_id']);
+            $basketItem->setId($bagItemId);
             $basketItem->setName($item['product_title']);
             $basketItem->setCategory1('Genel');
             $basketItem->setItemType(BasketItemType::PHYSICAL);
             $basketItem->setPrice(sprintf('%.2f', $price));
 
             $basketItems[] = $basketItem;
-            $total += $price;
-            $allocatedCargo += $cargoShareCents;
         }
-    
-        $request->setBasketItems($basketItems);
-        $request->setPrice(sprintf('%.2f', $total));
-
-        $finalPrice = $session->bag_snapshot['totals']['final_cents'] / 100;
         
+        $request->setBasketItems($basketItems);
+        $request->setPrice(sprintf('%.2f', $finalPrice));
         $request->setPaidPrice(sprintf('%.2f', $finalPrice));
         $request->setCallbackUrl('https://nonseriately-uncoded-elba.ngrok-free.dev/api/proxy/iyzico-callback');
 

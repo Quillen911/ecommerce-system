@@ -43,6 +43,7 @@ class CheckoutSessionService
             'bag_id'         => optional($bagData['products']->first())->bag_id,
             'bag_snapshot' => $this->prepareBagSnapshot($bagData),
             'status' => 'pending',
+            'is_active' => true,
             'expires_at' => now()->addHours(1),
         ]);
 
@@ -160,19 +161,24 @@ class CheckoutSessionService
             $session = CheckoutSession::where(
                 'payment_data->intent->conversation_id',
                 $conversationId
-            )->first();
+            )
+            ->where('is_active', true)
+            ->first();
         }
 
         if (!$session && $paymentId) {
             $session = CheckoutSession::where(
                 'payment_data->intent->payment_id',
                 $paymentId
-            )->first();
+            )
+            ->where('is_active', true)
+            ->first();
         }
 
         if (!$session && config('app.env') !== 'production') {
             $session = CheckoutSession::where('status', 'confirmed')
                 ->where('payment_data->provider', 'iyzico')
+                ->where('is_active', true)
                 ->latest()
                 ->first();
 
@@ -218,6 +224,7 @@ class CheckoutSessionService
     {
         $session = CheckoutSession::where('id', $sessionId)
             ->where('user_id', $user)
+            ->where('is_active', true)
             ->first();
 
         if (!$session) {
@@ -225,6 +232,8 @@ class CheckoutSessionService
         }
 
         if ($session->expires_at && $session->expires_at->isPast()) {
+            $session->is_active = false;
+            $session->save();
             throw new \RuntimeException('Checkout oturumunun süresi doldu.');
         }
 
@@ -253,9 +262,12 @@ class CheckoutSessionService
             'items'             => $items,
             'totals' => [
                 'total_cents'       => $bagData['total_cents'],
+                'per_item_price_cents' => $bagData['per_item_price_cents'],
                 'cargo_cents'       => $bagData['cargo_price_cents'],
+                'per_item_cargo_price_cents' => $bagData['per_item_cargo_price_cents'],
                 'discount_cents'    => $bagData['discount_cents'] ?? 0, 
                 'final_cents'       => $bagData['final_price_cents'],
+                'item_final_price_cents' => $bagData['item_final_price_cents'],
             ],
             'applied_campaign'  => [
                 'id'          => $bagData['applied_campaign']['id'] ?? null,

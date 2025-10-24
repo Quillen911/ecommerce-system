@@ -1,13 +1,18 @@
+import { InputHTMLAttributes } from "react"
+
 export interface InputProps {
-    label?: string
-    placeholder?: string
-    value?: string
-    onChange?: (value: string) => void
-    type?: string
-    required?: boolean
-    disabled?: boolean
-    error?: string
-    autoComplete?: string
+  label?: string
+  placeholder?: string
+  value?: string
+  onChange?: (value: string) => void
+  type?: string
+  required?: boolean
+  disabled?: boolean
+  error?: string
+  autoComplete?: string
+  maxLength?: number
+  pattern?: string
+  inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"]
 }
 
 export interface User {

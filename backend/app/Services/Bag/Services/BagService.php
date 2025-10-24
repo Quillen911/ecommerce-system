@@ -54,9 +54,9 @@ class BagService implements BagInterface
         }
 
         $total = $this->bagCalculationService->calculateTotal($bagItems);
-        $cargo = $this->bagCalculationService->calculateCargoPrice($total);
+        $perItemCargoPrice = $this->bagCalculationService->calculateItemCargoPrice($bagItems);
         $discount = $bag->campaign_discount_cents ?? 0;
-        $final = max($total + $cargo - $discount, 0);
+        
 
         $discount = 0;
         $discountItems = collect();
@@ -88,22 +88,26 @@ class BagService implements BagInterface
         } else {
             $bag->update(['campaign_discount_cents' => 0]);
         }
-        $a = $bagItems->map(function ($item) {
-            return $item->unit_price_cents * $item->quantity;
+        $a = $bagItems->mapWithKeys(function ($item) {
+            return [$item->id => $item->unit_price_cents * $item->quantity];
         });
         $perItemPrice =collect($a) ?? [];
-        $final = max($total + $cargo - $discount, 0);
+        //dd($perItemPrice, $perItemCargoPrice, $discountItems);
+        $itemFinalPrice = $this->bagCalculationService->itemFinalPrice($perItemCargoPrice->toArray(), $perItemPrice->toArray(), $discountItems->toArray());
+        $final = max($total + $perItemCargoPrice->sum() - $discount, 0);
 
         return [
             'products'         => $bagItems,
             'applied_campaign' => $appliedCampaign,
             'total_cents'      => $total,
-            'cargo_price_cents'=> $cargo,
+            'cargo_price_cents'=> $perItemCargoPrice->sum(),
             'discount_cents'   => $discount,
             'final_price_cents'=> $final,
             'discount_items'   => $discountItems,
             'campaigns'        => $this->allCampaigns(),
             'per_item_price_cents' => $perItemPrice,
+            'per_item_cargo_price_cents' => $perItemCargoPrice,
+            'item_final_price_cents' => $itemFinalPrice,
         ];
         
     }
@@ -172,9 +176,17 @@ class BagService implements BagInterface
         $result   = $handler->calculateDiscount($bagItems->all());
         $discount = $result['discount_cents'] ?? 0;
 
-        $total = $this->bagCalculationService->calculateTotal($bagItems);
-        $cargo = $this->bagCalculationService->calculateCargoPrice($total);
-        $final = max($total + $cargo - $discount, 0);
+        $total             = $this->bagCalculationService->calculateTotal($bagItems);
+        $perItemCargoPrice = $this->bagCalculationService->calculateItemCargoPrice($bagItems);
+        $perItemPrice      = $bagItems->mapWithKeys(fn ($item) => [$item->id => $item->unit_price_cents * $item->quantity]);
+        $discountItems     = collect($result['items'] ?? [])->mapWithKeys(fn ($item) => [$item['bag_item_id'] => $item]);
+
+        $final          = max($total + $perItemCargoPrice->sum() - $discount, 0);
+        $itemFinalPrice = $this->bagCalculationService->itemFinalPrice(
+            $perItemCargoPrice->toArray(),
+            $perItemPrice->toArray(),
+            $discountItems->toArray()
+        );
 
         $bag->update([
             'campaign_id'             => $campaign->id,
@@ -182,13 +194,16 @@ class BagService implements BagInterface
         ]);
 
         return [
-            'products'          => $bagItems,
-            'applied_campaign'  => $bag->campaign,
-            'total_cents'       => $total,
-            'cargo_price_cents' => $cargo,
-            'discount_cents'    => $discount,
-            'final_price_cents' => $final,
-            'discount_items'    => $result['items'] ?? collect(),
+            'products'                       => $bagItems,
+            'applied_campaign'               => $bag->campaign,
+            'total_cents'                    => $total,
+            'cargo_price_cents'              => $perItemCargoPrice->sum(),
+            'discount_cents'                 => $discount,
+            'final_price_cents'              => $final,
+            'discount_items'                 => $discountItems,
+            'per_item_price_cents'           => $perItemPrice,
+            'per_item_cargo_price_cents'     => $perItemCargoPrice,
+            'item_final_price_cents'         => $itemFinalPrice,
         ];
     }
 
@@ -209,21 +224,32 @@ class BagService implements BagInterface
         $bagItems = $bag->bagItems()->with('variantSize.productVariant.variantImages', 'variantSize.productVariant.product.category')->get();
         $bagItems = $this->checkProductAvailability($bagItems, $bag);
 
-        $total = $this->bagCalculationService->calculateTotal($bagItems);
-        $cargo = $this->bagCalculationService->calculateCargoPrice($total);
-        $final = max($total + $cargo, 0);
+        $total             = $this->bagCalculationService->calculateTotal($bagItems);
+        $perItemCargoPrice = $this->bagCalculationService->calculateItemCargoPrice($bagItems);
+        $perItemPrice      = $bagItems->mapWithKeys(fn ($item) => [$item->id => $item->unit_price_cents * $item->quantity]);
+
+        $final          = max($total + $perItemCargoPrice->sum(), 0);
+        $itemFinalPrice = $this->bagCalculationService->itemFinalPrice(
+            $perItemCargoPrice->toArray(),
+            $perItemPrice->toArray(),
+            []
+        );
 
         return [
-            'products'              => $bagItems,
-            'appliedCampaign'       => null,
-            'total_cents'           => $total,
-            'total'                 => $total / 100,
-            'cargoPrice_cents'      => $cargo,
-            'cargoPrice'            => $cargo / 100,
-            'discount_cents'        => 0,
-            'discount'              => 0,
-            'finalPrice_cents'      => $final,
-            'finalPrice'            => $final / 100,
+            'products'                       => $bagItems,
+            'appliedCampaign'                => null,
+            'total_cents'                    => $total,
+            'total'                          => $total / 100,
+            'cargoPrice_cents'               => $perItemCargoPrice->sum(),
+            'cargoPrice'                     => $perItemCargoPrice->sum() / 100,
+            'discount_cents'                 => 0,
+            'discount'                       => 0,
+            'finalPrice_cents'               => $final,
+            'finalPrice'                     => $final / 100,
+            'discount_items'                 => collect(),
+            'per_item_price_cents'           => $perItemPrice,
+            'per_item_cargo_price_cents'     => $perItemCargoPrice,
+            'item_final_price_cents'         => $itemFinalPrice,
         ];
     }
 
