@@ -35,35 +35,36 @@ trait ElasticSearchTrait
 
         return $query;
     }
-
-    public function getSortTrait(string $sorting = ''): array
+    public function getSortTrait(string $sorting = '', array $variantSortQuery = null): array
     {
+        $nestedClause = [
+            'path' => 'variants',
+        ];
+
+        if ($variantSortQuery !== null) {
+            $nestedClause['filter'] = $variantSortQuery;
+        } else {
+            $nestedClause['filter'] = [
+                'term' => ['variants.is_active' => true],
+            ];
+        }
+
         switch ($sorting) {
             case 'price_asc':
                 return [[
                     'variants.price_cents' => [
-                        'order' => 'asc',
-                        'mode'  => 'min',  // En düşük fiyatlı varyanta göre
-                        'nested' => [
-                            'path' => 'variants',
-                            'filter' => [
-                                'term' => ['variants.is_active' => true]
-                            ]
-                        ]
-                    ]
+                        'order'  => 'asc',
+                        'mode'   => 'min',
+                        'nested' => $nestedClause,
+                    ],
                 ]];
             case 'price_desc':
                 return [[
                     'variants.price_cents' => [
-                        'order' => 'desc',
-                        'mode'  => 'max',  // En yüksek fiyatlı varyanta göre
-                        'nested' => [
-                            'path' => 'variants',
-                            'filter' => [
-                                'term' => ['variants.is_active' => true]
-                            ]
-                        ]
-                    ]
+                        'order'  => 'desc',
+                        'mode'   => 'max',
+                        'nested' => $nestedClause,
+                    ],
                 ]];
             case 'newest':
                 return [['created_at' => ['order' => 'desc']]];
@@ -72,13 +73,5 @@ trait ElasticSearchTrait
             default:
                 return ['_score' => ['order' => 'desc']];
         }
-    }
-
-    public function mergeFiltersTrait(array $filters): array
-    {
-        return array_merge(
-            $this->getCategoryFilterTrait($filters),
-            $this->getPriceFilterTrait($filters),
-        );
     }
 }

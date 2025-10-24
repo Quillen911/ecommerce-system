@@ -96,6 +96,7 @@ return [
                     'type' => 'nested',
                     'properties' => [
                         'id' => ['type' => 'integer'],
+                        'product_id' => ['type' => 'integer'],
                         'sku' => ['type' => 'keyword'],
                         'slug' => ['type' => 'keyword'],
                         'color_name' => ['type' => 'keyword'],

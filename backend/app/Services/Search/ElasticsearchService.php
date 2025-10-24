@@ -81,10 +81,10 @@ class ElasticsearchService
 
     public function searchProducts(?string $query = '', array $filters = [], string $sorting = '', int $page = 1, int $size = 7): array
     {
-        try{
-            $from = ($page-1) * $size;
+        try {
+            $from = ($page - 1) * $size;
             $searchQuery = [];
-            //search query
+
             if (!empty($query)) {
                 $searchQuery['bool']['must'][] = [
                     'bool' => [
@@ -93,8 +93,8 @@ class ElasticsearchService
                                 'multi_match' => [
                                     'query'     => $query,
                                     'fields'    => ['title^3', 'category_title^2', 'gender^2'],
-                                    'fuzziness' => 'AUTO'
-                                ]
+                                    'fuzziness' => 'AUTO',
+                                ],
                             ],
                             [
                                 'nested' => [
@@ -103,119 +103,134 @@ class ElasticsearchService
                                         'multi_match' => [
                                             'query'  => $query,
                                             'fields' => ['variants.sku', 'variants.color_name^2'],
-                                            'fuzziness' => 'AUTO'
-                                        ]
-                                    ]
-                                ]
+                                            'fuzziness' => 'AUTO',
+                                        ],
+                                    ],
+                                ],
                             ],
-                        ]
-                    ]
+                        ],
+                    ],
                 ];
             } else {
                 $searchQuery['bool']['filter'][] = [
                     'nested' => [
-                        'path' => 'variants',
+                        'path'  => 'variants',
                         'query' => [
                             'term' => [
-                                'variants.is_popular' => true
-                            ]
-                        ]
-                    ]
+                                'variants.is_popular' => true,
+                            ],
+                        ],
+                    ],
                 ];
             }
 
-            $categoryFilters = $this->getCategoryFilterTrait($filters);
-            
             $variantMustQueries = [];
-            
-            if(isset($filters['min_price']) || isset($filters['max_price'])) {
-                $range = [];
-                if (isset($filters['min_price'])) $range['gte'] = (int)($filters['min_price'] * 100);
-                if (isset($filters['max_price'])) $range['lte'] = (int)($filters['max_price'] * 100);
-                
+
+            if (isset($filters['color'])) {
+                $colors = is_array($filters['color']) ? $filters['color'] : explode(',', $filters['color']);
                 $variantMustQueries[] = [
-                    'range' => ['variants.price_cents' => $range]
+                    'terms' => [
+                        'variants.color_code' => $colors,
+                    ],
                 ];
             }
-            
+
             if (isset($filters['sizes'])) {
                 $sizes = is_array($filters['sizes']) ? $filters['sizes'] : explode(',', $filters['sizes']);
                 $variantMustQueries[] = [
                     'nested' => [
-                        'path' => 'variants.sizes',
+                        'path'  => 'variants.sizes',
                         'query' => [
-                            'nested' => [
-                                'path' => 'variants.sizes.size_option',
-                                'query' => [
-                                    'terms' => [
-                                        'variants.sizes.size_option.slug' => $sizes
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                            'terms' => [
+                                'variants.sizes.size_option.slug' => $sizes,
+                            ],
+                        ],
+                    ],
                 ];
             }
-            
-            if (isset($filters['color'])) {
-                $colors = is_array($filters['color']) ? $filters['color'] : explode(',', $filters['color']);
+
+            if (isset($filters['min_price']) || isset($filters['max_price'])) {
+                $range = [];
+                if (isset($filters['min_price'])) {
+                    $range['gte'] = (int) ($filters['min_price'] * 100);
+                }
+                if (isset($filters['max_price'])) {
+                    $range['lte'] = (int) ($filters['max_price'] * 100);
+                }
+
                 $variantMustQueries[] = [
-                    'terms' => ['variants.color_code' => $colors]
+                    'range' => ['variants.price_cents' => $range],
                 ];
             }
-            
-            $variantQuery = empty($variantMustQueries) 
+
+            $variantQuery = empty($variantMustQueries)
                 ? ['match_all' => new \stdClass()]
                 : ['bool' => ['must' => $variantMustQueries]];
 
-            $sortArray = $this->getSortTrait($sorting);
-            
+            if (isset($variantQuery['bool']['must'])) {
+                $variantQuery['bool']['must'][] = ['term' => ['variants.is_active' => true]];
+            } else {
+                $variantQuery = [
+                    'bool' => [
+                        'must' => [
+                            ['term' => ['variants.is_active' => true]],
+                        ],
+                    ],
+                ];
+            }
+
+            $sortArray = $this->getSortTrait($sorting, $variantQuery);
+
             $boolQuery = [
-                'filter' => array_merge(
-                    $categoryFilters,
-                    [[
-                        'nested' => [
-                            'path' => 'variants',
-                            'query' => $variantQuery,
-                            'inner_hits' => [
-                                'size' => 100
-                            ]
-                        ]
-                    ]]
-                )
+                'filter' => [[
+                    'nested' => [
+                        'path'       => 'variants',
+                        'query'      => $variantQuery,
+                        'inner_hits' => [
+                            'size' => 100,
+                        ],
+                    ],
+                ]],
             ];
-            
+
+            if (!empty($filters['gender'])) {
+                $boolQuery['filter'][] = [
+                    'term' => ['gender.keyword' => $filters['gender']],
+                ];
+            }
+
             if (!empty($searchQuery['bool']['must'])) {
                 $boolQuery['must'] = $searchQuery['bool']['must'];
             }
-            
+
             $params = [
                 'index' => 'products',
-                'body' => [
+                'body'  => [
                     'query' => [
-                        'bool' => $boolQuery
+                        'bool' => $boolQuery,
                     ],
                     'size' => $size,
                     'from' => $from,
-                    'sort' => $sortArray              
-                ]
-            ];
-            
-            $response = $this->client->search($params);
-            return [
-                'hits' => $response['hits']['hits'],
-                'total' => $response['hits']['total']['value'],
-                'page' => $page,
-                'size' => $size
+                    'sort' => $sortArray,
+                ],
             ];
 
-        } catch(\Exception $e){
-            Log::error("Product search failed", ['error' => $e->getMessage()]);
+            $response = $this->client->search($params);
+
             return [
-                'hits' => [],
+                'hits'  => $response['hits']['hits'],
+                'total' => $response['hits']['total']['value'],
+                'page'  => $page,
+                'size'  => $size,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Product search failed', ['error' => $e->getMessage()]);
+
+            return [
+                'hits'  => [],
                 'total' => 0,
-                'page' => $page,
-                'size' => $size
+                'page'  => $page,
+                'size'  => $size,
             ];
         }
     }

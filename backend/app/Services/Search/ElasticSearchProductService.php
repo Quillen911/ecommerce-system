@@ -16,7 +16,7 @@ class ElasticSearchProductService
     {
         if ($query) {
             $lowerQuery = mb_strtolower($query, 'UTF-8');
-    
+
             if (str_contains($lowerQuery, 'kız çocuk')) {
                 $filters['gender'] = 'Kız Çocuk';
                 $query = trim(str_ireplace('kız çocuk', 'çocuk', $query));
@@ -25,12 +25,43 @@ class ElasticSearchProductService
                 $query = trim(str_ireplace('erkek çocuk', 'çocuk', $query));
             }
         }
-    
+
         $results = $this->elasticSearch->searchProducts($query, $filters, $sorting, $page, $size);
-    
+
+        $products = collect($results['hits'])
+            ->map(function ($hit) {
+                $source = $hit['_source'];
+
+                $matchedVariantHits = $hit['inner_hits']['variants']['hits']['hits'] ?? [];
+                if (empty($matchedVariantHits)) {
+                    return null;
+                }
+
+                $matchedVariants = collect($matchedVariantHits)
+                    ->map(fn ($variantHit) => $variantHit['_source'])
+                    ->values()
+                    ->all();
+
+                $source['variants'] = $matchedVariants;
+
+                $prices = collect($matchedVariants)->pluck('price_cents');
+                $source['matched_variant_min_price_cents'] = $prices->min();
+                $source['matched_variant_max_price_cents'] = $prices->max();
+
+                return $source;
+            })
+            ->filter()
+            ->values();
+
+        if ($sorting === 'price_asc') {
+            $products = $products->sortBy('matched_variant_min_price_cents')->values();
+        } elseif ($sorting === 'price_desc') {
+            $products = $products->sortByDesc('matched_variant_max_price_cents')->values();
+        }
+
         return [
-            'products' => collect($results['hits'])->pluck('_source')->toArray(),
-            'results'  => $results
+            'products' => $products->toArray(),
+            'results'  => $results,
         ];
     }
 
