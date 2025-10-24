@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
@@ -17,20 +17,16 @@ import { useMe } from "@/hooks/useAuthQuery"
 export default function ShippingStepPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [resolvedSessionId, setResolvedSessionId] = useState<string | undefined>(undefined)
-  const [shouldRedirect, setShouldRedirect] = useState(false)
+
+  const sessionId = searchParams.get("session") ?? undefined
 
   useEffect(() => {
-    const sessionParam = searchParams.get("session")
-    setResolvedSessionId(sessionParam ?? "")
-    if (!sessionParam) setShouldRedirect(true)
-  }, [searchParams])
+    if (!sessionId) {
+      router.replace("/bag")
+    }
+  }, [sessionId, router])
 
-  useEffect(() => {
-    if (shouldRedirect) router.replace("/bag")
-  }, [shouldRedirect, router])
-
-  if (resolvedSessionId === undefined) {
+  if (!sessionId) {
     return (
       <CheckoutLayout currentStep="shipping">
         <div className="py-12 text-center text-muted-foreground">Yükleniyor…</div>
@@ -38,26 +34,7 @@ export default function ShippingStepPage() {
     )
   }
 
-  if (shouldRedirect) {
-    return (
-      <CheckoutLayout currentStep="shipping">
-        <div className="py-12 text-center">
-          <h2 className="text-xl font-semibold mb-2">Session bulunamadı.</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Lütfen sepet sayfasına dönüp checkout akışını yeniden başlatın.
-          </p>
-          <Link
-            href="/bag"
-            className="rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-dark)] transition"
-          >
-            Sepete Git
-          </Link>
-        </div>
-      </CheckoutLayout>
-    )
-  }
-
-  return <ShippingContent sessionId={resolvedSessionId} />
+  return <ShippingContent sessionId={sessionId} />
 }
 
 function ShippingContent({ sessionId }: { sessionId: string }) {
@@ -66,21 +43,12 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
   const { data, isLoading, isError } = useCheckoutSession(sessionId)
   const updateShipping = useUpdateShipping()
 
-  if (meLoading) {
-    return (
-      <CheckoutLayout currentStep="shipping">
-        <div className="py-12 text-center">
-          <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
-        </div>
-      </CheckoutLayout>
-    )
-  }
 
   if (!me) {
     return (
       <CheckoutLayout currentStep="shipping">
         <div className="py-12 text-center">
-          <h2 className="text-xl font-semibold mb-2">Giriş yapmanız gerekiyor.</h2>
+          <h2 className="mb-2 text-xl font-semibold">Giriş yapmanız gerekiyor.</h2>
           <p className="text-sm text-muted-foreground">
             Teslimat adımına devam etmek için lütfen hesabınıza giriş yapın.
           </p>
@@ -93,7 +61,9 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
     return (
       <CheckoutLayout currentStep="shipping">
         <div className="py-12 text-center">
-          <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Teslimat bilgileri yükleniyor...</p>
+          <p className="mb-2 text-lg font-semibold text-gray-900 animate-pulse">
+            Teslimat bilgileri yükleniyor...
+          </p>
         </div>
       </CheckoutLayout>
     )
@@ -103,10 +73,16 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
     return (
       <CheckoutLayout currentStep="shipping">
         <div className="py-12 text-center">
-          <h2 className="text-xl font-semibold mb-2">Session bulunamadı.</h2>
-          <p className="text-sm text-muted-foreground">
-            Lütfen sepet sayfasından checkout akışını yeniden başlatın.
+          <h2 className="mb-2 text-xl font-semibold">Ödeme Akışı bulunamadı.</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Lütfen sepet sayfasına dönüp checkout akışını yeniden başlatın.
           </p>
+          <Link
+            href="/bag"
+            className="inline-block rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-600"
+          >
+            Sepete Git
+          </Link>
         </div>
       </CheckoutLayout>
     )
@@ -134,7 +110,7 @@ function ShippingContent({ sessionId }: { sessionId: string }) {
 
   return (
     <CheckoutLayout currentStep="shipping" bag={data.bag}>
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <StepBackButton fallbackHref="/bag" />
       </div>
 

@@ -58,7 +58,7 @@ export default function PaymentStepPage() {
     return (
       <CheckoutLayout currentStep="payment">
         <div className="py-12 text-center">
-          <h2 className="mb-2 text-xl font-semibold">Session bulunamadı.</h2>
+          <h2 className="mb-2 text-xl font-semibold">Ödeme Akışı bulunamadı.</h2>
           <p className="text-sm text-muted-foreground">
             Lütfen sepet sayfasına dönüp tekrar işlem yapınız.
           </p>
