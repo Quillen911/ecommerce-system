@@ -16,16 +16,16 @@ class RefundOrderItemNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $orderItem;
     protected $user;
-    protected $quantity;
+    protected $payload;
     protected $price;
     /**
      * Create a new job instance.
      */
-    public function __construct(OrderItem $orderItem, User $user, $quantity, $price)
+    public function __construct(OrderItem $orderItem, User $user, $payload, $price)
     {
         $this->orderItem = $orderItem;
         $this->user = $user;
-        $this->quantity = $quantity;
+        $this->payload = $payload;
         $this->price = $price;
         
         $this->onQueue('notifications');
@@ -36,7 +36,7 @@ class RefundOrderItemNotification implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->user->notify(new OrderItemRefunded($this->orderItem, $this->quantity, $this->price, $this->user));
+        $this->user->notify(new OrderItemRefunded($this->orderItem, $this->payload, $this->price, $this->user));
     }
     public function failed($exception)
     {

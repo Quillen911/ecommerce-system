@@ -1,8 +1,7 @@
-{{-- resources/views/mail/orders/refunded.blade.php --}}
 @component('mail::message')
 # Merhaba {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: ($user->username ?? 'Müşterimiz') }},
 
-Siparişinizde yer alan bir ürün için iade süreciniz tamamlandı. Aşağıda detayları bulabilirsiniz.
+Siparişinizde yer alan bir ürün için iade süreciniz tamamlandı. Ayrıntıları aşağıda paylaşıyoruz.
 
 @component('mail::panel')
 @if (!empty($image))
@@ -13,16 +12,28 @@ Siparişinizde yer alan bir ürün için iade süreciniz tamamlandı. Aşağıda
 
 **Ürün:** {{ $orderItem['product_title'] }}
 
-**Renk:** {{ $orderItem['color_name'] ?? '-' }}  
-**Adet:** {{ $orderItem['quantity'] }}  
-**Durum:** {{ ucfirst($orderItem['payment_status'] == 'Refunded' ? 'İade Edildi' : 'İade Edildi') }}
+@if (!empty($orderItem['color_name']))
+**Renk:** {{ $orderItem['color_name'] }}
+@endif
+
+@if (!empty($orderItem['size_name']))
+**Beden:** {{ $orderItem['size_name'] }}
+@endif
+
+**İade Edilen Adet:** {{ $quantity }}
+**İade Tutarı:** {{ $price }} ₺
+
+@if (!empty($reason))
+**İade Nedeni:** {{ $reason }}
+@endif
+
 @endcomponent
 
 @component('mail::button', ['url' => $actionUrl])
 İade İşlemini Görüntüle
 @endcomponent
 
-Sorularınız için istediğiniz zaman bizimle iletişime geçebilirsiniz.
+Sorularınız olursa dilediğiniz zaman bizimle iletişime geçebilirsiniz.
 
 Saygılarımızla,  
 **Quillen Ekibi**

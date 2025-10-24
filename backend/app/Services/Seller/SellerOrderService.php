@@ -170,7 +170,7 @@ class SellerOrderService
         ]);
 
         SellerRefundJob::dispatch($orderItem, $payload, $refundAmount);
-        RefundOrderItemNotification::dispatch($orderItem, $orderItem->order->user, $payload['quantity'], $refundAmount);
+        RefundOrderItemNotification::dispatch($orderItem, $orderItem->order->user, $payload, $refundAmount);
         return $gatewayResponse;
     }
 

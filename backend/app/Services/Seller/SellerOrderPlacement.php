@@ -11,9 +11,10 @@ class SellerOrderPlacement
     public function placeSellerOrder($orderItem, $payload, $refundAmount): void
     {
         DB::transaction(function () use ($orderItem, $payload, $refundAmount) {
-            $newRefundedQuantity = ($orderItem->refunded_quantity ?? 0) + (int) $payload['quantity'];
-            $newRefundedPrice = ($orderItem->refunded_price_cents ?? 0) + $refundAmount;
-
+            $order = $orderItem->order;
+            $order->update([
+                'status' => 'refunded',
+            ]);
             $orderRefund = OrderRefund::create([
                 'order_id'           => $orderItem->order_id,
                 'user_id'            => $payload['user_id'] ?? $orderItem->order->user_id,
