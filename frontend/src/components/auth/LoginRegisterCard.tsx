@@ -230,7 +230,7 @@ export default function LoginRegisterSplit() {
                     error={fieldError("password")}
                   />
                   <div className="flex items-center justify-end">
-                    <button type="button" className="text-sm text-gray-500 hover:underline cursor-pointer">
+                    <button onClick={() => router.push("/login/forgot-password")} type="button" className="text-sm text-gray-500 hover:underline cursor-pointer">
                       Şifremi unuttum
                     </button>
                   </div>

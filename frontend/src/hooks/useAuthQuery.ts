@@ -1,12 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/authApi' 
-import { LoginRequest, RegisterRequest } from '@/types/user'
+import { LoginRequest, RegisterRequest, ForgotPasswordRequest, ResetPasswordRequest, ForgotPasswordResponse, ResetPasswordResponse } from '@/types/user'
 import { useRouter } from 'next/navigation'
 
 export const authKeys = {
   all: ['auth'] as const,
   me: () => [...authKeys.all, 'me'] as const,
 }
+
+type ApiErrorPayload = {
+  message?: string;
+  errors?: Record<string, string[]>;
+};
 
 export const useMe = () => {
   return useQuery({
@@ -114,6 +119,28 @@ export const useUpdateProfile = () => {
     }
   })
 }
+
+export const useForgotPassword = () =>
+  useMutation<ForgotPasswordResponse, ApiErrorPayload, ForgotPasswordRequest>({
+    mutationFn: async (payload) => {
+      const { data } = await authApi.forgotPassword(payload);
+      return data;
+    },
+    onError: (error) => {
+      // handleApiError(error);
+    },
+  });
+
+export const useResetPassword = () =>
+  useMutation<ResetPasswordResponse, ApiErrorPayload, ResetPasswordRequest>({
+    mutationFn: async (payload) => {
+      const { data } = await authApi.resetPassword(payload);
+      return data;
+    },
+    onError: (error) => {
+      // handleApiError(error);
+    },
+  });
 
 export const useCsrf = () => {
   return useMutation({

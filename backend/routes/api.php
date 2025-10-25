@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\BagController;
 use App\Http\Controllers\Api\MainController;
 use App\Http\Controllers\Api\Seller\CampaignController;
@@ -30,6 +31,8 @@ use App\Http\Controllers\Api\Checkout\CheckoutController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [ResetPasswordController::class, 'forgotPassword']);
+Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 Route::post('/seller/login', [AuthController::class, 'sellerLogin']);
 
 Route::prefix('main')->group(function(){

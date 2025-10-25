@@ -8,7 +8,11 @@ import {
     ProfileResponse, 
     UpdateProfileRequest, 
     UpdateProfileResponse, 
-    LogoutResponse } from '@/types/user'
+    LogoutResponse,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+    ResetPasswordRequest,
+    ResetPasswordResponse } from '@/types/user'
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -46,5 +50,7 @@ export const authApi = {
     me: () => api.get<MeResponse>('/me'),
     profile: () => api.get<ProfileResponse>('/account/profile'),
     updateProfile: (data: UpdateProfileRequest) => api.put<UpdateProfileResponse>('/account/profile', data),
+    forgotPassword: (data: ForgotPasswordRequest) => api.post<ForgotPasswordResponse>('/forgot-password', data),
+    resetPassword: (data: ResetPasswordRequest) => api.post<ResetPasswordResponse>('/reset-password', data),
     logout: () => api.post<LogoutResponse>('/logout'),
 }   
