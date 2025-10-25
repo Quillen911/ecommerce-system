@@ -2,13 +2,14 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { FiPackage, FiTag, FiHash, FiTruck, FiDollarSign, FiArrowLeft } from "react-icons/fi";
-import { useOrderDetail } from "@/hooks/seller/useOrderQuery";
+import { FiPackage, FiTag, FiHash, FiTruck, FiDollarSign, FiArrowLeft, FiCheck, FiX } from "react-icons/fi";
+import { useOrderConfirm, useOrderDetail } from "@/hooks/seller/useOrderQuery";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import ProductImage from "@/components/ui/ProductImage";
 import { OrderItem } from "@/types/order";
 import RefundModal from "@/components/seller/order/RefundModal";
+import ConfirmModal from "@/components/seller/order/ConfirmModal";
 
 const formatCents = (value?: number | null) =>
   typeof value === "number" ? (value / 100).toLocaleString("tr-TR", { style: "currency", currency: "TRY" }) : "—";
@@ -26,11 +27,19 @@ export default function OrderDetail() {
     open:false,
     item:null,
   })
+  const [shipmentPromptOpen, setShipmentPromptOpen] = useState(false);
+  const { mutateAsync: confirmShipment, isPending: isConfirmingShipment } = useOrderConfirm();
+
   const openRefundModal = (item:OrderItem) => setRefundState({ open:true, item});
   const closeRefundModal = () => setRefundState({ open:false, item:null});
   const checkRefundable = (item:OrderItem) => {
     return item.quantity > (item.refunded_quantity ?? 0);
   }
+  const handleShipmentConfirm = async () => {
+    await confirmShipment({ orderId });
+    setShipmentPromptOpen(false);
+  };
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -119,7 +128,6 @@ export default function OrderDetail() {
         <div className="space-y-2">
             <div onClick={() => router.push('/seller/order')} className="cursor-pointer">
                 <FiArrowLeft className="h-4 w-4" />
-                Geri
             </div>
           <div className="inline-flex items-center gap-2 rounded-full bg-gray-900/10 px-3 py-1 text-xs font-semibold text-gray-900">
             <FiHash className="h-4 w-4" />
@@ -130,21 +138,21 @@ export default function OrderDetail() {
             <span className="inline-flex items-center gap-2">
               <FiTruck className="h-4 w-4 text-gray-500" />
               Durum:{" "}
-              <span className="font-medium text-gray-900">
+              <span className="font-medium text-gray-900 bg-gray-900/10 px-2 py-1 rounded-full">
                 {orderItem.status == "refunded" ? "İade Edildi" : orderItem.status == 'confirmed' ? "Onaylandı" : orderItem.status == 'shipped' ? "Gönderildi" : "Bekliyor"}
               </span>
             </span>
             <span className="inline-flex items-center gap-2">
               <FiPackage className="h-4 w-4 text-gray-500" />
               Kargo:{" "}
-              <span className="font-medium text-gray-900">
+              <span className="font-medium text-gray-900 bg-gray-900/10 px-2 py-1 rounded-full">
                 {cargoPrice > 0 ? "Kargo Ücreti Ödendi" : "Ücretsiz"}
               </span>
             </span>
             <span className="inline-flex items-center gap-2">
               <FiDollarSign className="h-4 w-4 text-gray-500" />
               Ödeme:{" "}
-              <span className="font-medium text-gray-900">
+              <span className="font-medium text-gray-900 bg-gray-900/10 px-2 py-1 rounded-full">
                 {orderItem.payment_status == "refunded" ? "İade Edildi" : "Ödendi"}
               </span>
             </span>
@@ -157,12 +165,21 @@ export default function OrderDetail() {
             </span>
           </div>
         </div>
-        <div className="rounded-2xl bg-gray-100 p-4 text-right text-sm text-gray-600">
-          <p>Oluşturma: <span className="font-medium text-gray-900">{formatDate(orderItem.created_at)}</span></p>
-          <p>Son Güncelleme: <span className="font-medium text-gray-900">{formatDate(orderItem.updated_at)}</span></p>
+        <div className="flex flex-col gap-4">
+          <div className="rounded-md bg-gray-100 p-4 text-right text-sm text-gray-600">
+            <p>Oluşturma: <span className="font-medium text-gray-900">{formatDate(orderItem.created_at)}</span></p>
+            <p>Son Güncelleme: <span className="font-medium text-gray-900">{formatDate(orderItem.updated_at)}</span></p>
+          </div>
+          <button
+            disabled={orderItem.status === "shipped"}
+            onClick={() => setShipmentPromptOpen(true)}
+            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-[10px] text-sm font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300 cursor-pointer"
+          >
+            <FiTruck className="h-4 w-4" />
+            Siparişi Kargoya Verildi Olarak İşaretle
+          </button>
         </div>
       </div>
-
       <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
         <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm">
           {mainImage ? (
@@ -270,14 +287,14 @@ export default function OrderDetail() {
             </div>
           )}
           {checkRefundable(orderItem) && (
-          <div className="flex items-center justify-center">
-            <button
-              className="rounded-md  bg-[var(--danger)] py-2 px-6 text-white cursor-pointer"
-              onClick={() => orderItem && openRefundModal(orderItem)}
-            >
-              İade Et
-            </button>
-          </div>
+            <div className="flex items-center justify-center">
+              <button
+                className="rounded-md  bg-[var(--danger)] py-2 px-6 text-white cursor-pointer"
+                onClick={() => orderItem && openRefundModal(orderItem)}
+              >
+                İade Et
+              </button>
+            </div>
           )}
           {!checkRefundable(orderItem) && (
             <div className="mt-4 flex items-center justify-center rounded-xl bg-black p-3">
@@ -288,6 +305,15 @@ export default function OrderDetail() {
             open={refundState.open}
             orderItem={refundState.item}
             onClose={closeRefundModal}
+          />
+
+          
+
+          <ConfirmModal
+            open={shipmentPromptOpen}
+            loading={isConfirmingShipment}
+            onConfirm={handleShipmentConfirm}
+            onCancel={() => setShipmentPromptOpen(false)}
           />
         </div>
       </div>

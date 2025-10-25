@@ -60,3 +60,17 @@ export const useOrderRefund = () => {
     },
   });
 };
+
+export const useOrderConfirm = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ orderId }: { orderId: number }) => {
+      await orderApi.confirmOrderItem(orderId);
+    },
+    onSuccess: (_data, { orderId }) => {
+      qc.invalidateQueries({ queryKey: sellerOrderKeys.detail(orderId) });
+    },
+  });
+};
+

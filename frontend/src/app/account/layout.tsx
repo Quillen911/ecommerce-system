@@ -33,7 +33,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   const toggleMenu = () => setIsMobileMenuOpen((prev) => !prev);
 
   return (
-    <div className="relative flex min-h-screen bg-gray-50 md:pl-[260px]">
+    <div className="relative flex min-h-screen bg-gray-50">
       <DesktopSidebar menuItems={menuItems} isActive={isActive} />
 
       <AnimatePresence>
@@ -79,11 +79,14 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
         transition={{ duration: 0.35, ease: "easeOut" }}
         style={{
           transform: isMobileMenuOpen
-            ? `translateX(${Math.min(typeof window !== "undefined" ? window.innerWidth * 0.85 : DRAWER_WIDTH, DRAWER_WIDTH)}px)`
+            ? `translateX(${Math.min(
+                typeof window !== "undefined" ? window.innerWidth * 0.85 : DRAWER_WIDTH,
+                DRAWER_WIDTH
+              )}px)`
             : undefined,
           transition: "transform 0.25s ease",
         }}
-        className="flex-1 px-4 pb-10 pt-20 sm:px-6 sm:pt-24 lg:px-10 md:pt-12 md:pl-10"
+        className="flex-1 px-4 pb-16 pt-20 sm:px-6 sm:pt-24 md:px-10 md:pt-14"
       >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
           <div className="md:hidden">
@@ -108,19 +111,21 @@ function DesktopSidebar({ menuItems, isActive }: SidebarProps) {
       initial={{ x: -80, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="fixed top-0 left-0 hidden h-full w-[260px] shrink-0 flex-col border-r border-gray-200 bg-white px-6 py-8 shadow-sm md:flex"
+      className="relative hidden w-[240px] shrink-0 border-r border-gray-200 bg-white md:flex"
     >
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Hesabım</h2>
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: 48 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-2 h-1 rounded-full bg-black"
-        />
-      </div>
+      <div className="sticky top-24 flex h-[calc(100vh-6rem)] flex-col px-6 py-8">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Hesabım</h2>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: 48 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-2 h-1 rounded-full bg-black"
+          />
+        </div>
 
-      <SidebarLinks menuItems={menuItems} isActive={isActive} />
+        <SidebarLinks menuItems={menuItems} isActive={isActive} />
+      </div>
     </motion.aside>
   );
 }
@@ -142,7 +147,7 @@ function SidebarLinks({ menuItems, isActive, onLinkClick }: SidebarLinksProps) {
           <Link
             href={item.href}
             onClick={onLinkClick}
-            className={`flex items-center rounded-lg px-4 py-3 text-sm sm:text-base transition-colors duration-200 ${
+            className={`flex items-center rounded-lg px-4 py-3 text-sm transition-colors duration-200 sm:text-base ${
               isActive(item.href)
                 ? "bg-gray-100 text-gray-900 shadow-sm"
                 : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"

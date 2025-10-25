@@ -35,7 +35,7 @@ class ShippedOrderItemNotification implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->user->notify(new OrderItemShipped($this->orderItem));
+        $this->user->notify(new OrderItemShipped($this->orderItem, $this->user));
     }
     public function failed(\Throwable $exception)
     {

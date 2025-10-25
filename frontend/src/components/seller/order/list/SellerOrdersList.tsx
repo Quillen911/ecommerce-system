@@ -24,7 +24,6 @@ export default function SellerOrdersList({ orderItems }: OrderItemsListProps) {
   const router = useRouter();
   const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
 
-  // localStorage'dan daha önce kapatılmış rozetleri çek
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -35,12 +34,10 @@ export default function SellerOrdersList({ orderItems }: OrderItemsListProps) {
       const parsed: number[] = JSON.parse(stored);
       setDismissedIds(new Set(parsed));
     } catch {
-      // JSON parse hatası olursa kayıtları temizleyebilirsin
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
-  // rozet kapatıldığında localStorage'a yaz
   const dismissBadge = (orderId: number) => {
     setDismissedIds(prev => {
       const next = new Set(prev);

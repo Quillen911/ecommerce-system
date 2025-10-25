@@ -2,9 +2,7 @@
 
 namespace App\Services\Seller;
 
-use App\Services\Payments\IyzicoPaymentService;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
-use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use App\Repositories\Contracts\Store\StoreRepositoryInterface;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Shipping\Contracts\ShippingServiceInterface;
@@ -14,31 +12,15 @@ use App\Jobs\SellerRefundJob;
 use App\Models\Payment;
 use App\Models\PaymentProvider;
 use App\Services\Payments\Contracts\PaymentGatewayInterface;
-use App\Services\Order\Contracts\Refund\OrderCalculationInterface;
-use App\Services\Order\Contracts\Refund\OrderCheckInterface;
-use App\Services\Order\Contracts\Refund\OrderUpdateInterface;
-use App\Services\Order\Services\Refund\RefundPlacementService;
-use App\Services\Seller\SellerOrderPlacement;
-use App\Models\OrderRefund;
-use App\Models\OrderRefundItem;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class SellerOrderService
 {
     
     public function __construct(
-       private readonly IyzicoPaymentService $iyzicoService, 
        private readonly OrderItemRepositoryInterface $orderItemRepository,
-       private readonly ProductRepositoryInterface $productRepository,
        private readonly StoreRepositoryInterface $storeRepository,
        private readonly ShippingServiceInterface $shippingService,
        private readonly AuthenticationRepositoryInterface $authenticationRepository,
-       private readonly OrderCalculationInterface $orderCalculationService,
-       private readonly OrderCheckInterface $orderCheckService,
-       private readonly OrderUpdateInterface $orderUpdateService,
-       private readonly RefundPlacementService $refundPlacementService,
-       private readonly SellerOrderPlacement $sellerOrderPlacement,
     ) {
     
     }
@@ -93,6 +75,7 @@ class SellerOrderService
         $order = $orderItem->order;
         $user = $order->user;
 
+        /* ilerde...
         $payload = [
             'order_item_id' => $orderItem->id,
             'username' => $user->username,
@@ -109,11 +92,12 @@ class SellerOrderService
 
         if(!($result['success'])){
             throw new \Exception('Kargo oluşturulamadı: '.($result['error'] ?? 'bilinmeyen hata'));
-        }
+        }*/
+
         $orderItem->status = 'shipped';
         $orderItem->save();
 
-        ShippedOrderItemNotification::dispatch($orderItem, $user)->onQueue('notifications');
+        ShippedOrderItemNotification::dispatch($orderItem, $user);
 
         return $orderItem;
     }

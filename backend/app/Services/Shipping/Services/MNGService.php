@@ -24,7 +24,7 @@ class MNGService implements ShippingServiceInterface
     public function createShipment(array $data): array
     {
         try {
-            //entegrasyon yarım kaldığı için mock kullanıyoruz
+            //entegrasyon yarım kaldığı için mock 
             if ($this->testMode) {
                 return $this->createMockShipment($data);
             }

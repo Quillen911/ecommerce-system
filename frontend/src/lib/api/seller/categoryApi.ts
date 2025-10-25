@@ -1,4 +1,4 @@
-import { Category } from '@/types/main'
+import { Category } from "@/types/seller/category"
 import axios from 'axios'
 
 const api = axios.create({

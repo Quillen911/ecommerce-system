@@ -35,7 +35,7 @@ class SellerOrderController extends Controller
             return ResponseHelper::error('Sipariş bulunamadı veya size ait değil');
         }
             
-        return Response::json(OrderItemResource::make($orderItem));
+        return ResponseHelper::success('Sipariş Kargoya Teslim Edildi');
     }
     public function refundOrderItem(SellerRefundItemRequest $request, $id)
     {

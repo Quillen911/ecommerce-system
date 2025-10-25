@@ -25,6 +25,6 @@ api.interceptors.request.use((config) => {
 export const orderApi = {
     index: () => api.get<OrderItem[]>('/seller/order'),
     show: (id: number) => api.get<OrderItem>(`/seller/order/${id}`),
-    confirmOrderItem: (id: number) => api.post(`/seller/order/${id}/confirm`),
+    confirmOrderItem: (id: number) => api.post(`/seller/orderitem/${id}/confirm`),
     refundOrderItem: (id: number, payload: SellerRefundItemRequest) => api.post(`/seller/orderitem/${id}/refund`, payload),
 }

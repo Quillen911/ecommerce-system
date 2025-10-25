@@ -3,8 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\OrderItem;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -12,55 +12,50 @@ class OrderItemShipped extends Notification
 {
     use Queueable;
 
-    protected $orderItem;
+    protected OrderItem $orderItem;
+    protected User $user;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct(OrderItem $orderItem)
+    public function __construct(OrderItem $orderItem, User $user)
     {
         $this->orderItem = $orderItem;
+        $this->user = $user;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['mail', 'database', 'sms'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
+        $imageModel = $this->orderItem->variantSize?->productVariant?->variantImages?->first();
+        $image = $imageModel?->image ? asset($imageModel->image) : null;
+
+        $quantity = $this->orderItem->quantity;
+        $refundedQuantity = $this->orderItem->refunded_quantity;
+        $shippedQuantity = $quantity - $refundedQuantity;
+        $actionUrl = rtrim(env('FRONTEND_URL', ''), '/') . "/account/orders/{$this->orderItem->order_id}";
+
         return (new MailMessage)
-            ->subject('Siparişiniz kargoya teslim edilmiştir.')
-            ->greeting('Merhaba ' . $notifiable->username . ',')
-            ->line('Siparişiniz kargoya teslim edilmiştir.')
-            ->line('Kargo takip numarası: ' . $this->orderItem->shippingItem->tracking_number)
-            ->line('Herhangi bir sorunuz olursa bizimle iletişime geçmekten çekinmeyin.')
-            ->line('Müşteri Destek: quillen048@gmail.com')
-            ->salutation('Saygılarımızla, Quillen Ekibi');
+            ->subject('Siparişiniz Kargoya Teslim Edildi | Quillen')
+            ->markdown('mail.orders.shipped', [
+                'user' => $this->user,
+                'orderItem' => $this->orderItem,
+                'quantity' => $shippedQuantity,
+                'actionUrl' => $actionUrl,
+                'image' => $image,
+            ]);
     }
 
     public function toSms(object $notifiable): string
     {
-        return "{$this->orderItem->id} numaralı siparişiniz kargoya teslim edilmiştir. Kargo takip numarası: {$this->orderItem->shippingItem->tracking_number}";
+        return "{$this->orderItem->id} numaralı siparişiniz kargoya teslim edilmiştir.";
     }
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
+
     public function toArray(object $notifiable): array
     {
         return [
             'order_item_id' => $this->orderItem->id,
-            'order_item_tracking_number' => $this->orderItem->shippingItem->tracking_number,
         ];
     }
 }
