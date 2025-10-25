@@ -74,9 +74,10 @@ export default function Header() {
 
         {mobileOpen && (
           <div className="md:hidden fixed inset-x-0 top-16 bg-neutral-900 text-white py-6 px-6 space-y-6 border-t border-neutral-700 animate-fadeIn overflow-y-auto max-h-[calc(100vh-4rem)]">
-            <CategoryDropdown isMobile />
-            <div className="pt-3 border-t border-neutral-800">
-              <SearchBar />
+            <SearchBar />
+            
+            <div className="pt-4 h-[calc(100vh-6rem)] overflow-y-auto border-t border-neutral-800">
+              <CategoryDropdown isMobile />
             </div>
           </div>
         )}

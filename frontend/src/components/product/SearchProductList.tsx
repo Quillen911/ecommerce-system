@@ -27,6 +27,13 @@ export default function SearchProductList() {
         <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
       </div>
     )
+    
+    if (products.length === 0)
+      return (
+        <div className="min-h-screen flex justify-center items-center">
+          <p className="text-2xl font-bold">Ürün bulunamadı</p>
+        </div>
+      )
 
   if (error)
     return (
@@ -35,12 +42,6 @@ export default function SearchProductList() {
       </div>
     )
 
-  if (products.length === 0)
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <p className="text-2xl font-bold">Ürün bulunamadı</p>
-      </div>
-    )
 
   return (
     <div className="min-h-screen">

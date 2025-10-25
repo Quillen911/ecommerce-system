@@ -1,59 +1,73 @@
-"use client"
+"use client";
 
-import SearchProductList from "@/components/product/SearchProductList"
-import CategoryFilter from "@/components/product/CategoryFilter"
-import { motion, AnimatePresence } from "framer-motion"
-import { useState } from "react"
-import { FaFilter } from "react-icons/fa"
-import SortingFilter from "@/components/product/SortingFilter"
+import { useEffect, useState } from "react";
+import { FaFilter } from "react-icons/fa";
+import { AnimatePresence, motion } from "framer-motion";
+import CategoryFilter from "@/components/product/CategoryFilter";
+import SearchProductList from "@/components/product/SearchProductList";
+import SortingFilter from "@/components/product/SortingFilter";
+
+const DESKTOP_FILTER_WIDTH = 280;
 
 export default function SearchPage() {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(true);
+  const [hasMounted, setHasMounted] = useState(false);
 
-  const handleOpen = () => setIsOpen((prev) => !prev)
-  const handleClose = () => setIsOpen(false)
+  useEffect(() => setHasMounted(true), []);
+
+  const toggleFilters = () => setIsOpen((prev) => !prev);
+  const closeFilters = () => setIsOpen(false);
 
   return (
-    <div className="min-h-screen grid grid-cols-12 gap-4 sm:gap-6 bg-[var(--bg)] p-4 sm:p-6 md:p-8">
-      {/* Filtre ve sıralama butonları */}
-      <div className="col-span-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-5">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <SortingFilter />
-        </div>
-
+    <div className="min-h-screen bg-[var(--bg)] p-4 sm:p-8">
+      <div className="flex flex-wrap items-center justify-end gap-5">
         <button
-          onClick={handleOpen}
+          onClick={toggleFilters}
           type="button"
-          className="flex items-center gap-2 text-base sm:text-lg font-semibold cursor-pointer"
+          className="flex items-center gap-2 text-base font-bold sm:text-lg"
         >
-          <FaFilter className="w-6 h-6 sm:w-8 sm:h-8 cursor-pointer" />
+          <FaFilter className="h-6 w-6 sm:h-8 sm:w-8" />
           <span>{isOpen ? "Filtrelemeyi Gizle" : "Filtrelemeyi Göster"}</span>
         </button>
       </div>
 
-      {/* Masaüstü filtre (sidebar) */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.aside
-            key="desktop-filter"
-            initial={{ opacity: 0, x: -150 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -150 }}
-            transition={{ duration: 0.3 }}
-            className="hidden md:block col-span-3 lg:col-span-2 self-start mt-4 md:mt-0"
-          >
-            <div className="sticky top-24">
+      <motion.section
+        layout
+        className="mt-6 flex flex-col gap-6 md:flex-row"
+        transition={{ layout: { duration: 0.25, ease: "easeInOut" } }}
+      >
+        <motion.aside
+          layout
+          initial={false}
+          animate={{
+            width: isOpen ? DESKTOP_FILTER_WIDTH : 0,
+            opacity: isOpen ? 1 : 0,
+          }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="hidden md:block"
+        >
+          {isOpen ? (
+            <div className="pr-2 " style={{ position: "sticky", top: "100px" }}>
               <CategoryFilter
                 isOpen={isOpen}
-                handleOpen={handleOpen}
-                handleClose={handleClose}
+                handleOpen={toggleFilters}
+                handleClose={closeFilters}
               />
             </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+          ) : null}
+        </motion.aside>
 
-      {/* Mobil filtre (tam ekran modal) */}
+        <motion.main
+          layout
+          initial={hasMounted ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="flex-1"
+        >
+          <SearchProductList />
+        </motion.main>
+      </motion.section>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -61,38 +75,22 @@ export default function SearchPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-white md:hidden overflow-y-auto p-6"
+            className="fixed inset-0 z-50 overflow-y-auto bg-white p-6 md:hidden"
           >
             <button
-              onClick={handleClose}
-              className="mb-4 text-lg font-bold text-right w-full"
+              onClick={closeFilters}
+              className="mb-4 w-full text-right text-lg font-bold"
             >
               ✕ Kapat
             </button>
             <CategoryFilter
               isOpen={isOpen}
-              handleOpen={handleOpen}
-              handleClose={handleClose}
+              handleOpen={toggleFilters}
+              handleClose={closeFilters}
             />
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Ürün listesi */}
-      <motion.main
-        layout
-        initial={{ opacity: 0, y: 20, x: 20 }}
-        animate={{ opacity: 1, y: 0, x: 0 }}
-        transition={{ duration: 0.4 }}
-        className={`self-start ${
-          isOpen
-            ? "col-span-12 md:col-span-9 lg:col-span-10"
-            : "col-span-12"
-        }`}
-      >
-        <SearchProductList />
-      </motion.main>
     </div>
-  )
+  );
 }

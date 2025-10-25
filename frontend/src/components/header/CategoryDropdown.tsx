@@ -100,7 +100,7 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
           <div className="max-w-[1400px] mx-auto px-[8vw] py-5">
             <div
               key={active}
-              className="grid grid-cols-3 gap-12 animate-fadeSlideDown"
+              className="grid grid-cols-3 px-[8vw] items-center gap-12 animate-fadeSlideDown"
             >
               {chunkIntoThree(
                 categories.filter(

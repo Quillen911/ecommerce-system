@@ -229,19 +229,15 @@ export default function LoginRegisterSplit() {
                     autoComplete="current-password"
                     error={fieldError("password")}
                   />
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center space-x-2 text-sm text-gray-600">
-                      <input type="checkbox" className="rounded" />
-                      <span>Beni hatırla</span>
-                    </label>
-                    <button type="button" className="text-sm text-gray-500 hover:underline">
+                  <div className="flex items-center justify-end">
+                    <button type="button" className="text-sm text-gray-500 hover:underline cursor-pointer">
                       Şifremi unuttum
                     </button>
                   </div>
                   <button
                     type="submit"
                     disabled={loadingLogin}
-                    className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition duration-200 hover:bg-gray-800 disabled:opacity-70"
+                    className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition duration-200 hover:bg-gray-800 disabled:opacity-70 cursor-pointer"
                   >
                     {loadingLogin ? "Giriş yapılıyor..." : "Giriş Yap"}
                   </button>
@@ -252,7 +248,7 @@ export default function LoginRegisterSplit() {
                   <button
                     onClick={() => handleModeSwitch(false)}
                     disabled={loadingRegister}
-                    className="font-semibold text-black hover:underline"
+                    className="font-semibold text-black hover:underline cursor-pointer"
                   >
                     {loadingRegister ? "Kayıt oluyor..." : "Kayıt Ol"}
                   </button>
@@ -335,7 +331,7 @@ export default function LoginRegisterSplit() {
                   <button
                     type="submit"
                     disabled={loadingRegister}
-                    className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition duration-200 hover:bg-gray-800 disabled:opacity-70"
+                    className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition duration-200 hover:bg-gray-800 disabled:opacity-70 cursor-pointer"
                   >
                     {loadingRegister ? "Kayıt yapılıyor..." : "Kayıt Ol"}
                   </button>
@@ -345,7 +341,7 @@ export default function LoginRegisterSplit() {
                   Zaten bir hesabın var mı?{" "}
                   <button
                     onClick={() => handleModeSwitch(true)}
-                    className="font-semibold text-black hover:underline"
+                    className="font-semibold text-black hover:underline cursor-pointer"
                   >
                     Giriş Yap
                   </button>

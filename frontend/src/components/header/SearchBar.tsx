@@ -50,7 +50,7 @@ export default function SearchBox() {
 
             <input
               type="text"
-              placeholder="Search"
+              placeholder="Ürün veya Kategori arayın..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleEnter}

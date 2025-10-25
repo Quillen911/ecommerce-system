@@ -45,10 +45,10 @@ export default function CategoryPage() {
             opacity: isOpen ? 1 : 0,
           }}
           transition={{ duration: 0.25, ease: 'easeInOut' }}
-          className="hidden overflow-hidden md:block"
+          className="hidden md:block"
         >
           {isOpen ? (
-            <div className="sticky top-24 pr-2">
+            <div className="pr-2" style={{ position: 'sticky', top: '100px' }}>
               <CategoryFilter
                 isOpen={isOpen}
                 handleOpen={toggleFilters}

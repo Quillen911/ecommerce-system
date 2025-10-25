@@ -115,7 +115,29 @@ export default function AddressesPage() {
       >
         Adres Ekle
       </button>
-
+      {(isAddModalOpen || isModalOpen) && (
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 max-w-2xl mx-auto px-4">
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <div className="mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                {isModalOpen ? 'Adres Düzenle' : 'Yeni Adres Ekle'}
+              </h2>
+              <div className="w-12 sm:w-16 h-1 bg-black rounded-full" />
+            </div>
+            <AddressForm
+              initialData={editingAddress}
+              onSubmit={isModalOpen ? handleUpdate : handleStore}
+              onCancel={() => {
+                setIsModalOpen(false)
+                setIsAddModalOpen(false)
+                setEditingAddress(null)
+              }}
+              isLoading={isModalOpen ? updateAddressMutation.isPending : storeAddressMutation.isPending}
+              submitText={isModalOpen ? 'Güncelle' : 'Kaydet'}
+            />
+          </div>
+        </motion.div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 mt-8 sm:mt-10">
         {addresses?.map((address, index) => (
           <motion.div
@@ -186,30 +208,6 @@ export default function AddressesPage() {
           </motion.div>
         ))}
       </div>
-
-      {(isAddModalOpen || isModalOpen) && (
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 max-w-2xl mx-auto px-4">
-          <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-            <div className="mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                {isModalOpen ? 'Adres Düzenle' : 'Yeni Adres Ekle'}
-              </h2>
-              <div className="w-12 sm:w-16 h-1 bg-black rounded-full" />
-            </div>
-            <AddressForm
-              initialData={editingAddress}
-              onSubmit={isModalOpen ? handleUpdate : handleStore}
-              onCancel={() => {
-                setIsModalOpen(false)
-                setIsAddModalOpen(false)
-                setEditingAddress(null)
-              }}
-              isLoading={isModalOpen ? updateAddressMutation.isPending : storeAddressMutation.isPending}
-              submitText={isModalOpen ? 'Güncelle' : 'Kaydet'}
-            />
-          </div>
-        </motion.div>
-      )}
     </motion.div>
   )
 }
