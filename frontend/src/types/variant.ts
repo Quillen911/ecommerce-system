@@ -8,4 +8,5 @@ export interface ProductDetailResponse {
         slug: string
         thumbnail: string
     }[]
+    similar_products?: Product[] 
 }

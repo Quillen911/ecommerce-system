@@ -6,6 +6,7 @@ import ProductTitle from "./ProductTitle";
 import ProductVariants from "./ProductVariants";
 import ProductAddtoBag from "./ProductAddtoBag";
 import ProductSizeSelector from "./ProductSizeSelector";
+import ProductSimilar from "./ProductSimilar";
 
 interface ProductDetailProps {
   product: Product;
@@ -15,11 +16,12 @@ interface ProductDetailProps {
     slug: string;
     thumbnail: string;
   }[];
+  similarProducts?: Product[];
 }
 
 const FALLBACK_IMAGE = "/images/placeholder-product.png";
 
-const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) => {
+const ProductDetail = ({ product, variant, allVariants, similarProducts }: ProductDetailProps) => {
   const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
 
   const galleryImages = useMemo(
@@ -58,6 +60,7 @@ const ProductDetail = ({ product, variant, allVariants }: ProductDetailProps) =>
           <ProductAddtoBag variantSizeId={selectedSizeId} />
         </div>
       </div>
+      <ProductSimilar similarProducts={similarProducts} />
     </div>
   );
 };

@@ -5,12 +5,14 @@ namespace App\Services\Checkout\Orders;
 use App\Models\CheckoutSession;
 use App\Models\Order;
 use App\Repositories\Contracts\OrderItem\OrderItemRepositoryInterface;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use Illuminate\Support\Collection;
 
 class OrderItemFactory
 {
     public function __construct(
         private readonly OrderItemRepositoryInterface $orderItems,
+        private readonly ProductRepositoryInterface $productRepository,
     ) {}
 
     public function createMany(Order $order, CheckoutSession $session): Collection
@@ -32,10 +34,10 @@ class OrderItemFactory
                 }
                 return [$bagItemId => (int) ($entry['discount_cents'] ?? 0)];
             });
-
+        
         foreach ($bagItems as $snapshot) {
             $bagItemId = $snapshot['bag_item_id'];
-
+            $quantity = $snapshot['quantity'];
             $items->push(
                 $this->orderItems->create([
                     'order_id'               => $order->id,
@@ -46,7 +48,7 @@ class OrderItemFactory
                     'product_category_title' => $snapshot['product_category_title'],
                     'size_name'              => $snapshot['size_name'],
                     'color_name'             => $snapshot['color_name'],
-                    'quantity'               => $snapshot['quantity'],
+                    'quantity'               => $quantity,
                     'price_cents'            => $snapshot['unit_price_cents'],
                     'discount_price_cents'   => $discountItems->get($bagItemId, 0),
                     'paid_price_cents'       => (int) ($itemTotals[$bagItemId] ?? 0),
@@ -56,6 +58,7 @@ class OrderItemFactory
                     'payment_status'         => 'paid',
                 ])
             );
+            $this->productRepository->incrementSoldQuantity($snapshot['product_id'], $quantity);
         }
 
         return $items;

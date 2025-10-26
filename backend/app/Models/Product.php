@@ -47,6 +47,21 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
+    public function similarProducts()
+    {
+        $category = $this->category;
+        $parentId = $category?->parent_id;
+
+        return static::query()
+            ->whereKeyNot($this->getKey())
+            ->published()
+            ->when(
+                $parentId,
+                fn($query) => $query->whereHas('category', fn($q) => $q->where('parent_id', $parentId))
+            )
+            ->limit(30);
+    }
+
     public function allVariantImages()
     {
         return $this->hasManyThrough(
@@ -104,7 +119,7 @@ class Product extends Model
         // Yoksa category.gender'dan al
         return $this->category?->gender;
     }
-    
+
     // Scopes
     public function scopePublished($query) 
     {

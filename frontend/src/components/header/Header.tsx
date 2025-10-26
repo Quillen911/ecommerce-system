@@ -30,18 +30,18 @@ export default function Header() {
 
   return (
     <header className="bg-[var(--main-bg)] text-[var(--text)] sticky top-0 z-50 border-b border-neutral-800">
-      <div className="max-w-[1800px] mx-auto px-4 md:px-10">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-4 ">
         <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center">
             <Logo />
           </div>
 
-          <div className="hidden md:flex flex-1 justify-center pl-[15%]">
+          <div className="hidden lg:flex flex-1 justify-center lg:pl-[15%]">
             <CategoryDropdown />
           </div>
 
           <div className="flex items-center space-x-2 md:space-x-3">
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <SearchBar />
             </div>
 
@@ -50,7 +50,7 @@ export default function Header() {
 
             <button
               aria-label="Menü"
-              className="md:hidden flex flex-col justify-center items-center space-y-[5px] relative w-8 h-8"
+              className="lg:hidden flex flex-col justify-center items-center space-y-[5px] relative w-8 h-8"
               onClick={() => setMobileOpen((prev) => !prev)}
             >
               <span
@@ -73,7 +73,7 @@ export default function Header() {
         </div>
 
         {mobileOpen && (
-          <div className="md:hidden fixed inset-x-0 top-16 bg-neutral-900 text-white py-6 px-6 space-y-6 border-t border-neutral-700 animate-fadeIn overflow-y-auto max-h-[calc(100vh-4rem)]">
+          <div className="lg:hidden fixed inset-x-0 top-16 bg-neutral-900 text-white py-6 px-6 space-y-6 border-t border-neutral-700 animate-fadeIn overflow-y-auto max-h-[calc(100vh-4rem)]">
             <SearchBar />
             
             <div className="pt-4 h-[calc(100vh-6rem)] overflow-y-auto border-t border-neutral-800">

@@ -20,17 +20,20 @@ class SellerOrderPlacement
                 'user_id'            => $payload['user_id'] ?? $orderItem->order->user_id,
                 'refund_total_cents' => $refundAmount,
             ]);
-
+            $quantity = (int) $payload['quantity'];
+            
             OrderRefundItem::create([
                 'order_refund_id'      => $orderRefund->id,
                 'order_item_id'        => $orderItem->id,
-                'quantity'             => (int) $payload['quantity'],
+                'quantity'             => $quantity,
                 'refund_amount_cents'  => $refundAmount,
                 'reason'               => $payload['reason'],
                 'byWho'                => 'seller',
                 'inspection_status'    => 'pending',
                 'inspection_note'      => null,
             ]);
+            
+            $orderItem->product->decrementSoldQuantity($orderItem->product_id, $quantity);
 
         });
     }

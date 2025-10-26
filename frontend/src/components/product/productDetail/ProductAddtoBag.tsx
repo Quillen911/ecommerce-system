@@ -9,10 +9,6 @@ import type { BagStoreRequest } from "@/types/bag";
 
 interface ProductAddtoBagProps {
   variantSizeId: number | null;
-  /**
-   * Opsiyonel: Seçili bedenin stok adedi doğrudan biliniyorsa iletilir.
-   * Sağlanmazsa mevcut sepet öğesindeki stok bilgisinden okunur.
-   */
   availableQuantity?: number | null;
 }
 
@@ -74,7 +70,7 @@ export default function ProductAddtoBag({
       <button
         onClick={handleAddToBag}
         disabled={bagStore.isPending}
-        className="w-full rounded-xl bg-black py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
+        className="w-full cursor-pointer rounded-xl bg-black py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
       >
         {bagStore.isPending ? "Ekleniyor..." : "Sepete Ekle"}
       </button>

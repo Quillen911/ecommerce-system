@@ -3,7 +3,6 @@
 import ProductDetail from "@/components/product/productDetail/ProductDetail"
 import { useParams } from "next/navigation"
 import { useProductDetail } from "@/hooks/useVariantQuery"
-import LoadingState from "@/components/ui/LoadingState"
 
 export default function ProductDetailPage() {
   const { slug } = useParams()
@@ -47,6 +46,7 @@ export default function ProductDetailPage() {
           product={product}
           variant={selectedVariant}
           allVariants={response.all_variants}
+          similarProducts={response?.similar_products}
         />
       </div>
     </div>

@@ -38,7 +38,7 @@ class OrderPlacementService
             $this->inventoryService->decrementForOrderItems($items);
             $this->paymentRecorder->record($order, $session->payment_data);
             $this->PaymentMethodRecorder->store($user, $session->payment_data, $data);
-
+            
             $bagPayload    = $session->bag_snapshot;
             $campaignId    = data_get($bagPayload, 'applied_campaign.id');
             $discountCents = (int) data_get($bagPayload, 'totals.discount_cents', 0);

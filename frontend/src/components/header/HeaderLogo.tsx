@@ -22,7 +22,7 @@ export default function Logo({ className = '' }: HeaderProps) {
       className={`flex items-center ${className}`}
     >
       <span
-        className="text-xl sm:text-2xl font-bold text-white cursor-pointer truncate max-w-[140px] sm:max-w-none"
+        className="text-xl sm:text-2xl md:text-2xl font-bold text-white cursor-pointer truncate max-w-[140px] sm:max-w-none"
       >
         {process.env.NEXT_PUBLIC_APP_NAME}
       </span>
