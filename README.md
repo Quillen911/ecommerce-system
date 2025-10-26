@@ -1,6 +1,6 @@
 # E-Ticaret Platformu
 
-Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-ticaret platformu. Kullanıcılar ve satıcılar için kapsamlı alışveriş ve yönetim deneyimi sunar.
+Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-ticaret platformu. Kullanıcılar ve satıcılar için kapsamlı alışveriş ve yönetim deneyimi.
 
 [![Laravel](https://img.shields.io/badge/Laravel-12.0-FF2D20?style=flat&logo=laravel)](https://laravel.com)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.3-000000?style=flat&logo=next.js)](https://nextjs.org)
@@ -13,15 +13,9 @@ Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-tica
 
 - [Özellikler](#özellikler)
 - [Teknoloji Stack](#teknoloji-stack)
-- [Mimari](#mimari)
 - [Kurulum](#kurulum)
 - [Kullanım](#kullanım)
-- [API Dokümantasyonu](#api-dokümantasyonu)
-- [Proje Yapısı](#proje-yapısı)
 - [Veritabanı Şeması](#veritabanı-şeması)
-- [Deployment](#deployment)
-- [Katkıda Bulunma](#katkıda-bulunma)
-- [Lisans](#lisans)
 
 ---
 
@@ -31,14 +25,14 @@ Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-tica
 - Kullanıcı kaydı, girişi ve şifre sıfırlama
 - Gelişmiş ürün arama ve filtreleme (Elasticsearch powered)
 - Gerçek zamanlı sepet yönetimi
-- Kampanya ve indirim kodu uygulama
+- Kampanya uygulama
 - Çoklu ödeme yöntemi desteği (İyzico, Stripe)
 - Sipariş takibi ve geçmişi
 - İade ve iade talepleri
 - Çoklu adres yönetimi
-- Kayıtlı kredi kartı yönetimi
+- Kredi kartı kaydetme
 - Profil ve hesap ayarları
-- Email ve SMS bildirimleri
+- Email ve mock SMS bildirimleri
 
 ### Satıcı Özellikleri
 - Kapsamlı ürün yönetimi (CRUD)
@@ -416,14 +410,12 @@ npm run lint
 - Rate limiting
 - Password hashing (bcrypt)
 - Secure payment processing
-- HTTPS enforcement (production)
-- Environment variable protection
 
 ---
 
 ## Geliştirici
 
-**İsmail**
+**İsmail Danış**
 - GitHub: [@Quillen911](https://github.com/Quillen911)
 
 ---
