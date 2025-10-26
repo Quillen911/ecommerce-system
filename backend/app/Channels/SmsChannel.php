@@ -19,7 +19,7 @@ class SmsChannel
         if (method_exists($notification, 'toSms')) {
             $message = $notification->toSms($notifiable);
             $phoneNumber = $notifiable->phone ?? 5555555555;
-            
+             
             return $this->smsService->send($phoneNumber, $message);
         }
     }
