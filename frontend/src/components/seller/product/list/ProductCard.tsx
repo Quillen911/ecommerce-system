@@ -50,19 +50,19 @@ export default function ProductCard({
       <div className="mt-auto flex gap-2 pt-4">
         <button
           onClick={() => onView(product.id)}
-          className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+          className="flex-1 cursor-pointer rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
         >
           İncele
         </button>
         <button
           onClick={() => onEdit(product)}
-          className="flex-1 rounded-xl bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-black"
+          className="flex-1 cursor-pointer rounded-xl bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-black"
         >
           Düzenle
         </button>
         <button
           onClick={() => onDelete(product)}
-          className="flex-1 rounded-xl bg-red-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+          className="flex-1 cursor-pointer rounded-xl bg-red-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-600"
         >
           Sil
         </button>

@@ -48,7 +48,7 @@ export default function VariantTable({
               <th className="px-6 py-3 font-medium text-gray-500">Renk</th>
               <th className="px-6 py-3 font-medium text-gray-500">Fiyat</th>
               <th className="px-6 py-3 font-medium text-gray-500">Bedenler</th>
-              <th className="px-6 py-3 text-right font-medium text-gray-500">Aksiyonlar</th>
+              <th className="px-6 py-3 text-right font-medium text-gray-500">Ayarlar</th>
             </tr>
           </thead>
 

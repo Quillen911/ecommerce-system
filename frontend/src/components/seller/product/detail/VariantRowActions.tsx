@@ -21,25 +21,25 @@ export default function VariantRowActions({
     <div className="flex flex-wrap justify-end gap-2">
       <button
         onClick={() => onEdit(variant)}
-        className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+        className="cursor-pointer rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
       >
         Düzenle
       </button>
       <button
         onClick={() => onManageImages(variant)}
-        className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+        className="cursor-pointer rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
       >
         Görseller
       </button>
       <button
         onClick={() => onManageSizes(variant)}
-        className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+        className="cursor-pointer rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
       >
         Bedenler
       </button>
       <button
         onClick={() => onDelete(variant)}
-        className="rounded-xl bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600"
+        className="cursor-pointer rounded-xl bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600"
       >
         Sil
       </button>

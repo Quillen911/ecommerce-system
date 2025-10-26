@@ -84,13 +84,13 @@ export default function ProductDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-5">
         <button
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm sm:text-base text-gray-600 hover:bg-gray-100 transition"
+          className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm sm:text-base text-gray-600 hover:bg-gray-100 transition"
         >
           ← Geri
         </button>
         <button
           onClick={() => handleVariantAction(null, 'variant-edit')}
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm sm:text-base font-medium text-white hover:bg-black transition"
+          className="cursor-pointer rounded-lg bg-gray-900 px-5 py-2.5 text-sm sm:text-base font-medium text-white hover:bg-black transition"
         >
           Varyant Ekle
         </button>

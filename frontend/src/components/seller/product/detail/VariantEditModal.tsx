@@ -170,7 +170,7 @@ export default function VariantEditModal({
             </h3>
             {isEdit && <p className="text-[11px] sm:text-xs text-gray-500">SKU: {variant?.sku ?? '—'}</p>}
           </div>
-          <button type="button" onClick={onClose} className="text-sm text-gray-400 hover:text-gray-600">
+          <button type="button" onClick={onClose} className="cursor-pointer text-sm text-gray-400 hover:text-gray-600">
             Kapat
           </button>
         </header>
@@ -221,11 +221,11 @@ export default function VariantEditModal({
           </div>
 
           <div className="flex flex-wrap gap-4 sm:gap-6">
-            <label className="flex items-center gap-2 text-xs text-gray-600">
+            <label className="cursor-pointer flex items-center gap-2 text-xs text-gray-600">
               <input type="checkbox" {...register('is_popular')} />
               Popüler
             </label>
-            <label className="flex items-center gap-2 text-xs text-gray-600">
+            <label className="cursor-pointer flex items-center gap-2 text-xs text-gray-600">
               <input type="checkbox" {...register('is_active')} />
               Aktif
             </label>
@@ -356,7 +356,7 @@ export default function VariantEditModal({
             <button
               type="submit"
               disabled={isBusy}
-              className="w-full sm:w-auto rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
+              className="cursor-pointer w-full sm:w-auto rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isBusy ? 'Kaydediliyor...' : isEdit ? 'Güncelle' : 'Oluştur'}
             </button>

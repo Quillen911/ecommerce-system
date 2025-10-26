@@ -142,14 +142,14 @@ const handleUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) =
               Varyant: {variant.color_name ?? '—'} | SKU: {variant.sku ?? '—'}
             </p>
           </div>
-          <button onClick={onClose} className="text-sm text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="cursor-pointer text-sm text-gray-400 hover:text-gray-600">
             Kapat
           </button>
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
           <section>
-            <label className="mb-2 block text-xs font-medium text-gray-600">
+            <label className="mb-2 block text-xs font-medium text-gray-600 ">
               Yeni görsel yükle
             </label>
             <input
@@ -157,7 +157,7 @@ const handleUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) =
               multiple
               accept="image/*"
               onChange={handleUpload}
-              className="w-full rounded-xl border border-dashed border-gray-300 px-3 py-2 text-sm file:mr-4 file:rounded-lg file:border-none file:bg-gray-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-black"
+              className="cursor-pointer w-full rounded-xl border border-dashed border-gray-300 px-3 py-2 text-sm file:mr-4 file:rounded-lg file:border-none file:bg-gray-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-black"
             />
           </section>
 
@@ -183,14 +183,14 @@ const handleUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) =
                       <button
                         disabled={index === 0 || reorderImages.isPending}
                         onClick={() => handleReorder(image.id, 'up')}
-                        className="rounded-full border border-gray-200 px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="cursor-pointer rounded-full border border-gray-200 px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         ↑
                       </button>
                       <button
                         disabled={index === localOrder.length - 1 || reorderImages.isPending}
                         onClick={() => handleReorder(image.id, 'down')}
-                        className="rounded-full border border-gray-200 px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="cursor-pointer rounded-full border border-gray-200 px-2 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         ↓
                       </button>
@@ -199,7 +199,7 @@ const handleUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) =
 
                   <button
                     onClick={() => handleDelete(image.id)}
-                    className="mt-3 rounded-xl bg-red-500 px-3 py-2 text-xs font-medium text-white hover:bg-red-600"
+                    className="cursor-pointer mt-3 rounded-xl bg-red-500 px-3 py-2 text-xs font-medium text-white hover:bg-red-600"
                   >
                     Sil
                   </button>

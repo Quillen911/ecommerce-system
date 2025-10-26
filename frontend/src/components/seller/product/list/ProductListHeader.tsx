@@ -24,7 +24,7 @@ export default function ProductListHeader({
         type="button"
         onClick={onCreate}
         disabled={disabled}
-        className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

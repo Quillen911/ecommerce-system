@@ -631,7 +631,7 @@ export function ProductForm({
           <button
             type="submit"
             disabled={isBusy}
-            className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
+            className="cursor-pointer rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isBusy ? 'Kaydediliyor...' : product ? 'Güncelle' : 'Kaydet'}
           </button>

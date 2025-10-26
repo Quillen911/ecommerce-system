@@ -108,7 +108,7 @@ export default function VariantSizeModal({
           await onUpdated()
         },
         onError: (error: unknown) =>
-          toast.error(error instanceof Error ? error.message : 'Oluşturma başarısız.'),
+          toast.error('Beden oluşturulamadı.'),
       },
     );
 
@@ -196,7 +196,7 @@ export default function VariantSizeModal({
               Varyant: {variant.color_name ?? '—'} | SKU: {variant.sku ?? '—'}
             </p>
           </div>
-          <button onClick={onClose} className="text-sm text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="cursor-pointer text-sm text-gray-400 hover:text-gray-600">
             Kapat
           </button>
         </header>
@@ -287,7 +287,7 @@ export default function VariantSizeModal({
                 <button
                   type="submit"
                   disabled={isSubmitting || createSize.isPending}
-                  className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
+                  className="cursor-pointer rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isSubmitting || createSize.isPending ? 'Ekleniyor...' : 'Ekle'}
                 </button>
@@ -399,7 +399,7 @@ export default function VariantSizeModal({
                     <button
                       type="submit"
                       disabled={updateSize.isPending}
-                      className="w-full rounded-xl bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
+                      className="cursor-pointer w-full rounded-xl bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       Kaydet
                     </button>
@@ -407,7 +407,7 @@ export default function VariantSizeModal({
                       type="button"
                       disabled={deleteSize.isPending}
                       onClick={() => handleDelete(size)}
-                      className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:border-gray-900 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-70"
+                      className="cursor-pointer w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:border-gray-900 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       Sil
                     </button>
