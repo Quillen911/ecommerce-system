@@ -27,10 +27,12 @@ use App\Http\Controllers\Api\Seller\VariantController;
 use App\Http\Controllers\Api\Seller\VariantSizeController;
 use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
+use App\Http\Middleware\LoginRateLimit;
+use App\Http\Middleware\RegisterRateLimit;
 
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->middleware(RegisterRateLimit::class);
+Route::post('/login', [AuthController::class, 'login'])->middleware(LoginRateLimit::class);
 Route::post('/forgot-password', [ResetPasswordController::class, 'forgotPassword']);
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 Route::post('/seller/login', [AuthController::class, 'sellerLogin']);

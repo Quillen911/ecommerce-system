@@ -30,7 +30,7 @@ export const useLogin = () => {
         },
         onSuccess: (data: any) => {
             localStorage.setItem('seller_token', data.data.token)
-            document.cookie = `seller_token=${data.data.token}; path=/; max-age=86400`
+            // Cookie backend tarafından HttpOnly olarak set ediliyor
             queryClient.setQueryData(sellerAuthKeys.mySeller(), data.data.seller)
         },
         onError: (error: any) => {
@@ -49,13 +49,13 @@ export const useLogout = () => {
         },
         onSuccess: () => {
             localStorage.removeItem('seller_token')
-            document.cookie = 'seller_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            // Cookie backend tarafından siliniyor
             queryClient.removeQueries({ queryKey: sellerAuthKeys.all })
             queryClient.removeQueries()
         },
         onError: (error: any) => {
             localStorage.removeItem('seller_token')
-            document.cookie = 'seller_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            // Cookie backend tarafından siliniyor
             queryClient.removeQueries({ queryKey: sellerAuthKeys.all })
             queryClient.removeQueries()
         }

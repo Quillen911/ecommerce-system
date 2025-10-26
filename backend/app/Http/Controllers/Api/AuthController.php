@@ -47,6 +47,18 @@ class AuthController extends Controller
         }
         $token = $user->createToken('user-token')->plainTextToken;
         
+        // HttpOnly cookie ile token'ı güvenli şekilde set et
+        cookie()->queue(
+            'user_token',
+            $token,
+            60 * 24, // 24 saat
+            '/',
+            null,
+            config('session.secure', false), // HTTPS'de true
+            true, // HttpOnly
+            false,
+            'strict' // SameSite
+        );
 
         return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'user' =>$user]);
     }
@@ -104,6 +116,9 @@ class AuthController extends Controller
             return ResponseHelper::notFound('Kullanıcı bulunamadı.');
         }
         $request->user()->currentAccessToken()->delete();
+        
+        // Cookie'yi sil
+        cookie()->queue(cookie()->forget('user_token'));
 
         return ResponseHelper::success('Çıkış Yapıldı.');
     }
@@ -116,6 +131,20 @@ class AuthController extends Controller
             return ResponseHelper::error('Email veya Şifre Hatalı',401);
         }
         $token = $seller->createToken('seller-token')->plainTextToken;
+        
+        // HttpOnly cookie ile token'ı güvenli şekilde set et
+        cookie()->queue(
+            'seller_token',
+            $token,
+            60 * 24, // 24 saat
+            '/',
+            null,
+            config('session.secure', false), // HTTPS'de true
+            true, // HttpOnly
+            false,
+            'strict' // SameSite
+        );
+        
         return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'seller' =>$seller]);
     }
 
@@ -126,6 +155,9 @@ class AuthController extends Controller
         }
         
         $seller->currentAccessToken()->delete();
+        
+        // Cookie'yi sil
+        cookie()->queue(cookie()->forget('seller_token'));
         
         return ResponseHelper::success('Çıkış Yapıldı.',['seller' => $seller]);
     }

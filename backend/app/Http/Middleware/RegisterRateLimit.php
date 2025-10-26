@@ -16,8 +16,8 @@ class RegisterRateLimit
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1 dakikada maksimum 3 kayıt denemesi
-        if (RateLimiter::tooManyAttempts('register:'.$request->ip(), 3)) {
+        // 1 dakikada maksimum 5 kayıt denemesi
+        if (RateLimiter::tooManyAttempts('register:'.$request->ip(), 5)) {
             $seconds = RateLimiter::availableIn('register:'.$request->ip());
             
             if ($request->expectsJson()) {
