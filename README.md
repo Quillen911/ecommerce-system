@@ -26,7 +26,7 @@ Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-tica
 - Gelişmiş ürün arama ve filtreleme (Elasticsearch powered)
 - Gerçek zamanlı sepet yönetimi
 - Kampanya uygulama
-- Çoklu ödeme yöntemi desteği (İyzico)
+- Ödeme yöntemi desteği (İyzico)
 - Sipariş takibi ve geçmişi
 - İade ve iade talepleri
 - Çoklu adres yönetimi
