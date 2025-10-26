@@ -1,277 +1,997 @@
-# E-ticaret Platformu
+# E-Ticaret Platformu
 
-Modern Laravel tabanlı e-ticaret platformu. Kullanıcılar ve satıcılar için kapsamlı alışveriş deneyimi sunar.
+Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-ticaret platformu. Kullanıcılar ve satıcılar için kapsamlı alışveriş ve yönetim deneyimi sunar.
 
-## Teknoloji Stack
+[![Laravel](https://img.shields.io/badge/Laravel-12.0-FF2D20?style=flat&logo=laravel)](https://laravel.com)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5.3-000000?style=flat&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker)](https://www.docker.com)
 
-### Backend
-- **Laravel 12.0** - PHP Framework
-- **PHP 8.2+** - Programlama dili
-- **PostgreSQL 17** - Veritabanı
-- **Elasticsearch 8.11.0** - Arama motoru
-- **RabbitMQ** - Queue sistemi
-- **Redis** - Cache ve session
-- **Laravel Sanctum** - API Authentication
+---
 
-### Frontend
-- **Blade Templates** - Server-side rendering
-- **Tailwind CSS 4.0** - CSS Framework
-- **Vite 6.2.4** - Build tool
-- **Vanilla JavaScript** - Client-side logic
-- **Axios** - HTTP client
+## İçindekiler
 
-### Ödeme ve Kargo Sistemleri
-- **İyzico** - Ana ödeme sistemi
-- **MNG Kargo** - Kargo entegrasyonu (Test modu)
+- [Özellikler](#özellikler)
+- [Teknoloji Stack](#teknoloji-stack)
+- [Mimari](#mimari)
+- [Kurulum](#kurulum)
+- [Kullanım](#kullanım)
+- [API Dokümantasyonu](#api-dokümantasyonu)
+- [Proje Yapısı](#proje-yapısı)
+- [Veritabanı Şeması](#veritabanı-şeması)
+- [Deployment](#deployment)
+- [Katkıda Bulunma](#katkıda-bulunma)
+- [Lisans](#lisans)
 
-### Geliştirme Araçları
-- **Docker & Docker Compose** - Containerization
-- **Nginx** - Web server
-- **PgAdmin** - PostgreSQL yönetimi
-- **Kibana** - Elasticsearch monitoring
-
-## Kurulum
-
-### Gereksinimler
-- Docker ve Docker Compose
-- Git
-
-### Adımlar
-
-1. **Projeyi klonlayın**
-```bash
-git clone https://github.com/Quillen911/E-Commerce-System
-```
-
-2. **Environment dosyasını ayarlayın**
-```bash
-cp .env.example .env
-# .env dosyasındaki değerleri düzenleyin
-```
-
-3. **Docker containerlarını başlatın**
-```bash
-docker-compose up -d
-```
-
-4. **Laravel kurulumunu tamamlayın**
-```bash
-docker-compose exec app composer install
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan migrate
-docker-compose exec app php artisan db:seed
-docker-compose exec app php artisan storage:link
-```
-
-5. **Frontend assetlerini derleyin**
-```bash
-docker-compose exec app npm install
-docker-compose exec app npm run build
-```
-
-6. **Uygulamaya erişin**
-- Ana uygulama: http://localhost:8000
-- PgAdmin: http://localhost:5050
-- RabbitMQ Management: http://localhost:15672
-- Kibana: http://localhost:5601
-
-## Proje Yapısı
-
-### Controllers
-- **Web Controllers**: Kullanıcı arayüzü için
-- **API Controllers**: REST API endpoints için
-- **Seller Controllers**: Satıcı paneli için
-
-### Models
-- **User**: Kullanıcı yönetimi
-- **Seller**: Satıcı yönetimi
-- **Product**: Ürün yönetimi
-- **Order**: Sipariş yönetimi
-- **OrderItem**: Sipariş kalemleri
-- **Campaign**: Kampanya yönetimi
-- **CreditCard**: Ödeme kartları
-- **ShippingItems**: Kargo takibi
-
-### Services
-- **Auth Services**: Kimlik doğrulama
-- **Order Services**: Sipariş işlemleri
-- **Payment Services**: İyzico ödeme entegrasyonu
-- **Search Services**: Elasticsearch entegrasyonu
-- **Campaign Services**: Kampanya hesaplama sistemi
-- **Shipping Services**: MNG Kargo entegrasyonu
-- **Refund Services**: İade işlemleri
-
-### Views
-- **Ana Sayfalar**: main, bag, myorders, order
-- **Auth Sayfaları**: login, register, profile
-- **Satıcı Paneli**: Ürün, kampanya, sipariş yönetimi
+---
 
 ## Özellikler
 
 ### Kullanıcı Özellikleri
-- Kullanıcı kayıt ve giriş sistemi
-- Gelişmiş ürün arama (Elasticsearch)
-- Otomatik tamamlama sistemi
-- Sepet yönetimi
-- Sipariş oluşturma ve takibi
-- Güvenli ödeme sistemi (İyzico)
-- **Kısmi İade Sistemi**: Ürün bazında iade
-- Profil yönetimi
-- Kredi kartı kaydetme
+- Kullanıcı kaydı, girişi ve şifre sıfırlama
+- Gelişmiş ürün arama ve filtreleme (Elasticsearch powered)
+- Gerçek zamanlı sepet yönetimi
+- Kampanya ve indirim kodu uygulama
+- Çoklu ödeme yöntemi desteği (İyzico, Stripe)
+- Sipariş takibi ve geçmişi
+- İade ve iade talepleri
+- Çoklu adres yönetimi
+- Kayıtlı kredi kartı yönetimi
+- Profil ve hesap ayarları
+- Email ve SMS bildirimleri
 
 ### Satıcı Özellikleri
-- Satıcı kayıt ve giriş sistemi
-- Ürün yönetimi (CRUD)
+- Kapsamlı ürün yönetimi (CRUD)
+- Ürün varyantları (renk, beden, vb.)
 - Toplu ürün ekleme
+- Görsel yükleme ve sıralama
 - Kampanya oluşturma ve yönetimi
-- Sipariş yönetimi
-- **Kargo Entegrasyonu**: MNG Kargo ile otomatik kargo oluşturma
+- Sipariş yönetimi ve onaylama
+- İade işlemleri
+- Stok takibi
 - Satış raporları
-- Mağaza ayarları
-
-### Kampanya Sistemi
-- **Yüzdelik İndirim**: Belirli yüzdede indirim
-- **Sabit Tutar İndirim**: Belirli tutarda indirim
-- **X Al Y Öde**: Belirli adet al, daha az öde
-- **Koşullu Kampanyalar**: 
-  - Minimum sepet tutarı
-  - Belirli yazarlar
-  - Belirli kategoriler
-- **Kullanıcı Bazlı Limit**: Kullanıcı başına kullanım limiti
-- **Otomatik Hesaplama**: En avantajlı kampanyayı otomatik seçme
-
-### İade Sistemi
-- **Kısmi İade**: Sipariş kalemleri bazında iade
-- **Adet Bazlı İade**: Ürün adetlerini seçerek iade
-- **Otomatik Hesaplama**: İade edilebilir tutar hesaplama
-- **Kampanya Geri Alma**: İade durumunda kampanya kullanımını geri alma
-- **Stok Güncelleme**: İade edilen ürünlerin stoklarını güncelleme
-- **Bildirim Sistemi**: İade işlemleri için SMS/Email bildirimi
-
-### Kargo Sistemi
-- **MNG Kargo Entegrasyonu**: Test ve production modları
-- **Otomatik Kargo Oluşturma**: Satıcı onayı ile
-- **Kargo Takip Numarası**: Her sipariş kalemi için
-- **Kargo Durumları**: Beklemede, Hazırlanıyor, Kargoya Verildi, Yolda, Teslim Edildi
-- **Kargo Ücretsizlik Eşiği**: 200 TL üzeri ücretsiz kargo
 
 ### Sistem Özellikleri
-- Elasticsearch ile gelişmiş arama
-- Queue sistemi ile asenkron işlemler
-- SMS ve email bildirimleri
-- Rate limiting
-- CSRF koruması
-- API endpoints
-- Docker containerization
-- Redis cache sistemi
+- Asenkron sipariş işleme (RabbitMQ)
+- Otomatik bildirim sistemi
+- Elasticsearch ile hızlı arama
+- Redis ile önbellekleme
+- Stok yönetimi ve takibi
+- Webhook desteği
+- Repository ve Service pattern
+- Observer pattern ile model events
+- Docker ile kolay deployment
 
-## API Endpoints
+---
+
+## Teknoloji Stack
+
+### Backend
+
+#### Framework & Dil
+- **Laravel 12.0** - Modern PHP Framework
+- **PHP 8.2+** - Programlama dili
+
+#### Veritabanı & Depolama
+- **PostgreSQL 17** - Ana ilişkisel veritabanı
+- **Redis** - Cache ve session yönetimi
+- **Elasticsearch 8.11.0** - Ürün arama ve filtreleme motoru
+
+#### Queue & Mesajlaşma
+- **RabbitMQ 3** - Asenkron işlem kuyruğu
+- **Laravel Queue** - Job yönetimi sistemi
+
+#### Kimlik Doğrulama & Güvenlik
+- **Laravel Sanctum 4.1** - API token authentication
+- Dual authentication (User & Seller)
+
+#### Ödeme Sistemleri
+- **İyzico** (iyzipay-php ^2.0.59)
+- **Stripe** (stripe-php ^17.5)
+
+#### Diğer Paketler
+- **Laravel Tinker** - REPL aracı
+- **PHPUnit** - Test framework
+- **Laravel Pint** - Code style fixer
+
+### Frontend
+
+#### Framework & Dil
+- **Next.js 15.5.3** - React framework (App Router)
+- **React 19.1.0** - UI library
+- **TypeScript 5.9.2** - Tip güvenli JavaScript
+- **Turbopack** - Hızlı build tool
+
+#### State Management
+- **Zustand 5.0.8** - Hafif global state yönetimi
+- **TanStack React Query 5.89.0** - Server state & caching
+- **React Hook Form 7.62.0** - Performanslı form yönetimi
+
+#### UI & Styling
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **Framer Motion 12.23.13** - Animasyon kütüphanesi
+- **Headless UI 2.2.8** - Accessible UI components
+- **Radix UI** - Primitive components (Accordion, Slider)
+- **Lucide React** - Modern icon library
+- **Swiper 11.2.10** - Touch slider
+
+#### Validation & Schema
+- **Zod 4.1.8** - TypeScript-first schema validation
+- **@hookform/resolvers** - Form validation entegrasyonu
+
+#### HTTP & Utilities
+- **Axios 1.12.2** - HTTP client
+- **date-fns 4.1.0** - Modern tarih kütüphanesi
+- **Sonner 2.0.7** - Toast notifications
+- **clsx & tailwind-merge** - Class name utilities
+
+### DevOps & Infrastructure
+
+- **Docker & Docker Compose** - Konteynerizasyon
+- **Nginx** - Web server ve reverse proxy
+- **Node.js 20** - JavaScript runtime
+
+---
+
+## Mimari
+
+### Genel Mimari
+Proje, mikroservis benzeri monolitik bir yapıya sahiptir:
+
+```
+┌─────────────────┐      ┌─────────────────┐
+│   Next.js App   │◄────►│  Laravel API    │
+│   (Frontend)    │      │   (Backend)     │
+│   Port: 3000    │      │   Port: 8000    │
+└─────────────────┘      └─────────────────┘
+                                  │
+                    ┌─────────────┼─────────────┐
+                    │             │             │
+            ┌───────▼──────┐ ┌───▼────┐ ┌─────▼─────┐
+            │  PostgreSQL  │ │ Redis  │ │ RabbitMQ  │
+            │  Port: 5432  │ │  6379  │ │   5672    │
+            └──────────────┘ └────────┘ └───────────┘
+                    │
+            ┌───────▼──────────┐
+            │  Elasticsearch   │
+            │   Port: 9200     │
+            └──────────────────┘
+```
+
+### Backend Mimari Desenleri
+
+#### Repository Pattern
+```php
+Repositories/
+├── Contracts/          # Interface tanımları
+│   ├── BaseRepositoryInterface
+│   ├── ReadRepositoryInterface
+│   └── WriteRepositoryInterface
+└── Eloquent/          # Eloquent implementasyonları
+    ├── BaseRepository
+    ├── UserRepository
+    └── ProductRepository
+```
+
+#### Service Layer Pattern
+```php
+Services/
+├── Auth/              # Kimlik doğrulama servisleri
+├── Bag/               # Sepet işlemleri
+├── Checkout/          # Ödeme işlemleri
+├── Order/             # Sipariş yönetimi
+├── Payment/           # Ödeme entegrasyonları
+├── Product/           # Ürün işlemleri
+├── Search/            # Arama servisleri
+└── Seller/            # Satıcı işlemleri
+```
+
+#### Observer Pattern
+Model event'leri için observer'lar kullanılır:
+- ProductObserver
+- OrderObserver
+- InventoryObserver
+
+### Frontend Mimari
+
+#### App Router Structure
+```
+app/
+├── [category]/        # Dinamik kategori sayfaları
+├── account/           # Kullanıcı hesap yönetimi
+├── bag/               # Sepet
+├── checkout/          # Ödeme akışı
+├── product/           # Ürün detay
+└── seller/            # Satıcı paneli
+```
+
+#### Custom Hooks
+17+ özel hook ile iş mantığı ayrıştırılmıştır:
+- `useAuthQuery` - Kimlik doğrulama
+- `useBagQuery` - Sepet işlemleri
+- `useCheckoutSession` - Ödeme oturumu
+- `useOrderQuery` - Sipariş işlemleri
+- `useSearchQuery` - Arama işlemleri
+
+---
+
+## Kurulum
+
+### Gereksinimler
+- **Docker** 20.10+
+- **Docker Compose** 2.0+
+- **Git**
+
+### Hızlı Başlangıç
+
+1. **Projeyi klonlayın**
+```bash
+git clone https://github.com/Quillen911/My-Task-2.git
+cd myOrders
+```
+
+2. **Docker servislerini başlatın**
+```bash
+docker-compose up -d
+```
+
+3. **Backend kurulumu**
+```bash
+# Laravel container'ına girin
+docker exec -it laravel-api bash
+
+# Veritabanı migration'larını çalıştırın
+php artisan migrate
+
+# (Opsiyonel) Seed data ekleyin
+php artisan db:seed
+
+# Storage link oluşturun
+php artisan storage:link
+
+# Elasticsearch index oluşturun
+php artisan scout:import "App\Models\Product"
+```
+
+4. **Frontend kurulumu**
+```bash
+# Frontend container'ı zaten çalışıyor olmalı
+# Gerekirse yeniden başlatın
+docker-compose restart web
+```
+
+5. **Uygulamaya erişin**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- RabbitMQ Management: http://localhost:15672 (guest/guest)
+- Elasticsearch: http://localhost:9200
+
+### Manuel Kurulum (Docker olmadan)
+
+#### Backend
+```bash
+cd backend
+
+# Bağımlılıkları yükleyin
+composer install
+
+# .env dosyasını oluşturun
+cp .env.example .env
+
+# Uygulama anahtarı oluşturun
+php artisan key:generate
+
+# Veritabanı migration'larını çalıştırın
+php artisan migrate
+
+# Sunucuyu başlatın
+php artisan serve
+```
+
+#### Frontend
+```bash
+cd frontend
+
+# Bağımlılıkları yükleyin
+npm install
+
+# .env.local dosyasını oluşturun
+cp .env.example .env.local
+
+# Development sunucusunu başlatın
+npm run dev
+```
+
+---
+
+## Kullanım
+
+### Docker Servisleri
+
+#### Tüm servisleri başlatma
+```bash
+docker-compose up -d
+```
+
+#### Belirli bir servisi yeniden başlatma
+```bash
+docker-compose restart web      # Frontend
+docker-compose restart api      # Backend
+docker-compose restart queue    # Queue worker
+```
+
+#### Logları görüntüleme
+```bash
+docker-compose logs -f web      # Frontend logs
+docker-compose logs -f api      # Backend logs
+docker-compose logs -f queue    # Queue logs
+```
+
+#### Container'a bağlanma
+```bash
+docker exec -it laravel-api bash    # Backend
+docker exec -it nextjs-app bash     # Frontend
+```
+
+### Artisan Komutları
+
+```bash
+# Migration çalıştırma
+php artisan migrate
+
+# Seed data ekleme
+php artisan db:seed
+
+# Cache temizleme
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+
+# Queue worker başlatma
+php artisan queue:work rabbitmq
+
+# Elasticsearch index oluşturma
+php artisan scout:import "App\Models\Product"
+```
+
+### NPM Komutları
+
+```bash
+# Development mode
+npm run dev
+
+# Production build
+npm run build
+
+# Production sunucu
+npm run start
+
+# Linting
+npm run lint
+```
+
+---
+
+## API Dokümantasyonu
+
+### Base URL
+- **Development**: `http://localhost:8000/api`
+- **Production**: `https://your-domain.com/api`
 
 ### Authentication
-- `POST /api/register` - Kullanıcı kaydı
-- `POST /api/login` - Kullanıcı girişi
-- `POST /api/logout` - Çıkış
-- `POST /api/seller/login` - Satıcı girişi
 
-### Products
-- `GET /api/products` - Ürün listesi
-- `GET /api/products/{id}` - Ürün detayı
-- `GET /api/search` - Ürün arama
-- `GET /api/search/autocomplete` - Otomatik tamamlama
+#### Kullanıcı Kaydı
+```http
+POST /register
+Content-Type: application/json
 
-### Orders
-- `GET /api/orders` - Sipariş listesi
-- `POST /api/orders` - Sipariş oluşturma
-- `GET /api/orders/{id}` - Sipariş detayı
-- `POST /api/orders/{id}/refund` - Kısmi iade
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}
+```
 
-### Bag
-- `GET /api/bag` - Sepet içeriği
-- `POST /api/bag/add` - Sepete ürün ekleme
-- `PUT /api/bag/update/{id}` - Sepet güncelleme
-- `DELETE /api/bag/{id}` - Sepetten ürün çıkarma
+#### Kullanıcı Girişi
+```http
+POST /login
+Content-Type: application/json
 
-### Seller API
-- `GET /api/seller/products` - Satıcı ürünleri
-- `POST /api/seller/products` - Ürün ekleme
-- `PUT /api/seller/products/{id}` - Ürün güncelleme
-- `DELETE /api/seller/products/{id}` - Ürün silme
-- `GET /api/seller/orders` - Satıcı siparişleri
-- `POST /api/seller/orders/{id}/confirm` - Sipariş onaylama
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
 
-## Docker Servisleri
+#### Satıcı Girişi
+```http
+POST /seller/login
+Content-Type: application/json
 
-### Ana Servisler
-- **app**: Laravel uygulaması
-- **postgres**: PostgreSQL veritabanı
-- **redis**: Redis cache
-- **nginx**: Web server
-- **queue**: Queue worker
-- **rabbitmq**: Message broker
+{
+  "email": "seller@example.com",
+  "password": "password123"
+}
+```
 
-### Monitoring Servisleri
-- **elasticsearch**: Arama motoru
-- **kibana**: Elasticsearch monitoring
-- **pgadmin**: PostgreSQL yönetimi
+### Ürünler
 
-## Konfigürasyon
+#### Ürün Arama
+```http
+GET /search?q=laptop&category=electronics&min_price=1000&max_price=5000
+```
+
+#### Kategori Filtreleme
+```http
+GET /category/{category_slug}?sort=price_asc&page=1
+```
+
+#### Ürün Detayı
+```http
+GET /variant/{variant_slug}
+```
+
+### Sepet (Authentication Required)
+
+#### Sepet Görüntüleme
+```http
+GET /bags
+Authorization: Bearer {token}
+```
+
+#### Sepete Ürün Ekleme
+```http
+POST /bags
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "variant_size_id": 123,
+  "quantity": 2
+}
+```
+
+#### Kampanya Uygulama
+```http
+POST /bags/campaign
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "campaign_id": 5
+}
+```
+
+### Checkout (Authentication Required)
+
+#### Checkout Session Oluşturma
+```http
+POST /checkout/session
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "address_id": 1,
+  "payment_method_id": 2
+}
+```
+
+#### Ödeme Intent Oluşturma
+```http
+POST /checkout/payment-intent
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "session_id": "abc123",
+  "payment_method": "credit_card"
+}
+```
+
+### Siparişler (Authentication Required)
+
+#### Sipariş Listesi
+```http
+GET /orders
+Authorization: Bearer {token}
+```
+
+#### Sipariş Detayı
+```http
+GET /orders/{order_id}
+Authorization: Bearer {token}
+```
+
+#### İade Talebi
+```http
+POST /orders/{order_id}/refunds
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "order_item_id": 1,
+      "quantity": 1,
+      "reason": "Ürün hasarlı geldi"
+    }
+  ]
+}
+```
+
+### Satıcı API (Seller Authentication Required)
+
+#### Ürün Oluşturma
+```http
+POST /seller/product
+Authorization: Bearer {seller_token}
+Content-Type: application/json
+
+{
+  "name": "Laptop XYZ",
+  "description": "High performance laptop",
+  "category_id": 5,
+  "gender_id": 1
+}
+```
+
+#### Varyant Ekleme
+```http
+POST /seller/product/{product_id}/variants
+Authorization: Bearer {seller_token}
+Content-Type: application/json
+
+{
+  "color": "Black",
+  "price": 15000,
+  "stock": 50
+}
+```
+
+#### Kampanya Oluşturma
+```http
+POST /seller/campaign
+Authorization: Bearer {seller_token}
+Content-Type: application/json
+
+{
+  "name": "Yaz İndirimi",
+  "discount_type": "percentage",
+  "discount_value": 20,
+  "min_purchase_amount": 500,
+  "start_date": "2025-06-01",
+  "end_date": "2025-08-31"
+}
+```
+
+---
+
+## Proje Yapısı
+
+### Backend Dizin Yapısı
+
+```
+backend/
+├── app/
+│   ├── Console/              # Artisan komutları
+│   ├── Enums/               # Enum sınıfları
+│   │   ├── OrderStatus.php
+│   │   ├── PaymentStatus.php
+│   │   └── ShippingStatus.php
+│   ├── Exceptions/          # Exception handlers
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Api/        # API controllers
+│   │   │   │   ├── AuthController.php
+│   │   │   │   ├── BagController.php
+│   │   │   │   ├── Checkout/
+│   │   │   │   ├── Order/
+│   │   │   │   ├── Payments/
+│   │   │   │   ├── Product/
+│   │   │   │   └── Seller/
+│   │   │   └── Web/        # Web controllers
+│   │   ├── Middleware/
+│   │   └── Requests/
+│   ├── Jobs/               # Queue jobs
+│   │   ├── OrderPlacementJob.php
+│   │   ├── SellerOrderNotification.php
+│   │   ├── IndexProductToElasticsearch.php
+│   │   └── Refund/
+│   ├── Models/             # Eloquent models (35 adet)
+│   │   ├── User.php
+│   │   ├── Seller.php
+│   │   ├── Product.php
+│   │   ├── Order.php
+│   │   └── ...
+│   ├── Notifications/      # Bildirimler
+│   │   ├── OrderCreated.php
+│   │   ├── OrderItemShipped.php
+│   │   └── PasswordResetNotification.php
+│   ├── Observers/          # Model observers
+│   ├── Providers/          # Service providers
+│   ├── Repositories/       # Repository pattern
+│   │   ├── Contracts/     # Interfaces
+│   │   └── Eloquent/      # Implementations
+│   ├── Services/          # Business logic
+│   │   ├── Auth/
+│   │   ├── Bag/
+│   │   ├── Campaigns/
+│   │   ├── Checkout/
+│   │   ├── Order/
+│   │   ├── Payments/
+│   │   ├── Product/
+│   │   ├── Search/
+│   │   ├── Seller/
+│   │   └── Shipping/
+│   └── Traits/
+├── database/
+│   ├── factories/
+│   ├── migrations/         # 40 migration dosyası
+│   └── seeders/
+├── routes/
+│   ├── api.php            # API routes
+│   ├── web.php            # Web routes
+│   └── console.php
+├── storage/
+├── tests/
+├── composer.json
+├── Dockerfile
+└── .env.example
+```
+
+### Frontend Dizin Yapısı
+
+```
+frontend/
+├── public/
+│   ├── images/
+│   └── icons/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── [category]/        # Dinamik kategori
+│   │   │   └── page.tsx
+│   │   ├── account/           # Hesap yönetimi
+│   │   │   ├── addresses/
+│   │   │   ├── orders/
+│   │   │   └── profile/
+│   │   ├── bag/               # Sepet
+│   │   │   └── page.tsx
+│   │   ├── checkout/          # Ödeme
+│   │   │   ├── payment/
+│   │   │   ├── shipping/
+│   │   │   └── success/
+│   │   ├── login/
+│   │   ├── product/
+│   │   │   └── [slug]/
+│   │   ├── register/
+│   │   ├── search/
+│   │   ├── seller/            # Satıcı paneli
+│   │   │   ├── campaign/
+│   │   │   ├── order/
+│   │   │   └── product/
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/            # React components
+│   │   ├── auth/
+│   │   ├── bag/
+│   │   ├── checkout/
+│   │   ├── footer/
+│   │   ├── forms/
+│   │   ├── header/
+│   │   ├── home/
+│   │   ├── order/
+│   │   ├── product/
+│   │   ├── seller/
+│   │   └── ui/               # Reusable UI
+│   ├── contexts/             # React contexts
+│   ├── hooks/                # Custom hooks
+│   │   ├── checkout/
+│   │   ├── seller/
+│   │   ├── useAuthQuery.ts
+│   │   ├── useBagQuery.ts
+│   │   ├── useOrderQuery.ts
+│   │   └── useSearchQuery.ts
+│   ├── lib/
+│   │   ├── api/              # API clients
+│   │   │   ├── authApi.ts
+│   │   │   ├── bagApi.ts
+│   │   │   ├── checkoutApi.ts
+│   │   │   ├── orderApi.ts
+│   │   │   └── seller/
+│   │   ├── queryClient.ts
+│   │   └── utils.ts
+│   ├── providers/            # Context providers
+│   ├── schemas/              # Zod schemas
+│   ├── styles/
+│   ├── types/                # TypeScript types
+│   └── middleware.ts         # Next.js middleware
+├── package.json
+├── tsconfig.json
+├── next.config.ts
+├── Dockerfile
+└── .env.local
+```
+
+---
+
+## Veritabanı Şeması
+
+### Ana Tablolar
+
+#### Users & Authentication
+- `users` - Kullanıcı bilgileri
+- `sellers` - Satıcı bilgileri
+- `stores` - Mağaza bilgileri
+- `password_resets` - Şifre sıfırlama tokenları
+- `personal_access_tokens` - API tokenları
+
+#### Products
+- `products` - Ürün ana bilgileri
+- `product_variants` - Ürün varyantları (renk, model)
+- `variant_sizes` - Beden/boyut bilgileri
+- `product_variant_images` - Ürün görselleri
+- `product_categories` - Ürün-kategori ilişkisi
+- `categories` - Kategori hiyerarşisi
+- `attributes` - Ürün özellikleri
+- `attribute_options` - Özellik seçenekleri
+- `variant_attributes` - Varyant-özellik ilişkisi
+- `genders` - Cinsiyet kategorileri
+
+#### Orders
+- `orders` - Sipariş ana bilgileri
+- `order_items` - Sipariş kalemleri
+- `order_refunds` - İade talepleri
+- `order_refund_items` - İade kalemleri
+- `shipping_items` - Kargo bilgileri
+
+#### Payments
+- `payments` - Ödeme kayıtları
+- `payment_methods` - Ödeme yöntemleri
+- `payment_providers` - Ödeme sağlayıcıları
+- `payment_customer_accounts` - Müşteri ödeme hesapları
+- `payment_events` - Ödeme olayları
+
+#### Campaigns
+- `campaigns` - Kampanya bilgileri
+- `campaign_products` - Kampanya-ürün ilişkisi
+- `campaign_categories` - Kampanya-kategori ilişkisi
+- `campaign_usages` - Kampanya kullanım kayıtları
+
+#### Cart & Checkout
+- `bags` - Sepet ana bilgileri
+- `bag_items` - Sepet kalemleri
+- `checkout_sessions` - Ödeme oturumları
+- `user_addresses` - Kullanıcı adresleri
+
+#### Inventory
+- `warehouses` - Depo bilgileri
+- `inventories` - Stok kayıtları
+- `stock_movements` - Stok hareketleri
+
+#### System
+- `jobs` - Queue jobs
+- `failed_jobs` - Başarısız jobs
+- `cache` - Cache kayıtları
+- `notifications` - Bildirimler
+
+---
+
+## Deployment
+
+### Docker Compose ile Production
+
+1. **Environment değişkenlerini ayarlayın**
+```bash
+# Backend .env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+
+# Frontend .env.local
+NEXT_PUBLIC_API_URL=https://your-domain.com/api
+NODE_ENV=production
+```
+
+2. **Production build**
+```bash
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+3. **SSL sertifikası ekleyin** (Let's Encrypt ile)
+```bash
+# Certbot kullanarak
+docker-compose run --rm certbot certonly --webroot \
+  --webroot-path=/var/www/certbot \
+  -d your-domain.com
+```
+
+### Manuel Deployment
+
+#### Backend (Laravel)
+```bash
+# Bağımlılıkları yükle
+composer install --optimize-autoloader --no-dev
+
+# Cache oluştur
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Migration çalıştır
+php artisan migrate --force
+
+# Storage link
+php artisan storage:link
+```
+
+#### Frontend (Next.js)
+```bash
+# Bağımlılıkları yükle
+npm ci
+
+# Production build
+npm run build
+
+# PM2 ile başlat
+pm2 start npm --name "ecommerce-frontend" -- start
+```
 
 ### Environment Variables
-- `DB_CONNECTION=pgsql` - PostgreSQL bağlantısı
-- `ELASTICSEARCH_HOST=elasticsearch` - Elasticsearch host
-- `IYZICO_API_KEY` - İyzico API anahtarı
-- `MNG_API_KEY` - MNG Kargo API anahtarı
-- `RABBITMQ_HOST=rabbitmq` - RabbitMQ host
-- `REDIS_HOST=redis` - Redis host
 
-### Kargo Ayarları
-- `ORDER_CARGO_THRESHOLD=200` - Ücretsiz kargo eşiği (TL)
-- `ORDER_CARGO_PRICE=50` - Kargo ücreti (TL)
-- `MNG_TEST_MODE=true` - Test modu aktif
+#### Backend (.env)
+```env
+APP_NAME="E-Commerce Platform"
+APP_ENV=production
+APP_KEY=base64:...
+APP_DEBUG=false
+APP_URL=https://your-domain.com
 
-## Geliştirme
+DB_CONNECTION=pgsql
+DB_HOST=postgres
+DB_PORT=5432
+DB_DATABASE=ecommerce
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
 
-### Docker Komutları
-```bash
-# Servisleri başlat
-docker-compose up -d
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
 
-# Logları görüntüle
-docker-compose logs -f app
+QUEUE_CONNECTION=rabbitmq
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+RABBITMQ_VHOST=/
 
-# Container içine gir
-docker-compose exec app bash
+ELASTICSEARCH_HOST=elasticsearch:9200
 
-# Queue worker'ı başlat
-docker-compose exec app php artisan queue:work
+IYZICO_API_KEY=your_api_key
+IYZICO_SECRET_KEY=your_secret_key
+IYZICO_BASE_URL=https://api.iyzipay.com
 
-# Test çalıştır
-docker-compose exec app php artisan test
+STRIPE_KEY=your_stripe_key
+STRIPE_SECRET=your_stripe_secret
+
 ```
 
-### Code Formatting
-```bash
-docker-compose exec app ./vendor/bin/pint
+#### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=https://your-domain.com/api
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+NODE_ENV=production
 ```
 
-### Database İşlemleri
+---
+
+## Testing
+
+### Backend Tests
 ```bash
-# Migration çalıştır
-docker-compose exec app php artisan migrate
+# Tüm testleri çalıştır
+php artisan test
 
-# Seeder çalıştır
-docker-compose exec app php artisan db:seed
+# Belirli bir test dosyası
+php artisan test --filter=OrderTest
 
-# Database sıfırla
-docker-compose exec app php artisan migrate:fresh --seed
+# Coverage raporu
+php artisan test --coverage
 ```
+
+### Frontend Tests
+```bash
+# Unit tests
+npm run test
+
+# E2E tests (Playwright)
+npm run test:e2e
+```
+
+---
 
 ## Güvenlik
 
-- CSRF token koruması
-- Rate limiting (giriş/kayıt)
-- Input validation
-- SQL injection koruması
-- XSS koruması
-- Secure authentication
-- API token authentication
+### Implemented Security Features
+- Laravel Sanctum token authentication
+- CSRF protection
+- SQL injection prevention (Eloquent ORM)
+- XSS protection
+- Rate limiting
+- Password hashing (bcrypt)
+- Secure payment processing
+- HTTPS enforcement (production)
+- Environment variable protection
+- Input validation (Zod schemas)
+
+### Security Best Practices
+- API anahtarlarını asla commit etmeyin
+- `.env` dosyalarını `.gitignore`'a ekleyin
+- Production'da `APP_DEBUG=false` kullanın
+- Güçlü şifreler kullanın
+- Düzenli güvenlik güncellemeleri yapın
+
+---
+
+## Katkıda Bulunma
+
+Katkılarınızı bekliyoruz! Lütfen şu adımları takip edin:
+
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'feat: Add amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Pull Request açın
+
+### Commit Mesaj Formatı
+```
+feat: Yeni özellik ekleme
+fix: Bug düzeltme
+docs: Dokümantasyon güncellemesi
+style: Kod formatı değişikliği
+refactor: Kod refactoring
+test: Test ekleme/güncelleme
+chore: Build/config değişiklikleri
+```
+
+---
+
+## Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+---
+
+## Geliştirici
+
+**İsmail**
+- GitHub: [@Quillen911](https://github.com/Quillen911)
+
+---
+
+## İletişim & Destek
+
+Sorularınız veya önerileriniz için:
+- GitHub Issues: [Create an issue](https://github.com/Quillen911/My-Task-2/issues)
+- Email: your-email@example.com
+
+---
+
+## Teşekkürler
+
+Bu proje aşağıdaki harika açık kaynak projeleri kullanmaktadır:
+- [Laravel](https://laravel.com)
+- [Next.js](https://nextjs.org)
+- [React](https://react.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [PostgreSQL](https://www.postgresql.org)
+- [Elasticsearch](https://www.elastic.co)
+- [RabbitMQ](https://www.rabbitmq.com)
+- [Redis](https://redis.io)
+
+---
+
+<div align="center">
+  <p>Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!</p>
+  <p>Made with by İsmail</p>
+</div>
