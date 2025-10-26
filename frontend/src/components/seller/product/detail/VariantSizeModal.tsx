@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useCreateVariantSize, useUpdateVariantSize, useDeleteVariantSize, normalizeError } from '@/hooks/seller/useProductQuery'
 import type { ProductVariant, VariantSize } from '@/types/seller/product'
 import { toast } from 'sonner'
+import { queryClient } from '@/lib/queryClient'
 
 type SizeFormValues = {
   size_option_id: number
@@ -93,19 +94,23 @@ export default function VariantSizeModal({
         variantId: variant.id,
         size_option_id: Number(values.size_option_id),
         price_cents: Number(values.price_cents),
-        inventory: [
-          {
-            on_hand: Number(values.on_hand),
-            reserved: values.reserved != null ? Number(values.reserved) : 0,
-            warehouse_id:
-              values.warehouse_id != null
-                ? Number(values.warehouse_id)
-                : null,
-            min_stock_level:
-              values.min_stock_level != null ? Number(values.min_stock_level) : 0,
-          },
-        ],
-      });
+        inventory: {
+          on_hand: Number(values.on_hand),
+          reserved: values.reserved != null ? Number(values.reserved) : 0,
+          warehouse_id: values.warehouse_id != null ? Number(values.warehouse_id) : null,
+          min_stock_level: values.min_stock_level != null ? Number(values.min_stock_level) : 0,
+        },
+      },
+      {
+        onSuccess: async () => {
+          toast.success('Beden oluşturuldu')
+          onClose()
+          await onUpdated()
+        },
+        onError: (error: unknown) =>
+          toast.error(error instanceof Error ? error.message : 'Oluşturma başarısız.'),
+      },
+    );
 
       reset()
       await onUpdated()
@@ -149,7 +154,7 @@ export default function VariantSizeModal({
     try {
       await updateSize.mutateAsync(payload)
       await onUpdated()
-      toast.success('Size güncellendi')
+      toast.success('Beden güncellendi')
     } catch (error) {
       const { message, fields } = extractErrors(error)
       setFormError(message)
@@ -165,8 +170,16 @@ export default function VariantSizeModal({
         productId,
         variantId: variant.id,
         sizeId: size.id,
+      }, {
+        onSuccess: async () => {
+          toast.success('Beden silindi')
+          queryClient.invalidateQueries({ queryKey: ['product', productId] })
+          onClose()
+          await onUpdated()
+        },
+        onError: (error: unknown) =>
+          toast.error(error instanceof Error ? error.message : 'Silme başarısız.'),
       })
-      await onUpdated()
     } catch (error) {
       const { message } = extractErrors(error)
       setFormError(message)

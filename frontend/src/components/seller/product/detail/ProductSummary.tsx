@@ -35,7 +35,7 @@ export default function ProductSummary({ product }: ProductSummaryProps) {
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">Kategori</dt>
-            <dd className="text-sm text-gray-700">{product.category?.title ?? 'Belirtilmemiş'}</dd>
+            <dd className="text-sm text-gray-700">{product.category?.title ?? 'Belirtilmemiş'} / {product.category?.gender?.title ?? 'Belirtilmemiş'}</dd>
           </div>
 
           <div>

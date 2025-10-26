@@ -66,6 +66,7 @@ const handleUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) =
       image: file ,
     })
     toast.success('Görsel yüklendi')
+    onClose()
     await onUpdated()
   } catch (error) {
     toast.error(error instanceof Error ? error.message : 'Yükleme başarısız.')
@@ -80,6 +81,7 @@ const handleUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) =
       {
         onSuccess: async () => {
           toast.success('Görsel silindi')
+          onClose()
           await onUpdated()
         },
         onError: (error: unknown) => {
@@ -114,7 +116,7 @@ const handleUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) =
         {
           onSuccess: async () => {
             toast.success('Sıralama güncellendi')
-            onUpdated()
+            await onUpdated()
           },
           onError: (error: unknown) => {
             toast.error(

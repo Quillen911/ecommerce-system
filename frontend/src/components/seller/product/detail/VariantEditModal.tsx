@@ -96,7 +96,7 @@ export default function VariantEditModal({
         Number.isFinite(values.create_size_price_cents) && values.create_size_price_cents > 0
           ? values.create_size_price_cents
           : values.price_cents,
-      inventory: [inventoryEntry],
+      inventory: inventoryEntry,
     };
 
     return [sizePayload];
