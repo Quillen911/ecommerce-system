@@ -26,7 +26,7 @@ Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-tica
 - Gelişmiş ürün arama ve filtreleme (Elasticsearch powered)
 - Gerçek zamanlı sepet yönetimi
 - Kampanya uygulama
-- Çoklu ödeme yöntemi desteği (İyzico, Stripe)
+- Çoklu ödeme yöntemi desteği (İyzico)
 - Sipariş takibi ve geçmişi
 - İade ve iade talepleri
 - Çoklu adres yönetimi
@@ -81,7 +81,6 @@ Modern, ölçeklenebilir ve mikroservis benzeri mimariye sahip full-stack e-tica
 
 #### Ödeme Sistemleri
 - **İyzico** (iyzipay-php ^2.0.59)
-- **Stripe** (stripe-php ^17.5)
 
 #### Diğer Paketler
 - **Laravel Tinker** - REPL aracı
