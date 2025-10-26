@@ -169,9 +169,18 @@ export function CardForm({
         </div>
 
         {isUsingSavedCard && (
+          <div>
           <p className="mt-4 rounded-lg border border-dashed border-color bg-card/40 p-4 text-sm text-muted-foreground">
             Kayıtlı kart listesini burada gösterebilirsiniz.
           </p>
+
+          <Input
+            label="Kayıtlı Kart"
+            value={formState.payment_method_id?.toString()}
+            onChange={(v) => handleChange("payment_method_id", Number(v))}
+            error={resolveError("payment_method_id")}
+          />
+          </div>
         )}
       </motion.section>
 
@@ -258,7 +267,7 @@ export function CardForm({
         </motion.section>
       )}
 
-      <button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-[var(--accent)] py-3 text-sm font-semibold text-white hover:bg-[var(--accent-dark)] transition disabled:opacity-60">
+      <button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-[var(--accent)] py-3 text-sm font-semibold text-white hover:bg-[var(--accent-dark)] transition disabled:opacity-60 cursor-pointer">
         {isSubmitting ? "İşleniyor..." : "Ödemeyi Tamamla"}
       </button>
     </form>

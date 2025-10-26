@@ -162,7 +162,6 @@ class CheckoutSessionService
                 'payment_data->intent->conversation_id',
                 $conversationId
             )
-            ->where('is_active', true)
             ->first();
         }
 
@@ -171,14 +170,12 @@ class CheckoutSessionService
                 'payment_data->intent->payment_id',
                 $paymentId
             )
-            ->where('is_active', true)
             ->first();
         }
 
         if (!$session && config('app.env') !== 'production') {
             $session = CheckoutSession::where('status', 'confirmed')
                 ->where('payment_data->provider', 'iyzico')
-                ->where('is_active', true)
                 ->latest()
                 ->first();
 
@@ -224,7 +221,6 @@ class CheckoutSessionService
     {
         $session = CheckoutSession::where('id', $sessionId)
             ->where('user_id', $user)
-            ->where('is_active', true)
             ->first();
 
         if (!$session) {

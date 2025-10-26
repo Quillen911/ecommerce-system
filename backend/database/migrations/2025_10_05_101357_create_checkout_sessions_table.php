@@ -26,7 +26,6 @@ return new class extends Migration
                 ->default('pending');
 
             $table->timestamp('expires_at')->nullable();   // 15-30 dk gibi TTL
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->index(['user_id','status']);

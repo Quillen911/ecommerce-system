@@ -10,9 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use App\Models\CheckoutSession;
 
 class IyzicoCallbackController extends Controller
 {
+    
     public function __invoke(Request $request, CheckoutSessionService $checkoutSessions)
     {
         $payload = $request->all();
@@ -24,6 +26,8 @@ class IyzicoCallbackController extends Controller
 
         $sessionId = $this->extractSessionId($payload['conversationId'] ?? null);
 
+        Log::info('Iyzico callback', ['payload' => $payload]);
+
         if (($payload['mdStatus'] ?? '') === "0" || ($payload['status'] ?? '') === "failure") {
             Log::info('Iyzico callback: Payment failed', ['payload' => $payload]);
 
@@ -34,8 +38,11 @@ class IyzicoCallbackController extends Controller
             return response()->json(['status' => 'failed', 'reason' => '3D verification failed'], 200);
         }
 
+        $session = null;
+
         try {
             $session = $checkoutSessions->confirmPaymentIntent($payload);
+            Log::info('Session', ['payload' => $payload, 'session' => $session]);
 
             if (($payload['mdStatus'] ?? '') === "1") {
                 $user = $session['user'] ?? User::find($session['user_id']);
@@ -49,31 +56,31 @@ class IyzicoCallbackController extends Controller
             }
 
             return response()->json(['received' => true]);
+        } catch (\Throwable $e) {
+            $gatewayMessage = $payload['errorMessage']
+                ?? $payload['localeMessage']
+                ?? $payload['message']
+                ?? $e->getMessage();
 
-            } catch (\Throwable $e) {
-                $gatewayMessage = $payload['errorMessage']
-                    ?? $payload['localeMessage']
-                    ?? $payload['message']
-                    ?? $e->getMessage();
+            Log::error('Iyzico callback error', [
+                'message' => $gatewayMessage,
+                'payload' => $payload,
+            ]);
 
-                Log::error('Iyzico callback error', [
-                    'message' => $gatewayMessage,
-                    'payload' => $payload,
-                ]);
-                $session->update([
-                    'status' => 'awaiting_retry',
-                ]);
-                if ($this->isBrowser($request->header('User-Agent'))) {
-                    return Redirect::away(
-                        $this->buildFailedFrontendUrl($sessionId) . '&error=' . urlencode($gatewayMessage)
-                    );
-                }
-
-                return response()->json([
-                    'status'  => 'failure',
-                    'message' => $gatewayMessage,
-                ], 402); 
+            if ($session instanceof CheckoutSession) {
+                $session->update(['status' => 'pending_3ds']);
             }
+
+            if ($this->isBrowser($request->header('User-Agent'))) {
+                $redirect = $this->buildFailedFrontendUrl($sessionId);
+                return Redirect::away($redirect . (str_contains($redirect, '?') ? '&' : '?') . 'error=' . urlencode($gatewayMessage));
+            }
+
+            return response()->json([
+                'status'  => 'failure',
+                'message' => $gatewayMessage,
+            ], 402);
+        }
     }
     private function extractSessionId(?string $conversationId): ?string
     {

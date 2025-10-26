@@ -29,7 +29,6 @@ class CheckoutSession extends Model
         'payment_data',
         'meta',
         'status',
-        'is_active',
         'expires_at',
     ];
 
@@ -39,7 +38,6 @@ class CheckoutSession extends Model
         'billing_data'  => 'array',
         'payment_data'  => 'array',
         'meta'          => 'array',
-        'is_active'     => 'boolean',
         'expires_at'    => 'datetime',
     ];
 
