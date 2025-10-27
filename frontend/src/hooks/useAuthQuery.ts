@@ -49,7 +49,6 @@ export const useLogin = () => {
     },
     onSuccess: (data: any) => {
       localStorage.setItem('user_token', data.data.token)
-      // Cookie'yi güvenli ayarlarla set et
       const isProduction = process.env.NODE_ENV === 'production'
       document.cookie = `user_token=${data.data.token}; path=/; max-age=86400; SameSite=Strict${isProduction ? '; Secure' : ''}`
       queryClient.setQueryData(authKeys.me(), data.data.user)
@@ -74,7 +73,6 @@ export const useRegister = () => {
     },
     onSuccess: (data: any) => {
       localStorage.setItem('user_token', data.data.token)
-      // Cookie backend tarafından HttpOnly olarak set ediliyor
       queryClient.setQueryData(authKeys.me(), data.data.user)
     },
     onError: (error: any) => {
@@ -91,14 +89,15 @@ export const useLogout = () => {
     mutationFn: async () => authApi.logout(),
     onSuccess: () => {
       localStorage.removeItem('user_token');
-      // Cookie backend tarafından siliniyor
-      queryClient.clear();            // tüm auth verilerini temizle
-      router.push('/login');          // logout bittiğinde yönlendir
+      queryClient.clear();
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+
+      router.push('/login');
     },
     onError: () => {
       localStorage.removeItem('user_token');
-      // Cookie backend tarafından siliniyor
       queryClient.clear();
+      queryClient.invalidateQueries({ queryKey: ['me'] });
       router.push('/login');
     },
   });

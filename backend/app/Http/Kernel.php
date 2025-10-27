@@ -28,6 +28,9 @@ class Kernel extends HttpKernel
 
         'api' => [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\AuthenticateFromCookie::class,
+            \App\Http\Middleware\AuthenticateSellerFromCookie::class,
+            \App\Http\Middleware\ApiAuthenticate::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
@@ -38,7 +41,6 @@ class Kernel extends HttpKernel
     ];
 
     protected $middlewareAliases = [
-        'auth.api' => \App\Http\Middleware\ApiAuthenticate::class,
         'DevelopmentOnly' => \App\Http\Middleware\DevelopmentOnly::class, 
         'register.limit' => \App\Http\Middleware\RegisterRateLimit::class,
         'login.limit' => \App\Http\Middleware\LoginRateLimit::class,

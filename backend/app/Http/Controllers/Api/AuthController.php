@@ -14,6 +14,8 @@ use App\Models\Seller;
 use App\Repositories\Contracts\AuthenticationRepositoryInterface;
 use App\Services\Auth\UserRegistrationService;
 use App\Services\Auth\ProfileService;
+use Illuminate\Support\Facades\Response;
+
 class AuthController extends Controller
 {
     protected $authenticationRepository;
@@ -46,21 +48,22 @@ class AuthController extends Controller
             return ResponseHelper::error('Email veya Şifre Hatalı',401);
         }
         $token = $user->createToken('user-token')->plainTextToken;
-        
-        // HttpOnly cookie ile token'ı güvenli şekilde set et
-        cookie()->queue(
+    
+        $cookie = cookie(
             'user_token',
             $token,
-            60 * 24, // 24 saat
+            config('session.lifetime'), 
             '/',
             null,
-            config('session.secure', false), // HTTPS'de true
-            true, // HttpOnly
+            env('SESSION_SECURE_COOKIE', false), 
+            true, 
             false,
-            'strict' // SameSite
+            env('SESSION_SAME_SITE', 'lax')
         );
 
-        return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'user' =>$user]);
+        $response = ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'user' =>$user]);
+
+        return $response->withCookie($cookie);
     }
     
     /**
@@ -69,7 +72,9 @@ class AuthController extends Controller
     public function me(Request $request){
         $user = $this->authenticationRepository->getUser();
         if(!$user){
-            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+            return Response::json([
+                'message' => 'Kullanıcı bulunamadı.'
+            ], 404);
         }
         return ResponseHelper::success('Kullanıcı Bilgileri', $user);
     }
@@ -80,7 +85,9 @@ class AuthController extends Controller
     public function profile(Request $request){
         $user = $this->authenticationRepository->getUser();
         if(!$user){
-            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+            return Response::json([
+                'message' => 'Kullanıcı bulunamadı.'
+            ], 404);
         }
         
         $result = $this->profileService->getUserProfile($user->id);
@@ -98,7 +105,9 @@ class AuthController extends Controller
     public function updateProfile(UpdateProfileRequest $request){
         $user = $this->authenticationRepository->getUser();
         if(!$user){
-            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+            return Response::json([
+                'message' => 'Kullanıcı bulunamadı.'
+            ], 404);
         }
         
         $result = $this->profileService->updateUserProfile($user->id, $request->validated());
@@ -113,14 +122,28 @@ class AuthController extends Controller
     public function logout(Request $request){
         $user = $this->authenticationRepository->getUser();
         if(!$user){
-            return ResponseHelper::notFound('Kullanıcı bulunamadı.');
+            return Response::json([
+                'message' => 'Kullanıcı bulunamadı.'
+            ], 404);
         }
-        $request->user()->currentAccessToken()->delete();
-        
-        // Cookie'yi sil
-        cookie()->queue(cookie()->forget('user_token'));
+        $cookieToken = $request->cookie('user_token');
 
-        return ResponseHelper::success('Çıkış Yapıldı.');
+        if ($cookieToken) {
+            $cookieToken = urldecode($cookieToken);
+
+            if (strpos($cookieToken, '|') !== false) {
+                [$id, $plainToken] = explode('|', $cookieToken, 2);
+                $accessToken = \Laravel\Sanctum\PersonalAccessToken::find($id);
+
+                if ($accessToken && hash_equals($accessToken->token, hash('sha256', $plainToken))) {
+                    $accessToken->delete();
+                }
+            }
+        }
+        
+        $forgetCookie = cookie()->forget('user_token');
+
+        return ResponseHelper::success('Çıkış Yapıldı.')->withCookie($forgetCookie);
     }
 
     //seller login
@@ -132,41 +155,56 @@ class AuthController extends Controller
         }
         $token = $seller->createToken('seller-token')->plainTextToken;
         
-        // HttpOnly cookie ile token'ı güvenli şekilde set et
-        cookie()->queue(
+        $cookie = cookie(
             'seller_token',
             $token,
-            60 * 24, // 24 saat
+            config('session.lifetime'),
             '/',
             null,
-            config('session.secure', false), // HTTPS'de true
-            true, // HttpOnly
+            env('SESSION_SECURE_COOKIE', false), 
+            true, 
             false,
-            'strict' // SameSite
+            env('SESSION_SAME_SITE', 'lax')
         );
+
         
-        return ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'seller' =>$seller]);
+        $response = ResponseHelper::success('Giriş Başarılı', ['token' => $token, 'seller' =>$seller]);
+        return $response->withCookie($cookie);
     }
 
     public function sellerLogout(Request $request){
         $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
-            return ResponseHelper::notFound('Seller bulunamadı.');
+            return Response::json([
+                'message' => 'Satıcı bulunamadı.'
+            ], 404);
         }
         
-        $seller->currentAccessToken()->delete();
-        
-        // Cookie'yi sil
-        cookie()->queue(cookie()->forget('seller_token'));
-        
-        return ResponseHelper::success('Çıkış Yapıldı.',['seller' => $seller]);
+        $cookieToken = $request->cookie('seller_token');
+
+        if ($cookieToken) {
+            $cookieToken = urldecode($cookieToken);
+
+            if (strpos($cookieToken, '|') !== false) {
+                [$id, $plainToken] = explode('|', $cookieToken, 2);
+                $accessToken = \Laravel\Sanctum\PersonalAccessToken::find($id);
+
+                if ($accessToken && hash_equals($accessToken->token, hash('sha256', $plainToken))) {
+                    $accessToken->delete();
+                }
+            }
+        }
+        $forgetCookie = cookie()->forget('seller_token');
+        return ResponseHelper::success('Çıkış Yapıldı.',['seller' => $seller])->withCookie($forgetCookie);
     }
 
     public function mySeller(Request $request){
         $seller = $this->authenticationRepository->getSeller();
         if(!$seller){
-            return ResponseHelper::notFound('Seller bulunamadı.');
+            return Response::json([
+                'message' => 'Satıcı bulunamadı.'
+            ], 404);
         }
-        return ResponseHelper::success('Seller Bilgileri', $seller);
+        return ResponseHelper::success('Satıcı Bilgileri', $seller);
     }
 }

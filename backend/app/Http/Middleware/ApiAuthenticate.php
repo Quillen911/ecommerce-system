@@ -24,7 +24,7 @@ class ApiAuthenticate
         throw new AuthenticationException(
             'Unauthenticated.',
             $guards,
-            null // yönlendirme yok
+            null
         );
     }
 }

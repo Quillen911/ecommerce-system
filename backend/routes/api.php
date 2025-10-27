@@ -29,6 +29,8 @@ use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Controllers\Api\Checkout\CheckoutController;
 use App\Http\Middleware\LoginRateLimit;
 use App\Http\Middleware\RegisterRateLimit;
+use App\Http\Middleware\AuthenticateFromCookie;
+use App\Http\Middleware\AuthenticateSellerFromCookie;
 
 
 Route::post('/register', [AuthController::class, 'register'])->middleware(RegisterRateLimit::class);
@@ -52,7 +54,7 @@ Route::get('/filter', [MainController::class, 'filter']);
 Route::get('/sorting', [MainController::class, 'sorting']);
 Route::get('/autocomplete', [MainController::class, 'autocomplete']);
 
-Route::middleware('auth:user')->middleware(ApiAuthenticate::class)->group(function(){
+Route::middleware(AuthenticateFromCookie::class)->middleware('auth:user')->middleware(ApiAuthenticate::class)->group(function(){
 
     
     Route::post('bags/campaign', [BagController::class, 'select']);
@@ -96,7 +98,7 @@ Route::middleware('auth:user')->middleware(ApiAuthenticate::class)->group(functi
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:seller')->group(function(){
+Route::middleware(AuthenticateSellerFromCookie::class)->middleware('auth:seller')->group(function(){
 
     Route::post('/seller-logout', [AuthController::class, 'sellerLogout']);
     Route::get('/my-seller', [AuthController::class, 'mySeller']);
