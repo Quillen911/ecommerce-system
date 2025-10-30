@@ -92,7 +92,7 @@ class ElasticsearchService
                             [
                                 'multi_match' => [
                                     'query'     => $query,
-                                    'fields'    => ['title^3', 'category_title^2', 'gender^2'],
+                                    'fields'    => ['title^3', 'category_title^2', 'gender^2', 'variants.color_name^2'],
                                     'fuzziness' => 'AUTO',
                                 ],
                             ],
@@ -102,7 +102,7 @@ class ElasticsearchService
                                     'query' => [
                                         'multi_match' => [
                                             'query'  => $query,
-                                            'fields' => ['variants.sku', 'variants.color_name^2'],
+                                            'fields' => ['variants.sku', 'variants.color_name^2', 'variants.size_option.value^2'],
                                             'fuzziness' => 'AUTO',
                                         ],
                                     ],
@@ -141,8 +141,13 @@ class ElasticsearchService
                     'nested' => [
                         'path'  => 'variants.sizes',
                         'query' => [
-                            'terms' => [
-                                'variants.sizes.size_option.slug' => $sizes,
+                            'nested' => [
+                               'path' => 'variants.sizes.size_option' ,
+                               'query' => [
+                                    'terms' => [
+                                        'variants.sizes.size_option.slug' => $sizes,
+                                    ],
+                               ],
                             ],
                         ],
                     ],

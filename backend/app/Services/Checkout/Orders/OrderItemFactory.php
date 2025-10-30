@@ -58,7 +58,7 @@ class OrderItemFactory
                     'payment_status'         => 'paid',
                 ])
             );
-            $this->productRepository->incrementSoldQuantity($snapshot['product_id'], $quantity);
+            $this->productRepository->incrementTotalSoldQuantity($snapshot['product_id'], $quantity);
         }
 
         return $items;

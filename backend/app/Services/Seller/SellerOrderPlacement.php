@@ -33,7 +33,7 @@ class SellerOrderPlacement
                 'inspection_note'      => null,
             ]);
             
-            $orderItem->product->decrementSoldQuantity($orderItem->product_id, $quantity);
+            $orderItem->product->decrementTotalSoldQuantity($orderItem->product_id, $quantity);
 
         });
     }

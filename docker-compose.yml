@@ -18,7 +18,7 @@ services:
       - LOG_CHANNEL=${LOG_CHANNEL}
       - LOG_LEVEL=${LOG_LEVEL}
       - APP_ENV=${APP_ENV}
-      - DB_CONNECTION=pgsql
+      - DB_CONNECTION=${DB_CONNECTION}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_DATABASE=${DB_DATABASE}

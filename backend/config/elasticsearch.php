@@ -99,7 +99,14 @@ return [
                         'product_id' => ['type' => 'integer'],
                         'sku' => ['type' => 'keyword'],
                         'slug' => ['type' => 'keyword'],
-                        'color_name' => ['type' => 'keyword'],
+                        'color_name' => [
+                            'type' => 'text',
+                            'analyzer' => 'autocomplete_analyzer',
+                            'search_analyzer' => 'autocomplete_search_analyzer',
+                            'fields' => [
+                                'keyword' => ['type' => 'keyword']
+                            ]
+                        ],
                         'color_code' => ['type' => 'keyword'],
                         'price_cents' => ['type' => 'integer'],
                         'is_popular' => ['type' => 'boolean'],

@@ -31,7 +31,7 @@ class OrderUpdateService implements OrderUpdateInterface
     {
         if($refundedQuantity > 0){
             $this->productRepository->incrementStockQuantity($productId, $refundedQuantity);
-            $this->productRepository->decrementSoldQuantity($productId, $refundedQuantity);
+            $this->productRepository->decrementTotalSoldQuantity($productId, $refundedQuantity);
         }
     }
 

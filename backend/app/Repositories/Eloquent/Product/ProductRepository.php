@@ -173,11 +173,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     {
         return $this->model->whereKey($productId)->decrement('stock_quantity', $quantity);
     }
-
-    public function incrementSoldQuantity($productId, $quantity)
-    {
-        return $this->model->whereKey($productId)->increment('sold_quantity', $quantity);
-    }
     
     public function incrementTotalSoldQuantity($productId, $quantity)
     {
@@ -186,11 +181,6 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     public function decrementTotalSoldQuantity($productId, $quantity)
     {
         return $this->model->whereKey($productId)->decrement('total_sold_quantity', $quantity);
-    }
-
-    public function decrementSoldQuantity($productId, $quantity)
-    {
-        return $this->model->whereKey($productId)->decrement('sold_quantity', $quantity);
     }
 
     public function getProductBySlug($storeId, $slug)

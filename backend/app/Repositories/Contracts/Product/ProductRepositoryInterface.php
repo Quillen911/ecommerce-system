@@ -22,8 +22,6 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
     // Stok ve satış işlemleri
     public function incrementStockQuantity($productId, $quantity);
     public function decrementStockQuantity($productId, $quantity);
-    public function incrementSoldQuantity($productId, $quantity);
-    public function decrementSoldQuantity($productId, $quantity);
     public function incrementTotalSoldQuantity($productId, $quantity);
     public function decrementTotalSoldQuantity($productId, $quantity);
 }
