@@ -33,7 +33,7 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
 
   if (isError && !categories.length)
     return (
-      <div className="text-sm text-gray-400">
+      <div className="text-sm text-white">
         Kategoriler yüklenemedi.
       </div>
     );
@@ -82,8 +82,8 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
               onMouseEnter={() => setActive(col.title)}
               className={`uppercase tracking-wide text-sm font-semibold transition-colors cursor-pointer ${
                 active === col.title
-                  ? "text-gray-300 border-b-2 border-white pb-1"
-                  : "text-white hover:text-gray-300"
+                  ? "text-black border-b-2 border-black pb-1"
+                  : "text-black hover:text-gray-300"
               }`}
             >
               {col.title}
@@ -94,7 +94,7 @@ export default function CategoryDropdown({ isMobile = false }: Props) {
 
       {active && (
         <div
-          className="fixed left-0 top-[64px] w-screen bg-[#111] text-gray-200 z-50 border-t border-neutral-800 shadow-2xl animate-fadeSlideDown"
+          className="fixed left-0 top-[64px] w-screen bg-black text-black z-50 border-t border-neutral-800 shadow-2xl animate-fadeSlideDown"
           onMouseEnter={() => setActive(active)}
         >
           <div className="max-w-[1400px] mx-auto px-[8vw] py-5">

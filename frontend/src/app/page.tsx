@@ -7,6 +7,10 @@ import CategorySection from '@/components/home/CategorySection'
 import PopulerProductSection from '@/components/home/PopulerProductSection'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCategory } from '@/contexts/CategoryContext'
+import ConditionalHeader from '@/components/header/ConditionalHeader'
+import GalleryLayout from '@/components/home/ImageHoverCard'
+import SpaceComponent from '@/components/home/SpaceComponent'
+import ProVideo from '@/components/ui/ProVideo'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
@@ -30,11 +34,24 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-[var(--main-bg)] text-[var(--text)]">
-      <CampaignBanner />
+    <div className="bg-white text-[var(--text)]">
       <HeroSection />
       <CategorySection />
       <PopulerProductSection />
+      <ProVideo
+        title="Ürün tanıtım videosu"
+        poster="/images/video-poster.jpg"
+        captionsSrc="/images/categories/1.png"
+        sources={[
+          { src: '/video/hero-1080.mp4', type: 'video/mp4' },
+          { src: '/video/hero-720.webm', type: 'video/webm' }
+        ]}
+        autoPlay={true}
+        loop={true}
+        muted={true}
+      />
+      <GalleryLayout />
+      <SpaceComponent />
     </div>
   )
 }

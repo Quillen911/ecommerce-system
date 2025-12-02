@@ -14,6 +14,9 @@
   --accent-dark: #0F172A;
   --border: #E5E7EB;
   --danger: #9b1818;
+  --campaign-bg: #B28B6D;
+  --campaign-header-bg: #836751;
+  --campaign-light-bg: #ebebe7;
 }
 
 @keyframes fadeSlideDown {

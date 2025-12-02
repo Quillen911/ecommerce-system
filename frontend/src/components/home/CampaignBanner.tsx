@@ -21,7 +21,7 @@ export default function CampaignBanner({ className }: CampaignBannerProps) {
   if (campaigns.length === 0) return null
 
   return (
-    <div className="bg-black py-2 w-full overflow-x-hidden">
+    <div className="bg-[var(--campaign-bg)] py-2 w-full overflow-x-hidden">
       <div className="max-w-10xl mx-auto px-3 sm:px-4">
         <div className="relative overflow-hidden">
           <div className="flex animate-marquee whitespace-nowrap">

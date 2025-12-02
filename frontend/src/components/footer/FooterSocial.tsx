@@ -3,7 +3,7 @@ import { FaTwitter, FaInstagram, FaGithub } from "react-icons/fa";
 export default function FooterSocial() {
   return (
     <div className="text-center sm:text-left">
-      <h3 className="font-semibold mb-3 text-lg">Sosyal Medya</h3>
+      <h3 className="font-semibold mb-3 text-lg text-black">Sosyal Medya</h3>
       <div className="flex justify-center sm:justify-start gap-5 text-2xl">
         <a
           href="https://twitter.com"

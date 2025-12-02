@@ -29,7 +29,7 @@ export default function Header() {
   }, [mobileOpen]);
 
   return (
-    <header className="bg-[var(--main-bg)] text-[var(--text)] sticky top-0 z-50 border-b border-neutral-800">
+    <header className="bg-white text-[var(--text)] sticky top-0 z-50">
       <div className="max-w-[1800px] mx-auto px-4 md:px-4 ">
         <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center">
@@ -54,17 +54,17 @@ export default function Header() {
               onClick={() => setMobileOpen((prev) => !prev)}
             >
               <span
-                className={`w-6 h-[2px] bg-white rounded transition-all duration-300 ${
+                className={`w-6 h-[2px] bg-black rounded transition-all duration-300 ${
                   mobileOpen ? "rotate-45 translate-y-[7px]" : ""
                 }`}
               />
               <span
-                className={`w-6 h-[2px] bg-white rounded transition-all duration-300 ${
+                className={`w-6 h-[2px] bg-black rounded transition-all duration-300 ${
                   mobileOpen ? "opacity-0" : ""
                 }`}
               />
               <span
-                className={`w-6 h-[2px] bg-white rounded transition-all duration-300 ${
+                className={`w-6 h-[2px] bg-black rounded transition-all duration-300 ${
                   mobileOpen ? "-rotate-45 -translate-y-[7px]" : ""
                 }`}
               />

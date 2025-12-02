@@ -5,6 +5,7 @@ import { CategoryProvider } from "@/contexts/CategoryContext";
 import ConditionalHeader from "@/components/header/ConditionalHeader";
 import CondFooter from "@/components/footer/CondFooter";
 import { Toaster } from "sonner";
+import CampaignBanner from "../home/CampaignBanner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <QueryProvider>
         <CategoryProvider>
+          <CampaignBanner />
           <ConditionalHeader />
 
           <main className="flex-1 min-h-screen bg-[var(--main-bg)]">

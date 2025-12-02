@@ -1,7 +1,7 @@
 export default function FooterLinks() {
   return (
     <div className="text-center sm:text-left">
-      <h3 className="font-semibold mb-3 text-lg">Keşfet</h3>
+      <h3 className="font-semibold mb-3 text-lg text-black">Keşfet</h3>
       <ul className="space-y-2">
         <li>
           <a href="/" className="hover:text-gray-400 block">

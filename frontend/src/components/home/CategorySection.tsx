@@ -10,11 +10,14 @@ export interface CategoryProps {
 export default function CategorySection({ className }: CategoryProps) {
   const { data: mainData, isLoading, error } = useMainData()
   if (error) return null
-  if (isLoading) return (
-    <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
-        <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">Yükleniyor…</p>
-    </div>
-  )
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+        <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 animate-pulse">
+          Yükleniyor…
+        </p>
+      </div>
+    )
 
   const categories = [
     ...new Map(
@@ -25,41 +28,31 @@ export default function CategorySection({ className }: CategoryProps) {
   ]
 
   return (
-    <div className="relative flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-10 py-12 sm:py-20 bg-[var(--main-bg)] w-full overflow-hidden">
-      <h2 className="w-full text-center text-2xl sm:text-3xl font-sans font-bold text-white mb-10 sm:mb-16">
-        KATEGORİLER
-      </h2>
-
+    <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-items-center gap-6 sm:gap-8 md:gap-10 px-4 sm:px-8 py-2 sm:py-5 bg-white w-full overflow-hidden">
       {categories?.map((category) => {
         let imageSrc = '/images/categories/default.png'
-
-        if (category.title === 'Jean') {
-          imageSrc = '/images/categories/Jean.png'
-        } else if (category.title === 'Eşofman Takım') {
-          imageSrc = '/images/categories/EsofmanTakim.png'
-        } else if (category.title === 'Keten') {
-          imageSrc = '/images/categories/KetenPantolon.png'
-        }
+        if (category.title === 'Jean') imageSrc = '/images/categories/1.png'
+        else if (category.title === 'Eşofman Takım') imageSrc = '/images/categories/2.png'
+        else if (category.title === 'Keten') imageSrc = '/images/categories/3.png'
 
         return (
           <Link
             key={category?.slug}
             href={`/${category?.slug}`}
-            className="cursor-pointer transition-all duration-300 transform hover:scale-[1.02] flex flex-col items-center"
+            className="group cursor-pointer transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg flex flex-col items-center"
           >
-            <div className="w-[130px] sm:w-[150px] md:w-[180px] h-[160px] sm:h-[200px] md:h-[240px]">
+            <div className="relative w-[280px] sm:w-[320px] md:w-[360px] aspect-[3/4] overflow-hidden rounded-xl">
               <Image
                 src={imageSrc}
                 alt={category?.title}
-                width={150}
-                height={200}
-                className="object-cover w-full h-full rounded-md"
+                fill
+                sizes="(min-width:1024px) 360px, (min-width:640px) 320px, 280px"
+                className="object-cover transition-transform duration-300 group-hover:scale-105 group-active:scale-110"
               />
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/40 text-white px-3 py-1 rounded-md backdrop-blur-sm">
+                <p className="text-lg font-semibold text-center">{category?.title}</p>
+              </div>
             </div>
-
-            <p className="font-medium text-lg text-white mt-4 sm:mt-6">
-              {category?.title}
-            </p>
           </Link>
         )
       })}

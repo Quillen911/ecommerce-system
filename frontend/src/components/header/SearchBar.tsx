@@ -34,7 +34,7 @@ export default function SearchBox() {
         <div className="flex items-center gap-2 flex-grow justify-start">
           <div className="relative">
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black cursor-pointer"
               onClick={handleSearch}
               fill="none"
               stroke="currentColor"
@@ -54,7 +54,7 @@ export default function SearchBox() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleEnter}
-              className="w-full sm:w-64 pl-10 pr-3 py-2 rounded-xl focus:outline-none bg-black text-white text-sm sm:text-base"
+              className="w-full sm:w-64 pl-10 pr-3 py-2 rounded-xl focus:outline-none bg-white text-black text-sm sm:text-base border border-gray-900 border-2"
             />
           </div>
         </div>
