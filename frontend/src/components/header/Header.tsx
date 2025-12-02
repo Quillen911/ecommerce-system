@@ -9,6 +9,7 @@ import UserMenu from "./UserMenu";
 import CartButton from "./CartButton";
 import SearchBar from "./SearchBar";
 import CategoryDropdown from "./CategoryDropdown";
+import CampaignBanner from "../home/CampaignBanner";
 
 export default function Header() {
   const { data: user, isLoading } = useMe();
@@ -30,6 +31,7 @@ export default function Header() {
 
   return (
     <header className="bg-white text-[var(--text)] sticky top-0 z-50">
+      {!mobileOpen && <CampaignBanner />}
       <div className="max-w-[1800px] mx-auto px-4 md:px-4 ">
         <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center">
@@ -73,9 +75,10 @@ export default function Header() {
         </div>
 
         {mobileOpen && (
-          <div className="lg:hidden fixed inset-x-0 top-16 bg-neutral-900 text-white py-6 px-6 space-y-6 border-t border-neutral-700 animate-fadeIn overflow-y-auto max-h-[calc(100vh-4rem)]">
+          <div className="lg:hidden fixed inset-x-0 top-16 bg-neutral-900 text-white py-6 px-6 
+          space-y-6 border-t border-neutral-700 animate-fadeIn overflow-y-auto 
+          max-h-[calc(100vh-4rem)]">
             <SearchBar />
-            
             <div className="pt-4 h-[calc(100vh-6rem)] overflow-y-auto border-t border-neutral-800">
               <CategoryDropdown isMobile />
             </div>

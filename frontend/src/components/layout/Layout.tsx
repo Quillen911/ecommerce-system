@@ -6,24 +6,30 @@ import ConditionalHeader from "@/components/header/ConditionalHeader";
 import CondFooter from "@/components/footer/CondFooter";
 import { Toaster } from "sonner";
 import CampaignBanner from "../home/CampaignBanner";
+import { useEffect, useState } from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  if (!mounted) {
+    return null
+  }
   return (
-    <>
-      <Toaster position="top-right" richColors closeButton />
+<>
+  <Toaster />
 
-      <QueryProvider>
-        <CategoryProvider>
-          <CampaignBanner />
-          <ConditionalHeader />
+  <QueryProvider>
+    <CategoryProvider>
+      <ConditionalHeader />
 
-          <main className="flex-1 min-h-screen bg-[var(--main-bg)]">
-            {children}
-          </main>
+      <main>
+        {children}
+      </main>
 
-          <CondFooter />
-        </CategoryProvider>
-      </QueryProvider>
-    </>
+      <CondFooter />
+    </CategoryProvider>
+  </QueryProvider>
+</>
   );
 }

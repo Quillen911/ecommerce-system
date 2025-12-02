@@ -29,7 +29,7 @@ export default function CategoryPageRoute({ params, searchParams }: PageProps) {
 }
 
 function CategoryPage({ categoryProducts, isLoading }: { categoryProducts: any; isLoading: boolean }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => setHasMounted(true), []);
